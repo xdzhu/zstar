@@ -19,7 +19,7 @@ import argparse
 import os
 import sys
 
-from .. import __version__
+from . import __version__
 from .read_irrep import main as run_read_irrep_cli
 from .calc_kappa import deal_q_vector as run_calc_kappa
 from .gen_polar import gen_polar as run_gen

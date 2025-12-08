@@ -51,14 +51,14 @@ except Exception as exc:
 
 # 可选导入：用于 smodes 旧实现（如果你保留了原始逻辑）
 try:
-    import get_wyckoff  # noqa: F401  # 仅用于兼容旧逻辑；新(db)模式不需要
+    from . import get_wyckoff  # noqa: F401  # 仅用于兼容旧逻辑；新(db)模式不需要
 except Exception:
     # 非强制依赖
     get_wyckoff = None  # type: ignore
 
 # 数据库模块（必需）；若缺失或 API 不全，会给出清晰报错
 try:
-    import group_modesDB  # 请确保该文件提供数据库或相关函数
+    from . import group_modesDB  # 请确保该文件提供数据库或相关函数
 except Exception as exc:
     raise RuntimeError("未找到 group_modesDB.py；db 模式需要该数据库。") from exc
 

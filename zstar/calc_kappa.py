@@ -3,10 +3,10 @@ import re
 import math
 import shutil
 import numpy as np
-import read_irrep
-import get_wyckoff
+from . import read_irrep
+from . import get_wyckoff
 import matplotlib.pyplot as plt
-from stru_analyzer import stru_analyzer, compute_cell_volume_from_returns  # 新增导入
+from .stru_analyzer import stru_analyzer, compute_cell_volume_from_returns  # 新增导入
 
 
 

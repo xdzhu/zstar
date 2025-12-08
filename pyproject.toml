@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zstar"
-version = "0.0.1"  # ★ 记得和 zstar/__init__.py 里的 __version__ 同步
+version = "0.0.2"
 description = "Zstar: A code for calculations of Born effective charge and dielectric responses."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -14,11 +14,6 @@ authors = [
   { name = "Xudong Zhu", email = "zhuxudong@ustc.edu.cn" }
 ]
 
-urls = {
-  Homepage  = "https://github.com/xdzhu/pykappa-dev",
-  Repository = "https://github.com/xdzhu/pykappa-dev"
-  # 如果你之后单独开 zstar 仓库，把这两个地址改成新仓库即可
-}
 
 dependencies = [
   "numpy>=1.26",
@@ -29,11 +24,14 @@ dependencies = [
   "pymatgen>=2024.0.0"
 ]
 
-# 命令行入口：安装后提供 `zstar` 这个命令
+
+[project.urls]
+Homepage = "https://github.com/xdzhu/zstar"
+Repository = "https://github.com/xdzhu/zstar"
+
 [project.scripts]
 zstar = "zstar.cli:zstar_cli"
 
-# 让 setuptools 自动找到 zstar 包（现在 lib 已经改名为 zstar 目录）
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["zstar*"]
+include = ["zstar"]

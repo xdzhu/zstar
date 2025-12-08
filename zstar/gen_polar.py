@@ -8,7 +8,7 @@ import tempfile
 import subprocess
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-from stru_analyzer import stru_analyzer
+from .stru_analyzer import stru_analyzer
 from typing import Optional, List
 import shlex
 from pathlib import Path

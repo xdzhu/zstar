@@ -1,8 +1,27 @@
+Metadata-Version: 2.4
+Name: zstar
+Version: 0.0.2
+Summary: Zstar: A code for calculations of Born effective charge and dielectric responses.
+Author-email: Xudong Zhu <zhuxudong@ustc.edu.cn>
+License: GPL-3.0
+Project-URL: Homepage, https://github.com/xdzhu/zstar
+Project-URL: Repository, https://github.com/xdzhu/zstar
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.26
+Requires-Dist: PyYAML>=5.4
+Requires-Dist: matplotlib>=3.3
+Requires-Dist: spglib>=2.6.0
+Requires-Dist: phonopy>=2.36
+Requires-Dist: pymatgen>=2024.0.0
+Dynamic: license-file
+
 <p align="center">
   <img src="docs/logo-zstar.png" alt="Zstar" width="280"><br>
   <b>Zstar</b>
   <br>
-  <sub>Version 0.0.2 · Zstar: A code for calculations of Born effective charge and dielectric responses</sub>
+  <sub>Version 0.0.1 · A Python Kit for Ab-initio Polarization & Phonon Analysis</sub>
 </p>
 
 <p align="center">
