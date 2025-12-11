@@ -53,8 +53,8 @@ def zstar_cli(argv=None) -> None:
                             help='Given your own INPUT file for ABACUS SCF')
     parser_gen.add_argument('--dim', type=int, help='Dim of your systems, 2 for 2D.', default=3)
     parser_gen.add_argument('--xc', type=str,
-                            help='dft_functional in abacus INPUT, default is pbesol',
-                            default='pbesol')
+                            help='dft_functional in abacus INPUT, default is pbe, you can change to pbesol',
+                            default='pbe')
     parser_gen.add_argument('--vdw', type=str, help='vdw in INPUT', default=None)
     parser_gen.add_argument('--init', type=bool,
                             help='init_chg in INPUT, set False to use atomic',
@@ -294,11 +294,11 @@ def zstar_cli(argv=None) -> None:
         )
 
     elif args.command == 'gen':
-        # -------- gen 参数预处理：dim=2 时默认只沿 z 方向位移 --------
+        # -------- gen 参数预处理：dim=2 时默认只沿 xy 方向位移 --------
         if args.move is None or str(args.move).strip() == "":
             if args.dim == 2:
-                args.move = "z"
-                print("[INFO] dim=2 and --move not specified; default to move along 'z' only.")
+                args.move = "x y"
+                print("[INFO] dim=2 and --move not specified; default to move along 'x y' only.")
             else:
                 args.move = "x y z"
                 print("[INFO] dim=3 and --move not specified; default to move along 'x y z'.")

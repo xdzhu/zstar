@@ -619,14 +619,24 @@ def deal_poalr_no_move(nscf_calculator='abacus'):
 def deal_polar(cord_type,  P_0, Quanta_a, Quanta_b, Quanta_c, transformation_matrix,
                nscf_calculator='abacus', disp_A=0.01):
     """
-    ABACUS：保持旧流程（(e/Ω).bohr），Z = dP_transformed / (Δu_bohr)
-    PyATB ：读取 {dir}/pyatb/Out/Polarization/polarization.dat（C/m^2）
-            体积与晶格从 ./0.no-move/pyatb/Out/input.json
-            Z* = (Ω/e) * ΔP / Δu   （单位 e）
+    ABACUS / PyATB 统一：都在 C/m^2 单位下处理极化，再用
+        Z* = (Ω/e) * ΔP / Δu
+    得到 Z*（单位 e）
+
+    参数:
+      cord_type           : {'cart': Δu(Å)} 或类似
+      P_0                 : 基态极化 [P0_a, P0_b, P0_c] (C/m^2)
+      Quanta_a,b,c        : 极化量子 (C/m^2)
+      transformation_matrix:
+          3x3, 行为 a^, b^, c^（笛卡尔单位向量）
+      nscf_calculator     : 'abacus' 或 'pyatb'
+      disp_A              : 默认位移 0.01 Å
     """
 
     nscf = str(nscf_calculator).lower().strip()
     prefixes = ['x', 'y', 'z']
+
+    # ====================== PyATB 分支（基本不动） ======================
     if nscf == 'pyatb':
         # ----- 1) 读取三个位移目录的极化（C/m^2），并与 P_0 做最近支展开 -----
         dP = {}
@@ -643,7 +653,7 @@ def deal_polar(cord_type,  P_0, Quanta_a, Quanta_b, Quanta_c, transformation_mat
                 get_distance_periodic_polar(Pc, P_0[2], Quanta_c),
             ]
 
-        # ----- 2) 晶格单位向量 & 体积： 当前目录向下 -> 向上到 0.no-move 搜索 input.json 获取数据
+        # ----- 2) 晶格单位向量 & 体积： 当前目录向下 -> 向上到 0.no-move 搜索 input.json 获取数据 -----
         json_path = _find_downwards_file(['Out','input.json'], max_depth=6)
         if json_path is None:
             json_path = _find_upwards_file(['0.no-move','pyatb','Out','input.json'], max_up=4)
@@ -665,22 +675,70 @@ def deal_polar(cord_type,  P_0, Quanta_a, Quanta_b, Quanta_c, transformation_mat
         display_results("Z* Matrix without Numerical Errors (in e)", Z_filtered)
         return Z_filtered
 
-    # ----- ABACUS 分支（保持旧逻辑，不动你的方法学） -----
-    polar_pattern = r"P =\s+(-?\d+\.\d+)\s+\(mod\s+(-?\d+\.\d+)\)\s+\(\s*(-?\d+\.\d+),\s+(-?\d+\.\d+),\s+(-?\d+\.\d+)\)\s+\(e/Omega\).bohr"
+    # ====================== ABACUS 分支：改成读 C/m^2 ======================
+    # 0) 先取 0.no-move 的体积（Bohr^3 -> m^3）
+    base0 = os.path.abspath("../0.no-move")
+    out0 = find_directories_with_prefix(base0, "OUT.")
+    if out0 is None:
+        raise FileNotFoundError(f"未在 {base0} 下找到 OUT.* 目录。")
 
-    polar_data = extract_polarization_data(prefixes, polar_pattern)
-    dP = calculate_dP(polar_data, P_0, [Quanta_a, Quanta_b, Quanta_c])
-    dP_transformed = compute_delta_polar(dP, transformation_matrix)
+    scf_log0 = os.path.join(out0, "running_scf.log")
+    lattice_vectors0, lattice_constant0, volume_bohr3_0 = extract_lattice_vectors(
+        scf_log0,
+        r"Lattice vectors: .*",
+        r"lattice constant \(Bohr\) = (\S+)",
+        r"Volume \(Bohr\^3\) = (\S+)"
+    )
+    volume_m3 = float(volume_bohr3_0) * (bohr_radius ** 3)
 
-    display_results("Polarization Differences in Cartesian Coordinates", dP_transformed)
+    # 1) abacus 可能输出的三种单位：
+    patt_cm2  = rf"P =\s*({_NUM})\s*\(mod\s*({_NUM})\)\s*\(\s*({_NUM}),\s*({_NUM}),\s*({_NUM})\)\s*C/m\^2"
+    patt_eob2 = rf"P =\s*({_NUM})\s*\(mod\s*({_NUM})\)\s*\(\s*({_NUM}),\s*({_NUM}),\s*({_NUM})\)\s*e/bohr\^2"
+    patt_eoom = rf"P =\s*({_NUM})\s*\(mod\s*({_NUM})\)\s*\(\s*({_NUM}),\s*({_NUM}),\s*({_NUM})\)\s*\(e/Omega\)\.bohr"
+    conv_e_per_bohr2_to_SI = e_charge / (bohr_radius ** 2)  # (e/bohr^2) -> C/m^2
 
-    # 旧法：Δu（Bohr）= Δu(Å) * A_to_bohr
-    disp_bohr = float(cord_type.get('cart', 0.01)) * A_to_bohr
-    Z = dP_transformed / disp_bohr
+    # 2) 读取 x / y / z 三个位移目录中的极化数据（统一转为 C/m^2）
+    dP = {}
+    for pre in prefixes:
+        base = os.path.abspath(f"./{pre}")
+        out_path = find_directories_with_prefix(base, "OUT.")
+        if out_path is None:
+            raise FileNotFoundError(f"未在 {base} 下找到 OUT.* 目录。")
+
+        # running_nscf.log 里拿极化（与 deal_polar_solo / deal_poalr_no_move 同一套路）
+        try:
+            Pa, Pb, Pc, Qa, Qb, Qc = extract_data(out_path, patt_cm2)
+        except Exception:
+            try:
+                Pa, Pb, Pc, Qa, Qb, Qc = extract_data(out_path, patt_eob2)
+                Pa *= conv_e_per_bohr2_to_SI; Pb *= conv_e_per_bohr2_to_SI; Pc *= conv_e_per_bohr2_to_SI
+                Qa *= conv_e_per_bohr2_to_SI; Qb *= conv_e_per_bohr2_to_SI; Qc *= conv_e_per_bohr2_to_SI
+            except Exception:
+                Pa, Pb, Pc, Qa, Qb, Qc = extract_data(out_path, patt_eoom)
+                Pa *= conv_e_per_bohr2_to_SI; Pb *= conv_e_per_bohr2_to_SI; Pc *= conv_e_per_bohr2_to_SI
+                Qa *= conv_e_per_bohr2_to_SI; Qb *= conv_e_per_bohr2_to_SI; Qc *= conv_e_per_bohr2_to_SI
+
+        # 与基态做最近支展开（单位全是 C/m^2）
+        dP[pre] = [
+            get_distance_periodic_polar(Pa, P_0[0], Quanta_a),
+            get_distance_periodic_polar(Pb, P_0[1], Quanta_b),
+            get_distance_periodic_polar(Pc, P_0[2], Quanta_c),
+        ]
+
+    # 3) 晶格->笛卡尔变换（这里用 deal_poalr_no_move 传进来的 transformation_matrix，已经是单位向量）
+    dP_transformed = compute_delta_polar(dP, transformation_matrix)  # (3,3) C/m^2
+    display_results("Polarization Differences in Cartesian Coordinates (C/m^2)", dP_transformed)
+
+    # 4) Z* 统一用 SI 公式： Z* = (Ω/e) * ΔP / Δu
+    disp_m = float(cord_type.get('cart', disp_A)) * 1e-10  # Å -> m
+    factor = volume_m3 / e_charge                          # (m^3/C)
+    Z = factor * (dP_transformed / disp_m)                 # in e
 
     Z_filtered = filter_small_elements(Z, Z_relative_tolerance)
-    display_results("Z* Matrix without Numerical Errors", Z_filtered)
+    display_results("Z* Matrix without Numerical Errors (in e)", Z_filtered)
     return Z_filtered
+
+
 
 
 
@@ -1490,24 +1548,26 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
 
             # 调用 verify_born_symmetry 的对称重建（会写 Z-BORN-symm.out 且满足电中性）
             try:
-                from verify_born_symmetry import run_symcheck
+                from .verify_born_symmetry import run_symcheck
 
                 # 只在 all.out 存在时才传给 run_symcheck；否则省略该参数
                 kwargs = dict(
-                    stru=os.path.join('0.no-move', 'STRU'),
-                    reduced='Z-BORN-reduced.out',
+                    stru=os.path.join("0.no-move", "STRU"),
+                    reduced="Z-BORN-reduced.out",
                     symprec=symm_tol,
-                    out='born_symmetry_report.txt',
-                    json_path='born_symmetry_report.json',
-                    csv_path=None
+                    out="born_symmetry_report.txt",
+                    json_path="born_symmetry_report.json",
+                    csv_path=None,
                 )
-                if os.path.isfile('Z-BORN-all.out'):
-                    kwargs['all'] = 'Z-BORN-all.out'   # 注意键名与 run_symcheck 的参数一致
+                if os.path.isfile("Z-BORN-all.out"):
+                    # 注意键名与 run_symcheck 的参数一致
+                    kwargs["all"] = "Z-BORN-all.out"
 
                 run_symcheck(**kwargs)
                 print("[symm] Reconstructed Z-BORN-symm.out via symmetry (reduced-only run).")
             except Exception as e:
                 print(f"[symm][ERROR] Symmetry reconstruction failed: {e}")
+
 
 
             # =========================
@@ -1753,7 +1813,7 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
             if not os.path.isfile(symm_src):
                 if reduced_only:
                     try:
-                        from verify_born_symmetry import run_symcheck
+                        from .verify_born_symmetry import run_symcheck
                         run_symcheck(
                             stru=os.path.join('0.no-move', 'STRU'),
                             reduced='Z-BORN-reduced.out',
@@ -1826,114 +1886,7 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
     else:
         # 如果没有提供输入参数，添加默认的 cart 类型值
         deal_polar(cord_type)
-        
-"""
-    elif dimension == 2:
-        # # 检查当前目录中是否存在 '0.no-move' 文件夹
-        if '0.no-move' in os.listdir('.'):
-            f_stru = os.path.join('0.no-move', 'STRU')
-            star_atom_list, star_atom, star_atom_mass = get_star_atom(f_stru, symm_tol)
-            # print(star_atom_list, star_atom, star_atom_mass)
-            # 遍历当前目录中的所有一级子文件夹，除了 '0.no-move'
-            init_subfolders = [f.name for f in os.scandir('.') if f.is_dir() and f.name != '0.no-move']
-            # 对子文件夹列表进行排序
-            subfolders = sorted(init_subfolders, key=sort_key)
 
-            xx_len = 8
-            header = f"{'No. Atom': <8} {'xx': >{xx_len}} {'xy': >{xx_len}} {'xz': >{xx_len}} {'yx': >{xx_len}} {'yy': >{xx_len}} {'yz': >{xx_len}} {'zx': >{xx_len}} {'zy': >{xx_len}} {'zz': >{xx_len}}\n"
-
-            z_born_reduced_data = [header]
-            dielectric_data_processed = None
-
-            with open('Z-BORN-all.out', 'w') as file_all, open('Z-BORN-reduced.out', 'w') as file_reduced:
-                file_all.write(header)
-                file_reduced.write(header)
-                
-                print(f"Now processing folder: 0.no-move")
-                P_0_a, P_0_b, P_0_c, Quanta_a, Quanta_b, Quanta_c, a, b, c, volume  = deal_polar_2d_no_move(cord_type)  # 调用 deal_polar 函数
-                for folder in subfolders:
-                    os.chdir(folder)  # 进入子文件夹
-                    print(f"Now processing folder: {folder}")
-                    Z = deal_polar_2d_born(cord_type, P_0_a, P_0_b, P_0_c, Quanta_a, Quanta_b, Quanta_c, a, b, c, volume)  # 调用 deal_polar 函数
-                    os.chdir('..')  # 返回上级目录
-
-                    folder_number = folder.split('.')[0]
-                    formatted_row = ' '.join([f"{element: >{xx_len}.3f}" for row in Z for element in row])
-
-                    # 对于 Z-BORN-reduced.out，仅当在 star_atom_list 中时写入
-                    if int(folder_number) in star_atom_list:
-                        formatted_folder = f"*{folder_number: >4} {folder.split('.')[1]: <3}"
-                        z_born_reduced_data.append(formatted_row + '\n')
-                        file_reduced.write(f"{formatted_folder} {formatted_row}\n")  # 向文件写入完整的行
-                        file_all.write(f"{formatted_folder} {formatted_row}\n")
-                    else:
-                        formatted_folder = f" {folder_number: >4} {folder.split('.')[1]: <3}"
-                        file_all.write(f"{formatted_folder} {formatted_row}\n")
-
-
-                # 处理 dielectric_function_real_part.dat
-                if 'pyatb' in os.listdir('0.no-move'):
-                    with open('0.no-move/pyatb/Out/Optical_Conductivity/dielectric_function_real_part.dat', 'r') as file:
-                        lines = file.readlines()
-                        dielectric_line = lines[1].strip().split()[1:10]
-                        dielectric_data = [float(x) for x in dielectric_line]
-                        dielectric_matrix = np.array(dielectric_data).reshape(3, 3)
-                        dielectric_matrix_zero = filter_small_elements(dielectric_matrix, Z_relative_tolerance)
-                        formatted_dielectric = ' '.join([f"{x: >{xx_len}.3f}" for x in dielectric_matrix_zero.flatten()])
-                        dielectric_data_processed = formatted_dielectric + '\n'
-
-            # 新的标题行，用于 BORN-for-phonopy.out
-            new_header = f"{'#': <4} {'xx': <{xx_len}} {'xy': <{xx_len}} {'xz': <{xx_len}} {'yx': <{xx_len}} {'yy': <{xx_len}} {'yz': <{xx_len}} {'zx': <{xx_len}} {'zy': <{xx_len}} {'zz': <{xx_len}}\n"
-
-            # 写入新文件 BORN-for-phonopy.out，使用新的标题行
-            if dielectric_data_processed:
-                with open('BORN-for-phonopy.out', 'w') as file:
-                    file.write(new_header)
-                    file.write(dielectric_data_processed)
-                    file.writelines(z_born_reduced_data[1:])  # 从第二行开始写入，排除原始标题行
-            # === after finishing per-atom loop and before dielectric/BORN-for-phonopy ===
-
-            # 统计当前实际计算到的原子编号
-            computed_indices = sorted([e['idx'] for e in entries])
-
-            # 从 reduced_atom.out 读到 (总原子数, reduced 集合)
-            tot_natoms, reduced_set = _parse_reduced_atom_out("reduced_atom.out")
-
-            is_partial = (tot_natoms > 0 and len(computed_indices) != tot_natoms)
-            matches_reduced = (set(computed_indices) == set(reduced_set)) if reduced_set else False
-
-            if is_partial and matches_reduced:
-                print(f"[symm] Detected reduced-only calculation: "
-                      f"{len(computed_indices)}/{tot_natoms} atoms computed (== reduced set).")
-                print("[symm] Reconstructing full Z via symmetry + acoustic sum rule...")
-
-                # 直接调用 verify_born_symmetry.py 中的主程序（已负责写 Z-BORN-symm.out 且做电中性修正）
-                try:
-                    from verify_born_symmetry import run_symcheck
-                    run_symcheck(
-                        stru=os.path.join('0.no-move', 'STRU'),   # 基准结构
-                        reduced='Z-BORN-reduced.out',             # 你刚刚写出的 reduced Born
-                        all='Z-BORN-all.out',                     # 仅用于做差评估；即便不全也可
-                        symprec=symm_tol,
-                        out='born_symmetry_report.txt',
-                        json_path='born_symmetry_report.json',
-                        csv_path=None
-                    )
-                    print("[symm] Done. See Z-BORN-symm.out")
-
-                    # reduced-only 场景下，不保留 Z-BORN-all*.out，以免误导
-                    for bad in ('Z-BORN-all.out', 'Z-BORN-all-neutral.out'):
-                        if os.path.exists(bad):
-                            try:
-                                os.remove(bad)
-                                print(f"[symm] Removed {bad} (reduced-only run).")
-                            except Exception as e:
-                                print(f"[symm][WARN] Failed to remove {bad}: {e}")
-
-                except Exception as e:
-                    print(f"[symm][ERROR] Symmetry reconstruction failed: {e}")
-                    print("             You can also run `python verify_born_symmetry.py` manually.")
-"""
 
 
 if __name__ == "__main__":
