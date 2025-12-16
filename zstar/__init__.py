@@ -1,7 +1,7 @@
 """
-Zstar: A code for calculations of Born effective charge and dielectric responses.
+ZStar: A code for calculations of Born effective charge and dielectric responses.
 
-Zstar provides a set of tools for computing Born effective charge, polarization
+ZStar provides a set of tools for computing Born effective charge, polarization
 and phonon-related properties of materials from first-principles calculations. 
 It is designed to simplify and automate data generation, analysis, and post-
 processing for materials scientists and engineers.
@@ -30,7 +30,7 @@ See the accompanying LICENSE file for details.
 
 # NOTE:
 # Keep this version in sync with the version declared in pyproject.toml.
-__version__ = "0.0.3"
+__version__ = "0.0.5"
 
 # ---------------------------------------------------------------------------
 # Public API surface

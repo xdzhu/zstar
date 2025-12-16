@@ -51,7 +51,8 @@ def zstar_cli(argv=None) -> None:
     parser_gen = subparsers.add_parser('gen', help='Generate polarization data.')
     parser_gen.add_argument('-i', '--input', type=str, default=None,
                             help='Given your own INPUT file for ABACUS SCF')
-    parser_gen.add_argument('--dim', type=int, help='Dim of your systems, 2 for 2D.', default=3)
+    parser_gen.add_argument('--dim', type=int, help='Dim of your systems, 2 for 2D, default is 3.', default=3)
+    parser_gen.add_argument('--method', type=str, help='Type of finite difference method, by forward or central, with pricesion of first and seconde order.', default='forward')
     parser_gen.add_argument('--xc', type=str,
                             help='dft_functional in abacus INPUT, default is pbe, you can change to pbesol',
                             default='pbe')
@@ -102,14 +103,15 @@ def zstar_cli(argv=None) -> None:
     gen_calc.add_argument('--abacus', action='store_true',
                           help='Use ABACUS for NSCF Berry phase.')
     gen_calc.add_argument('--pyatb', action='store_true',
-                          help='Use PyATB for NSCF Berry phase.')
+                          help='Use PyATB for NSCF Berry phase [Recommended].')
 
     # ---------------- deal ----------------
     parser_deal = subparsers.add_parser(
         'deal', help='Deal with polarization data to get BORN effective charge.'
     )
     parser_deal.add_argument('--dim', type=int,
-                             help='Dim of your systems, 2 for 2D.', default=3)
+                             help='Dim of your systems, 2 for 2D, default is 3.', default=3)
+    parser_deal.add_argument('--method', type=str, help='Finite difference method, by forward or central, with pricesion of first and seconde order. To save calculation resource you can choose forward', default='forward')
     parser_deal.add_argument('--stru', help='Path to the STRU file', default='STRU')
     parser_deal.add_argument('--symmprec', '--tol', type=float,
                              help='Symmetry precision of STRU, default is 1e-3',
@@ -120,7 +122,7 @@ def zstar_cli(argv=None) -> None:
     deal_calc.add_argument('--abacus', action='store_true',
                            help='Use ABACUS for NSCF Berry phase.')
     deal_calc.add_argument('--pyatb', action='store_true',
-                           help='Use PyATB for NSCF Berry phase.')
+                           help='Use PyATB for NSCF Berry phase [Recommended].')
 
     # ---------------- bornsym ----------------
     parser_borns = subparsers.add_parser(
@@ -154,7 +156,7 @@ def zstar_cli(argv=None) -> None:
     born_calc.add_argument('--abacus', action='store_true',
                            help='Use ABACUS for NSCF Berry phase.')
     born_calc.add_argument('--pyatb', action='store_true',
-                           help='Use PyATB for NSCF Berry phase.')
+                           help='Use PyATB for NSCF Berry phase [Recommended].')
 
     # ---------------- polar ----------------
     parser_polar = subparsers.add_parser('polar', help='Polarization data only.')
@@ -170,7 +172,7 @@ def zstar_cli(argv=None) -> None:
     polar_calc.add_argument('--abacus', action='store_true',
                             help='Use ABACUS for NSCF Berry phase.')
     polar_calc.add_argument('--pyatb', action='store_true',
-                            help='Use PyATB for NSCF Berry phase.')
+                            help='Use PyATB for NSCF Berry phase [Recommended].')
 
     # ---------------- ph ----------------
     parser_ph = subparsers.add_parser('ph', help='Generate phonon data.')
@@ -311,6 +313,11 @@ def zstar_cli(argv=None) -> None:
         input_mode = args.input_mode or nscf_calculator
         input_sets = args.input_sets
 
+        if args.method in ["center", "central"]:
+            method_fd = "central"
+        else:
+            method_fd = "forward"
+
         run_gen(
             f_stru=args.stru,
             symm_tol=args.symmprec,
@@ -326,7 +333,8 @@ def zstar_cli(argv=None) -> None:
             nscf_calculator=nscf_calculator,
             input_mode=input_mode,
             input_sets=input_sets,
-            extract_starred_atoms_only=args.reduce
+            extract_starred_atoms_only=args.reduce,
+            method=method_fd
         )
 
     elif args.command == 'ph':
@@ -351,10 +359,16 @@ def zstar_cli(argv=None) -> None:
         calc_flag = 'abacus' if getattr(args, 'abacus', False) else 'pyatb'
         running_type = 'solo' if getattr(args, 'solo', False) else None
 
+        if args.method in ["center", "central"]:
+            method_fd = "central"
+        else:
+            method_fd = "forward"
+
         kwargs = dict(
             f_stru=args.stru,
             symm_tol=args.symmprec,
             dimension=args.dim,
+            method=method_fd,
             running_type=running_type
         )
         if calc_flag:

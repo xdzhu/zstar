@@ -332,7 +332,7 @@ def gen_input_in_folder(k_grid, nscf_calculator='abacus', dimension=3, input_mod
                     output_file.write("calculation         scf\n")
                 elif line.startswith("out_chg "):
                     out_chg_found = True
-                    output_file.write("out_chg             1  10\n")
+                    output_file.write("out_chg             1\n")
                 elif line.startswith("kspacing "):
                     kspacing_found = True
                     output_file.write(f"kspacing           {k_grid}\n")
@@ -377,7 +377,7 @@ def gen_input_in_folder(k_grid, nscf_calculator='abacus', dimension=3, input_mod
             if not calculation_found:
                 output_file.write("calculation         scf\n")
             if not out_chg_found:
-                output_file.write("out_chg             1  10\n")
+                output_file.write("out_chg             1\n")
             if not xc_found and xc is not None:
                 output_file.write(f"dft_functional       {xc}\n")
             if not vdw_found and vdw is not None and dimension == 2:
@@ -483,7 +483,7 @@ def gen_input_in_folder(k_grid, nscf_calculator='abacus', dimension=3, input_mod
         input_file.write("stru_file           STRU\n")
         input_file.write("out_mat_hs2         1\n")
         input_file.write("out_mat_r           1\n")
-        input_file.write("out_chg             1  10\n\n")
+        input_file.write("out_chg             1\n\n")
         input_file.write("dft_functional      " + xc + "\n")
         input_file.write("kspacing            " + str(k_grid) + "\n")
         if vdw is not None and dimension == 2:
@@ -588,7 +588,8 @@ def gen_polar(f_stru="STRU",
     nscf_calculator='pyatb',
     input_mode='pyatb',
     input_sets=None,
-    extract_starred_atoms_only=False
+    extract_starred_atoms_only=False,
+    method='central'
     ):
     """
     Generate polar calculations for a given crystal structure.
@@ -870,16 +871,29 @@ def gen_polar(f_stru="STRU",
                 
                 cartesian_disp = move_length
                 move_vector_x, move_vector_y, move_vector_z = move_along_lattice_vector_cart(cartesian_disp, a, b, c)
-                move_directions = {
-                    'x': np.array(move_vector_x),
-                    'y': np.array(move_vector_y),
-                    'z': np.array(move_vector_z)
-                }
+                if method == 'forward':
+                    move_directions = {
+                        'x+': np.array(move_vector_x),
+                        'y+': np.array(move_vector_y),
+                        'z+': np.array(move_vector_z)
+                    }
+                elif method == 'central':
+                    move_vector_x_minus, move_vector_y_minus, move_vector_z_minus = move_along_lattice_vector_cart(-1*cartesian_disp, a, b, c)
+                    move_directions = {
+                        'x+': np.array(move_vector_x),
+                        'y+': np.array(move_vector_y),
+                        'z+': np.array(move_vector_z),
+                        'x-': np.array(move_vector_x_minus),
+                        'y-': np.array(move_vector_y_minus),
+                        'z-': np.array(move_vector_z_minus)
+                    }
+
+                # print(method, move_directions)
                 # 循环遍历不同方向
                 for direction, dx_Ang in move_directions.items():
                     #平移Angstrom单位
                     
-                    if direction in move_input:
+                    if any(char in direction for char in move_input):
                         direction_folder = f"{direction}"
                         # 检查是否存在 direction_folder
                         if os.path.exists(direction_folder) and os.path.isdir(direction_folder):

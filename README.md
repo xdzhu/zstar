@@ -2,7 +2,7 @@
   <img src="docs/logo-zstar.png" alt="Zstar" width="180"><br>
   <b>Zstar</b>
   <br>
-  <sub>Version 0.0.2 · Zstar: A code for calculations of Born effective charge and dielectric responses</sub>
+  <sub>Version 0.0.5 · ZStar: A code for calculations of Born effective charge and dielectric responses</sub>
 </p>
 
 <p align="center">
