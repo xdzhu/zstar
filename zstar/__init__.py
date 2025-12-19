@@ -30,7 +30,7 @@ See the accompanying LICENSE file for details.
 
 # NOTE:
 # Keep this version in sync with the version declared in pyproject.toml.
-__version__ = "0.0.5"
+__version__ = "0.0.7"
 
 # ---------------------------------------------------------------------------
 # Public API surface

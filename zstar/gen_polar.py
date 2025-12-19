@@ -518,6 +518,19 @@ def gen_input_in_folder(k_grid, nscf_calculator='abacus', dimension=3, input_mod
 
 
 
+
+
+def print_original_coordinates(element_coordinates, coords):
+    pick_index_atom = 0
+    for element, coordinates_list in element_coordinates.items():
+        print(f"\n{element}")
+        print("0.0")
+        print(len(coordinates_list))
+        for pick_coords in coordinates_list:
+            pick_index_atom += 1
+            my_string = '  '.join(['{:.12f}'.format(x) for x in pick_coords])
+            print(my_string)
+
 def print_modified_coordinates(element_coordinates, xxx_coords, index_atom, move_direction):
     pick_index_atom = 0
     for element, coordinates_list in element_coordinates.items():
@@ -534,7 +547,7 @@ def print_modified_coordinates(element_coordinates, xxx_coords, index_atom, move
                 print(my_string)
 
 
-def stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_mass, element_pp, element_orb):
+def stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_mass, element_pp, element_orb, coordinate_type):
     print("ATOMIC_SPECIES")
     for symbol, mass, pp in zip(element_symbols, element_mass, element_pp):
         print(f"{symbol}  {mass}  {pp}")
@@ -550,7 +563,7 @@ def stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_
     for vector in lattice_vectors:
         print('  '.join(['{:.12f}'.format(x) for x in vector]))
 
-    print("\nATOMIC_POSITIONS\nDirect")
+    print(f"\nATOMIC_POSITIONS\n{coordinate_type}")
     
     
 
@@ -778,7 +791,20 @@ def gen_polar(f_stru="STRU",
             current_dir = os.getcwd()
             f_stru_path = os.path.join(current_dir, f_stru)
             nomove_stru_path = os.path.join(nomove_folder, "STRU-original")
-            shutil.copy(f_stru, nomove_stru_path)
+
+            # 保存原来的标准输出
+            original_stdout = sys.stdout
+
+            try:
+                with open(nomove_stru_path, 'w') as file_out:
+                    # 重定向标准输出到文件
+                    sys.stdout = file_out
+                    stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_mass, element_pp, element_orb, coordinate_type)
+                    print_original_coordinates(element_coordinates, coords)
+            finally:
+                # 无论是否出错，都恢复标准输出
+                sys.stdout = original_stdout
+
             nomove_stru_path = os.path.join(nomove_folder, "STRU")
             shutil.copy(f_stru, nomove_stru_path)
             os.chdir(nomove_folder)
@@ -795,7 +821,21 @@ def gen_polar(f_stru="STRU",
         current_dir = os.getcwd()
         f_stru_path = os.path.join(current_dir, f_stru)
         nomove_stru_path = os.path.join(nomove_folder, "STRU-original")
-        shutil.copy(f_stru, nomove_stru_path)
+
+        # 保存原来的标准输出
+        original_stdout = sys.stdout
+
+        try:
+            with open(nomove_stru_path, 'w') as file_out:
+                # 重定向标准输出到文件
+                sys.stdout = file_out
+                stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_mass, element_pp, element_orb, coordinate_type)
+                print_original_coordinates(element_coordinates, coords)
+        finally:
+            # 无论是否出错，都恢复标准输出
+            sys.stdout = original_stdout
+
+        # shutil.copy(f_stru, nomove_stru_path)
         nomove_stru_path = os.path.join(nomove_folder, "STRU")
         shutil.copy(f_stru, nomove_stru_path)
         os.chdir(nomove_folder)
@@ -864,13 +904,28 @@ def gen_polar(f_stru="STRU",
                 f_stru_path = os.path.join(current_dir, f_stru)
 
                 reduced_stru_path = os.path.join(reduced_folder, "STRU-original")
-                shutil.copy(f_stru, reduced_stru_path)
+                # shutil.copy(f_stru, os.path.join(reduced_folder, "STRU-original-copy"))
+
+                # 保存原来的标准输出
+                original_stdout = sys.stdout
+
+                try:
+                    with open(reduced_stru_path, 'w') as file_out:
+                        # 重定向标准输出到文件
+                        sys.stdout = file_out
+                        stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_mass, element_pp, element_orb, coordinate_type)
+                        print_original_coordinates(element_coordinates, coords)
+                finally:
+                    # 无论是否出错，都恢复标准输出
+                    sys.stdout = original_stdout
+
 
                 # 进入文件夹
                 os.chdir(reduced_folder)
-                
+                print(f"STRU coordinate_type is {coordinate_type}")
                 cartesian_disp = move_length
                 move_vector_x, move_vector_y, move_vector_z = move_along_lattice_vector_cart(cartesian_disp, a, b, c)
+
                 if method == 'forward':
                     move_directions = {
                         'x+': np.array(move_vector_x),
@@ -888,7 +943,8 @@ def gen_polar(f_stru="STRU",
                         'z-': np.array(move_vector_z_minus)
                     }
 
-                # print(method, move_directions)
+                print(method, move_directions)
+                print(move_vector_x, move_vector_y, move_vector_z)
                 # 循环遍历不同方向
                 for direction, dx_Ang in move_directions.items():
                     #平移Angstrom单位
@@ -912,19 +968,25 @@ def gen_polar(f_stru="STRU",
 
                         print(f"移动方向: {direction}")
                         print("dx_Ang 数组:", dx_Ang)
-                        # 在这里可以使用 dx_Ang 进行相应的操作
-                        # 求解线性方程组 dx_Ang = lattice.matrix * dx_direct
-                        # dx_direct = np.linalg.solve(lattice_matrix.T, dx_Ang.T)
-                        # 计算晶格矩阵的逆矩阵,晶格坐标系下的位移
-                        inv_lattice_matrix = np.linalg.inv(lattice_matrix.T)
-                        dx_direct = np.dot(inv_lattice_matrix, dx_Ang)
-                        # 计算矢量的范数,设置相对阈值,将相对于矢量范数很小的分量置零
-                        norm_dx_direct = np.linalg.norm(dx_direct)
-                        relative_tolerance = 1e-4
-                        dx_direct[np.abs(dx_direct) < relative_tolerance * norm_dx_direct] = 0
-                        print("Solution for [", direction, "] displacement:", dx_direct) 
-                        xxx_coords = dx_direct + coords
-                        print("New coords:", xxx_coords)
+
+                        if coordinate_type == "Cartesian":
+                            # Cartesian 坐标系 直接相加
+                            xxx_coords = dx_Ang + coords
+                            # print("Old coords:", coords)
+                            # print(coordinate_type)
+                            # print("New coords:", xxx_coords)
+                        else:
+                            # direct 坐标系
+                            # 计算晶格矩阵的逆矩阵,晶格坐标系下的位移
+                            inv_lattice_matrix = np.linalg.inv(lattice_matrix.T)
+                            dx_direct = np.dot(inv_lattice_matrix, dx_Ang)
+                            # 计算矢量的范数,设置相对阈值,将相对于矢量范数很小的分量置零
+                            norm_dx_direct = np.linalg.norm(dx_direct)
+                            relative_tolerance = 1e-4
+                            dx_direct[np.abs(dx_direct) < relative_tolerance * norm_dx_direct] = 0
+                            xxx_coords = dx_direct + coords
+                            # print("Solution for [", direction, "] displacement:", dx_direct) 
+                            # print("New coords:", xxx_coords)
 
                         # 指定要写入的文件名
                         modified_stru = os.path.join(direction_folder, "STRU")
@@ -933,7 +995,7 @@ def gen_polar(f_stru="STRU",
                         with open(modified_stru, 'w') as file_out:
                             sys.stdout = file_out
                             # 修改 STRU 的函数，创建3个文件夹x,y,z，调用3次函数，请完善这一块代码
-                            stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_mass, element_pp, element_orb)
+                            stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_mass, element_pp, element_orb, coordinate_type)
                             print_modified_coordinates(element_coordinates, xxx_coords, index_atom, direction)
 
 

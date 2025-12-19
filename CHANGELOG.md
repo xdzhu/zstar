@@ -1,3 +1,11 @@
+## 0.0.7 — 2025-12-19
+
+- Really support auto detected Cartesian coordinates for STRU.
+
+## 0.0.6 — 2025-12-19
+
+- Fix auto detected Cartesian support for STRU.
+
 ## 0.0.5 — 2025-12-16
 
 - Implemented central FD method for second-order precision, set to `--method=central` in both `zstar gen` and `zstar deal` to run it, defalut still set as `--method=forward` to save computing resources.
