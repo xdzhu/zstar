@@ -1,4 +1,2 @@
 include README.md
-recursive-include scripts *
-recursive-include examples *
-recursive-include docs *
+recursive-include docs *.md *.png

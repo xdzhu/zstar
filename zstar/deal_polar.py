@@ -405,7 +405,7 @@ def extract_data(path, polar_pattern):
     print(f"[INFO] P_a = {P_a}, P_b = {P_b}, P_c = {P_c}")
     return P_a, P_b, P_c, Quanta_a, Quanta_b, Quanta_c
 
-def get_distance_periodic_polar(P_target, P_0, quanta):
+def old_round_get_distance_periodic_polar(P_target, P_0, quanta):
     # 转换为 float 类型数组
     P_target = np.array(P_target, dtype=float)
     P_0 = np.array(P_0, dtype=float)
@@ -420,9 +420,89 @@ def get_distance_periodic_polar(P_target, P_0, quanta):
     delta = P_target - P_0
 
     # 周期性调整到 [-quanta, quanta]
-    delta -= round(delta / (2 * quanta)) * 2 * quanta
+    delta -= round(delta / ( quanta)) * 2 * quanta
 
     return delta
+
+
+def get_distance_periodic_polar(P_target, P_0, quanta):
+    P_target = float(P_target)
+    P_0 = float(P_0)
+    quanta = float(quanta)
+
+    if np.isnan(P_target) or np.isnan(P_0) or np.isnan(quanta):
+        print(f"[WARN] NaN encountered: P_target={P_target}, P_0={P_0}, quanta={quanta}")
+        return np.nan
+
+    # 映射到角度
+    theta_target = 2.0 * np.pi * P_target / quanta
+    theta_0 = 2.0 * np.pi * P_0 / quanta
+
+    # 最短有符号角差，范围 (-pi, pi]
+    dtheta = np.arctan2(np.sin(theta_target - theta_0),
+                        np.cos(theta_target - theta_0))
+
+    # 映射回极化差
+    delta = quanta * dtheta / (2.0 * np.pi)
+
+    # print("[INFO] Circular periodic matching:")
+    # print(f"  P_target       = {P_target}")
+    # print(f"  P_0            = {P_0}")
+    # print(f"  quanta         = {quanta}")
+    # print(f"  theta_target   = {theta_target}")
+    # print(f"  theta_0        = {theta_0}")
+    # print(f"  dtheta(wrapped)= {dtheta}")
+    # print(f"  delta          = {delta}")
+    # print(f"  |delta|        = {abs(delta)}")
+
+    return delta
+
+def line_get_distance_periodic_polar(P_target, P_0, quanta, n_search=2):
+    import numpy as np
+
+    P_target = float(P_target)
+    P_0 = float(P_0)
+    quanta = float(quanta)
+
+    if np.isnan(P_target) or np.isnan(P_0) or np.isnan(quanta):
+        print(f"[WARN] NaN encountered: P_target={P_target}, P_0={P_0}, quanta={quanta}")
+        return np.nan
+
+    branches = range(-n_search, n_search + 1)
+
+    best_delta = None
+    best_abs_delta = np.inf
+    best_Pt = None
+    best_P0 = None
+    best_n = None
+    best_m = None
+
+    for n in branches:
+        Pt = P_target + n * quanta
+        for m in branches:
+            Pz = P_0 + m * quanta
+            delta = Pt - Pz
+            abs_delta = abs(delta)
+
+            if abs_delta < best_abs_delta:
+                best_abs_delta = abs_delta
+                best_delta = delta
+                best_Pt = Pt
+                best_P0 = Pz
+                best_n = n
+                best_m = m
+
+    # print("[INFO] Periodic polarization matching:")
+    # print(f"  original P_target = {P_target}")
+    # print(f"  original P_0      = {P_0}")
+    # print(f"  quanta            = {quanta}")
+    # print(f"  search range      = [{-n_search}, {n_search}]")
+    # print(f"  matched P_target  = {best_Pt}   (branch shift: {best_n} * quanta)")
+    # print(f"  matched P_0       = {best_P0}   (branch shift: {best_m} * quanta)")
+    # print(f"  delta             = {best_delta}")
+    # print(f"  |delta|           = {best_abs_delta}")
+
+    return best_delta
 
 def filter_small_elements(Z, Z_relative_tolerance):
     """
@@ -617,7 +697,7 @@ def deal_poalr_no_move(nscf_calculator='abacus'):
 
 # ========== 2) deal_polar：ABACUS 走旧法；PyATB 用新法（input.json） ==========
 def deal_polar(cord_type,  P_0, Quanta_a, Quanta_b, Quanta_c, transformation_matrix,
-               nscf_calculator='abacus', disp_A=0.01):
+               nscf_calculator='abacus', disp_A=0.01, prefixes=('x', 'y', 'z')):
     """
     ABACUS / PyATB 统一：都在 C/m^2 单位下处理极化，再用
         Z* = (Ω/e) * ΔP / Δu
@@ -634,7 +714,7 @@ def deal_polar(cord_type,  P_0, Quanta_a, Quanta_b, Quanta_c, transformation_mat
     """
 
     nscf = str(nscf_calculator).lower().strip()
-    prefixes = ['x', 'y', 'z']
+    prefixes = list(prefixes)
 
     # ====================== PyATB 分支（基本不动） ======================
     if nscf == 'pyatb':
@@ -673,7 +753,7 @@ def deal_polar(cord_type,  P_0, Quanta_a, Quanta_b, Quanta_c, transformation_mat
         T_py, volume_m3 = _read_pyatb_geom(json_path)
 
         # ----- 3) 晶格->笛卡尔变换 & Z* 计算（SI）-----
-        dP_transformed = compute_delta_polar(dP, T_py)  # (3,3) C/m^2
+        dP_transformed = compute_delta_polar(dP, T_py, order=tuple(prefixes))  # (3,3) C/m^2
         display_results("Polarization Differences in Cartesian Coordinates (C/m^2)", dP_transformed)
 
         disp_m = float(cord_type.get('cart', disp_A)) * 1e-10  # Å -> m
@@ -746,6 +826,70 @@ def deal_polar(cord_type,  P_0, Quanta_a, Quanta_b, Quanta_c, transformation_mat
     Z_filtered = filter_small_elements(Z, Z_relative_tolerance)
     display_results("Z* Matrix without Numerical Errors (in e)", Z_filtered)
     return Z_filtered
+
+
+
+
+def deal_polar_bec_2d(cord_type,
+                      P_0,
+                      Quanta_a,
+                      Quanta_b,
+                      Quanta_c,
+                      transformation_matrix,
+                      nscf_calculator='abacus',
+                      disp_A=0.01,
+                      warn_tol=1.0e-4,
+                      return_raw=False):
+    """
+    2D 专用 BEC 后处理：
+    - 仅沿用 3D deal_polar 的处理流程
+    - 但只读取 x / y 两个位移目录（x+, y+ 或 x, y）
+    - 得到原始 2x3 张量:
+          [[xx, xy, xz],
+           [yx, yy, yz]]
+    - 检查 xz, yz 是否接近 0
+    - 最终只保留 2x2 面内 block，再嵌回 3x3
+    """
+
+    Z_raw_2x3 = deal_polar(
+        cord_type,
+        P_0,
+        Quanta_a,
+        Quanta_b,
+        Quanta_c,
+        transformation_matrix,
+        nscf_calculator=nscf_calculator,
+        disp_A=disp_A,
+        prefixes=('x', 'y')
+    )
+
+    Z_raw_2x3 = np.asarray(Z_raw_2x3, dtype=float)
+    if Z_raw_2x3.shape != (2, 3):
+        raise ValueError(f"[2D] deal_polar(prefixes=('x','y')) 应返回 (2,3)，实际得到 {Z_raw_2x3.shape}")
+
+    xz = Z_raw_2x3[0, 2]
+    yz = Z_raw_2x3[1, 2]
+
+    if abs(xz) > warn_tol or abs(yz) > warn_tol:
+        print(
+            f"[WARN][2D] xz={xz:.6e}, yz={yz:.6e} are not close to 0. "
+            "For a proper 2D treatment these terms are expected to vanish or be negligible."
+        )
+
+    Z_2x2 = Z_raw_2x3[:, :2].copy()
+    Z_2x2 = filter_small_elements(Z_2x2, Z_relative_tolerance)
+
+    Z_3x3 = np.zeros((3, 3), dtype=float)
+    Z_3x3[:2, :2] = Z_2x2
+
+    if return_raw:
+        return Z_3x3, Z_raw_2x3
+    return Z_3x3
+
+
+
+
+
 
 
 
@@ -2029,14 +2173,30 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     print("[INFO] Skipped BORN-for-phonopy.out (no starred Born in Z-BORN-symm.out).")
 
     elif dimension == 2:
-        # # 检查当前目录中是否存在 '0.no-move' 文件夹
+        # 2D case:
+        # 1) 对每个有限位移结构，只处理/信任 xx, xy, xz, yx, yy, yz
+        # 2) xz, yz 仅做 sanity check，若不接近 0 则警告
+        # 3) 最终仅保留 2x2 in-plane Born block: [[xx, xy], [yx, yy]]
+        # 4) 再嵌回 3x3，随后用对称性展开到所有原子，并做 ASR 修正
+
         if '0.no-move' in os.listdir('.'):
+            # =========================
+            #  根据文件自动判别 nscf_calculator
+            # =========================
+            if isinstance(nscf_calculator, str) and nscf_calculator.lower() == 'pyatb':
+                pyatb_dir = os.path.join('0.no-move', 'pyatb')
+                pyatb_polar_dat = os.path.join(
+                    '0.no-move', 'pyatb', 'Out', 'Polarization', 'polarization.dat'
+                )
+                if not (os.path.isdir(pyatb_dir) and os.path.isfile(pyatb_polar_dat)):
+                    print("[INFO] nscf_calculator='pyatb' requested, but pyatb outputs not found under "
+                          "'0.no-move/pyatb'. Falling back to nscf_calculator='abacus' for polarization data.")
+                    nscf_calculator = 'abacus'
+
             f_stru = os.path.join('0.no-move', 'STRU')
             star_atom_list, star_atom, star_atom_mass = get_star_atom(f_stru, symm_tol)
 
-            # 遍历当前目录中的所有一级子文件夹，除了 '0.no-move'
-            # 对于 2D，我们的生成结构类似：1.Ti、5.N 等
-            subfolders_pattern = re.compile(r'^\d+\.[^\.]+$')  # 数字 + '.' + 标签
+            subfolders_pattern = re.compile(r'^\d+\.[^\.]+$')
             init_subfolders = [
                 f.name for f in os.scandir('.')
                 if f.is_dir()
@@ -2046,6 +2206,9 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
             ]
             subfolders = sorted(init_subfolders, key=sort_key)
 
+            # 2D 分支这里仍然复用 no-move 的极化参考与量子展开信息
+            P_0, Quanta_a, Quanta_b, Quanta_c, transformation_matrix = deal_poalr_no_move(nscf_calculator)
+
             xx_len = 8
             header = (
                 f"{'No. Atom': <8} "
@@ -2054,77 +2217,41 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                 f"{'zx': >{xx_len}} {'zy': >{xx_len}} {'zz': >{xx_len}}\n"
             )
 
-            # =========================
-            #  2D：从 0.no-move 提取基准偶极（只需要 z 分量）
-            #  deal_polar_2d 返回的是 dipole_z (a.u., e·Bohr)
-            # =========================
-            print(f"Now processing folder: 0.no-move (2D reference polarization)")
-            os.chdir('0.no-move')
-            dipole_z_ref = deal_polar_2d(scf_dir='.')   # 标准态的 d_z^0
-            os.chdir('..')
-
-            # Å -> Bohr（用于位移）
-            ANGSTROM_TO_BOHR = 1.0 / 0.529177210903
-
-            # reduced 行缓存（用于后续 BORN-for-phonopy 可能用到）
             z_born_reduced_data = [header]
-
-            # 收集条目（用于判断是否能写 all.out / 用于兜底构造）
-            entries = []   # [{'idx': int, 'label': str, 'star': bool, 'Z': (3,3)}]
-            all_rows = []  # 候选 all.out 行
+            entries = []
+            all_rows = []
             dielectric_data_processed = None
-            dielectric_matrix_ready = None  # 作为 3x3 矩阵备用
+            dielectric_matrix_ready = None
 
-            # =========================
-            #  先写 Z-BORN-reduced.out（无论如何都写）
-            #  对每个 reduced 原子：只沿 z 位移一次，用一边差分
-            #  Z_zz = (d_z^disp - d_z^0) / Δu_z
-            # =========================
+            # 可单独调
+            warn_tol_2d_cross = max(1.0e-4, 10.0 * Z_relative_tolerance)
+ 
             with open('Z-BORN-reduced.out', 'w') as file_reduced:
                 file_reduced.write(header)
 
                 for folder in subfolders:
+                    os.chdir(folder)
+                    print(f"Now processing folder: {folder}")
+
+                    Z, Z_raw_2x3 = deal_polar_bec_2d(
+                        cord_type,
+                        P_0,
+                        Quanta_a,
+                        Quanta_b,
+                        Quanta_c,
+                        transformation_matrix,
+                        nscf_calculator=nscf_calculator,
+                        disp_A=cord_type['cart'],
+                        warn_tol=warn_tol_2d_cross,
+                        return_raw=True
+                    )
+
+                    os.chdir('..')
+
                     folder_number = int(folder.split('.')[0])
                     folder_label  = folder.split('.')[1]
                     star_flag = folder_number in star_atom_list
 
-                    os.chdir(folder)
-                    print(f"Now processing folder: {folder}")
-
-                    # 读取该原子在 z 方向的位移（Å）
-                    disp_file = 'disp_Angstrom.out'
-                    try:
-                        with open(disp_file, 'r') as fd:
-                            # 简单处理：取第一行第一个数字为 Δu_z (Å)
-                            line = fd.readline().strip().split()
-                            disp_A = float(line[0])
-                    except Exception as e:
-                        print(f"[WARN] Cannot read displacement from {disp_file} in {folder}: {e}")
-                        disp_A = 0.0
-
-                    disp_bohr = disp_A * ANGSTROM_TO_BOHR
-                    if abs(disp_bohr) < 1e-8:
-                        print(f"[WARN] |Δu_z| too small ({disp_bohr} Bohr) in {folder}; set Z_zz = 0.")
-                        Z_zz = 0.0
-                    else:
-                        # 进入 z 子目录，计算位移态的 2D 偶极（只沿非周期方向 z）
-                        if os.path.isdir('z'):
-                            os.chdir('z')
-                            dipole_z_disp = deal_polar_2d(scf_dir='.')
-                            os.chdir('..')
-                        else:
-                            print(f"[WARN] No 'z' subfolder in {folder}; use Z_zz = 0.")
-                            dipole_z_disp = dipole_z_ref
-
-                        # Born 有效电荷（z 方向）：Z_zz = (d_z^disp - d_z^0) / Δu_z
-                        # d_z 单位：e·Bohr，Δu_z 单位：Bohr -> Z 维度是无量纲（单位：e）
-                        Z_zz = (dipole_z_disp - dipole_z_ref) / disp_bohr
-
-                    os.chdir('..')  # 回到 gen_TiN 顶层
-
-                    # 构造 3x3 Born 张量：只有 zz 分量非零，其他设为 0，方便后续对称展开
-                    Z = np.zeros((3, 3), dtype=float)
-                    Z[2, 2] = Z_zz
 
                     entries.append({
                         'idx': folder_number,
@@ -2133,14 +2260,18 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                         'Z': Z.copy()
                     })
 
-                    row = ' '.join(f"{v: >{xx_len}.3f}" for v in Z.reshape(9))
-                    if star_flag:
-                        file_reduced.write(f"*{folder_number: >4} {folder_label: <3} {row}\n")
-                        z_born_reduced_data.append(row + "\n")
-                    mark = '*' if star_flag else ' '
-                    all_rows.append(f"{mark}{folder_number: >4} {folder_label: <3} {row}\n")
+                    formatted_row = ' '.join(f"{val: >{xx_len}.3f}" for val in Z.reshape(9))
 
-            # —— 只有当实际计算到的原子数 == 体系总原子数时，才写 Z-BORN-all.out —— 
+                    if star_flag:
+                        formatted_folder = f"*{folder_number: >4} {folder_label: <3}"
+                        line = f"{formatted_folder} {formatted_row}\n"
+                        file_reduced.write(line)
+                        z_born_reduced_data.append(formatted_row + '\n')
+
+                    mark = '*' if star_flag else ' '
+                    all_rows.append(f"{mark}{folder_number: >4} {folder_label: <3} {formatted_row}\n")
+
+            # —— 是否可以写 Z-BORN-all.out？——
             try:
                 tot_natoms, _reduced_set = _parse_reduced_atom_out("reduced_atom.out")
             except Exception:
@@ -2156,33 +2287,48 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                 print(f"[INFO] Z-BORN-all.out has been written ({computed_count}/{tot_natoms} atoms).")
             else:
                 if tot_natoms is None or tot_natoms == 0:
-                    print("[INFO] Cannot determine total number of atoms from reduced_atom.out; skip Z-BORN-all.out.")
+                    print("[INFO] Cannot determine total number of atoms from reduced_atom.out; "
+                          "skip Z-BORN-all.out.")
                 else:
-                    print(f"[INFO] Partial Born set detected ({computed_count}/{tot_natoms}); skip Z-BORN-all.out. "
-                          "A full symmetric Born will be reconstructed later to Z-BORN-symm.out if needed.")
+                    print(f"[INFO] Partial Born set detected ({computed_count}/{tot_natoms}); "
+                          "skip Z-BORN-all.out. A full symmetric Born will be reconstructed later "
+                          "to Z-BORN-symm.out.")
 
-            # —— 介电（若有 pyatb 光学输出则读取，保持原逻辑，可选）——
+            # =========================
+            #  dielectric（可选）
+            #  这里保留原读法，但对 xz/yz 做检查
+            # =========================
             target_file = '0.no-move/pyatb/Out/Optical_Conductivity/dielectric_function_real_part.dat'
             if os.path.isdir('0.no-move') and 'pyatb' in os.listdir('0.no-move'):
                 if os.path.isfile(target_file) and os.path.getsize(target_file) > 0:
                     try:
-                        with open(target_file, 'r') as fopt:
-                            lines = fopt.readlines()
+                        with open(target_file, 'r') as file:
+                            lines = file.readlines()
                             if len(lines) > 1:
                                 dielectric_line = lines[1].strip().split()[1:10]
                                 dielectric_data = [float(x) for x in dielectric_line]
-                                diel_mat = np.array(dielectric_data, dtype=float).reshape(3, 3)
-                                diel_mat = filter_small_elements(diel_mat, Z_relative_tolerance)
-                                dielectric_matrix_ready = diel_mat
-                                dielectric_data_processed = ' '.join(
-                                    f"{x: >{xx_len}.3f}" for x in diel_mat.flatten()
-                                ) + '\n'
+                                dielectric_matrix = np.array(dielectric_data).reshape(3, 3)
+
+                                if (abs(dielectric_matrix[0, 2]) > warn_tol_2d_cross or
+                                    abs(dielectric_matrix[1, 2]) > warn_tol_2d_cross):
+                                    print(
+                                        f"[WARN][2D] dielectric tensor has non-negligible "
+                                        f"xz={dielectric_matrix[0,2]:.6e}, yz={dielectric_matrix[1,2]:.6e}"
+                                    )
+
+                                dielectric_matrix_zero = filter_small_elements(
+                                    dielectric_matrix, Z_relative_tolerance
+                                )
+                                dielectric_matrix_ready = dielectric_matrix_zero
+                                formatted_dielectric = ' '.join(
+                                    [f"{x: >{xx_len}.3f}" for x in dielectric_matrix_zero.flatten()]
+                                )
+                                dielectric_data_processed = formatted_dielectric + '\n'
                     except Exception as e:
                         print(f"[WARN] Could not process dielectric data: {e}")
                 else:
                     print(f"[WARN] File missing or empty: {target_file}")
 
-            # —— 新标题行（BORN-for-phonopy）——
             new_header = (
                 f"{'#': <4} "
                 f"{'xx': <{xx_len}} {'xy': <{xx_len}} {'xz': <{xx_len}} "
@@ -2191,56 +2337,44 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
             )
 
             # =========================
-            #  确保 Z-BORN-symm.out 存在（2D 同 3D 逻辑）
+            #  统一做 symmetry expansion + ASR
             # =========================
             symm_src = "Z-BORN-symm.out"
 
-            # 根据 entries 判断是否“只算了 reduced”：编号集合与 primitive 段的星标集合一致
             computed_indices = sorted({e['idx'] for e in entries})
             reduced_prim     = _parse_starred_reduced_primitive("reduced_atom.out")
             prim_star_idx    = sorted({idx for idx, _sym in reduced_prim})
             reduced_only     = (computed_indices and prim_star_idx and set(computed_indices) == set(prim_star_idx))
 
-            if not os.path.isfile(symm_src):
-                if reduced_only:
-                    try:
-                        from .verify_born_symmetry import run_symcheck
-                        run_symcheck(
-                            stru=os.path.join('0.no-move', 'STRU'),
-                            reduced='Z-BORN-reduced.out',
-                            all=None,                         # 2D 情况同样允许无 all 直接生成
-                            symprec=symm_tol,
-                            out='born_generation_from_symm.log',  # 生成模式的日志名
-                            json_path=None,
-                            csv_path=None
-                        )
-                        print("[symm] Reconstructed Z-BORN-symm.out via symmetry (reduced-only run).")
-                    except Exception as e:
-                        print(f"[symm][ERROR] Symmetry reconstruction failed: {e}")
+            try:
+                from .verify_born_symmetry import run_symcheck
 
-                if not os.path.isfile(symm_src):
-                    # 兜底：用内存里的 entries 写一份（不保证电中性）
-                    try:
-                        with open(symm_src, 'w') as f:
-                            f.write(header)
-                            for e in sorted(entries, key=lambda x: x['idx']):
-                                row = " ".join(f"{v: >{xx_len}.3f}" for v in e['Z'].reshape(9))
-                                mark = '*' if e['star'] else ' '
-                                f.write(f"{mark}{e['idx']: >4} {e['label']: <3} {row}\n")
-                        print("[symm] Wrote Z-BORN-symm.out from in-memory entries (last-resort).")
-                    except Exception as e:
-                        print(f"[symm][ERROR] Cannot build Z-BORN-symm.out: {e}")
+                kwargs = dict(
+                    stru=os.path.join("0.no-move", "STRU"),
+                    reduced="Z-BORN-reduced.out",
+                    symprec=symm_tol,
+                    out="born_symmetry_report.txt",
+                    json_path="born_symmetry_report.json",
+                    csv_path=None,
+                )
+                if os.path.isfile("Z-BORN-all.out"):
+                    kwargs["all"] = "Z-BORN-all.out"
+
+                run_symcheck(**kwargs)
+                print("[symm] Reconstructed Z-BORN-symm.out via symmetry + ASR (2D reduced block embedded in 3D).")
+            except Exception as e:
+                print(f"[symm][ERROR] Symmetry reconstruction failed: {e}")
 
             # =========================
-            #  写 Z-BORN-reduced-neutral.out（始终写；从对称重建的结果抽取 primitive 段）
+            #  写 Z-BORN-reduced-neutral.out
             # =========================
-            starred_map = _load_starred_map_from_symm(symm_src)  # idx -> (sym, M)
+            starred_map = _load_starred_map_from_symm(symm_src)
             if not starred_map:
                 print("[symm][WARN] No starred entries in Z-BORN-symm.out; skip reduced-neutral export.")
                 reduced_neutral = []
             else:
                 reduced_neutral = []
-                for idx, sym_wanted in reduced_prim:
+                for idx, _sym_wanted in reduced_prim:
                     if idx in starred_map:
                         sym_s, M = starred_map[idx]
                         reduced_neutral.append((idx, sym_s, M))
@@ -2256,23 +2390,45 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     print("[symm] Wrote Z-BORN-reduced-neutral.out")
 
             # =========================
-            #  写 BORN-for-phonopy.out（仅当介电可用）
+            #  写 BORN-for-phonopy.out / BORN
             # =========================
-            if dielectric_matrix_ready is not None and reduced_neutral:
-                mats = [M for _idx, _sym, M in reduced_neutral]
-                with open('BORN-for-phonopy.out', 'w') as f:
-                    f.write(new_header)
-                    f.write(" ".join(f"{v: >{xx_len}.3f}" for v in dielectric_matrix_ready.reshape(9)) + "\n")
-                    for M in mats:
-                        f.write(" ".join(f"{v: >{xx_len}.3f}" for v in M.reshape(9)) + "\n")
-                # 同步一份到 BORN（phonopy 习惯名）
-                print("[symm] Wrote BORN-for-phonopy.out (epsilon + primitive reduced-neutral Born)")
+            if dielectric_data_processed and reduced_neutral:
+                diel_mat = None
+                try:
+                    if isinstance(dielectric_matrix_ready, np.ndarray):
+                        diel_mat = dielectric_matrix_ready
+                    else:
+                        nums = [float(x) for x in dielectric_data_processed.split()]
+                        if len(nums) >= 9:
+                            diel_mat = np.array(nums[:9], dtype=float).reshape(3, 3)
+                except Exception:
+                    diel_mat = None
+
+                if diel_mat is None:
+                    print("[symm][WARN] Dielectric not ready; skip BORN-for-phonopy.out.")
+                else:
+                    mats = [M for _idx, _sym, M in reduced_neutral]
+                    if not mats:
+                        print("[symm][WARN] No reduced-neutral Born to write into BORN-for-phonopy.out.")
+                    else:
+                        born_lines = []
+                        born_lines.append(new_header)
+                        born_lines.append(" ".join(f"{v: >{xx_len}.3f}" for v in diel_mat.reshape(9)) + "\n")
+                        for M in mats:
+                            born_lines.append(" ".join(f"{v: >{xx_len}.3f}" for v in M.reshape(9)) + "\n")
+
+                        with open('BORN-for-phonopy.out', 'w') as f:
+                            f.writelines(born_lines)
+                        with open('BORN', 'w') as f:
+                            f.writelines(born_lines)
+
+                        print("[symm] Wrote BORN-for-phonopy.out and BORN "
+                              "(electronic epsilon + primitive reduced-neutral Born Effective Charge)")
             else:
-                if dielectric_matrix_ready is None:
+                if not dielectric_data_processed:
                     print("[INFO] Skipped BORN-for-phonopy.out (dielectric not available).")
                 elif not reduced_neutral:
                     print("[INFO] Skipped BORN-for-phonopy.out (no reduced-neutral Born).")
-
 
     else:
         # 如果没有提供输入参数，添加默认的 cart 类型值

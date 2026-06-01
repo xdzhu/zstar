@@ -1,3 +1,7 @@
+## 0.0.8 — 2026-03-24
+
+- Fix the anomaly enormous delta_P result when two Polarization values are too close.
+
 ## 0.0.7 — 2025-12-19
 
 - Really support auto detected Cartesian coordinates for STRU.

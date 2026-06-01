@@ -1,2 +1,6 @@
 dist/
-
+build/
+examples/
+__pycache__/
+*.py[cod]
+*.egg-info/

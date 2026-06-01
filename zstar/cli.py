@@ -20,15 +20,6 @@ import os
 import sys
 
 from . import __version__
-from .read_irrep import main as run_read_irrep_cli
-from .calc_kappa import deal_q_vector as run_calc_kappa
-from .gen_polar import gen_polar as run_gen
-from .deal_polar import main as run_deal_polar
-from .get_wyckoff import get_wyckoff_position as run_get_wyckoff
-from .get_wyckoff import stru2vasp as run_stru2vasp
-from .phonon_gen import run_phonopy_and_process_files as run_ph
-from .phonon_post import run_eigen_irrep as run_postph
-from .verify_born_symmetry import run_symcheck
 
 VERSION_STR = f"ZStar {__version__}"
 
@@ -224,7 +215,7 @@ def zstar_cli(argv=None) -> None:
     parser_wyckoff = subparsers.add_parser('wyckoff', help='Get Wyckoff positions.')
     parser_wyckoff.add_argument('--stru', help='Path to the STRU file', default='STRU')
 
-    p_ir = subparsers.add_parser('irrep', help='Classify Γ irreps from irreps.yaml')
+    p_ir = subparsers.add_parser('irrep', help='Classify Gamma irreps from irreps.yaml')
     p_ir.add_argument('-f', '--file', default='irreps.yaml', help='Path to irreps.yaml')
     p_ir.add_argument('--mode', default='db', choices=['db', 'default', 'smodes'],
                       help='Classification mode: db/default (no external tools) or '
@@ -239,7 +230,7 @@ def zstar_cli(argv=None) -> None:
     )
     parser_vasp.add_argument('--stru', help='Path to the STRU file', default='STRU')
 
-    parser_calc = subparsers.add_parser('calc', help='Calculate dielectric tensor (kappa).')
+    parser_calc = subparsers.add_parser('calc', help='Calculate static dielectric tensor.')
     parser_calc.add_argument('--tolerance', type=float,
                              help="Set the tolerance of ZERO in dielectric tensor matrix.",
                              default=1e-3)
@@ -259,6 +250,28 @@ def zstar_cli(argv=None) -> None:
     parser_calc.add_argument('--stru', dest='stru_file', default='STRU',
                              help='Structure file (STRU or POSCAR/vasp).')
     parser_calc.add_argument('--irreps', dest='irreps_file', default='irreps.yaml',
+                             help='Path to irreps.yaml.')
+
+    parser_freq = subparsers.add_parser('freq', help='Calculate the frequency-dependent dielectric functions.')
+    parser_freq.add_argument('--tolerance', type=float,
+                             help="Set the tolerance of ZERO in dielectric tensor matrix.",
+                             default=1e-3)
+    parser_freq.add_argument('--ir-tolerance', type=float,
+                             help="Set the tolerance of infrared modes of all modes.",
+                             default=5e-2)
+    parser_freq.add_argument('--ir-choose',
+                             help="Set choose only infrared modes or all modes.",
+                             choices=['ir', 'all'], default='ir')
+    parser_freq.add_argument('--plot', action='store_true',
+                             help="Whether to plot the dielectric constant VS the frequency.",
+                             default=True)
+    # new flags for updated pipeline
+    parser_freq.add_argument('--mode', default='db',
+                             choices=['db', 'default', 'smodes'],
+                             help="Mode for classification (default: db).")
+    parser_freq.add_argument('--stru', dest='stru_file', default='STRU',
+                             help='Structure file (STRU or POSCAR/vasp).')
+    parser_freq.add_argument('--irreps', dest='irreps_file', default='irreps.yaml',
                              help='Path to irreps.yaml.')
 
     args = parser.parse_args(argv)
@@ -282,9 +295,13 @@ def zstar_cli(argv=None) -> None:
 
     # ---------------- dispatch ----------------
     if args.command == 'irrep':
+        from .read_irrep import main as run_read_irrep_cli
+
         run_read_irrep_cli(_build_irrep_argv(args))
 
     elif args.command == 'calc':
+        from .calc_kappa import deal_q_vector as run_calc_kappa
+
         run_calc_kappa(
             zero_tolerance=args.tolerance,
             ir_tolerance=args.ir_tolerance,
@@ -295,7 +312,22 @@ def zstar_cli(argv=None) -> None:
             irreps_file=args.irreps_file
         )
 
+    elif args.command == 'freq':
+        from .calc_kappa import deal_q_vector as run_calc_kappa
+
+        run_calc_kappa(
+            zero_tolerance=args.tolerance,
+            ir_tolerance=args.ir_tolerance,
+            ir_choose=args.ir_choose,
+            plot_switch=True,
+            mode=args.mode,
+            stru_file=args.stru_file,
+            irreps_file=args.irreps_file
+        )
+
     elif args.command == 'gen':
+        from .gen_polar import gen_polar as run_gen
+
         # -------- gen 参数预处理：dim=2 时默认只沿 xy 方向位移 --------
         if args.move is None or str(args.move).strip() == "":
             if args.dim == 2:
@@ -338,6 +370,8 @@ def zstar_cli(argv=None) -> None:
         )
 
     elif args.command == 'ph':
+        from .phonon_gen import run_phonopy_and_process_files as run_ph
+
         run_ph(
             f_stru=args.stru,
             symm_tol=args.symmprec,
@@ -348,6 +382,8 @@ def zstar_cli(argv=None) -> None:
         )
 
     elif args.command == 'postph':
+        from .phonon_post import run_eigen_irrep as run_postph
+
         run_postph(
             f_stru=args.stru,
             symm_tol=args.symmprec,
@@ -356,6 +392,8 @@ def zstar_cli(argv=None) -> None:
         )
 
     elif args.command in ('rpolar', 'deal', 'born', 'polar'):
+        from .deal_polar import main as run_deal_polar
+
         calc_flag = 'abacus' if getattr(args, 'abacus', False) else 'pyatb'
         running_type = 'solo' if getattr(args, 'solo', False) else None
 
@@ -377,12 +415,18 @@ def zstar_cli(argv=None) -> None:
         run_deal_polar(**kwargs)
 
     elif args.command == 'vasp':
+        from .get_wyckoff import stru2vasp as run_stru2vasp
+
         run_stru2vasp(f_stru=args.stru)
 
     elif args.command == 'wyckoff':
+        from .get_wyckoff import get_wyckoff_position as run_get_wyckoff
+
         run_get_wyckoff(fstru=args.stru)
 
     elif args.command == 'symcheck':
+        from .verify_born_symmetry import run_symcheck
+
         if not os.path.isfile(args.allfile):
             print(
                 f"[ERROR] --allfile not found: {args.allfile}. "
@@ -401,6 +445,8 @@ def zstar_cli(argv=None) -> None:
         )
 
     elif args.command == 'bornsym':
+        from .verify_born_symmetry import run_symcheck
+
         # reduced-only generation (no full reference)
         run_symcheck(
             stru=args.stru,

@@ -593,7 +593,7 @@ def main(argv: Optional[Sequence[str]] = None) -> Dict[str, Dict[str, List[int]]
     _format_category_block("Acoustic (|f| <= threshold)", result.get("Acoustic", {}), tuples)
 
     print("\n" + "*" * 62)
-    print("完成。")
+    print("DONE")
     print("*" * 62 + "\n")
 
     return result

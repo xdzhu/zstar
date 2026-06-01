@@ -515,9 +515,9 @@ def run_symcheck(stru: str = "STRU",
                 print(ln)
             print("-" * 80)
 
-        with open("born_generation_from_symm.log", "w") as gf:
+        with open(out, "w") as gf:
             gf.writelines(gen_lines)
-        print("[OK] Wrote born_generation_from_symm.log")
+        print(f"[OK] Wrote {out}")
 
     # 把修正与对称 Born 也写进 JSON 报告（验证/生成两种模式都写）
     report["symmetry_born"] = {

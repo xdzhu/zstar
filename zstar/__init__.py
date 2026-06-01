@@ -30,32 +30,19 @@ See the accompanying LICENSE file for details.
 
 # NOTE:
 # Keep this version in sync with the version declared in pyproject.toml.
-__version__ = "0.0.7"
+__version__ = "0.0.8"
 
 # ---------------------------------------------------------------------------
 # Public API surface
 # ---------------------------------------------------------------------------
 
-# Expose commonly used submodules at the package level so that users can write:
+# Lazily expose commonly used submodules at the package level so users can write:
 #   import zstar
 #   zstar.calc_kappa(...)
 #
 # instead of
 #   from zstar import calc_kappa
 #   calc_kappa(...)
-
-from . import (
-    calc_kappa,
-    deal_polar,
-    gen_polar,
-    get_wyckoff,
-    group_modesDB,
-    phonon_gen,
-    phonon_post,
-    read_irrep,
-    stru_analyzer,
-    verify_born_symmetry,
-)
 
 __all__ = [
     "__version__",
@@ -70,3 +57,13 @@ __all__ = [
     "stru_analyzer",
     "verify_born_symmetry",
 ]
+
+
+def __getattr__(name):
+    if name in __all__ and name != "__version__":
+        from importlib import import_module
+
+        module = import_module(f"{__name__}.{name}")
+        globals()[name] = module
+        return module
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

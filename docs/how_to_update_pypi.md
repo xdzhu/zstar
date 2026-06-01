@@ -1,107 +1,106 @@
-# How to update `zstar` on PyPI（超简版）
+# How to update `zstar` on PyPI
 
-> 约定：
->
-> * **开发环境**：`zstar-dev`（平时调代码用）
-> * **打包 / 上传环境**：`base`
+约定：
 
-版本号用占位 `X.Y.Z`，比如 `0.0.3`、`0.1.0`。
+- 开发和本地验证环境：`zstar-test` 或当前开发环境
+- 打包和上传环境：`base`
+- 版本号格式：`X.Y.Z`，例如 `0.0.8`
+- `examples/` 只用于本地验证，不提交到 GitHub
+- `dist/` 和 `build/` 是构建产物，不提交到 GitHub
 
----
+## 1. 更新代码和版本号
 
-## 1. 在 `zstar-dev` 环境里改代码 & 版本号
-
-```bash
+```powershell
 conda activate zstar-test
 cd D:\Work\Code\zstar
 ```
 
-1. 改代码，确保本地算例里 `zstar` 能正常跑。
+确认本地例子和核心命令可以正常运行后，修改两处版本号：
 
-2. 修改版本号（两处）：
+- `pyproject.toml`
 
-   * `pyproject.toml`：
-
-     ```toml
-     [project]
-     name = "zstar"
-     version = "X.Y.Z"
-     ```
-
-   * `zstar/__init__.py`：
-
-     ```python
-     __version__ = "X.Y.Z"
-     ```
-
----
-
-## 2. 在 `base` 环境打包
-
-```bash
-conda deactivate          # 退回 base
-cd D:\Work\Code\zstar
-
-# 清理旧构建
-rm -r -fo dist,build 2>$null
-
-# 构建 sdist + wheel
-python -m build
+```toml
+[project]
+name = "zstar"
+version = "X.Y.Z"
 ```
 
-构建成功后，`dist/` 里应有：
+- `zstar/__init__.py`
 
-* `zstar-X.Y.Z.tar.gz`
-* `zstar-X.Y.Z-py3-none-any.whl`
+```python
+__version__ = "X.Y.Z"
+```
 
----
+同时建议在 `CHANGELOG.md` 增加这一版的变更说明。
 
+## 2. 本地验证
 
-## 5. 上传到正式 PyPI
+```powershell
+python -m zstar.cli --version
+python -m zstar.cli --help
+python -m compileall zstar
+```
 
-回到 `base`：
+如需验证示例，请在 `examples/` 目录中运行对应命令。该目录已加入 `.gitignore`，只保留在本地。
 
-```bash
+## 3. 构建发布包
+
+回到 `base` 环境：
+
+```powershell
 conda deactivate
 cd D:\Work\Code\zstar
 
-# python -m twine upload dist/*
-# 如果只想上传 wheel，就：
-python -m twine upload dist/*.whl
+Remove-Item -Recurse -Force dist, build -ErrorAction SilentlyContinue
+python -m build
 ```
 
-上传成功后，全局即可：
+构建成功后，`dist/` 中应包含：
 
-```bash
-pip install -U zstar
-zstar --version   # 应该显示 X.Y.Z
+- `zstar-X.Y.Z.tar.gz`
+- `zstar-X.Y.Z-py3-none-any.whl`
+
+## 4. 检查发布包
+
+```powershell
+python -m twine check dist/*
 ```
 
----
+可选：先上传到 TestPyPI。
 
-
-## 3. 上传到 TestPyPI（可选）
-
-```bash
+```powershell
 python -m twine upload --repository testpypi dist/*.whl
 ```
 
----
+## 5. 上传到正式 PyPI
 
-## 4. 在测试环境里验证一下（可选）
+```powershell
+python -m twine upload dist/*
+```
 
-```bash
-conda activate zstar-test
+上传成功后验证：
 
-pip uninstall -y zstar
-pip install zstar
-
+```powershell
+pip install -U zstar
 zstar --version
 ```
 
-确认输出版本是 `X.Y.Z`，核心子命令能正常 `--help`。
+确认输出版本为 `X.Y.Z`。
 
----
+## 6. 同步到 GitHub
 
-就这些。
-以后发版按这个顺序：**zstar-dev 改版本 → base 打包 → testpypi（可选）→ pypi 上传**。
+发布前确认不要提交本地产物：
+
+```powershell
+git status --short
+```
+
+`examples/`、`dist/`、`build/` 不应出现在待提交文件中。
+
+提交并推送：
+
+```powershell
+git add .
+git commit -m "Release zstar X.Y.Z"
+git push origin main
+```
