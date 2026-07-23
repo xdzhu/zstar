@@ -1,14 +1,14 @@
 [build-system]
-requires = ["setuptools>=61", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "zstar"
-version = "0.0.8"
+version = "0.1.0"
 description = "Zstar: A code for calculations of Born effective charge and dielectric responses."
 readme = "README_PYPI.md"
-requires-python = ">=3.8"
-license = { text = "GPL-3.0" }
+requires-python = ">=3.9"
+license = "GPL-3.0-only"
 
 authors = [
   { name = "Xudong Zhu", email = "zhuxudong@ustc.edu.cn" }
@@ -17,6 +17,7 @@ authors = [
 
 dependencies = [
   "numpy>=1.26",
+  "scipy>=1.10",
   "PyYAML>=5.4",
   "matplotlib>=3.3",
   "spglib>=2.6.0",

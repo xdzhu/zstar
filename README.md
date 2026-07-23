@@ -1,60 +1,82 @@
 <p align="center">
-  <img src="docs/logo.png" alt="Zstar logo" width="180">
+  <img src="docs/logo.png" alt="ZStar logo" width="176">
 </p>
 
-<h1 align="center">Zstar</h1>
+<h1 align="center">ZStar</h1>
 
 <p align="center">
-  A Python toolkit for Born effective charge, polarization, phonon, and dielectric-response workflows.
+  Reproducible polarization, Born effective charge, phonon, infrared, Raman, and dielectric-response workflows.
 </p>
 
 <p align="center">
   <a href="https://pypi.org/project/zstar/"><img alt="PyPI" src="https://img.shields.io/pypi/v/zstar"></a>
   <a href="https://pypi.org/project/zstar/"><img alt="Python" src="https://img.shields.io/pypi/pyversions/zstar"></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-GPL--3.0-green"></a>
-  <a href="https://github.com/xdzhu/zstar"><img alt="Repository" src="https://img.shields.io/badge/GitHub-xdzhu%2Fzstar-blue"></a>
 </p>
 
 <p align="center">
-  English | <a href="README.zh-CN.md">简体中文</a> | <a href="docs/README.en.pdf">English PDF</a> | <a href="docs/README.zh-CN.pdf">中文 PDF</a>
+  English | <a href="README.zh-CN.md">简体中文</a> |
+  <a href="docs/README.en.pdf">English PDF</a> |
+  <a href="docs/README.zh-CN.pdf">中文 PDF</a>
 </p>
 
 ---
 
 ## Overview
 
-**Zstar** is a lightweight workflow toolkit for first-principles polarization and lattice-dynamical analysis. It grew out of the former PyKappa workflow and now provides a unified `zstar` command for ABACUS/PyATB-based Born effective charge and dielectric-response post-processing.
+ZStar is a Python workflow toolkit that connects ABACUS, PyATB, and Phonopy calculations to physically auditable polarization and dielectric-response results. Its main task is to turn finite atomic displacements and Berry-phase polarization into symmetry-consistent Born effective charge (BEC) tensors, then use those tensors for phonon, infrared (IR), dielectric, Raman, and molecular-dynamics (MD) analysis.
 
-The main goal is simple: reduce repetitive input generation, collect finite-displacement polarization results, and produce symmetry-consistent Born effective charge files that are ready for downstream phonon workflows.
+The toolkit keeps every stage visible: structures, solver inputs, band-gap gates, polarization values, charge-density data, tensor reconstruction reports, spectra, and progress records remain available for inspection and restart.
 
-Core capabilities:
+The numerical checks used for the current release are summarized in [docs/validation.md](docs/validation.md).
 
-- Generate finite-displacement polarization tasks from an ABACUS `STRU`.
-- Support ABACUS and PyATB polarization backends, with PyATB as the recommended default.
-- Convert polarization output to Born effective charge tensors in consistent `C/m^2` units.
-- Reconstruct full-atom Born tensors from a reduced symmetry set using space-group and Wyckoff equivalence.
-- Enforce acoustic-sum-rule charge neutrality when writing symmetry-reconstructed Born tensors.
-- Export `BORN` / `BORN-for-phonopy.out` files compatible with Phonopy non-analytical correction workflows.
-- Provide phonon-generation, phonon-postprocessing, Wyckoff, irrep, VASP conversion, and dielectric tensor utilities.
+### Main capabilities
 
-If you only inspect two files after a Born workflow, start here:
+- Forward and central finite-difference BEC calculations.
+- Symmetry reduction, full-cell tensor reconstruction, and acoustic-sum-rule correction.
+- A serial, resumable `0.no-move -> displaced structures` execution model.
+- Reuse of the converged `0.no-move` charge density for every displacement.
+- One-time insulating-state validation after the reference SCF.
+- Shell, Slurm, and Torque driver generation.
+- Automatic compatibility with legacy and direct-static-response PyATB versions.
+- Three-dimensional and hybrid two-dimensional polarization/BEC analysis.
+- Phonon generation, post-processing, mode classification, IR spectra, Raman spectra, and dielectric response.
+- MD dipole-fluctuation dielectric analysis using fixed or frame-dependent BEC tensors.
+- Auxiliary electrostatic-potential analysis for slabs and polar materials.
 
-| File | Meaning |
-| --- | --- |
-| `Z-BORN-symm.out` | Full-atom Born tensors reconstructed by symmetry and corrected for charge neutrality. |
-| `Z-BORN-reduced-neutral.out` | Reduced primitive Born tensors after symmetry reconstruction and charge-neutrality correction, suitable for Phonopy-style use. |
+## Physical Scope
 
----
+### Three-dimensional crystals
+
+For a periodic 3D crystal, ZStar evaluates
+
+```text
+Z*(kappa, alpha, beta) = Omega/e * dP_alpha / du_(kappa,beta)
+```
+
+from Berry-phase polarization differences. Polarization branches are matched modulo the polarization quantum before the finite difference is taken.
+
+### Two-dimensional slabs
+
+A slab requires separate treatment of in-plane and out-of-plane response:
+
+- **In-plane rows:** Berry-phase polarization is used while the full supercell remains insulating.
+- **Out-of-plane row:** the total slab dipole is integrated from the ABACUS charge-density cube, including ionic and electronic contributions.
+- **Normalization:** in-plane BECs are made independent of vacuum height through the usual volume factor; 2D dielectric spectra are reported as sheet polarizability unless an effective thickness is supplied.
+
+Accordingly, a complete 2D BEC calculation needs `x`, `y`, and `z` displacements. The default `zstar gen --dim 2` workflow generates all three. The current hybrid implementation requires the slab normal to align with Cartesian `z`; a tilted slab is rejected explicitly.
 
 ## Installation
 
-Install the released package from PyPI:
+ZStar requires Python 3.9 or newer.
+
+Install the released package:
 
 ```bash
 pip install -U zstar
 ```
 
-Or install from a local checkout:
+Or install a local checkout:
 
 ```bash
 git clone https://github.com/xdzhu/zstar.git
@@ -62,431 +84,342 @@ cd zstar
 pip install .
 ```
 
-Requirements:
+External programs are required only for the corresponding workflows:
 
-- Python 3.8+
-- Python packages declared by the project: `numpy`, `PyYAML`, `matplotlib`, `spglib`, `phonopy`, `pymatgen`
-- Runtime calculators or post-processing tools as needed: ABACUS, PyATB, and Phonopy
+- ABACUS for SCF, charge density, force, and sparse-matrix calculations.
+- PyATB for Berry-phase polarization, band checks, and electronic dielectric response.
+- Phonopy for displacement generation and phonon post-processing.
 
-Check the installed command:
+Verify the command:
 
 ```bash
 zstar --version
 zstar --help
 ```
 
----
+## Born Charge Workflow
 
-## Quick Start
+### 1. Generate the reference and displacement folders
 
-### 1. Generate polarization displacement tasks
-
-From a directory containing `STRU`:
+Run this in a directory containing `STRU`:
 
 ```bash
-zstar gen
+zstar gen --stru STRU --pyatb --method forward --force
 ```
 
-With explicit options:
+For a 2D slab:
 
 ```bash
-zstar gen --stru STRU --kspacing 0.1 --force --pyatb
+zstar gen --stru STRU --dim 2 --pyatb --method forward --force
 ```
 
-This creates `0.no-move` plus displacement directories for the selected atoms and directions.
+The generated tree starts with `0.no-move`, followed by atom/direction folders such as `1.Ti/x+`. No per-displacement scheduler script is required.
 
-Useful options:
+Useful generation options:
 
-| Option | Purpose |
+| Option | Meaning |
 | --- | --- |
-| `--pyatb` / `--abacus` | Select the NSCF Berry-phase backend. PyATB is the default when no backend is specified. |
-| `--move "x y z"` | Select displacement directions. For `--dim 2`, the default is `x y`; for `--dim 3`, the default is `x y z`. |
-| `--reduce` / `--all` | Use the reduced symmetry set by default, or force all atoms. |
-| `--method forward|central` | Select finite-difference method. `forward` saves calculations; `central` improves accuracy. |
-| `--input-mode {abacus,pyatb,hamgnn,custom}` | Choose how auxiliary input files are prepared. |
-| `--input_sets FILES` | Copy extra scripts, templates, or directories into generated tasks. |
+| `--method forward|central` | One-sided or central finite difference. |
+| `--reduce` / `--all` | Symmetry-reduced atoms (default) or every atom. |
+| `--move "x y z"` | Explicit displacement directions. |
+| `--dim 2|3` | Two-dimensional or three-dimensional analysis. |
+| `--input-mode abacus|pyatb|hamgnn|custom` | Input preparation route. |
+| `--input_sets FILES` | Extra files or directories copied into generated tasks. |
 
-### 2. Run external calculations
+### 2. Run the serial, resumable calculation
 
-Run ABACUS/PyATB jobs in the generated folders according to your local cluster or workstation workflow. Zstar does not replace the electronic-structure code; it prepares and post-processes the calculation directories.
-
-### 3. Collect polarization and compute Born tensors
-
-After the displaced calculations are finished:
+Local shell execution:
 
 ```bash
-zstar deal
+zstar workflow run --root . --dim 3 \
+  --abacus-command "mpirun -np 1 abacus" \
+  --pyatb-command "mpirun -np 1 pyatb" \
+  --omp-threads 28
 ```
 
-For polarization-only collection:
+For a slab, use `--dim 2`.
+
+The default execution order is:
+
+1. Run `0.no-move` SCF and save charge density and sparse matrices.
+2. Generate a normal PyATB high-symmetry band path with `pyatb_input --band`.
+3. Stop before any displacement if the reference is metallic.
+4. Calculate reference polarization and electronic dielectric response.
+5. Copy the reference charge cube/restart into each target `OUT.<suffix>/`.
+6. Run every displacement serially and calculate its polarization.
+7. Record stage state under `.zstar/` so an interrupted run can resume.
+
+The regular band path is the default lightweight gate. It can detect a gap closure on the sampled path but cannot exclude an off-path metallic pocket. A denser MP-grid check is explicit:
 
 ```bash
-zstar deal --solo
+zstar workflow run --gap-mode mp --mp-density 0.08
 ```
 
-For a central-difference dataset:
+Inspect progress at any time:
 
 ```bash
-zstar deal --method central
+zstar workflow status
 ```
 
-Important output files:
+### 3. Generate scheduler-specific drivers
 
-| File | Description |
+Shell:
+
+```bash
+zstar workflow script --backend shell --dim 3
+```
+
+Slurm:
+
+```bash
+zstar workflow script --backend slurm --dim 3 \
+  --queue compute --cpus-per-task 28 --walltime 24:00:00
+```
+
+Torque/PBS:
+
+```bash
+zstar workflow script --backend torque --dim 3 \
+  --queue batch --cpus-per-task 28 --walltime 24:00:00
+```
+
+Add `--submit` only when the generated script has been reviewed and the active environment provides the required executables.
+
+### 4. Collect polarization and construct BEC tensors
+
+Three-dimensional:
+
+```bash
+zstar deal --dim 3 --method forward --pyatb
+```
+
+Two-dimensional hybrid treatment:
+
+```bash
+zstar deal --dim 2 --method forward --pyatb
+```
+
+For central differences, use `--method central` consistently in both `gen` and `deal`.
+
+Key outputs:
+
+| File | Meaning |
 | --- | --- |
-| `Z-BORN-reduced.out` | Raw Born tensors for the reduced/starred atoms before neutrality correction. |
-| `Z-BORN-symm.out` | Full-atom tensors expanded by symmetry and corrected for charge neutrality. |
-| `Z-BORN-reduced-neutral.out` | Reduced tensors after symmetry expansion and neutrality correction. |
-| `BORN-for-phonopy.out` | Electronic dielectric tensor followed by primitive reduced-neutral Born tensors. |
-| `BORN` | Same content as `BORN-for-phonopy.out`, using the filename expected by Phonopy. |
-| `born_symmetry_report.json` | Machine-readable symmetry reconstruction report. |
-| `born_generation_from_symm.log` or `born_symmetry_report.txt` | Human-readable reconstruction or verification log. |
+| `Z-BORN-reduced.out` | Raw tensors for explicitly calculated symmetry representatives. |
+| `Z-BORN-symm.out` | Full-cell tensors reconstructed by symmetry and corrected by the acoustic sum rule. |
+| `Z-BORN-reduced-neutral.out` | Reduced tensors after reconstruction and neutrality correction. |
+| `BORN` | Electronic dielectric tensor plus Phonopy-order BEC tensors. |
+| `BORN-for-phonopy.out` | Explicitly named copy of the Phonopy-compatible data. |
+| `born_symmetry_report.json` | Machine-readable reconstruction and residual report. |
+| `zstar_2d_bec.json` | Per-atom diagnostics for hybrid 2D BEC calculations. |
 
-`Z-BORN-all-neutral.out` is intentionally not produced. A neutralized all-atom file without symmetry constraints is physically weaker than the symmetry-reconstructed `Z-BORN-symm.out`.
+## Phonons and Dielectric Response
 
-### 4. Generate phonon displacement tasks
+### 1. Generate phonon calculations
 
-After the Born workflow is ready, generate phonon finite-displacement folders in a phonon working directory that contains the reference `STRU`, `INPUT`, `KPT`, and submission script such as `abacus_x.sh`:
+In a phonon working directory containing `STRU`, `KPT`, and an `INPUT` with `cal_force 1`:
 
 ```bash
 zstar ph --stru STRU --dim "2 2 2" --symmprec 1e-3
 ```
 
-`zstar ph` calls Phonopy to create displaced structures and then organizes ABACUS-style calculation folders such as `disp-001`, `disp-002`, and so on. Run the force calculations in those `disp-*` folders with your normal ABACUS workflow.
+Run every generated `disp-*` force calculation with the local execution system. `zstar ph` does not require or duplicate an `abacus_x.sh`; if one is present it is copied only as an optional convenience.
 
-### 5. Post-process phonon calculations
-
-After all force calculations are finished:
+### 2. Post-process forces and classify Gamma modes
 
 ```bash
 zstar postph
+zstar irrep --file irreps.yaml --mode db
 ```
 
-`zstar postph` collects force outputs from `disp-*/OUT*/running*.log`, builds the Phonopy force constants, and generates Gamma-point phonon data such as `qpoints.yaml` and `irreps.yaml`.
-
-If you want Phonopy to use NAC during this post-processing step, copy `BORN` into the phonon working directory before running:
+For non-analytical corrections, copy the BEC workflow's `BORN` into the phonon directory before post-processing:
 
 ```bash
-copy path\to\born-workflow\BORN .
+cp ../polar/BORN .
 zstar postph --nac
 ```
 
-### 6. Inspect phonon-mode classification
+### 3. Static and frequency-dependent dielectric response
 
-Use `zstar irrep` to classify modes in `irreps.yaml` into IR-active, Raman-active, silent, and acoustic groups:
-
-```bash
-zstar irrep --file irreps.yaml --mode db
-```
-
-The default `db` mode uses the internal point-group activity database and does not require an external `smodes` program.
-
-### 7. Calculate static and frequency-dependent dielectric response
-
-Before running the dielectric calculation in the phonon directory, copy the Born results from the Born effective charge workflow:
+Copy the full tensors as well:
 
 ```bash
-copy path\to\born-workflow\BORN .
-copy path\to\born-workflow\Z-BORN-symm.out .
+cp ../polar/BORN .
+cp ../polar/Z-BORN-symm.out .
 ```
 
-`BORN` provides the electronic dielectric tensor, while `Z-BORN-symm.out` (or `Z-BORN-all.out`) provides the atom-resolved Born effective charge tensors used for mode effective charges.
-
-Then calculate the static dielectric tensor:
+Static response:
 
 ```bash
-zstar calc --stru STRU --irreps irreps.yaml
+zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
+  --dielectric BORN --dim 3
 ```
 
-To calculate frequency-dependent phonon dielectric functions and write the real/imaginary data files:
+Frequency-dependent response:
 
 ```bash
-zstar freq --stru STRU --irreps irreps.yaml --plot
+zstar freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
+  --dielectric BORN --dim 3 --plot
 ```
 
-Typical dielectric outputs include:
+Modes below 5 cm-1 are excluded by default; change this with `--acoustic-cutoff`.
 
-| File or output | Description |
+For 2D, omit `--thickness` to obtain a vacuum-independent sheet polarizability in angstroms:
+
+```bash
+zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
+  --dielectric BORN --dim 2
+```
+
+Provide `--thickness ANGSTROM` only when an effective 3D dielectric tensor is desired.
+
+## Infrared Spectrum
+
+Calculate mode effective charges, oscillator strengths, broadened IR intensity, and dielectric/sheet response:
+
+```bash
+zstar ir --qpoints qpoints.yaml \
+  --born Z-BORN-symm.out --dielectric BORN \
+  --dim 3 --broadening 10 --outdir ir_spectrum
+```
+
+Select modes explicitly when needed:
+
+```bash
+zstar ir --modes "4,5,8-10" --outdir ir_selected
+```
+
+Typical outputs are `ir_modes.csv`, `ir_spectrum.dat`, `ir_response_real.dat`, `ir_response_imag.dat`, `ir_spectrum.png`, and `ir_summary.json`.
+
+## Raman Spectrum
+
+ZStar obtains non-resonant Raman tensors by central finite differences of the electronic dielectric response along Gamma-point normal coordinates.
+
+### 1. Prepare mode displacements
+
+```bash
+zstar raman prepare --stru STRU --qpoints qpoints.yaml \
+  --modes "4-12" --amplitude 0.02 --outdir raman \
+  --copy INPUT-scf --copy KPT
+```
+
+The amplitude is a normal-coordinate displacement in `angstrom * sqrt(amu)`.
+
+### 2. Run, collect, and plot
+
+```bash
+zstar raman run --raman-dir raman \
+  --reference 0.no-move --qpoints qpoints.yaml \
+  --dim 3 \
+  --abacus-command "mpirun -np 1 abacus" \
+  --pyatb-command "mpirun -np 1 pyatb" \
+  --omp-threads 28
+```
+
+The reference insulating gate is reused once; it is not repeated for every mode displacement. Each `plus`/`minus` stage reuses the reference charge density and records resumable state.
+
+Separate operations are also available:
+
+```bash
+zstar raman status --raman-dir raman
+zstar raman collect --raman-dir raman --qpoints qpoints.yaml --dim 3
+zstar raman spectrum --raman-dir raman --qpoints qpoints.yaml --dim 3
+```
+
+For 2D, `--dim 2` converts the vacuum-dependent dielectric derivative to a sheet-susceptibility derivative using the cell height stored in the phonon data.
+
+## MD + BEC Dielectric Response
+
+`zstar md` does not prescribe how frame-dependent BECs are generated. They may come from:
+
+- ZStar finite differences on selected snapshots.
+- One fixed tensor set applied to every frame.
+- An external charge/BEC model such as QNEP or another user workflow.
+
+ZStar matches those tensors to the trajectory, reconstructs periodic displacements, builds the ionic dipole series, and evaluates its fluctuation susceptibility.
+
+Fixed BEC tensors:
+
+```bash
+zstar md --dump dump.lammpstrj \
+  --fixed-bec Z-BORN-symm.out \
+  --electronic-dielectric BORN \
+  --temperature 300 --type-map "1:Hf,2:Zr,3:O" \
+  --outdir md_fixed
+```
+
+Frame-dependent tensors:
+
+```bash
+zstar md --dump dump.lammpstrj \
+  --bec-dir bec_frames --bec-pattern "frame_{step}.npy" \
+  --electronic-dielectric BORN \
+  --temperature 300 --type-map "1:Hf,2:Zr,3:O" \
+  --start-step 200000 --stride-step 100 \
+  --outdir md_dynamic
+```
+
+The total static tensor is
+
+```text
+epsilon_total = epsilon_infinity + chi_ionic
+```
+
+Outputs separate `chi_ionic.dat`, `epsilon_ionic.dat`, `epsilon_electronic.dat`, and `epsilon_total.dat`. If `--electronic-dielectric` is omitted, the identity tensor is used and the output is explicitly identified as `I + chi_ionic`.
+
+## PyATB Compatibility
+
+ZStar probes the PyATB executable selected for the workflow:
+
+- New builds with direct static response use `static_dielectric_only`.
+- Older builds use a compact 0-30 eV optical grid at 0.1 eV spacing. This range was checked against the new direct-static intercept; the coarse spacing avoids an unnecessarily dense full optical spectrum.
+- Both `static_dielectric_function.dat` and legacy `dielectric_function_real_part.dat` are accepted.
+
+The selected mode and detected version are saved in `zstar_pyatb_compat.json`.
+
+## Electrostatic Potential
+
+`zstar potential` (alias `zstar pot`) analyzes ABACUS `ElecStaticPot.cube` files:
+
+```bash
+zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
+  --axes z --plane xy --plane-average --tile 5 5 \
+  --vacuum-level --vacuum-sides --polar-arrow auto \
+  --outdir potential
+```
+
+It can generate axis profiles, tiled planar maps, directional averages, and one- or two-sided vacuum-level diagnostics. Rendered examples for MoS2, In2Se3, SnS, SnSe, and SnTe are collected in [docs/potential_examples.md](docs/potential_examples.md).
+
+## Command Map
+
+| Command | Purpose |
 | --- | --- |
-| terminal output from `zstar calc` | Phonon dielectric tensor and total dielectric tensor. |
-| `ph_dielectric_function_with_omega_real.dat` | Real part of the frequency-dependent phonon dielectric function. |
-| `ph_dielectric_function_with_omega_imag.dat` | Imaginary part of the frequency-dependent phonon dielectric function. |
-| `figures/` | Optional plots when frequency-dependent plotting is enabled. |
-
----
-
-## Command Reference
-
-```bash
-zstar --help
-zstar gen      [--pyatb|--abacus] [--input-mode MODE] [--input_sets FILES] [--move "x y z"] ...
-zstar deal     [--solo] [--pyatb|--abacus] [--dim 2|3] [--method forward|central] ...
-zstar born     [same core options as deal]
-zstar polar    [same core options as deal]
-zstar ph       --stru STRU --dim "1 1 1" ...
-zstar postph   [--nac] ...
-zstar wyckoff  --stru STRU
-zstar vasp     --stru STRU
-zstar irrep    --file irreps.yaml --mode db
-zstar calc     --stru STRU --irreps irreps.yaml
-zstar freq     --stru STRU --irreps irreps.yaml
-zstar symcheck --stru STRU --reduced Z-BORN-reduced.out --allfile Z-BORN-all.out
-zstar bornsym  --stru STRU --reduced Z-BORN-reduced.out
-```
-
-Subcommand summary:
-
-| Command | Role |
-| --- | --- |
-| `gen` | Prepare finite-displacement polarization calculation folders. |
-| `deal` | Collect polarization results and compute Born effective charge tensors. |
-| `born` | Alias-style Born post-processing entry point using the same core flow as `deal`. |
-| `polar` | Polarization post-processing entry point. Use `--solo` when you only want polarization output. |
-| `bornsym` | Generate full Born tensors from a reduced file without requiring `Z-BORN-all.out`. |
-| `symcheck` | Verify symmetry reconstruction against a full reference `Z-BORN-all.out`. |
-| `ph` | Generate phonon calculation folders. |
-| `postph` | Post-process phonon results and irreducible representations. |
-| `wyckoff` | Print Wyckoff information from `STRU`. |
-| `vasp` | Convert ABACUS `STRU` to VASP `POSCAR`. |
-| `irrep` | Classify Gamma-point irreducible representations from `irreps.yaml`. |
-| `calc` | Calculate static dielectric response from Born tensors and phonon data. |
-| `freq` | Calculate frequency-dependent dielectric functions. |
-
----
-
-## What Changed From PyKappa
-
-Zstar keeps the PyKappa workflow idea but modernizes the package and command surface.
-
-Highlights:
-
-- Package and command are now named `zstar`.
-- PyPI installation is available through `pip install zstar`.
-- The command-line interface is exposed through one console script, `zstar`.
-- Reduced-only Born workflows are first-class: `zstar deal` can reconstruct `Z-BORN-symm.out` automatically.
-- `zstar bornsym` can rebuild full Born tensors from `Z-BORN-reduced.out` without a full reference file.
-- `zstar symcheck` can compare reconstructed tensors with `Z-BORN-all.out` when a full calculation exists.
-- The CLI starts lightly: `zstar --help` and `zstar --version` do not import heavy numerical backends.
-- Generated folders such as `examples/`, `dist/`, `build/`, `*.egg-info/`, and `__pycache__/` are excluded from Git.
-
----
-
-## Symmetry Reconstruction
-
-### Generate from a reduced Born file
-
-Use this when you only calculated the reduced/starred atom set:
-
-```bash
-zstar bornsym --stru 0.no-move/STRU --reduced Z-BORN-reduced.out
-```
-
-Typical outputs:
-
-- `Z-BORN-symm.out`
-- `Z-BORN-reduced-neutral.out`
-- `born_generation_from_symm.log`
-- `born_symmetry_report.json`
-
-The reconstruction maps the Born tensor of a reduced atom to equivalent atoms through the Cartesian rotation matrix:
-
-```text
-Z_target = R_cart * Z_reduced * R_cart^T
-```
-
-After expansion, Zstar applies an acoustic-sum-rule correction so the full cell satisfies charge neutrality.
-
-### Verify against a full calculation
-
-Use this when `Z-BORN-all.out` exists:
-
-```bash
-zstar symcheck --stru 0.no-move/STRU --reduced Z-BORN-reduced.out --allfile Z-BORN-all.out
-```
-
-Typical outputs:
-
-- `born_symmetry_report.txt`
-- `born_symmetry_report.json`
-- Optional CSV report when `--csv` is provided
-
-The report compares each symmetry-predicted tensor against the full reference and prints max/RMS tensor differences.
-
----
-
-## Output File Formats
-
-### `Z-BORN-reduced.out`
-
-Raw tensors for reduced/starred atoms before charge-neutrality correction:
-
-```text
-No. Atom        xx       xy       xz       yx       yy       yz       zx       zy       zz
-*   1 Zr     5.822    0.000    0.000    0.000    5.822    0.000    0.000    0.000    4.985
-*   3 O     -2.122    0.000    0.000    0.000   -3.700    0.000    0.000    0.000   -2.498
-```
-
-### `Z-BORN-symm.out`
-
-Full-atom tensors expanded by symmetry and corrected for charge neutrality:
-
-```text
-No. Atom        xx       xy       xz       yx       yy       yz       zx       zy       zz
-*   1 Zr     5.822    0.000    0.000    0.000    5.822    0.000    0.000    0.000    4.982
-    2 Zr     5.822    0.000    0.000    0.000    5.822    0.000    0.000    0.000    4.982
-*   3 O     -2.122    0.000    0.000    0.000   -3.700    0.000    0.000    0.000   -2.491
-    4 O     -3.700    0.000    0.000    0.000   -2.122    0.000    0.000    0.000   -2.491
-    5 O     -2.122    0.000    0.000    0.000   -3.700    0.000    0.000    0.000   -2.491
-    6 O     -3.700    0.000    0.000    0.000   -2.122    0.000    0.000    0.000   -2.491
-```
-
-### `Z-BORN-reduced-neutral.out`
-
-Reduced tensors after symmetry expansion and charge-neutrality correction:
-
-```text
-No. Atom        xx       xy       xz       yx       yy       yz       zx       zy       zz
-*   1 Zr     5.822    0.000    0.000    0.000    5.822    0.000    0.000    0.000    4.982
-*   3 O     -2.122    0.000    0.000    0.000   -3.700    0.000    0.000    0.000   -2.491
-```
-
-### `BORN-for-phonopy.out` and `BORN`
-
-The first data row is the electronic dielectric tensor. The following rows are primitive reduced-neutral Born tensors:
-
-```text
-#        xx       xy       xz       yx       yy       yz       zx       zy       zz
-      5.166    0.000    0.000    0.000    5.166    0.000    0.000    0.000    4.548
-      5.822    0.000    0.000    0.000    5.822    0.000    0.000    0.000    4.982
-     -2.122    0.000    0.000    0.000   -3.700    0.000    0.000    0.000   -2.491
-```
-
----
-
-## Examples
-
-### Reduced-only Born workflow
-
-```bash
-zstar gen --pyatb --move "x y z" --force
-
-# Run the generated external calculations first.
-
-zstar deal --pyatb
-```
-
-Expected key outputs:
-
-- `Z-BORN-reduced.out`
-- `Z-BORN-symm.out`
-- `Z-BORN-reduced-neutral.out`
-- `BORN-for-phonopy.out`
-- `BORN`
-
-### Polarization-only collection
-
-```bash
-zstar deal --solo --pyatb
-```
-
-### Central-difference Born workflow
-
-```bash
-zstar gen --method central --pyatb --force
-
-# Run the generated external calculations first.
-
-zstar deal --method central --pyatb
-```
-
-### Two-dimensional systems
-
-```bash
-zstar gen --dim 2 --pyatb
-zstar deal --dim 2 --pyatb
-```
-
-### Complete Born + phonon + dielectric workflow
-
-```bash
-# 1. Born effective charge workflow
-cd polar
-zstar gen --pyatb --move "x y z" --force
-
-# Run the generated polarization calculations first.
-
-zstar deal --pyatb
-
-# 2. Phonon workflow
-cd ../phonon
-zstar ph --stru STRU --dim "2 2 2"
-
-# Run the generated disp-* force calculations first.
-
-zstar postph
-zstar irrep --file irreps.yaml --mode db
-
-# 3. Copy Born data into the phonon folder and calculate dielectric response
-copy ..\polar\BORN .
-copy ..\polar\Z-BORN-symm.out .
-zstar calc --stru STRU --irreps irreps.yaml
-zstar freq --stru STRU --irreps irreps.yaml --plot
-```
-
-### Local validation examples
-
-The repository may contain an ignored `examples/` directory for local validation. It is intentionally not uploaded to GitHub or packaged for PyPI. For example:
-
-```bash
-cd examples/HfO2/polar
-zstar deal
-```
-
----
-
-## FAQ
-
-### Why is `Z-BORN-all-neutral.out` no longer generated?
-
-Because a neutralized all-atom file without symmetry constraints can violate physical symmetry relations. Use `Z-BORN-symm.out` for the full-atom, symmetry-consistent, charge-neutral Born tensor set.
-
-### Which backend is used by default?
-
-PyATB is the recommended default for NSCF Berry-phase polarization. Use `--abacus` to switch to ABACUS.
-
-### When should I use `--all`?
-
-Use `--all` only when you intentionally want to calculate every atom instead of the reduced symmetry set. The default reduced workflow is usually cheaper and can reconstruct the full Born tensor through symmetry.
-
-### How do I check the package version?
-
-```bash
-zstar --version
-```
-
----
-
-## Changelog Highlights
-
-See [CHANGELOG.md](CHANGELOG.md) for the full release history.
-
-- `0.0.8`: Fixed anomalously large `delta_P` behavior when two polarization values are very close.
-- `0.0.7`: Added reliable automatic detection for Cartesian coordinates in `STRU`.
-- `0.0.5`: Added central finite-difference support through `--method central`.
-- `0.0.3`: Improved Born effective charge post-processing, symmetry reconstruction, and `Z-BORN-symm.out` generation.
-- `0.0.2`: Published on PyPI.
-- `0.0.1`: Registered software copyright under the former PyKappa name.
-
----
-
-## Citation
-
-If Zstar helps your research, please cite this project and the relevant simulation tools used in your workflow, such as ABACUS, PyATB, Phonopy, and pymatgen.
-
----
-
-## License
-
-Zstar is released under the GPL-3.0 license.
+| `zstar gen` | Generate reference and BEC displacement folders. |
+| `zstar workflow run/status/script` | Run, inspect, or script the serial resumable workflow. |
+| `zstar deal` / `born` / `polar` | Collect polarization and construct BEC tensors. |
+| `zstar bornsym` / `symcheck` | Reconstruct or verify tensors by symmetry. |
+| `zstar ph` / `postph` | Generate and post-process phonon tasks. |
+| `zstar irrep` | Classify Gamma-point optical activity. |
+| `zstar calc` / `freq` | Calculate static or frequency-dependent dielectric response. |
+| `zstar ir` | Calculate mode charges and IR spectra. |
+| `zstar raman` | Prepare, run, collect, and plot Raman finite differences. |
+| `zstar md` | Combine an MD trajectory with fixed or frame-dependent BECs. |
+| `zstar potential` / `pot` | Analyze electrostatic-potential cube files. |
+| `zstar wyckoff` / `vasp` | Inspect Wyckoff positions or convert `STRU`. |
+
+## Repository and Release Policy
+
+- `examples/` contains local validation data and is intentionally ignored.
+- `dist/` and `build/` are local build products and are not committed.
+- `job_scripts/` contains reusable scheduler templates and is version controlled.
+- [docs/how_to_update_pypi.md](docs/how_to_update_pypi.md) records the release procedure.
+
+The relative logo works for authenticated viewers of a private GitHub repository. PyPI requires a public HTTPS image URL, so `README_PYPI.md` deliberately omits private images.
+
+## Citation and License
+
+If ZStar supports published work, please cite the ZStar software article or repository release together with the underlying electronic-structure and lattice-dynamics programs used in the calculation.
+
+ZStar is distributed under the GNU General Public License v3.0.
 
 Copyright (c) Xudong Zhu.

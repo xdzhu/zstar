@@ -1,0 +1,214 @@
+:root {
+  color-scheme: light;
+  --ink: #18212b;
+  --muted: #5b6875;
+  --line: #d8e0e7;
+  --soft: #f3f6f8;
+  --blue: #1769aa;
+  --red: #a9332b;
+}
+
+@page {
+  size: A4;
+  margin: 17mm 16mm 19mm;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 10.5pt;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: #fff;
+  font-family: "Segoe UI", "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif;
+  line-height: 1.58;
+  letter-spacing: 0;
+}
+
+main {
+  max-width: 178mm;
+  margin: 0 auto;
+}
+
+h1,
+h2,
+h3 {
+  color: #102a43;
+  page-break-after: avoid;
+  break-after: avoid-page;
+}
+
+h1 {
+  margin: 5mm 0 2mm;
+  font-size: 25pt;
+  line-height: 1.12;
+}
+
+h2 {
+  margin: 8mm 0 2.5mm;
+  padding-bottom: 1.4mm;
+  border-bottom: 1px solid var(--line);
+  font-size: 17pt;
+  line-height: 1.25;
+}
+
+h3 {
+  margin: 5mm 0 1.5mm;
+  font-size: 12.5pt;
+}
+
+p {
+  margin: 0 0 2.5mm;
+  orphans: 3;
+  widows: 3;
+}
+
+a {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.pdf-badge {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 2px;
+  color: #fff;
+  font-size: 7.5pt;
+  line-height: 1.35;
+  vertical-align: middle;
+}
+
+.badge-pypi {
+  background: #3775a9;
+}
+
+.badge-python {
+  background: #d3a62c;
+}
+
+.badge-license {
+  background: #399447;
+}
+
+hr {
+  margin: 5mm 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+body > main > p[align="center"] {
+  color: var(--muted);
+}
+
+ul,
+ol {
+  margin: 1.5mm 0 3mm 6mm;
+  padding-left: 5mm;
+}
+
+li {
+  margin: 0.8mm 0;
+}
+
+code {
+  padding: 0.2mm 0.8mm;
+  border-radius: 2px;
+  background: var(--soft);
+  color: #7b2d26;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-size: 0.9em;
+}
+
+pre {
+  margin: 2.5mm 0 4mm;
+  padding: 3mm 3.5mm;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--blue);
+  border-radius: 4px;
+  background: #f7f9fb;
+  page-break-inside: avoid;
+  break-inside: avoid-page;
+}
+
+pre code {
+  padding: 0;
+  background: transparent;
+  color: #243b53;
+  font-size: 8.7pt;
+  line-height: 1.45;
+}
+
+table {
+  width: 100%;
+  margin: 2.5mm 0 5mm;
+  border-collapse: collapse;
+  font-size: 9.1pt;
+  page-break-inside: auto;
+}
+
+thead {
+  display: table-header-group;
+}
+
+tr {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+th,
+td {
+  padding: 1.7mm 2mm;
+  vertical-align: top;
+  border: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+th {
+  background: #eaf1f6;
+  color: #102a43;
+  font-weight: 650;
+  text-align: left;
+}
+
+tbody tr:nth-child(even) {
+  background: #fafcfd;
+}
+
+blockquote {
+  margin: 3mm 0;
+  padding: 2mm 3mm;
+  border-left: 3px solid var(--red);
+  background: #fbf5f4;
+  color: #4f3d3b;
+}
+
+strong {
+  color: #102a43;
+}
+
+@media print {
+  a {
+    color: #174f78;
+  }
+
+  h2,
+  h3,
+  pre,
+  table,
+  blockquote {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

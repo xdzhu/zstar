@@ -7,10 +7,10 @@ It is designed to simplify and automate data generation, analysis, and post-
 processing for materials scientists and engineers.
 
 Typical capabilities include:
-- Pre- and post-processing workflows for polarization analyses.
-- Phonon data generation and post-processing utilities.
-- Structure analysis and symmetry consistency checks.
-- Utilities for handling Wyckoff positions and irreducible representations.
+- Serial and resumable bulk or two-dimensional Born-charge workflows.
+- Phonon, infrared, Raman, harmonic dielectric, and MD dielectric analysis.
+- Structure analysis, symmetry reconstruction, and sum-rule checks.
+- Old and new PYATB response-interface compatibility.
 
 The code is intended to interface with common first-principles and lattice
 dynamics frameworks (e.g. ABACUS, Phonopy, PYATB), while keeping the
@@ -30,7 +30,7 @@ See the accompanying LICENSE file for details.
 
 # NOTE:
 # Keep this version in sync with the version declared in pyproject.toml.
-__version__ = "0.0.8"
+__version__ = "0.1.0"
 
 # ---------------------------------------------------------------------------
 # Public API surface
@@ -51,11 +51,17 @@ __all__ = [
     "gen_polar",
     "get_wyckoff",
     "group_modesDB",
+    "md_dielectric",
     "phonon_gen",
     "phonon_post",
+    "polarization_2d",
+    "potential",
+    "pyatb_compat",
     "read_irrep",
+    "spectra",
     "stru_analyzer",
     "verify_born_symmetry",
+    "workflow",
 ]
 
 

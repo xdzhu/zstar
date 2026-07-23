@@ -52,6 +52,16 @@ def _parse_pyatb_polar_file(dat_path):
     return vals['a'], vals['b'], vals['c'], mods['a'], mods['b'], mods['c']
 
 
+def _load_pyatb_dielectric_matrix(root="0.no-move/pyatb"):
+    """Read either the new direct-static or legacy optical PYATB output."""
+
+    from .pyatb_compat import read_static_dielectric
+
+    matrix, source = read_static_dielectric(root)
+    print(f"[pyatb] electronic dielectric source: {source}")
+    return matrix
+
+
 # --- helper: parse reduced_atom.out ---
 def _parse_reduced_atom_out(path="reduced_atom.out"):
     """
@@ -287,23 +297,45 @@ def _read_pyatb_geom(json_path):
 
 
 def get_star_atom(f_stru, symm_tol=1e-5):
+    from .phonopy_stru import write_phonopy_compatible_stru
+
     with tempfile.TemporaryDirectory() as temp_dir:
-        # 保存当前目录
         current_dir = os.getcwd()
-        temp_stru = os.path.join(temp_dir, os.path.basename(f_stru))
-        shutil.copy(f_stru, temp_stru)
-        os.chdir(temp_dir)
-        result = subprocess.run(f"phonopy --dim=\"1 1 1\" -v -d --abacus -c {temp_stru} --tolerance {symm_tol}", shell=True, capture_output=True, text=True)
-        # print(result.stdout)
+        temp_stru = os.path.join(temp_dir, "STRU.phonopy")
+        write_phonopy_compatible_stru(f_stru, temp_stru)
+        result = subprocess.run(
+            [
+                "phonopy",
+                "--dim",
+                "1 1 1",
+                "-v",
+                "-d",
+                "--abacus",
+                "-c",
+                temp_stru,
+                f"--tolerance={symm_tol}",
+            ],
+            cwd=temp_dir,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            detail = result.stderr.strip() or result.stdout.strip()
+            raise RuntimeError(f"Phonopy symmetry analysis failed: {detail}")
         with open(os.path.join(current_dir, 'reduced_atom.out'), 'w') as f:
             f.write('\n'.join(result.stdout.split('\n')[11:-10]))
-        os.chdir(current_dir)
 
     # 提取位于 "primitive cell" 之后的 "Atomic positions" 行和 "unit cell" 行之间的文本
     start_pattern = r'Atomic positions'
     end_pattern = r'unit cell'
     pattern = rf'{start_pattern}\s*\(fractional\):\s*\n(.*?){end_pattern}'
-    primitive_unit_cell_text = re.search(pattern, result.stdout, re.DOTALL).group(1)
+    match = re.search(pattern, result.stdout, re.DOTALL)
+    if match is None:
+        raise ValueError(
+            "Could not parse starred atoms from Phonopy verbose output. "
+            "Check reduced_atom.out for the captured symmetry report."
+        )
+    primitive_unit_cell_text = match.group(1)
     lines = primitive_unit_cell_text.strip().split('\n')
     print(primitive_unit_cell_text)
 
@@ -1792,24 +1824,18 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
 
             dielectric_data_processed = None  # 初始化为空，确保后续判断不会崩溃
 
-            # 处理 dielectric_function_real_part.dat
-            target_file = '0.no-move/pyatb/Out/Optical_Conductivity/dielectric_function_real_part.dat'
-            if os.path.isdir('0.no-move') and 'pyatb' in os.listdir('0.no-move'):
-                if os.path.isfile(target_file) and os.path.getsize(target_file) > 0:
-                    try:
-                        with open(target_file, 'r') as file:
-                            lines = file.readlines()
-                            if len(lines) > 1:
-                                dielectric_line = lines[1].strip().split()[1:10]
-                                dielectric_data = [float(x) for x in dielectric_line]
-                                dielectric_matrix = np.array(dielectric_data).reshape(3, 3)
-                                dielectric_matrix_zero = filter_small_elements(dielectric_matrix, Z_relative_tolerance)
-                                formatted_dielectric = ' '.join([f"{x: >{xx_len}.3f}" for x in dielectric_matrix_zero.flatten()])
-                                dielectric_data_processed = formatted_dielectric + '\n'
-                    except Exception as e:
-                        print(f"[WARN] Could not process dielectric data: {e}")
-                else:
-                    print(f"[WARN] File missing or empty: {target_file}")
+            if os.path.isdir('0.no-move/pyatb'):
+                try:
+                    dielectric_matrix = _load_pyatb_dielectric_matrix()
+                    dielectric_matrix_zero = filter_small_elements(
+                        dielectric_matrix, Z_relative_tolerance
+                    )
+                    formatted_dielectric = ' '.join(
+                        f"{x: >{xx_len}.3f}" for x in dielectric_matrix_zero.flatten()
+                    )
+                    dielectric_data_processed = formatted_dielectric + '\n'
+                except Exception as e:
+                    print(f"[WARN] Could not process dielectric data: {e}")
 
             # 新的标题行，用于 BORN-for-phonopy.out
             new_header = (
@@ -2042,24 +2068,18 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
 
             dielectric_data_processed = None  # 初始化为空，确保后续判断不会崩溃
 
-            # 处理 dielectric_function_real_part.dat
-            target_file = '0.no-move/pyatb/Out/Optical_Conductivity/dielectric_function_real_part.dat'
-            if os.path.isdir('0.no-move') and 'pyatb' in os.listdir('0.no-move'):
-                if os.path.isfile(target_file) and os.path.getsize(target_file) > 0:
-                    try:
-                        with open(target_file, 'r') as file:
-                            lines = file.readlines()
-                            if len(lines) > 1:
-                                dielectric_line = lines[1].strip().split()[1:10]
-                                dielectric_data = [float(x) for x in dielectric_line]
-                                dielectric_matrix = np.array(dielectric_data).reshape(3, 3)
-                                dielectric_matrix_zero = filter_small_elements(dielectric_matrix, Z_relative_tolerance)
-                                formatted_dielectric = ' '.join([f"{x: >{xx_len}.3f}" for x in dielectric_matrix_zero.flatten()])
-                                dielectric_data_processed = formatted_dielectric + '\n'
-                    except Exception as e:
-                        print(f"[WARN] Could not process dielectric data: {e}")
-                else:
-                    print(f"[WARN] File missing or empty: {target_file}")
+            if os.path.isdir('0.no-move/pyatb'):
+                try:
+                    dielectric_matrix = _load_pyatb_dielectric_matrix()
+                    dielectric_matrix_zero = filter_small_elements(
+                        dielectric_matrix, Z_relative_tolerance
+                    )
+                    formatted_dielectric = ' '.join(
+                        f"{x: >{xx_len}.3f}" for x in dielectric_matrix_zero.flatten()
+                    )
+                    dielectric_data_processed = formatted_dielectric + '\n'
+                except Exception as e:
+                    print(f"[WARN] Could not process dielectric data: {e}")
 
             # 新的标题行，用于 BORN-for-phonopy.out
             new_header = (
@@ -2174,10 +2194,8 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
 
     elif dimension == 2:
         # 2D case:
-        # 1) 对每个有限位移结构，只处理/信任 xx, xy, xz, yx, yy, yz
-        # 2) xz, yz 仅做 sanity check，若不接近 0 则警告
-        # 3) 最终仅保留 2x2 in-plane Born block: [[xx, xy], [yx, yy]]
-        # 4) 再嵌回 3x3，随后用对称性展开到所有原子，并做 ASR 修正
+        # In-plane rows use PYATB Berry polarization. The out-of-plane row
+        # uses the real-space dipole integrated from ABACUS charge cubes.
 
         if '0.no-move' in os.listdir('.'):
             # =========================
@@ -2233,17 +2251,20 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     os.chdir(folder)
                     print(f"Now processing folder: {folder}")
 
-                    Z, Z_raw_2x3 = deal_polar_bec_2d(
-                        cord_type,
-                        P_0,
-                        Quanta_a,
-                        Quanta_b,
-                        Quanta_c,
-                        transformation_matrix,
-                        nscf_calculator=nscf_calculator,
-                        disp_A=cord_type['cart'],
-                        warn_tol=warn_tol_2d_cross,
-                        return_raw=True
+                    from .polarization_2d import (
+                        calculate_hybrid_2d_born,
+                        write_hybrid_2d_report,
+                    )
+                    hybrid_result = calculate_hybrid_2d_born(
+                        ".",
+                        "../0.no-move",
+                        method=method,
+                        displacement_angstrom=cord_type["cart"],
+                    )
+                    Z = hybrid_result.tensor
+                    write_hybrid_2d_report(
+                        "zstar_2d_bec.json",
+                        hybrid_result,
                     )
 
                     os.chdir('..')
@@ -2298,36 +2319,19 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
             #  dielectric（可选）
             #  这里保留原读法，但对 xz/yz 做检查
             # =========================
-            target_file = '0.no-move/pyatb/Out/Optical_Conductivity/dielectric_function_real_part.dat'
-            if os.path.isdir('0.no-move') and 'pyatb' in os.listdir('0.no-move'):
-                if os.path.isfile(target_file) and os.path.getsize(target_file) > 0:
-                    try:
-                        with open(target_file, 'r') as file:
-                            lines = file.readlines()
-                            if len(lines) > 1:
-                                dielectric_line = lines[1].strip().split()[1:10]
-                                dielectric_data = [float(x) for x in dielectric_line]
-                                dielectric_matrix = np.array(dielectric_data).reshape(3, 3)
-
-                                if (abs(dielectric_matrix[0, 2]) > warn_tol_2d_cross or
-                                    abs(dielectric_matrix[1, 2]) > warn_tol_2d_cross):
-                                    print(
-                                        f"[WARN][2D] dielectric tensor has non-negligible "
-                                        f"xz={dielectric_matrix[0,2]:.6e}, yz={dielectric_matrix[1,2]:.6e}"
-                                    )
-
-                                dielectric_matrix_zero = filter_small_elements(
-                                    dielectric_matrix, Z_relative_tolerance
-                                )
-                                dielectric_matrix_ready = dielectric_matrix_zero
-                                formatted_dielectric = ' '.join(
-                                    [f"{x: >{xx_len}.3f}" for x in dielectric_matrix_zero.flatten()]
-                                )
-                                dielectric_data_processed = formatted_dielectric + '\n'
-                    except Exception as e:
-                        print(f"[WARN] Could not process dielectric data: {e}")
-                else:
-                    print(f"[WARN] File missing or empty: {target_file}")
+            if os.path.isdir('0.no-move/pyatb'):
+                try:
+                    dielectric_matrix = _load_pyatb_dielectric_matrix()
+                    dielectric_matrix_zero = filter_small_elements(
+                        dielectric_matrix, Z_relative_tolerance
+                    )
+                    dielectric_matrix_ready = dielectric_matrix_zero
+                    formatted_dielectric = ' '.join(
+                        f"{x: >{xx_len}.3f}" for x in dielectric_matrix_zero.flatten()
+                    )
+                    dielectric_data_processed = formatted_dielectric + '\n'
+                except Exception as e:
+                    print(f"[WARN] Could not process dielectric data: {e}")
 
             new_header = (
                 f"{'#': <4} "
@@ -2361,7 +2365,7 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     kwargs["all"] = "Z-BORN-all.out"
 
                 run_symcheck(**kwargs)
-                print("[symm] Reconstructed Z-BORN-symm.out via symmetry + ASR (2D reduced block embedded in 3D).")
+                print("[symm] Reconstructed hybrid 2D Z-BORN-symm.out via symmetry + ASR.")
             except Exception as e:
                 print(f"[symm][ERROR] Symmetry reconstruction failed: {e}")
 

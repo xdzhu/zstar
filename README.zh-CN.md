@@ -1,52 +1,74 @@
 <p align="center">
-  <img src="docs/logo.png" alt="Zstar logo" width="180">
+  <img src="docs/logo.png" alt="ZStar 标志" width="176">
 </p>
 
-<h1 align="center">Zstar</h1>
+<h1 align="center">ZStar</h1>
 
 <p align="center">
-  用于 Born 有效电荷、极化、声子与介电响应流程的 Python 工具集。
+  面向极化、Born 有效电荷、声子、红外、拉曼与介电响应的可复现工作流工具。
 </p>
 
 <p align="center">
   <a href="https://pypi.org/project/zstar/"><img alt="PyPI" src="https://img.shields.io/pypi/v/zstar"></a>
   <a href="https://pypi.org/project/zstar/"><img alt="Python" src="https://img.shields.io/pypi/pyversions/zstar"></a>
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-GPL--3.0-green"></a>
-  <a href="https://github.com/xdzhu/zstar"><img alt="Repository" src="https://img.shields.io/badge/GitHub-xdzhu%2Fzstar-blue"></a>
+  <a href="LICENSE"><img alt="许可证" src="https://img.shields.io/badge/license-GPL--3.0-green"></a>
 </p>
 
 <p align="center">
-  <a href="README.md">English</a> | 简体中文 | <a href="docs/README.en.pdf">English PDF</a> | <a href="docs/README.zh-CN.pdf">中文 PDF</a>
+  <a href="README.md">English</a> | 简体中文 |
+  <a href="docs/README.en.pdf">English PDF</a> |
+  <a href="docs/README.zh-CN.pdf">中文 PDF</a>
 </p>
 
 ---
 
-## 简介
+## 项目简介
 
-**Zstar** 是面向第一性原理极化与晶格动力学分析的轻量工作流工具。它继承并整理了原 PyKappa 的流程思想，现在通过统一的 `zstar` 命令，服务于基于 ABACUS / PyATB 的 Born 有效电荷与介电响应后处理。
+ZStar 是连接 ABACUS、PyATB 与 Phonopy 的 Python 工作流工具。其核心任务是从原子有限位移和 Berry 相位极化出发，构造满足晶体对称性与声学求和规则的 Born 有效电荷（BEC）张量，并进一步完成声子、红外（IR）、介电、拉曼与分子动力学（MD）介电分析。
 
-Zstar 的核心目标是：减少重复的输入文件准备，收集有限位移极化计算结果，并生成满足空间群对称性与电荷中性的 Born 有效电荷文件，方便继续进入 Phonopy 等声子流程。
+ZStar 不会隐藏中间步骤。结构、输入文件、绝缘性门控、极化值、电荷密度、张量重构报告、光谱和任务状态都会保留下来，便于检查、复现与断点续算。
 
-核心能力：
+当前版本的数值验证与运行环境汇总见 [docs/validation.zh-CN.md](docs/validation.zh-CN.md)。
 
-- 从 ABACUS `STRU` 自动生成有限位移极化计算目录。
-- 支持 ABACUS 与 PyATB 极化后端，默认推荐 PyATB。
-- 自动统一极化单位，并将结果转换为 Born 有效电荷张量。
-- 基于空间群和 Wyckoff 等价关系，从 reduced/加星号原子集合重建全原子 Born 张量。
-- 在写出对称性重建结果时施加声学求和规则，保证电荷中性。
-- 写出与 Phonopy NAC 流程兼容的 `BORN` / `BORN-for-phonopy.out`。
-- 提供声子任务生成、声子后处理、Wyckoff 分析、不可约表示分类、VASP 转换和介电张量计算等辅助命令。
+### 主要功能
 
-如果只检查两个关键文件，优先看：
+- 前向差分与中心差分 BEC。
+- 对称性约化、全原子张量重构和声学求和规则修正。
+- `0.no-move -> 位移结构` 的单任务串行、可恢复工作流。
+- 所有位移任务复用 `0.no-move` 的收敛电荷密度。
+- 参考 SCF 完成后只执行一次绝缘性检查。
+- 生成 shell、Slurm 和 Torque/PBS 驱动脚本。
+- 自动兼容旧版 PyATB 与支持静态直算的新版本 PyATB。
+- 三维与二维混合极化/BEC 处理。
+- 声子生成、后处理、模式分类、红外谱、拉曼谱和介电响应。
+- 使用固定或逐帧 BEC 的 MD 偶极涨落介电计算。
+- 面向薄膜和极性材料的静电势辅助分析。
 
-| 文件 | 含义 |
-| --- | --- |
-| `Z-BORN-symm.out` | 全原子 Born 张量，已按对称性重建并做电荷中性修正。 |
-| `Z-BORN-reduced-neutral.out` | reduced primitive Born 张量，已做对称性重建与电荷中性修正，可供 Phonopy 使用。 |
+## 物理处理范围
 
----
+### 三维周期晶体
+
+对于三维周期晶体，ZStar 根据
+
+```text
+Z*(kappa, alpha, beta) = Omega/e * dP_alpha / du_(kappa,beta)
+```
+
+计算 BEC。有限差分之前会按照极化量子对 Berry 相位极化分支进行匹配，避免直接相减导致的分支跳变。
+
+### 二维材料
+
+二维薄膜的面内与面外响应采用不同处理：
+
+- **面内分量：**在体系保持绝缘的前提下，沿用 Berry 相位极化差分。
+- **面外分量：**从 ABACUS 电荷密度 cube 文件做实空间积分，同时包含离子和电子偶极。
+- **归一化：**面内 BEC 通过超胞体积因子消除真空层高度依赖；二维介电谱默认输出与真空无关的片层极化率。
+
+因此，完整二维 BEC 也需要 `x`、`y`、`z` 三个方向的位移。`zstar gen --dim 2` 默认会生成全部三个方向。当前混合算法要求薄膜法向与笛卡尔 `z` 轴对齐；对于倾斜薄膜会明确报错退出。
 
 ## 安装
+
+ZStar 要求 Python 3.9 或更高版本。
 
 从 PyPI 安装：
 
@@ -54,7 +76,7 @@ Zstar 的核心目标是：减少重复的输入文件准备，收集有限位�
 pip install -U zstar
 ```
 
-或从本地源码安装：
+从本地仓库安装：
 
 ```bash
 git clone https://github.com/xdzhu/zstar.git
@@ -62,431 +84,342 @@ cd zstar
 pip install .
 ```
 
-依赖要求：
+外部程序只在对应功能中需要：
 
-- Python 3.8+
-- 项目声明的 Python 包：`numpy`, `PyYAML`, `matplotlib`, `spglib`, `phonopy`, `pymatgen`
-- 运行工作流所需的外部程序：ABACUS、PyATB、Phonopy 等
+- ABACUS：SCF、电荷密度、力与稀疏矩阵。
+- PyATB：Berry 相位极化、能带检查和电子介电响应。
+- Phonopy：位移结构生成与声子后处理。
 
-检查命令是否可用：
+检查安装：
 
 ```bash
 zstar --version
 zstar --help
 ```
 
----
+## Born 有效电荷工作流
 
-## 快速上手
+### 1. 生成参考与位移目录
 
-### 1. 生成极化位移任务
-
-在包含 `STRU` 的目录中运行：
+在包含 `STRU` 的目录中执行：
 
 ```bash
-zstar gen
+zstar gen --stru STRU --pyatb --method forward --force
 ```
 
-也可以显式指定参数：
+二维薄膜：
 
 ```bash
-zstar gen --stru STRU --kspacing 0.1 --force --pyatb
+zstar gen --stru STRU --dim 2 --pyatb --method forward --force
 ```
 
-该命令会生成 `0.no-move` 以及所选原子和方向对应的位移目录。
+生成的目录从 `0.no-move` 开始，后面是类似 `1.Ti/x+` 的原子/方向位移目录。每个位移目录不再需要单独复制一份任务脚本。
 
-常用参数：
+常用选项：
 
-| 参数 | 作用 |
+| 选项 | 含义 |
 | --- | --- |
-| `--pyatb` / `--abacus` | 选择 NSCF Berry phase 后端。未指定时默认使用 PyATB。 |
-| `--move "x y z"` | 指定位移方向。`--dim 2` 默认 `x y`，`--dim 3` 默认 `x y z`。 |
-| `--reduce` / `--all` | 默认只计算 reduced 对称性集合；`--all` 强制计算所有原子。 |
-| `--method forward|central` | 选择有限差分方法。`forward` 节省计算量，`central` 精度更高。 |
-| `--input-mode {abacus,pyatb,hamgnn,custom}` | 选择辅助输入文件准备方式。 |
-| `--input_sets FILES` | 将额外脚本、模板或目录复制到生成的任务目录。 |
+| `--method forward|central` | 前向或中心有限差分。 |
+| `--reduce` / `--all` | 默认只算对称性代表原子，或强制计算全部原子。 |
+| `--move "x y z"` | 显式指定原子位移方向。 |
+| `--dim 2|3` | 二维或三维处理。 |
+| `--input-mode abacus|pyatb|hamgnn|custom` | 输入文件准备方式。 |
+| `--input_sets FILES` | 复制到任务目录的附加文件或文件夹。 |
 
-### 2. 运行外部计算
+### 2. 串行执行并支持断点续算
 
-按照本地工作站或集群流程，在生成的目录中运行 ABACUS / PyATB 等外部计算。Zstar 不替代电子结构程序，而是负责准备目录和后处理结果。
-
-### 3. 收集极化并计算 Born 张量
-
-位移计算完成后运行：
+本地 shell 运行：
 
 ```bash
-zstar deal
+zstar workflow run --root . --dim 3 \
+  --abacus-command "mpirun -np 1 abacus" \
+  --pyatb-command "mpirun -np 1 pyatb" \
+  --omp-threads 28
 ```
 
-如果只想收集极化结果：
+二维材料使用 `--dim 2`。
+
+默认执行顺序如下：
+
+1. 执行 `0.no-move` SCF，输出电荷密度与稀疏矩阵。
+2. 使用 `pyatb_input --band` 生成常规高对称能带路径。
+3. 如果参考结构为金属，在任何位移计算开始前报错退出。
+4. 计算参考结构的极化和电子介电张量。
+5. 将参考电荷 cube/restart 文件复制到每个位移任务的 `OUT.<suffix>/`。
+6. 按确定顺序串行执行全部位移及其极化计算。
+7. 在 `.zstar/` 保存阶段状态；中断后再次执行同一命令即可继续。
+
+默认采用普通能带路径进行轻量绝缘性门控。它可以发现所采样路径上的闭隙，但不能排除路径之外的小型费米面。只有显式指定时才采用更严格的 MP 网格：
 
 ```bash
-zstar deal --solo
+zstar workflow run --gap-mode mp --mp-density 0.08
 ```
 
-如果使用中心差分数据：
+查看进度：
 
 ```bash
-zstar deal --method central
+zstar workflow status
 ```
 
-重要输出：
+### 3. 生成不同运行环境的脚本
 
-| 文件 | 说明 |
+本地 shell：
+
+```bash
+zstar workflow script --backend shell --dim 3
+```
+
+Slurm：
+
+```bash
+zstar workflow script --backend slurm --dim 3 \
+  --queue compute --cpus-per-task 28 --walltime 24:00:00
+```
+
+Torque/PBS：
+
+```bash
+zstar workflow script --backend torque --dim 3 \
+  --queue batch --cpus-per-task 28 --walltime 24:00:00
+```
+
+只有在检查脚本内容并确认运行环境正确后，再使用 `--submit`。
+
+### 4. 后处理极化并构造 BEC
+
+三维：
+
+```bash
+zstar deal --dim 3 --method forward --pyatb
+```
+
+二维混合处理：
+
+```bash
+zstar deal --dim 2 --method forward --pyatb
+```
+
+中心差分必须在 `gen` 和 `deal` 两步中都使用 `--method central`。
+
+关键输出：
+
+| 文件 | 含义 |
 | --- | --- |
-| `Z-BORN-reduced.out` | reduced/加星号原子的原始 Born 张量，未做电荷中性修正。 |
-| `Z-BORN-symm.out` | 全原子张量，已按对称性扩展并做电荷中性修正。 |
-| `Z-BORN-reduced-neutral.out` | reduced 张量，已做对称性扩展和电荷中性修正。 |
-| `BORN-for-phonopy.out` | 第一行数据为电子介电张量，后续行为 primitive reduced-neutral Born 张量。 |
-| `BORN` | 与 `BORN-for-phonopy.out` 内容相同，使用 Phonopy 习惯文件名。 |
-| `born_symmetry_report.json` | 机器可读的对称性重建报告。 |
-| `born_generation_from_symm.log` 或 `born_symmetry_report.txt` | 人类可读的生成或校验日志。 |
+| `Z-BORN-reduced.out` | 显式计算的对称性代表原子的原始张量。 |
+| `Z-BORN-symm.out` | 经对称性展开并满足声学求和规则的全原子张量。 |
+| `Z-BORN-reduced-neutral.out` | 对称展开与电中性修正后的约化张量。 |
+| `BORN` | 电子介电张量和 Phonopy 原子顺序的 BEC。 |
+| `BORN-for-phonopy.out` | 与 `BORN` 内容一致、名称更明确的输出。 |
+| `born_symmetry_report.json` | 对称重构与残差报告。 |
+| `zstar_2d_bec.json` | 二维混合 BEC 的逐原子积分诊断。 |
 
-Zstar 有意不再生成 `Z-BORN-all-neutral.out`。没有对称性约束的 all-atom 中性化文件物理意义较弱，应统一使用 `Z-BORN-symm.out`。
+## 声子与介电响应
 
-### 4. 生成声子位移计算任务
+### 1. 生成声子位移任务
 
-Born 流程准备好后，在声子工作目录中准备参考 `STRU`、`INPUT`、`KPT` 和提交脚本（例如 `abacus_x.sh`），然后运行：
+在包含 `STRU`、`KPT` 以及已设置 `cal_force 1` 的 `INPUT` 的声子目录中执行：
 
 ```bash
 zstar ph --stru STRU --dim "2 2 2" --symmprec 1e-3
 ```
 
-`zstar ph` 会调用 Phonopy 生成位移结构，并整理出 ABACUS 风格的声子计算目录，例如 `disp-001`、`disp-002` 等。随后按你的本地 ABACUS 工作流在这些 `disp-*` 目录中完成力计算。
+随后按照本地运行环境完成全部 `disp-*` 目录中的力计算。`zstar ph` 不要求也不会强制复制 `abacus_x.sh`；若当前目录确有该脚本，则只把它作为可选便利文件复制。
 
-### 5. 后处理声子计算
-
-所有力计算结束后运行：
+### 2. 后处理力并查看 Gamma 模式分类
 
 ```bash
 zstar postph
+zstar irrep --file irreps.yaml --mode db
 ```
 
-`zstar postph` 会从 `disp-*/OUT*/running*.log` 收集力信息，构建 Phonopy 力常数，并生成 Gamma 点声子数据，例如 `qpoints.yaml` 和 `irreps.yaml`。
-
-如果希望 Phonopy 在后处理时使用 NAC，需要先把 BEC 流程得到的 `BORN` 复制到声子目录，然后运行：
+如果需要非解析项修正，应先把 BEC 工作流中的 `BORN` 复制到声子目录：
 
 ```bash
-copy path\to\born-workflow\BORN .
+cp ../polar/BORN .
 zstar postph --nac
 ```
 
-### 6. 查看声子模式分类
+### 3. 静态与频率相关介电响应
 
-使用 `zstar irrep` 查看 `irreps.yaml` 中声子模式的分类，包括 IR active、Raman active、Silent 和 Acoustic：
-
-```bash
-zstar irrep --file irreps.yaml --mode db
-```
-
-默认 `db` 模式使用内置点群活动性数据库，不需要额外安装 `smodes`。
-
-### 7. 计算静态与频率依赖介电响应
-
-在声子目录中运行介电计算前，需要从 BEC 计算目录复制 Born 数据：
+同时复制完整 BEC：
 
 ```bash
-copy path\to\born-workflow\BORN .
-copy path\to\born-workflow\Z-BORN-symm.out .
+cp ../polar/BORN .
+cp ../polar/Z-BORN-symm.out .
 ```
 
-其中 `BORN` 提供电子介电张量，`Z-BORN-symm.out`（或 `Z-BORN-all.out`）提供逐原子的 Born 有效电荷张量，用于计算 mode effective charge。
-
-然后计算静态介电张量：
+静态介电响应：
 
 ```bash
-zstar calc --stru STRU --irreps irreps.yaml
+zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
+  --dielectric BORN --dim 3
 ```
 
-如需计算频率依赖的声子介电函数，并写出实部/虚部数据：
+频率相关介电响应：
 
 ```bash
-zstar freq --stru STRU --irreps irreps.yaml --plot
+zstar freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
+  --dielectric BORN --dim 3 --plot
 ```
 
-典型介电输出包括：
+默认排除低于 5 cm-1 的声学模式；可以通过 `--acoustic-cutoff` 调整。
 
-| 文件或输出 | 说明 |
+二维体系不指定 `--thickness` 时，输出与真空层无关、单位为埃的片层极化率：
+
+```bash
+zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
+  --dielectric BORN --dim 2
+```
+
+只有需要定义某个等效三维介电张量时，才设置 `--thickness ANGSTROM`。
+
+## 红外谱
+
+计算模式有效电荷、振子强度、展宽后的红外谱和介电/片层响应：
+
+```bash
+zstar ir --qpoints qpoints.yaml \
+  --born Z-BORN-symm.out --dielectric BORN \
+  --dim 3 --broadening 10 --outdir ir_spectrum
+```
+
+也可以显式选择模式：
+
+```bash
+zstar ir --modes "4,5,8-10" --outdir ir_selected
+```
+
+典型输出包括 `ir_modes.csv`、`ir_spectrum.dat`、`ir_response_real.dat`、`ir_response_imag.dat`、`ir_spectrum.png` 和 `ir_summary.json`。
+
+## 拉曼谱
+
+ZStar 沿 Gamma 点简正坐标对电子介电响应做中心差分，得到非共振 Raman 张量与 Placzek 强度。
+
+### 1. 生成简正模式正负位移
+
+```bash
+zstar raman prepare --stru STRU --qpoints qpoints.yaml \
+  --modes "4-12" --amplitude 0.02 --outdir raman \
+  --copy INPUT-scf --copy KPT
+```
+
+`--amplitude` 的单位为 `angstrom * sqrt(amu)`。
+
+### 2. 串行计算、收集并绘谱
+
+```bash
+zstar raman run --raman-dir raman \
+  --reference 0.no-move --qpoints qpoints.yaml \
+  --dim 3 \
+  --abacus-command "mpirun -np 1 abacus" \
+  --pyatb-command "mpirun -np 1 pyatb" \
+  --omp-threads 28
+```
+
+参考结构的绝缘性门控只复用一次，不会对每个模式位移重复计算。所有 `plus`/`minus` 阶段都复用参考电荷密度，并记录可恢复状态。
+
+也可以分步执行：
+
+```bash
+zstar raman status --raman-dir raman
+zstar raman collect --raman-dir raman --qpoints qpoints.yaml --dim 3
+zstar raman spectrum --raman-dir raman --qpoints qpoints.yaml --dim 3
+```
+
+二维体系使用 `--dim 2`。程序会利用声子数据中的超胞高度，将依赖真空的介电导数转换为片层极化率导数。
+
+## MD + BEC 介电响应
+
+`zstar md` 不限定逐帧 BEC 的来源。BEC 可以来自：
+
+- ZStar 对选定 MD 快照做的单帧有限差分计算。
+- 对所有帧强制使用同一套固定张量。
+- QNEP 或其他外部电荷/BEC 预测模型。
+
+ZStar 负责将张量与轨迹匹配、重建周期性位移、构造离子偶极时间序列，并计算偶极涨落极化率。
+
+固定 BEC：
+
+```bash
+zstar md --dump dump.lammpstrj \
+  --fixed-bec Z-BORN-symm.out \
+  --electronic-dielectric BORN \
+  --temperature 300 --type-map "1:Hf,2:Zr,3:O" \
+  --outdir md_fixed
+```
+
+逐帧 BEC：
+
+```bash
+zstar md --dump dump.lammpstrj \
+  --bec-dir bec_frames --bec-pattern "frame_{step}.npy" \
+  --electronic-dielectric BORN \
+  --temperature 300 --type-map "1:Hf,2:Zr,3:O" \
+  --start-step 200000 --stride-step 100 \
+  --outdir md_dynamic
+```
+
+总静态介电张量为
+
+```text
+epsilon_total = epsilon_infinity + chi_ionic
+```
+
+程序分别写出 `chi_ionic.dat`、`epsilon_ionic.dat`、`epsilon_electronic.dat` 与 `epsilon_total.dat`。如果省略 `--electronic-dielectric`，程序使用单位张量，并明确将结果标识为 `I + chi_ionic`。
+
+## PyATB 新旧版本兼容
+
+ZStar 会探测实际使用的 PyATB 可执行文件：
+
+- 支持静态直算的新版本使用 `static_dielectric_only`。
+- 旧版本使用经新版静态截距对照验证的 0-30 eV 紧凑光学区间，步长为 0.1 eV；粗网格避免为静态介电常数计算不必要的高密度完整光谱。
+- 同时兼容 `static_dielectric_function.dat` 与旧版 `dielectric_function_real_part.dat`。
+
+探测到的版本和实际选择会记录在 `zstar_pyatb_compat.json`。
+
+## 静电势分析
+
+`zstar potential`（别名 `zstar pot`）可分析 ABACUS 的 `ElecStaticPot.cube`：
+
+```bash
+zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
+  --axes z --plane xy --plane-average --tile 5 5 \
+  --vacuum-level --vacuum-sides --polar-arrow auto \
+  --outdir potential
+```
+
+它可以输出轴向平均势、平面周期拼接图、方向平均曲线，以及单侧或双侧真空能级诊断。MoS2、In2Se3、SnS、SnSe 和 SnTe 的渲染示例见 [docs/potential_examples.md](docs/potential_examples.md)。
+
+## 命令总览
+
+| 命令 | 功能 |
 | --- | --- |
-| `zstar calc` 的终端输出 | 声子介电张量与总介电张量。 |
-| `ph_dielectric_function_with_omega_real.dat` | 频率依赖声子介电函数实部。 |
-| `ph_dielectric_function_with_omega_imag.dat` | 频率依赖声子介电函数虚部。 |
-| `figures/` | 启用频率依赖绘图时生成的图像。 |
-
----
-
-## 命令参考
-
-```bash
-zstar --help
-zstar gen      [--pyatb|--abacus] [--input-mode MODE] [--input_sets FILES] [--move "x y z"] ...
-zstar deal     [--solo] [--pyatb|--abacus] [--dim 2|3] [--method forward|central] ...
-zstar born     [核心选项同 deal]
-zstar polar    [核心选项同 deal]
-zstar ph       --stru STRU --dim "1 1 1" ...
-zstar postph   [--nac] ...
-zstar wyckoff  --stru STRU
-zstar vasp     --stru STRU
-zstar irrep    --file irreps.yaml --mode db
-zstar calc     --stru STRU --irreps irreps.yaml
-zstar freq     --stru STRU --irreps irreps.yaml
-zstar symcheck --stru STRU --reduced Z-BORN-reduced.out --allfile Z-BORN-all.out
-zstar bornsym  --stru STRU --reduced Z-BORN-reduced.out
-```
-
-命令概览：
-
-| 命令 | 作用 |
-| --- | --- |
-| `gen` | 生成有限位移极化计算目录。 |
-| `deal` | 收集极化结果并计算 Born 有效电荷。 |
-| `born` | Born 后处理入口，核心流程与 `deal` 一致。 |
-| `polar` | 极化后处理入口；只需要极化结果时可使用 `--solo`。 |
-| `bornsym` | 在没有 `Z-BORN-all.out` 的情况下，从 reduced 文件生成全原子 Born。 |
-| `symcheck` | 使用完整参考 `Z-BORN-all.out` 校验对称性重建。 |
-| `ph` | 生成声子计算目录。 |
-| `postph` | 后处理声子结果和不可约表示。 |
-| `wyckoff` | 从 `STRU` 输出 Wyckoff 信息。 |
-| `vasp` | 将 ABACUS `STRU` 转为 VASP `POSCAR`。 |
-| `irrep` | 从 `irreps.yaml` 分类 Gamma 点不可约表示。 |
-| `calc` | 由 Born 张量与声子数据计算静态介电响应。 |
-| `freq` | 计算频率依赖介电函数。 |
-
----
-
-## 从 PyKappa 到 Zstar
-
-Zstar 保留了 PyKappa 的工作流思想，但重新整理了包名、发布方式和命令入口。
-
-主要变化：
-
-- 包名和命令名统一为 `zstar`。
-- 通过 `pip install zstar` 从 PyPI 安装。
-- 命令行统一暴露为一个 console script：`zstar`。
-- reduced-only Born 流程成为默认推荐路径，`zstar deal` 可自动重建 `Z-BORN-symm.out`。
-- `zstar bornsym` 可以在没有完整参考文件时，从 `Z-BORN-reduced.out` 重建全原子 Born。
-- `zstar symcheck` 可以在存在 `Z-BORN-all.out` 时对比重建结果。
-- `zstar --help` 和 `zstar --version` 轻量启动，不提前导入重数值依赖。
-- `examples/`、`dist/`、`build/`、`*.egg-info/` 和 `__pycache__/` 等生成物不进入 Git。
-
----
-
-## 对称性重建与校验
-
-### 从 reduced Born 文件生成
-
-适用于只计算 reduced/加星号原子集合的情况：
-
-```bash
-zstar bornsym --stru 0.no-move/STRU --reduced Z-BORN-reduced.out
-```
-
-典型输出：
-
-- `Z-BORN-symm.out`
-- `Z-BORN-reduced-neutral.out`
-- `born_generation_from_symm.log`
-- `born_symmetry_report.json`
-
-重建过程使用 Cartesian 旋转矩阵将 reduced 原子的 Born 张量映射到等价原子：
-
-```text
-Z_target = R_cart * Z_reduced * R_cart^T
-```
-
-扩展完成后，Zstar 会施加 acoustic sum rule 修正，使整个晶胞满足电荷中性。
-
-### 与完整计算结果校验
-
-当存在 `Z-BORN-all.out` 时可运行：
-
-```bash
-zstar symcheck --stru 0.no-move/STRU --reduced Z-BORN-reduced.out --allfile Z-BORN-all.out
-```
-
-典型输出：
-
-- `born_symmetry_report.txt`
-- `born_symmetry_report.json`
-- 使用 `--csv` 时可输出 CSV 报告
-
-报告会将每个对称性预测张量与完整参考逐项比较，并给出 max/RMS 误差。
-
----
-
-## 输出文件格式
-
-### `Z-BORN-reduced.out`
-
-reduced/加星号原子的原始张量，尚未做电荷中性修正：
-
-```text
-No. Atom        xx       xy       xz       yx       yy       yz       zx       zy       zz
-*   1 Zr     5.822    0.000    0.000    0.000    5.822    0.000    0.000    0.000    4.985
-*   3 O     -2.122    0.000    0.000    0.000   -3.700    0.000    0.000    0.000   -2.498
-```
-
-### `Z-BORN-symm.out`
-
-全原子张量，已按对称性扩展并做电荷中性修正：
-
-```text
-No. Atom        xx       xy       xz       yx       yy       yz       zx       zy       zz
-*   1 Zr     5.822    0.000    0.000    0.000    5.822    0.000    0.000    0.000    4.982
-    2 Zr     5.822    0.000    0.000    0.000    5.822    0.000    0.000    0.000    4.982
-*   3 O     -2.122    0.000    0.000    0.000   -3.700    0.000    0.000    0.000   -2.491
-    4 O     -3.700    0.000    0.000    0.000   -2.122    0.000    0.000    0.000   -2.491
-    5 O     -2.122    0.000    0.000    0.000   -3.700    0.000    0.000    0.000   -2.491
-    6 O     -3.700    0.000    0.000    0.000   -2.122    0.000    0.000    0.000   -2.491
-```
-
-### `Z-BORN-reduced-neutral.out`
-
-reduced 张量，已做对称性扩展和电荷中性修正：
-
-```text
-No. Atom        xx       xy       xz       yx       yy       yz       zx       zy       zz
-*   1 Zr     5.822    0.000    0.000    0.000    5.822    0.000    0.000    0.000    4.982
-*   3 O     -2.122    0.000    0.000    0.000   -3.700    0.000    0.000    0.000   -2.491
-```
-
-### `BORN-for-phonopy.out` 与 `BORN`
-
-第一行数据是电子介电张量，后续行为 primitive reduced-neutral Born 张量：
-
-```text
-#        xx       xy       xz       yx       yy       yz       zx       zy       zz
-      5.166    0.000    0.000    0.000    5.166    0.000    0.000    0.000    4.548
-      5.822    0.000    0.000    0.000    5.822    0.000    0.000    0.000    4.982
-     -2.122    0.000    0.000    0.000   -3.700    0.000    0.000    0.000   -2.491
-```
-
----
-
-## 示例
-
-### Reduced-only Born 流程
-
-```bash
-zstar gen --pyatb --move "x y z" --force
-
-# 先运行生成目录中的外部计算。
-
-zstar deal --pyatb
-```
-
-关键输出：
-
-- `Z-BORN-reduced.out`
-- `Z-BORN-symm.out`
-- `Z-BORN-reduced-neutral.out`
-- `BORN-for-phonopy.out`
-- `BORN`
-
-### 只收集极化
-
-```bash
-zstar deal --solo --pyatb
-```
-
-### 中心差分 Born 流程
-
-```bash
-zstar gen --method central --pyatb --force
-
-# 先运行生成目录中的外部计算。
-
-zstar deal --method central --pyatb
-```
-
-### 二维体系
-
-```bash
-zstar gen --dim 2 --pyatb
-zstar deal --dim 2 --pyatb
-```
-
-### 完整 Born + 声子 + 介电函数流程
-
-```bash
-# 1. Born 有效电荷流程
-cd polar
-zstar gen --pyatb --move "x y z" --force
-
-# 先运行生成目录中的极化计算。
-
-zstar deal --pyatb
-
-# 2. 声子流程
-cd ../phonon
-zstar ph --stru STRU --dim "2 2 2"
-
-# 先运行生成的 disp-* 力计算。
-
-zstar postph
-zstar irrep --file irreps.yaml --mode db
-
-# 3. 将 Born 数据复制到声子目录并计算介电响应
-copy ..\polar\BORN .
-copy ..\polar\Z-BORN-symm.out .
-zstar calc --stru STRU --irreps irreps.yaml
-zstar freq --stru STRU --irreps irreps.yaml --plot
-```
-
-### 本地 examples 验证
-
-仓库中可以保留被忽略的 `examples/` 目录用于本地验证。该目录不会上传到 GitHub，也不会打包到 PyPI。例如：
-
-```bash
-cd examples/HfO2/polar
-zstar deal
-```
-
----
-
-## 常见问题
-
-### 为什么不再生成 `Z-BORN-all-neutral.out`？
-
-因为没有对称性约束的 all-atom 中性化文件可能破坏物理对称关系。全原子、满足群对称和电荷中性的 Born 张量应使用 `Z-BORN-symm.out`。
-
-### 默认使用哪个后端？
-
-PyATB 是推荐默认的 NSCF Berry phase 极化后端。使用 `--abacus` 可切换到 ABACUS。
-
-### 什么时候需要 `--all`？
-
-只有在明确希望计算所有原子，而不是 reduced 对称性集合时才使用 `--all`。默认 reduced 流程通常更省计算量，并能通过对称性重建全原子 Born 张量。
-
-### 如何查看版本？
-
-```bash
-zstar --version
-```
-
----
-
-## 变更摘要
-
-完整发布历史见 [CHANGELOG.md](CHANGELOG.md)。
-
-- `0.0.8`：修复两个极化值非常接近时可能出现异常巨大 `delta_P` 的问题。
-- `0.0.7`：更可靠地支持 `STRU` 中 Cartesian 坐标的自动识别。
-- `0.0.5`：通过 `--method central` 支持中心差分。
-- `0.0.3`：改进 Born 有效电荷后处理、对称性重建和 `Z-BORN-symm.out` 生成。
-- `0.0.2`：发布到 PyPI。
-- `0.0.1`：以前身 PyKappa 名称完成软件著作权登记。
-
----
-
-## 引用
-
-如果 Zstar 对你的研究有帮助，请引用本项目，以及你的工作流中实际使用的 ABACUS、PyATB、Phonopy、pymatgen 等相关工具。
-
----
-
-## 许可证
-
-Zstar 使用 GPL-3.0 许可证发布。
+| `zstar gen` | 生成参考和 BEC 位移目录。 |
+| `zstar workflow run/status/script` | 执行、查看或生成串行可恢复工作流。 |
+| `zstar deal` / `born` / `polar` | 收集极化并构造 BEC。 |
+| `zstar bornsym` / `symcheck` | 按对称性重构或校验张量。 |
+| `zstar ph` / `postph` | 生成和后处理声子任务。 |
+| `zstar irrep` | 分类 Gamma 点模式的光学活性。 |
+| `zstar calc` / `freq` | 计算静态或频率相关介电响应。 |
+| `zstar ir` | 计算模式有效电荷与红外谱。 |
+| `zstar raman` | 生成、运行、收集并绘制拉曼谱。 |
+| `zstar md` | 将 MD 轨迹与固定或逐帧 BEC 结合。 |
+| `zstar potential` / `pot` | 分析静电势 cube 文件。 |
+| `zstar wyckoff` / `vasp` | 查看 Wyckoff 位置或转换 `STRU`。 |
+
+## 仓库与发布约定
+
+- `examples/` 只保存本地验证数据，已加入忽略列表。
+- `dist/` 与 `build/` 是本地构建产物，不提交。
+- `job_scripts/` 保存可复用任务模板，随代码提交。
+- PyPI 更新流程见 [docs/how_to_update_pypi.md](docs/how_to_update_pypi.md)。
+
+私有 GitHub 仓库中的 README 可以使用相对路径 logo，因为已登录的仓库访问者能够读取图片；PyPI 无法访问私有仓库的图片地址。因此 `README_PYPI.md` 不引用私有相对图片。若希望 PyPI 展示 logo，必须提供长期稳定、无需登录即可访问的 HTTPS 图片地址。
+
+## 引用与许可证
+
+如果 ZStar 支持了您的论文工作，请引用 ZStar 软件论文或对应仓库版本，同时引用实际使用的电子结构与晶格动力学程序。
+
+ZStar 使用 GNU General Public License v3.0。
 
 Copyright (c) Xudong Zhu.

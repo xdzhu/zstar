@@ -5,10 +5,10 @@
 Unified CLI for the ZStar toolkit.
 
 Subcommands:
-- gen, deal, born, polar
+- gen, deal, born, polar, workflow
 - ph, postph
-- wyckoff, irrep, vasp
-- calc
+- wyckoff, irrep, ir, raman, vasp
+- calc, freq, md, potential
 - symcheck, bornsym
 
 This is adapted from the original pykappa-dev CLI, with imports rewritten to
@@ -187,6 +187,99 @@ def zstar_cli(argv=None) -> None:
                                help='Symmetry precision of STRU, default is 1e-3',
                                default=1e-3)
 
+    # ---------------- serial workflow ----------------
+    parser_workflow = subparsers.add_parser(
+        'workflow',
+        help='Run or generate a serial, resumable Born-charge workflow.'
+    )
+    workflow_actions = parser_workflow.add_subparsers(
+        dest='workflow_action', required=True
+    )
+    parser_workflow_run = workflow_actions.add_parser(
+        'run', help='Run 0.no-move and all displacement stages serially.'
+    )
+    parser_workflow_run.add_argument('--root', default='.')
+    parser_workflow_run.add_argument(
+        '--abacus-command', default='mpirun -np 1 abacus'
+    )
+    parser_workflow_run.add_argument('--pyatb-input', default='pyatb_input')
+    parser_workflow_run.add_argument(
+        '--pyatb-command', default='mpirun -np 1 pyatb'
+    )
+    parser_workflow_run.add_argument('--pyatb-executable', default='pyatb')
+    parser_workflow_run.add_argument('--mp-density', type=float, default=0.08)
+    parser_workflow_run.add_argument(
+        '--gap-mode', choices=['path', 'mp'], default='path',
+        help='One-time 0.no-move PYATB band-path gate; use mp for stricter sampling.'
+    )
+    parser_workflow_run.add_argument(
+        '--dimensionality', '--dim', type=int, choices=[2, 3], default=3
+    )
+    parser_workflow_run.add_argument('--min-gap', type=float, default=0.01)
+    parser_workflow_run.add_argument(
+        '--no-insulation-check', action='store_true',
+        help='Disable the PYATB band-gap gate (not recommended).'
+    )
+    parser_workflow_run.add_argument(
+        '--no-electronic-dielectric', action='store_true'
+    )
+    parser_workflow_run.add_argument(
+        '--legacy-omega-max', type=float, default=30.0,
+        help='Legacy PYATB optical cutoff in eV (default: 30; 0.1 eV spacing).'
+    )
+    parser_workflow_run.add_argument(
+        '--legacy-domega', type=float, default=0.10
+    )
+    parser_workflow_run.add_argument('--omp-threads', type=int, default=1)
+    parser_workflow_run.add_argument('--dry-run', action='store_true')
+    parser_workflow_run.add_argument('--stop-after', type=int, default=None)
+
+    parser_workflow_status = workflow_actions.add_parser(
+        'status', help='Inspect stage progress and band-gap gates.'
+    )
+    parser_workflow_status.add_argument('--root', default='.')
+
+    parser_workflow_script = workflow_actions.add_parser(
+        'script', help='Generate one shell, Slurm, or Torque driver script.'
+    )
+    parser_workflow_script.add_argument(
+        '--backend', choices=['shell', 'slurm', 'torque'], required=True
+    )
+    parser_workflow_script.add_argument('--root', default='.')
+    parser_workflow_script.add_argument('--output', default=None)
+    parser_workflow_script.add_argument('--job-name', default='zstar-born')
+    parser_workflow_script.add_argument('--nodes', type=int, default=1)
+    parser_workflow_script.add_argument('--tasks', type=int, default=1)
+    parser_workflow_script.add_argument('--cpus-per-task', type=int, default=28)
+    parser_workflow_script.add_argument('--walltime', default='24:00:00')
+    parser_workflow_script.add_argument('--queue', default=None)
+    parser_workflow_script.add_argument('--account', default=None)
+    parser_workflow_script.add_argument('--env-script', default=None)
+    parser_workflow_script.add_argument(
+        '--abacus-command', default='mpirun -np 1 abacus'
+    )
+    parser_workflow_script.add_argument(
+        '--pyatb-command', default='mpirun -np 1 pyatb'
+    )
+    parser_workflow_script.add_argument('--mp-density', type=float, default=0.08)
+    parser_workflow_script.add_argument(
+        '--gap-mode', choices=['path', 'mp'], default='path'
+    )
+    parser_workflow_script.add_argument(
+        '--dimensionality', '--dim', type=int, choices=[2, 3], default=3
+    )
+    parser_workflow_script.add_argument('--min-gap', type=float, default=0.01)
+    parser_workflow_script.add_argument(
+        '--no-insulation-check', action='store_true'
+    )
+    parser_workflow_script.add_argument(
+        '--legacy-omega-max', type=float, default=30.0
+    )
+    parser_workflow_script.add_argument(
+        '--submit', action='store_true',
+        help='Submit with sbatch/qsub, or run the shell script immediately.'
+    )
+
     # ---------------- symcheck ----------------
     parser_symcheck = subparsers.add_parser(
         'symcheck',
@@ -225,6 +318,135 @@ def zstar_cli(argv=None) -> None:
     p_ir.add_argument('--stru', default=None,
                       help='(compat) STRU path; smodes will look in CWD anyway')
 
+    parser_ir = subparsers.add_parser(
+        'ir',
+        help='Calculate mode effective charges and infrared spectra.'
+    )
+    parser_ir.add_argument('--qpoints', default='qpoints.yaml')
+    parser_ir.add_argument(
+        '--born', default='Z-BORN-symm.out',
+        help='Z-BORN-symm.out or a Phonopy-style BORN file.'
+    )
+    parser_ir.add_argument(
+        '--dielectric', default=None,
+        help='Optional BORN or PYATB optical output used for epsilon infinity.'
+    )
+    parser_ir.add_argument('--dim', type=int, choices=[2, 3], default=3)
+    parser_ir.add_argument(
+        '--thickness', type=float, default=None,
+        help='2D effective thickness in Angstrom; omit for sheet polarizability.'
+    )
+    parser_ir.add_argument(
+        '--modes', default=None,
+        help='One-based mode list, e.g. 4,5,8-10. Default: all optical modes.'
+    )
+    parser_ir.add_argument('--acoustic-cutoff', type=float, default=5.0)
+    parser_ir.add_argument('--broadening', type=float, default=10.0)
+    parser_ir.add_argument('--max-frequency', type=float, default=None)
+    parser_ir.add_argument('--points', type=int, default=2001)
+    parser_ir.add_argument('--outdir', default='ir_spectrum')
+    parser_ir.add_argument('--no-plot', action='store_true')
+
+    parser_raman = subparsers.add_parser(
+        'raman',
+        help='Prepare finite differences or calculate Raman spectra.'
+    )
+    raman_actions = parser_raman.add_subparsers(
+        dest='raman_action', required=True
+    )
+    parser_raman_prepare = raman_actions.add_parser(
+        'prepare', help='Generate +/- Gamma-mode displacement structures.'
+    )
+    parser_raman_prepare.add_argument('--stru', default='STRU')
+    parser_raman_prepare.add_argument('--qpoints', default='qpoints.yaml')
+    parser_raman_prepare.add_argument('--outdir', default='raman')
+    parser_raman_prepare.add_argument(
+        '--amplitude', type=float, default=0.02,
+        help='Normal-coordinate step in Angstrom sqrt(amu).'
+    )
+    parser_raman_prepare.add_argument('--modes', default=None)
+    parser_raman_prepare.add_argument('--acoustic-cutoff', type=float, default=5.0)
+    parser_raman_prepare.add_argument(
+        '--copy', action='append', default=None,
+        help='Additional calculation input copied into every +/- directory.'
+    )
+
+    parser_raman_run = raman_actions.add_parser(
+        'run',
+        help='Run all +/- structures serially, collect tensors, and make a spectrum.'
+    )
+    parser_raman_run.add_argument('--raman-dir', default='raman')
+    parser_raman_run.add_argument('--reference', default='0.no-move')
+    parser_raman_run.add_argument('--qpoints', default='qpoints.yaml')
+    parser_raman_run.add_argument('--dim', type=int, choices=[2, 3], default=3)
+    parser_raman_run.add_argument(
+        '--abacus-command', default='mpirun -np 1 abacus'
+    )
+    parser_raman_run.add_argument('--pyatb-input', default='pyatb_input')
+    parser_raman_run.add_argument(
+        '--pyatb-command', default='mpirun -np 1 pyatb'
+    )
+    parser_raman_run.add_argument('--pyatb-executable', default='pyatb')
+    parser_raman_run.add_argument('--mp-density', type=float, default=0.08)
+    parser_raman_run.add_argument(
+        '--gap-mode', choices=['path', 'mp'], default='path',
+        help='One-time reference PYATB band-path gate; use mp for stricter sampling.'
+    )
+    parser_raman_run.add_argument('--min-gap', type=float, default=0.01)
+    parser_raman_run.add_argument(
+        '--no-insulation-check', action='store_true',
+        help='Disable the PYATB band-gap gate (not recommended).'
+    )
+    parser_raman_run.add_argument('--legacy-omega-max', type=float, default=30.0)
+    parser_raman_run.add_argument('--legacy-domega', type=float, default=0.10)
+    parser_raman_run.add_argument('--omp-threads', type=int, default=1)
+    parser_raman_run.add_argument('--dry-run', action='store_true')
+    parser_raman_run.add_argument('--stop-after', type=int, default=None)
+    parser_raman_run.add_argument('--temperature', type=float, default=300.0)
+    parser_raman_run.add_argument('--laser-nm', type=float, default=532.0)
+    parser_raman_run.add_argument('--broadening', type=float, default=8.0)
+    parser_raman_run.add_argument('--max-frequency', type=float, default=None)
+    parser_raman_run.add_argument('--points', type=int, default=2001)
+    parser_raman_run.add_argument(
+        '--spectrum-outdir', default='raman_spectrum'
+    )
+    parser_raman_run.add_argument('--no-spectrum', action='store_true')
+    parser_raman_run.add_argument('--no-plot', action='store_true')
+
+    parser_raman_status = raman_actions.add_parser(
+        'status', help='Inspect Raman +/- stage progress.'
+    )
+    parser_raman_status.add_argument('--raman-dir', default='raman')
+
+    parser_raman_collect = raman_actions.add_parser(
+        'collect', help='Central-difference PYATB dielectric tensors.'
+    )
+    parser_raman_collect.add_argument('--raman-dir', default='raman')
+    parser_raman_collect.add_argument('--qpoints', default='qpoints.yaml')
+    parser_raman_collect.add_argument(
+        '--dim', type=int, choices=[2, 3], default=3
+    )
+
+    parser_raman_spectrum = raman_actions.add_parser(
+        'spectrum', help='Calculate Placzek Raman activities and spectrum.'
+    )
+    parser_raman_spectrum.add_argument('--qpoints', default='qpoints.yaml')
+    raman_tensor_source = parser_raman_spectrum.add_mutually_exclusive_group(
+        required=True
+    )
+    raman_tensor_source.add_argument('--tensors', default=None)
+    raman_tensor_source.add_argument('--raman-dir', default=None)
+    parser_raman_spectrum.add_argument(
+        '--dim', type=int, choices=[2, 3], default=3
+    )
+    parser_raman_spectrum.add_argument('--temperature', type=float, default=300.0)
+    parser_raman_spectrum.add_argument('--laser-nm', type=float, default=532.0)
+    parser_raman_spectrum.add_argument('--broadening', type=float, default=8.0)
+    parser_raman_spectrum.add_argument('--max-frequency', type=float, default=None)
+    parser_raman_spectrum.add_argument('--points', type=int, default=2001)
+    parser_raman_spectrum.add_argument('--outdir', default='raman_spectrum')
+    parser_raman_spectrum.add_argument('--no-plot', action='store_true')
+
     parser_vasp = subparsers.add_parser(
         'vasp', help='Convert ABACUS structure format STRU to VASP format POSCAR.'
     )
@@ -251,6 +473,16 @@ def zstar_cli(argv=None) -> None:
                              help='Structure file (STRU or POSCAR/vasp).')
     parser_calc.add_argument('--irreps', dest='irreps_file', default='irreps.yaml',
                              help='Path to irreps.yaml.')
+    parser_calc.add_argument('--qpoints', default='qpoints.yaml')
+    parser_calc.add_argument('--born', default='BORN')
+    parser_calc.add_argument('--dielectric', default=None)
+    parser_calc.add_argument('--dim', type=int, choices=[2, 3], default=3)
+    parser_calc.add_argument('--thickness', type=float, default=None)
+    parser_calc.add_argument('--acoustic-cutoff', type=float, default=5.0)
+    parser_calc.add_argument('--broadening', type=float, default=10.0)
+    parser_calc.add_argument('--max-frequency', type=float, default=None)
+    parser_calc.add_argument('--points', type=int, default=2001)
+    parser_calc.add_argument('--outdir', default='dielectric_response')
 
     parser_freq = subparsers.add_parser('freq', help='Calculate the frequency-dependent dielectric functions.')
     parser_freq.add_argument('--tolerance', type=float,
@@ -273,6 +505,145 @@ def zstar_cli(argv=None) -> None:
                              help='Structure file (STRU or POSCAR/vasp).')
     parser_freq.add_argument('--irreps', dest='irreps_file', default='irreps.yaml',
                              help='Path to irreps.yaml.')
+    parser_freq.add_argument('--qpoints', default='qpoints.yaml')
+    parser_freq.add_argument('--born', default='BORN')
+    parser_freq.add_argument('--dielectric', default=None)
+    parser_freq.add_argument('--dim', type=int, choices=[2, 3], default=3)
+    parser_freq.add_argument('--thickness', type=float, default=None)
+    parser_freq.add_argument('--acoustic-cutoff', type=float, default=5.0)
+    parser_freq.add_argument('--broadening', type=float, default=10.0)
+    parser_freq.add_argument('--max-frequency', type=float, default=None)
+    parser_freq.add_argument('--points', type=int, default=2001)
+    parser_freq.add_argument('--outdir', default='dielectric_response')
+
+    parser_md = subparsers.add_parser(
+        'md',
+        help='Calculate total dielectric tensor from MD trajectory and supplied BEC tensors.'
+    )
+    md_source = parser_md.add_mutually_exclusive_group(required=True)
+    md_source.add_argument('--dump', '--dump-file', dest='dump_file',
+                           help='LAMMPS dump trajectory.')
+    md_source.add_argument('--structure-dir',
+                           help='Directory containing structure frames such as frame_*.vasp.')
+    md_bec = parser_md.add_mutually_exclusive_group(required=True)
+    md_bec.add_argument('--bec-dir',
+                        help='Directory containing per-frame BEC tensors.')
+    md_bec.add_argument('--fixed-bec',
+                        help='Fixed BEC tensor file used for all frames.')
+    parser_md.add_argument('--bec-pattern', default='frame_{step}.npy',
+                           help='Per-frame BEC filename pattern.')
+    parser_md.add_argument('--structure-glob', default='frame_*.vasp',
+                           help='Glob pattern for structure frames.')
+    parser_md.add_argument('--temperature', type=float, required=True,
+                           help='MD temperature in K.')
+    parser_md.add_argument('--type-map', default='',
+                           help="LAMMPS type map, e.g. '1:Hf,2:Zr,3:O'.")
+    parser_md.add_argument('--start-step', type=int, default=None,
+                           help='First MD step to include.')
+    parser_md.add_argument('--end-step', type=int, default=None,
+                           help='Last MD step to include.')
+    parser_md.add_argument('--stride-step', type=int, default=1,
+                           help='Step-space stride after range filtering.')
+    parser_md.add_argument('--second-half', action='store_true',
+                           help='Use only the second half of selected frames.')
+    parser_md.add_argument('--reference', choices=['mean', 'first'], default='mean',
+                           help='Reference structure for displacements.')
+    parser_md.add_argument('--remove-global-translation', action='store_true',
+                           help='Remove per-frame centroid motion before computing displacements.')
+    parser_md.add_argument('--no-minimum-image', action='store_true',
+                           help='Disable minimum-image displacement reconstruction.')
+    parser_md.add_argument('--volume', dest='volume_A3', type=float, default=None,
+                           help='Override average volume in Angstrom^3.')
+    parser_md.add_argument('--max-step-gap', type=int, default=None,
+                           help='Maximum allowed step gap when matching nearest BEC frame.')
+    parser_md.add_argument('--raw-moment-average', action='store_true',
+                           help='Use <M M^T> instead of fluctuation covariance.')
+    parser_md.add_argument('--unbiased', action='store_true',
+                           help='Use N-1 covariance normalization.')
+    parser_md.add_argument(
+        '--electronic-dielectric', '--epsilon-infinity',
+        dest='electronic_dielectric',
+        default=None,
+        help='BORN file or PYATB output containing epsilon infinity.'
+    )
+    parser_md.add_argument('--outdir', default='md_dielectric',
+                           help='Output directory.')
+
+    parser_potential = subparsers.add_parser(
+        'potential',
+        aliases=['pot'],
+        help='Analyze ABACUS electrostatic-potential cube files.'
+    )
+    parser_potential.add_argument('--cube', default=None,
+                                  help='Path to ElecStaticPot.cube. Auto-detects by default.')
+    parser_potential.add_argument('--outdir', default=None,
+                                  help='Output directory. Defaults to the cube directory.')
+    parser_potential.add_argument('--prefix', default='ElecStaticPot',
+                                  help='Output filename prefix.')
+    parser_potential.add_argument('--axis', action='append',
+                                  choices=['x', 'y', 'z'],
+                                  help='Axis for plane-averaged 1D profile.')
+    parser_potential.add_argument('--axes', default=None,
+                                  help='Compact axis list, e.g. xyz or z.')
+    parser_potential.add_argument('--plane', action='append',
+                                  choices=['xy', 'xz', 'yz'],
+                                  help='Plane map to write.')
+    parser_potential.add_argument('--plane-index', type=int, default=None,
+                                  help='Grid index along the plane normal.')
+    parser_potential.add_argument('--plane-fraction', type=float, default=None,
+                                  help='Fractional normal position from 0 to 1.')
+    parser_potential.add_argument('--plane-average', action='store_true',
+                                  help='Average the potential over the plane normal.')
+    parser_potential.add_argument('--plane-coords',
+                                  choices=['cartesian', 'rectified'],
+                                  default='cartesian',
+                                  help='Coordinate system for plane maps.')
+    parser_potential.add_argument('--tile', nargs=2, type=int,
+                                  metavar=('NA', 'NB'), default=(1, 1),
+                                  help='Tile plane-map plots by NA x NB cells, e.g. --tile 5 5.')
+    parser_potential.add_argument('--no-cell-frame', action='store_true',
+                                  help='Do not draw the dashed central-unit-cell frame on tiled maps.')
+    parser_potential.add_argument('--direction', action='append', default=None,
+                                  help='Lattice direction for a perpendicular-plane-averaged profile, e.g. a+b or a-b.')
+    parser_potential.add_argument('--direction-bins', type=int, default=None,
+                                  help='Number of bins used for each directional profile.')
+    parser_potential.add_argument('--direction-tile-radius', type=int, default=1,
+                                  help='Neighbor-cell radius used by the legacy binning method.')
+    parser_potential.add_argument('--direction-method', action='append', default=None,
+                                  choices=['bin', 'nearest', 'linear', 'cubic', 'all'],
+                                  help='Directional averaging method. Repeat to compare methods; default is linear.')
+    parser_potential.add_argument('--direction-samples', nargs=2, type=int,
+                                  metavar=('NU', 'NV'), default=(64, 64),
+                                  help='Perpendicular-plane sample grid for interpolated directional profiles.')
+    parser_potential.add_argument('--direction-smooth', type=float, default=0.0,
+                                  help='Optional periodic Gaussian smoothing sigma in Angstrom for directional profiles.')
+    parser_potential.add_argument('--value-unit',
+                                  choices=['ry', 'ev', 'hartree'],
+                                  default='ry',
+                                  help='Potential unit stored in the cube data.')
+    parser_potential.add_argument('--length-unit',
+                                  choices=['bohr', 'angstrom'],
+                                  default='bohr',
+                                  help='Length unit used by cube header coordinates.')
+    parser_potential.add_argument('--vacuum-level', action='store_true',
+                                  help='Estimate z-direction vacuum level from the largest atom-free gap.')
+    parser_potential.add_argument('--vacuum-sides', action='store_true',
+                                  help='Estimate lower/upper z-vacuum levels and their potential step.')
+    parser_potential.add_argument('--vacuum-exclude', type=float, default=6.0,
+                                  help='Distance in Angstrom excluded from both sides of the vacuum gap.')
+    parser_potential.add_argument('--center-slab', nargs='?', const='z',
+                                  choices=['x', 'y', 'z'], default=None,
+                                  help='Periodically shift the slab so its atomic center lies at the cell center.')
+    parser_potential.add_argument('--polar-arrow',
+                                  choices=['none', 'auto', '+x', '-x', '+y', '-y', '+z', '-z'],
+                                  default='none',
+                                  help='Draw a polarization-direction arrow on compatible profile plots.')
+    parser_potential.add_argument('--no-plot', action='store_true',
+                                  help='Write data files only.')
+    parser_potential.add_argument('--dpi', type=int, default=300,
+                                  help='Plot resolution.')
+    parser_potential.add_argument('--cmap', default='viridis',
+                                  help='Matplotlib colormap for plane maps.')
 
     args = parser.parse_args(argv)
 
@@ -293,49 +664,373 @@ def zstar_cli(argv=None) -> None:
             argv_ir += ['--stru', a.stru]
         return argv_ir or None  # 为空时传 None 让其自行处理
 
+    def _parse_modes(text):
+        if text is None or not str(text).strip():
+            return None
+        values = []
+        for token in str(text).replace(' ', '').split(','):
+            if not token:
+                continue
+            if '-' in token:
+                start, stop = (int(value) for value in token.split('-', 1))
+                values.extend(range(start, stop + 1))
+            else:
+                values.append(int(token))
+        return list(dict.fromkeys(values))
+
     # ---------------- dispatch ----------------
-    if args.command == 'irrep':
+    if args.command == 'workflow':
+        from .workflow import (
+            format_status_table,
+            generate_backend_script,
+            run_serial_workflow,
+            submit_backend_script,
+            workflow_status,
+        )
+
+        if args.workflow_action == 'run':
+            states = run_serial_workflow(
+                root=args.root,
+                abacus_command=args.abacus_command,
+                pyatb_input=args.pyatb_input,
+                pyatb_command=args.pyatb_command,
+                pyatb_executable=args.pyatb_executable,
+                mp_density=args.mp_density,
+                electronic_dielectric=not args.no_electronic_dielectric,
+                check_insulating=not args.no_insulation_check,
+                gap_mode=args.gap_mode,
+                dimensionality=args.dimensionality,
+                min_gap_eV=args.min_gap,
+                legacy_omega_max=args.legacy_omega_max,
+                legacy_domega=args.legacy_domega,
+                omp_threads=args.omp_threads,
+                dry_run=args.dry_run,
+                stop_after=args.stop_after,
+            )
+            print(format_status_table(states))
+        elif args.workflow_action == 'status':
+            print(format_status_table(workflow_status(args.root)))
+        elif args.workflow_action == 'script':
+            script = generate_backend_script(
+                root=args.root,
+                backend=args.backend,
+                output=args.output,
+                job_name=args.job_name,
+                nodes=args.nodes,
+                tasks=args.tasks,
+                cpus_per_task=args.cpus_per_task,
+                walltime=args.walltime,
+                queue=args.queue,
+                account=args.account,
+                env_script=args.env_script,
+                abacus_command=args.abacus_command,
+                pyatb_command=args.pyatb_command,
+                mp_density=args.mp_density,
+                check_insulating=not args.no_insulation_check,
+                gap_mode=args.gap_mode,
+                dimensionality=args.dimensionality,
+                min_gap_eV=args.min_gap,
+                legacy_omega_max=args.legacy_omega_max,
+            )
+            print(f"[OUT] {script}")
+            if args.submit:
+                print(submit_backend_script(script, args.backend))
+
+    elif args.command == 'ir':
+        from .spectra import (
+            calculate_ir_spectrum,
+            load_gamma_modes,
+            read_born_data,
+            write_ir_outputs,
+        )
+
+        modes = load_gamma_modes(args.qpoints)
+        born = read_born_data(
+            args.born,
+            natoms=len(modes.masses_amu),
+            dielectric_path=args.dielectric,
+        )
+        result = calculate_ir_spectrum(
+            modes,
+            born,
+            dimensionality=args.dim,
+            mode_numbers=_parse_modes(args.modes),
+            acoustic_cutoff_cm1=args.acoustic_cutoff,
+            broadening_cm1=args.broadening,
+            max_frequency_cm1=args.max_frequency,
+            points=args.points,
+            thickness_angstrom=args.thickness,
+        )
+        summary = write_ir_outputs(
+            args.outdir, result, plot=not args.no_plot
+        )
+        print(
+            f"Calculated {summary['modes']} IR modes; "
+            f"response: {summary['response_kind']}"
+        )
+        print(f"[OUT] {os.path.abspath(args.outdir)}")
+
+    elif args.command == 'raman':
+        from .spectra import (
+            calculate_raman_spectrum,
+            collect_raman_tensors,
+            load_gamma_modes,
+            load_raman_tensors,
+            prepare_raman_displacements,
+            write_raman_outputs,
+        )
+
+        if args.raman_action == 'status':
+            from .workflow import format_status_table, raman_workflow_status
+
+            print(format_status_table(raman_workflow_status(args.raman_dir)))
+            return
+
+        modes = load_gamma_modes(args.qpoints)
+        if args.raman_action == 'prepare':
+            manifest = prepare_raman_displacements(
+                args.stru,
+                modes,
+                args.outdir,
+                amplitude=args.amplitude,
+                mode_numbers=_parse_modes(args.modes),
+                acoustic_cutoff_cm1=args.acoustic_cutoff,
+                copy_files=args.copy,
+            )
+            print(f"Generated {len(manifest['modes'])} Raman mode pairs.")
+            print(f"[OUT] {os.path.abspath(args.outdir)}")
+        elif args.raman_action == 'run':
+            from .workflow import format_status_table, run_raman_workflow
+
+            states = run_raman_workflow(
+                args.raman_dir,
+                reference_dir=args.reference,
+                abacus_command=args.abacus_command,
+                pyatb_input=args.pyatb_input,
+                pyatb_command=args.pyatb_command,
+                pyatb_executable=args.pyatb_executable,
+                mp_density=args.mp_density,
+                check_insulating=not args.no_insulation_check,
+                gap_mode=args.gap_mode,
+                dimensionality=args.dim,
+                min_gap_eV=args.min_gap,
+                legacy_omega_max=args.legacy_omega_max,
+                legacy_domega=args.legacy_domega,
+                omp_threads=args.omp_threads,
+                dry_run=args.dry_run,
+                stop_after=args.stop_after,
+            )
+            print(format_status_table(states))
+            if args.dry_run or args.stop_after is not None:
+                return
+            mode_numbers, tensors, tensor_kind = collect_raman_tensors(
+                args.raman_dir,
+                dimensionality=args.dim,
+                cell_height_angstrom=modes.cell_height_angstrom,
+            )
+            print(f"Collected {len(mode_numbers)} {tensor_kind} tensors.")
+            if not args.no_spectrum:
+                result = calculate_raman_spectrum(
+                    modes,
+                    mode_numbers,
+                    tensors,
+                    tensor_kind=tensor_kind,
+                    temperature_K=args.temperature,
+                    laser_nm=args.laser_nm,
+                    broadening_cm1=args.broadening,
+                    max_frequency_cm1=args.max_frequency,
+                    points=args.points,
+                )
+                summary = write_raman_outputs(
+                    args.spectrum_outdir,
+                    result,
+                    plot=not args.no_plot,
+                )
+                print(f"Calculated {summary['modes']} Raman modes.")
+                print(f"[OUT] {os.path.abspath(args.spectrum_outdir)}")
+        elif args.raman_action == 'collect':
+            mode_numbers, tensors, tensor_kind = collect_raman_tensors(
+                args.raman_dir,
+                dimensionality=args.dim,
+                cell_height_angstrom=modes.cell_height_angstrom,
+            )
+            print(
+                f"Collected {len(mode_numbers)} {tensor_kind} tensors "
+                f"with shape {tensors.shape}."
+            )
+            print(f"[OUT] {os.path.abspath(args.raman_dir)}")
+        elif args.raman_action == 'spectrum':
+            if args.raman_dir:
+                mode_numbers, tensors, tensor_kind = collect_raman_tensors(
+                    args.raman_dir,
+                    dimensionality=args.dim,
+                    cell_height_angstrom=modes.cell_height_angstrom,
+                )
+            else:
+                mode_numbers, tensors, tensor_kind = load_raman_tensors(
+                    args.tensors
+                )
+            result = calculate_raman_spectrum(
+                modes,
+                mode_numbers,
+                tensors,
+                tensor_kind=tensor_kind,
+                temperature_K=args.temperature,
+                laser_nm=args.laser_nm,
+                broadening_cm1=args.broadening,
+                max_frequency_cm1=args.max_frequency,
+                points=args.points,
+            )
+            summary = write_raman_outputs(
+                args.outdir, result, plot=not args.no_plot
+            )
+            print(f"Calculated {summary['modes']} Raman modes.")
+            print(f"[OUT] {os.path.abspath(args.outdir)}")
+
+    elif args.command == 'irrep':
         from .read_irrep import main as run_read_irrep_cli
 
         run_read_irrep_cli(_build_irrep_argv(args))
 
     elif args.command == 'calc':
-        from .calc_kappa import deal_q_vector as run_calc_kappa
-
-        run_calc_kappa(
-            zero_tolerance=args.tolerance,
-            ir_tolerance=args.ir_tolerance,
-            ir_choose=args.ir_choose,
-            plot_switch=args.plot,
-            mode=args.mode,
-            stru_file=args.stru_file,
-            irreps_file=args.irreps_file
+        from .spectra import (
+            calculate_ir_spectrum,
+            load_gamma_modes,
+            read_born_data,
+            write_ir_outputs,
         )
+
+        modes = load_gamma_modes(args.qpoints)
+        born = read_born_data(
+            args.born,
+            natoms=len(modes.masses_amu),
+            dielectric_path=args.dielectric,
+        )
+        result = calculate_ir_spectrum(
+            modes,
+            born,
+            dimensionality=args.dim,
+            acoustic_cutoff_cm1=args.acoustic_cutoff,
+            broadening_cm1=args.broadening,
+            max_frequency_cm1=args.max_frequency,
+            points=args.points,
+            thickness_angstrom=args.thickness,
+        )
+        write_ir_outputs(args.outdir, result, plot=args.plot)
+        print(f"Static {result.response_kind}:")
+        for row in result.response_real[0]:
+            print("  " + " ".join(f"{value:14.8e}" for value in row))
+        print(f"[OUT] {os.path.abspath(args.outdir)}")
 
     elif args.command == 'freq':
-        from .calc_kappa import deal_q_vector as run_calc_kappa
-
-        run_calc_kappa(
-            zero_tolerance=args.tolerance,
-            ir_tolerance=args.ir_tolerance,
-            ir_choose=args.ir_choose,
-            plot_switch=True,
-            mode=args.mode,
-            stru_file=args.stru_file,
-            irreps_file=args.irreps_file
+        from .spectra import (
+            calculate_ir_spectrum,
+            load_gamma_modes,
+            read_born_data,
+            write_ir_outputs,
         )
+        modes = load_gamma_modes(args.qpoints)
+        born = read_born_data(
+            args.born,
+            natoms=len(modes.masses_amu),
+            dielectric_path=args.dielectric,
+        )
+        result = calculate_ir_spectrum(
+            modes,
+            born,
+            dimensionality=args.dim,
+            acoustic_cutoff_cm1=args.acoustic_cutoff,
+            broadening_cm1=args.broadening,
+            max_frequency_cm1=args.max_frequency,
+            points=args.points,
+            thickness_angstrom=args.thickness,
+        )
+        write_ir_outputs(args.outdir, result, plot=True)
+        print(f"[OUT] {os.path.abspath(args.outdir)}")
+
+    elif args.command == 'md':
+        from .md_dielectric import compute_md_dielectric, parse_type_map
+
+        result = compute_md_dielectric(
+            dump_file=args.dump_file,
+            structure_dir=args.structure_dir,
+            structure_glob=args.structure_glob,
+            bec_dir=args.bec_dir,
+            bec_pattern=args.bec_pattern,
+            fixed_bec=args.fixed_bec,
+            temperature=args.temperature,
+            type_map=parse_type_map(args.type_map),
+            start_step=args.start_step,
+            end_step=args.end_step,
+            stride_step=args.stride_step,
+            second_half=args.second_half,
+            reference=args.reference,
+            remove_global_translation=args.remove_global_translation,
+            minimum_image=not args.no_minimum_image,
+            volume_A3=args.volume_A3,
+            max_step_gap=args.max_step_gap,
+            raw_moment_average=args.raw_moment_average,
+            unbiased=args.unbiased,
+            electronic_dielectric=args.electronic_dielectric,
+            outdir=args.outdir,
+        )
+        print("Total dielectric tensor from MD dipole fluctuations:")
+        for row in result.epsilon:
+            print("  " + " ".join(f"{value:14.8e}" for value in row))
+        print(f"[OUT] {os.path.abspath(args.outdir)}")
+
+    elif args.command in ('potential', 'pot'):
+        from .potential import analyze_potential, normalize_axes
+
+        summary = analyze_potential(
+            cube=args.cube,
+            outdir=args.outdir,
+            prefix=args.prefix,
+            axes=normalize_axes(args.axis, args.axes),
+            planes=args.plane,
+            plane_index=args.plane_index,
+            plane_fraction=args.plane_fraction,
+            plane_average=args.plane_average,
+            plane_coord_mode=args.plane_coords,
+            tile=args.tile,
+            highlight_cell=not args.no_cell_frame,
+            directions=args.direction,
+            direction_bins=args.direction_bins,
+            direction_tile_radius=args.direction_tile_radius,
+            direction_methods=args.direction_method,
+            direction_samples=args.direction_samples,
+            direction_smooth=args.direction_smooth,
+            value_unit=args.value_unit,
+            length_unit=args.length_unit,
+            vacuum_level=args.vacuum_level,
+            vacuum_sides=args.vacuum_sides,
+            vacuum_exclude=args.vacuum_exclude,
+            center_slab_axis=args.center_slab,
+            polar_arrow=args.polar_arrow,
+            plot=not args.no_plot,
+            dpi=args.dpi,
+            cmap=args.cmap,
+        )
+        print(f"Processed cube: {summary['cube']}")
+        print(f"[OUT] {summary['outdir']}")
+        for axis, info in summary["axis_profiles"].items():
+            print(f"[AXIS {axis.upper()}] {info['dat']}")
+        for plane, info in summary["plane_maps"].items():
+            print(f"[PLANE {plane.upper()}] {info['dat']}")
+        for direction, info in summary["direction_profiles"].items():
+            target = info.get('dat') or info.get('png')
+            print(f"[DIRECTION {direction}] {target}")
 
     elif args.command == 'gen':
         from .gen_polar import gen_polar as run_gen
 
-        # -------- gen 参数预处理：dim=2 时默认只沿 xy 方向位移 --------
+        # Full x/y/z displacements are required for the hybrid 2D BEC tensor.
         if args.move is None or str(args.move).strip() == "":
-            if args.dim == 2:
-                args.move = "x y"
-                print("[INFO] dim=2 and --move not specified; default to move along 'x y' only.")
-            else:
-                args.move = "x y z"
-                print("[INFO] dim=3 and --move not specified; default to move along 'x y z'.")
+            args.move = "x y z"
+            print(
+                f"[INFO] dim={args.dim} and --move not specified; "
+                "default to full x/y/z displacements."
+            )
 
         move_input = [c for c in str(args.move) if c in ('x', 'y', 'z')]
         print("处理后的 --move 参数:", move_input)
@@ -345,7 +1040,8 @@ def zstar_cli(argv=None) -> None:
         input_mode = args.input_mode or nscf_calculator
         input_sets = args.input_sets
 
-        if args.method in ["center", "central"]:
+        method = getattr(args, "method", "forward")
+        if method in ["center", "central"]:
             method_fd = "central"
         else:
             method_fd = "forward"
@@ -397,7 +1093,8 @@ def zstar_cli(argv=None) -> None:
         calc_flag = 'abacus' if getattr(args, 'abacus', False) else 'pyatb'
         running_type = 'solo' if getattr(args, 'solo', False) else None
 
-        if args.method in ["center", "central"]:
+        method = getattr(args, "method", "forward")
+        if method in ["center", "central"]:
             method_fd = "central"
         else:
             method_fd = "forward"

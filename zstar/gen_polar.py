@@ -12,12 +12,13 @@ from .stru_analyzer import stru_analyzer
 from typing import Optional, List
 import shlex
 from pathlib import Path
+from .phonopy_stru import write_phonopy_compatible_stru
 
 
 move_length = 0.01
 
 
-ABACUS_DEFAULT_FILES = "abacus_x.sh"
+ABACUS_DEFAULT_FILES = None
 
 HAMGNN_DEFAULT_FILES = "band_cal.yaml graph_data_gen.yaml poscar2openmx.yaml run_HamGNN.sh"
 
@@ -264,7 +265,18 @@ def _copy_input_sets_to_here(input_sets=None, source_dir=None):
         except Exception as e:
             print(f"[gen] WARN: failed to copy {src} -> {dst}: {e}")
 
-def gen_input_in_folder(k_grid, nscf_calculator='abacus', dimension=3, input_mode='pyatb', input_sets=None, source_dir=None, scf_input=None, xc=None, vdw=None):
+def gen_input_in_folder(
+    k_grid,
+    nscf_calculator='abacus',
+    dimension=3,
+    input_mode='pyatb',
+    input_sets=None,
+    source_dir=None,
+    scf_input=None,
+    xc=None,
+    vdw=None,
+    initial_charge='auto',
+):
 
     #  gen_input_in_folder(k_grid, nscf_calculator, dimension, input_mode, input_sets, source_dir, scf_input, xc, vdw)
     """
@@ -353,7 +365,7 @@ def gen_input_in_folder(k_grid, nscf_calculator='abacus', dimension=3, input_mod
                         output_file.write(line)  # 沿用原值
                 elif line.startswith("init_chg "):
                     init_chg_found = True
-                    output_file.write("init_chg        auto\n")
+                    output_file.write(f"init_chg            {initial_charge}\n")
                 # === 新增：成对绑定的 out_mat_hs2 / out_mat_r ===
                 elif line.startswith("out_mat_hs2 "):
                     # 不管原值是多少，统一改为 1，并且与 out_mat_r 绑定一起写
@@ -378,6 +390,8 @@ def gen_input_in_folder(k_grid, nscf_calculator='abacus', dimension=3, input_mod
                 output_file.write("calculation         scf\n")
             if not out_chg_found:
                 output_file.write("out_chg             1\n")
+            if not init_chg_found:
+                output_file.write(f"init_chg            {initial_charge}\n")
             if not xc_found and xc is not None:
                 output_file.write(f"dft_functional       {xc}\n")
             if not vdw_found and vdw is not None and dimension == 2:
@@ -479,7 +493,7 @@ def gen_input_in_folder(k_grid, nscf_calculator='abacus', dimension=3, input_mod
         input_file.write("scf_nmax            200\n")
         input_file.write("scf_thr             1e-7\n")
         input_file.write("\n#Input & Output variables\n")
-        input_file.write("init_chg            auto\n")
+        input_file.write(f"init_chg            {initial_charge}\n")
         input_file.write("stru_file           STRU\n")
         input_file.write("out_mat_hs2         1\n")
         input_file.write("out_mat_r           1\n")
@@ -654,15 +668,36 @@ def gen_polar(f_stru="STRU",
         print(f"[gen_polar] warn: 写入 gen_polar.out 失败: {_e}")
     # ======================================================================
     
+    structure_data = stru_analyzer(f_stru)
+
     with tempfile.TemporaryDirectory() as temp_dir:
         # 保存当前目录
         current_dir = os.getcwd()
-        temp_stru = os.path.join(temp_dir, os.path.basename(f_stru))
-        shutil.copy(f_stru, temp_stru)
+        temp_stru = os.path.join(temp_dir, "STRU.phonopy")
+        write_phonopy_compatible_stru(f_stru, temp_stru)
 
         # 切换到临时目录
         os.chdir(temp_dir)
-        result = subprocess.run(f"phonopy --dim=\"1 1 1\" -v -d --abacus -c {temp_stru} --tolerance={symm_tol}", shell=True, capture_output=True, text=True)
+        result = subprocess.run(
+            [
+                "phonopy",
+                "--dim",
+                "1 1 1",
+                "-v",
+                "-d",
+                "--abacus",
+                "-c",
+                temp_stru,
+                f"--tolerance={symm_tol}",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            message = result.stderr.strip() or result.stdout.strip()
+            raise RuntimeError(
+                f"Phonopy structure analysis failed for {f_stru}:\n{message}"
+            )
 
         # temp_disp_yaml = os.path.join(temp_dir, 'phonopy_disp.yaml')
         # shutil.copy(temp_disp_yaml, os.path.join(current_dir, 'phonopy_disp.yaml'))
@@ -683,7 +718,13 @@ def gen_polar(f_stru="STRU",
     start_pattern = r'Atomic positions'
     end_pattern = r'unit cell'
     pattern = rf'{start_pattern}\s*\(fractional\):\s*\n(.*?){end_pattern}'
-    primitive_unit_cell_text = re.search(pattern, result.stdout, re.DOTALL).group(1)
+    primitive_match = re.search(pattern, result.stdout, re.DOTALL)
+    if primitive_match is None:
+        raise RuntimeError(
+            "Phonopy completed but its verbose atomic-position table could not "
+            "be parsed. Check the Phonopy version and STRU symmetry output."
+        )
+    primitive_unit_cell_text = primitive_match.group(1)
     lines = primitive_unit_cell_text.strip().split('\n')
     print(primitive_unit_cell_text)
 
@@ -743,7 +784,19 @@ def gen_polar(f_stru="STRU",
     if atom_input:
         star_atom_list = parse_atom_string(atom_input, star_atom, star_atom_list)
 
-    lattice_constant, lattice_vectors, element_symbols, element_atomnumber, coordinate_type, element_coordinates, element_movements, element_magnetisms, element_mass, element_pp, element_orb  = stru_analyzer(f_stru)
+    (
+        lattice_constant,
+        lattice_vectors,
+        element_symbols,
+        element_atomnumber,
+        coordinate_type,
+        element_coordinates,
+        element_movements,
+        element_magnetisms,
+        element_mass,
+        element_pp,
+        element_orb,
+    ) = structure_data
 
 
     #传递坐标、基矢量转为Angstrom单位
@@ -808,7 +861,10 @@ def gen_polar(f_stru="STRU",
             nomove_stru_path = os.path.join(nomove_folder, "STRU")
             shutil.copy(f_stru, nomove_stru_path)
             os.chdir(nomove_folder)
-            gen_input_in_folder(k_grid, nscf_calculator, dimension, input_mode, input_sets, source_dir, scf_input, xc, vdw)
+            gen_input_in_folder(
+                k_grid, nscf_calculator, dimension, input_mode, input_sets,
+                source_dir, scf_input, xc, vdw, initial_charge='auto'
+            )
             # with open('INPUT-scf', 'a') as input_file:
             #     input_file.write("out_mat_hs2         1\n")
             #     input_file.write("out_mat_r           1\n")
@@ -839,7 +895,10 @@ def gen_polar(f_stru="STRU",
         nomove_stru_path = os.path.join(nomove_folder, "STRU")
         shutil.copy(f_stru, nomove_stru_path)
         os.chdir(nomove_folder)
-        gen_input_in_folder(k_grid, nscf_calculator, dimension, input_mode, input_sets, source_dir, scf_input, xc, vdw)
+        gen_input_in_folder(
+            k_grid, nscf_calculator, dimension, input_mode, input_sets,
+            source_dir, scf_input, xc, vdw, initial_charge='auto'
+        )
         # with open('INPUT-scf', 'a') as input_file:
         #     input_file.write("out_mat_hs2         1\n")
         #     input_file.write("out_mat_r           1\n")
@@ -1006,7 +1065,11 @@ def gen_polar(f_stru="STRU",
                         # print("这些输出将显示在控制台。")
 
                         os.chdir(direction_folder)
-                        gen_input_in_folder(k_grid, nscf_calculator, dimension, input_mode, input_sets, source_dir, scf_input, xc, vdw)
+                        gen_input_in_folder(
+                            k_grid, nscf_calculator, dimension, input_mode,
+                            input_sets, source_dir, scf_input, xc, vdw,
+                            initial_charge='file'
+                        )
                         print("然后在这里执行 polar-pyatb 计算")
                     
                         os.chdir("..")
@@ -1037,4 +1100,3 @@ if __name__ == "__main__":
             exit()
     
     gen_polar(struname)
-

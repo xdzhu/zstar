@@ -1,2 +1,4 @@
 include README*.md
-recursive-include docs *.md *.png *.pdf
+include CHANGELOG.md
+recursive-include docs *.md *.png *.pdf *.css *.mjs
+recursive-include job_scripts *

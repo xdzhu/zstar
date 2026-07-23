@@ -1,3 +1,19 @@
+## 0.1.0 - 2026-07-23
+
+- Add deterministic, resumable `0.no-move -> displacements` BEC workflows
+  with shared reference charge density and shell, Slurm, and Torque drivers.
+- Add a one-time insulating reference gate. The default uses a standard PyATB
+  band path, while a Monkhorst-Pack check remains available explicitly.
+- Add hybrid two-dimensional BEC analysis: Berry-phase in-plane polarization
+  and cube-integrated out-of-plane slab dipoles.
+- Add phonon input validation, robust force collection, Gamma-mode IR spectra,
+  harmonic dielectric response, and finite-difference Placzek Raman spectra.
+- Add fixed- and frame-resolved BEC post-processing for MD dielectric response.
+- Add automatic compatibility with legacy and direct-static PyATB dielectric
+  interfaces.
+- Add electrostatic-potential cube analysis and rendered slab examples.
+- Require Python 3.9 or newer and add SciPy as a runtime dependency.
+
 ## 0.0.8 — 2026-03-24
 
 - Fix the anomaly enormous delta_P result when two Polarization values are too close.

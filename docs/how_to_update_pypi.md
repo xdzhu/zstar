@@ -1,106 +1,234 @@
-# How to update `zstar` on PyPI
+# ZStar 的 GitHub 与 PyPI 更新流程
 
-约定：
+本文档用于以后自行发布 ZStar。默认工作目录为：
 
-- 开发和本地验证环境：`zstar-test` 或当前开发环境
-- 打包和上传环境：`base`
-- 版本号格式：`X.Y.Z`，例如 `0.0.8`
-- `examples/` 只用于本地验证，不提交到 GitHub
-- `dist/` 和 `build/` 是构建产物，不提交到 GitHub
+```powershell
+D:\Work\Code\zstar
+```
 
-## 1. 更新代码和版本号
+## 基本约定
+
+- `examples/` 只用于本地验证，不提交 GitHub，也不打入发布包。
+- `dist/`、`build/` 和 `*.egg-info/` 是本地构建产物，不提交 GitHub。
+- `job_scripts/` 是正式项目内容，需要提交。
+- 开发和测试使用 `zstar-test` 环境。
+- 构建和上传可以使用安装了 `build` 与 `twine` 的独立发布环境。
+- PyPI 已发布的文件不可覆盖。
+
+## 什么时候需要修改版本号
+
+仅向 GitHub 提交代码或文档时，不必修改版本号。
+
+只要希望 PyPI 页面或安装包发生变化，即使只修改 README/项目描述，也必须发布一个新版本。PyPI 不允许用同一版本号重新上传 wheel 或源码包。
+
+建议遵循：
+
+- 修复错误或只改文档：补丁版本，例如 `0.1.0 -> 0.1.1`。
+- 增加向后兼容的新功能：次版本，例如 `0.1.0 -> 0.2.0`。
+- 引入不兼容接口：主版本。
+
+版本号需要同时修改：
+
+- `pyproject.toml` 中的 `project.version`
+- `zstar/__init__.py` 中的 `__version__`
+- `CHANGELOG.md` 中的发布记录
+
+## 1. 检查工作区
 
 ```powershell
 conda activate zstar-test
-cd D:\Work\Code\zstar
+Set-Location D:\Work\Code\zstar
+
+git status --short
+git diff --check
 ```
 
-确认本地例子和核心命令可以正常运行后，修改两处版本号：
+确认没有误加入：
 
-- `pyproject.toml`
+- `examples/`
+- `dist/`
+- `build/`
+- 临时输出和账号凭据
 
-```toml
-[project]
-name = "zstar"
-version = "X.Y.Z"
-```
-
-- `zstar/__init__.py`
-
-```python
-__version__ = "X.Y.Z"
-```
-
-同时建议在 `CHANGELOG.md` 增加这一版的变更说明。
-
-## 2. 本地验证
+## 2. 运行本地测试
 
 ```powershell
+python -m compileall -q zstar tests
+python -m unittest discover -v
 python -m zstar.cli --version
 python -m zstar.cli --help
-python -m compileall zstar
+python -m zstar.cli workflow run --help
 ```
 
-如需验证示例，请在 `examples/` 目录中运行对应命令。该目录已加入 `.gitignore`，只保留在本地。
+需要外部程序的例子应在忽略的 `examples/` 中验证。至少确认：
 
-## 3. 构建发布包
+- `zstar deal` 能处理已有极化结果。
+- 默认绝缘性门控只对 `0.no-move` 执行一次普通 `--band`。
+- `zstar workflow status` 能识别完成、失败和恢复状态。
+- 新旧 PyATB 环境都能读取电子介电张量。
 
-回到 `base` 环境：
+## 3. 更新中英文 README 与 PDF
+
+编辑：
+
+- `README.md`
+- `README.zh-CN.md`
+- `README_PYPI.md`
+
+重新渲染：
 
 ```powershell
-conda deactivate
-cd D:\Work\Code\zstar
+node docs\render_readme_pdfs.mjs
+```
 
-Remove-Item -Recurse -Force dist, build -ErrorAction SilentlyContinue
+输出：
+
+- `docs/README.en.pdf`
+- `docs/README.zh-CN.pdf`
+
+应把 PDF 转成图片进行目视检查，确认没有截断、重叠、乱码或过宽表格：
+
+```powershell
+pdftoppm -png -r 120 docs\README.en.pdf tmp\pdfs\README-en
+pdftoppm -png -r 120 docs\README.zh-CN.pdf tmp\pdfs\README-zh
+```
+
+## 4. 检查 PyPI 描述
+
+由于仓库可能是私有的，`README_PYPI.md` 不应使用：
+
+```html
+<img src="docs/logo.png">
+```
+
+也不应使用私有仓库的 `raw.githubusercontent.com` 地址。PyPI 访问者没有仓库登录权限，图片会失效。
+
+可选方案：
+
+1. 不在 PyPI 描述中显示 logo，这是当前默认方案。
+2. 将 logo 放在独立的公开仓库或长期稳定的公共 HTTPS 静态资源服务中。
+3. 把该公开 URL 写入 `README_PYPI.md`。
+
+PyPI 不会为安装包中的 `docs/logo.png` 提供可直接嵌入项目页面的稳定资源 URL。
+
+## 5. 清理旧构建并打包
+
+不要删除源码目录。只清理已确认位于项目根目录下的构建产物：
+
+```powershell
+Set-Location D:\Work\Code\zstar
+Remove-Item -Recurse -Force -LiteralPath .\dist -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force -LiteralPath .\build -ErrorAction SilentlyContinue
+Get-ChildItem -Directory -Filter *.egg-info | Remove-Item -Recurse -Force
+
 python -m build
 ```
 
-构建成功后，`dist/` 中应包含：
+`dist/` 中应出现：
 
-- `zstar-X.Y.Z.tar.gz`
-- `zstar-X.Y.Z-py3-none-any.whl`
-
-## 4. 检查发布包
-
-```powershell
-python -m twine check dist/*
+```text
+zstar-X.Y.Z-py3-none-any.whl
+zstar-X.Y.Z.tar.gz
 ```
 
-可选：先上传到 TestPyPI。
+## 6. 检查发布包内容
 
 ```powershell
-python -m twine upload --repository testpypi dist/*.whl
+python -m twine check dist\*
+python -m zipfile -l dist\zstar-X.Y.Z-py3-none-any.whl
 ```
 
-## 5. 上传到正式 PyPI
+确认：
+
+- 包中有 `zstar/` 模块和必要文档。
+- 包中没有 `examples/`、`dist/`、远端计算输出或凭据。
+- `README_PYPI.md` 渲染检查通过。
+
+建议创建临时环境做安装测试：
 
 ```powershell
-python -m twine upload dist/*
+python -m venv tmp\release-smoke
+tmp\release-smoke\Scripts\python -m pip install --upgrade pip
+tmp\release-smoke\Scripts\python -m pip install dist\zstar-X.Y.Z-py3-none-any.whl
+tmp\release-smoke\Scripts\zstar --version
+tmp\release-smoke\Scripts\zstar --help
 ```
 
-上传成功后验证：
+## 7. 提交并推送 GitHub
+
+只暂存本次需要的文件：
 
 ```powershell
-pip install -U zstar
-zstar --version
-```
-
-确认输出版本为 `X.Y.Z`。
-
-## 6. 同步到 GitHub
-
-发布前确认不要提交本地产物：
-
-```powershell
+git add README.md README.zh-CN.md README_PYPI.md CHANGELOG.md pyproject.toml
+git add zstar tests docs job_scripts
 git status --short
+git diff --cached --check
 ```
-
-`examples/`、`dist/`、`build/` 不应出现在待提交文件中。
 
 提交并推送：
 
 ```powershell
-git add .
-git commit -m "Release zstar X.Y.Z"
+git commit -m "Release ZStar X.Y.Z"
 git push origin main
 ```
+
+`examples/` 与 `dist/` 已被忽略，但仍应在提交前检查一次暂存列表。
+
+## 8. 上传 PyPI
+
+推荐使用 PyPI API token，不要把 token 写入仓库。
+
+可先测试：
+
+```powershell
+python -m twine upload --repository testpypi dist\*
+```
+
+正式上传：
+
+```powershell
+python -m twine upload dist\*
+```
+
+用户名使用：
+
+```text
+__token__
+```
+
+密码使用 PyPI 生成的 token。
+
+## 9. 发布后验证
+
+等待 PyPI 页面刷新后：
+
+```powershell
+python -m venv tmp\pypi-smoke
+tmp\pypi-smoke\Scripts\python -m pip install --upgrade pip
+tmp\pypi-smoke\Scripts\python -m pip install --no-cache-dir zstar==X.Y.Z
+tmp\pypi-smoke\Scripts\zstar --version
+tmp\pypi-smoke\Scripts\zstar --help
+```
+
+同时检查：
+
+- PyPI 项目描述中的表格、代码块和链接。
+- GitHub 中英 README 与 logo。
+- GitHub PDF 链接。
+- 仓库提交中没有 `examples/` 和 `dist/`。
+
+## 常见问题
+
+### PyPI 提示文件已经存在
+
+同一版本号不能重复上传。提高版本号、重新构建并再次上传。
+
+### GitHub 能显示 logo，但 PyPI 不能
+
+相对路径图片只对仓库页面有效。私有 GitHub 原始文件对未登录的 PyPI 访问者不可见，应使用公开 HTTPS URL 或不显示 logo。
+
+### 只改 README，是否需要更新软件版本
+
+只推送 GitHub：不需要。
+
+要让 PyPI 页面同步新的 README：需要，因为必须上传一个新的、版本号不同的发布包。
