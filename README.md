@@ -66,6 +66,17 @@ A slab requires separate treatment of in-plane and out-of-plane response:
 
 Accordingly, a complete 2D BEC calculation needs `x`, `y`, and `z` displacements. The default `zstar gen --dim 2` workflow generates all three. The current hybrid implementation requires the slab normal to align with Cartesian `z`; a tilted slab is rejected explicitly.
 
+One reference/displaced cube pair can be audited independently:
+
+```bash
+zstar polar2d --reference-cube reference.cube \
+  --displaced-cube atom_zplus.cube \
+  --displacement 0.01 --outdir slab_dipole_check
+```
+
+This writes the planar charge redistribution, dipole finite difference,
+effective charge, diagnostics, and PNG/PDF/SVG plots.
+
 ## Installation
 
 ZStar requires Python 3.9 or newer.
@@ -183,6 +194,12 @@ zstar workflow script --backend torque --dim 3 \
   --queue batch --cpus-per-task 28 --walltime 24:00:00
 ```
 
+Backend-aware defaults use `mpirun -np N` for shell/Torque and
+`srun --ntasks=N` for Slurm. Add `--dry-run` to validate the generated script,
+environment, ordering, and resume records without launching a calculation.
+The three backends and their scheduler acceptance checks are recorded in
+[docs/validation.md](docs/validation.md#scheduler-backend-smoke-checks).
+
 Add `--submit` only when the generated script has been reviewed and the active environment provides the required executables.
 
 ### 4. Collect polarization and construct BEC tensors
@@ -289,7 +306,7 @@ Select modes explicitly when needed:
 zstar ir --modes "4,5,8-10" --outdir ir_selected
 ```
 
-Typical outputs are `ir_modes.csv`, `ir_spectrum.dat`, `ir_response_real.dat`, `ir_response_imag.dat`, `ir_spectrum.png`, and `ir_summary.json`.
+Typical outputs are `ir_modes.csv`, `ir_spectrum.dat`, `ir_response_real.dat`, `ir_response_imag.dat`, `ir_spectrum.png`, `ir_spectrum.pdf`, `ir_spectrum.svg`, and `ir_summary.json`.
 
 ## Raman Spectrum
 
@@ -327,6 +344,26 @@ zstar raman spectrum --raman-dir raman --qpoints qpoints.yaml --dim 3
 ```
 
 For 2D, `--dim 2` converts the vacuum-dependent dielectric derivative to a sheet-susceptibility derivative using the cell height stored in the phonon data.
+
+## Representative Validation Figures
+
+The compact source data, plotting script, vector files, and integrity manifest
+are archived in [docs/paper_figures](docs/paper_figures/README.md).
+
+<p align="center">
+  <img src="docs/paper_figures/bto_mode_spectroscopy.png" alt="Tetragonal BaTiO3 mode-resolved IR and Raman spectra" width="820">
+</p>
+
+The BTO validation includes all ten positive-frequency optical modes and 20
+completed Raman finite-difference response tasks. The `B1` mode at
+293.38 cm-1 is Raman active and IR silent.
+
+<p align="center">
+  <img src="docs/paper_figures/in2se3_hybrid_polarization.png" alt="Alpha-In2Se3 hybrid two-dimensional polarization and BEC validation" width="820">
+</p>
+
+The In2Se3 validation displays the Berry-phase/cube-integral split and the
+actual planar charge redistribution for an out-of-plane In displacement.
 
 ## MD + BEC Dielectric Response
 
@@ -397,6 +434,7 @@ It can generate axis profiles, tiled planar maps, directional averages, and one-
 | `zstar gen` | Generate reference and BEC displacement folders. |
 | `zstar workflow run/status/script` | Run, inspect, or script the serial resumable workflow. |
 | `zstar deal` / `born` / `polar` | Collect polarization and construct BEC tensors. |
+| `zstar polar2d` | Audit a slab cube-pair dipole difference and out-of-plane BEC. |
 | `zstar bornsym` / `symcheck` | Reconstruct or verify tensors by symmetry. |
 | `zstar ph` / `postph` | Generate and post-process phonon tasks. |
 | `zstar irrep` | Classify Gamma-point optical activity. |

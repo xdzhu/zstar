@@ -5,7 +5,7 @@
 Unified CLI for the ZStar toolkit.
 
 Subcommands:
-- gen, deal, born, polar, workflow
+- gen, deal, born, polar, polar2d, workflow
 - ph, postph
 - wyckoff, irrep, ir, raman, vasp
 - calc, freq, md, potential
@@ -165,6 +165,29 @@ def zstar_cli(argv=None) -> None:
     polar_calc.add_argument('--pyatb', action='store_true',
                             help='Use PyATB for NSCF Berry phase [Recommended].')
 
+    # ---------------- 2D polarization profile ----------------
+    parser_polar2d = subparsers.add_parser(
+        'polar2d',
+        help='Visualize a cube-integrated out-of-plane slab polarization change.'
+    )
+    parser_polar2d.add_argument(
+        '--reference-cube', required=True,
+        help='Reference charge cube or directory containing one.'
+    )
+    parser_polar2d.add_argument(
+        '--displaced-cube', required=True,
+        help='Displaced charge cube or directory containing one.'
+    )
+    parser_polar2d.add_argument(
+        '--displacement', type=float, default=None,
+        help='Signed ionic displacement in Angstrom; enables an effective-charge report.'
+    )
+    parser_polar2d.add_argument(
+        '--neutrality-tolerance', type=float, default=0.05
+    )
+    parser_polar2d.add_argument('--outdir', default='polarization_2d_profile')
+    parser_polar2d.add_argument('--no-plot', action='store_true')
+
     # ---------------- ph ----------------
     parser_ph = subparsers.add_parser('ph', help='Generate phonon data.')
     parser_ph.add_argument('--stru', help='Path to the STRU file', default='STRU')
@@ -256,10 +279,12 @@ def zstar_cli(argv=None) -> None:
     parser_workflow_script.add_argument('--account', default=None)
     parser_workflow_script.add_argument('--env-script', default=None)
     parser_workflow_script.add_argument(
-        '--abacus-command', default='mpirun -np 1 abacus'
+        '--abacus-command', default=None,
+        help='Override the backend-aware ABACUS launcher.'
     )
     parser_workflow_script.add_argument(
-        '--pyatb-command', default='mpirun -np 1 pyatb'
+        '--pyatb-command', default=None,
+        help='Override the backend-aware PYATB launcher.'
     )
     parser_workflow_script.add_argument('--mp-density', type=float, default=0.08)
     parser_workflow_script.add_argument(
@@ -274,6 +299,10 @@ def zstar_cli(argv=None) -> None:
     )
     parser_workflow_script.add_argument(
         '--legacy-omega-max', type=float, default=30.0
+    )
+    parser_workflow_script.add_argument(
+        '--dry-run', action='store_true',
+        help='Generate a scheduler/environment smoke-test script without calculations.'
     )
     parser_workflow_script.add_argument(
         '--submit', action='store_true',
@@ -679,7 +708,41 @@ def zstar_cli(argv=None) -> None:
         return list(dict.fromkeys(values))
 
     # ---------------- dispatch ----------------
-    if args.command == 'workflow':
+    if args.command == 'polar2d':
+        from .polarization_2d import (
+            compare_slab_charge_profiles,
+            find_charge_cube,
+            write_slab_charge_difference,
+        )
+
+        reference_cube = (
+            find_charge_cube(args.reference_cube)
+            if os.path.isdir(args.reference_cube)
+            else args.reference_cube
+        )
+        displaced_cube = (
+            find_charge_cube(args.displaced_cube)
+            if os.path.isdir(args.displaced_cube)
+            else args.displaced_cube
+        )
+        result = compare_slab_charge_profiles(
+            reference_cube,
+            displaced_cube,
+            displacement_angstrom=args.displacement,
+            neutrality_tolerance=args.neutrality_tolerance,
+        )
+        summary = write_slab_charge_difference(
+            args.outdir, result, plot=not args.no_plot
+        )
+        print(
+            "Slab dipole change: "
+            f"{result.total_dipole_change_e_angstrom:.8g} e Angstrom"
+        )
+        if result.effective_charge_e is not None:
+            print(f"Out-of-plane effective charge: {result.effective_charge_e:.8g} e")
+        print(f"[OUT] {os.path.abspath(args.outdir)}")
+
+    elif args.command == 'workflow':
         from .workflow import (
             format_status_table,
             generate_backend_script,
@@ -731,6 +794,7 @@ def zstar_cli(argv=None) -> None:
                 dimensionality=args.dimensionality,
                 min_gap_eV=args.min_gap,
                 legacy_omega_max=args.legacy_omega_max,
+                dry_run=args.dry_run,
             )
             print(f"[OUT] {script}")
             if args.submit:

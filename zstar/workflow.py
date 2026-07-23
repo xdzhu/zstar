@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -950,26 +951,44 @@ def generate_backend_script(
     queue: Optional[str] = None,
     account: Optional[str] = None,
     env_script: Optional[str] = None,
-    abacus_command: str = "mpirun -np 1 abacus",
-    pyatb_command: str = "mpirun -np 1 pyatb",
+    abacus_command: Optional[str] = None,
+    pyatb_command: Optional[str] = None,
     mp_density: float = 0.08,
     check_insulating: bool = True,
     gap_mode: str = "path",
     dimensionality: int = 3,
     min_gap_eV: float = 0.01,
     legacy_omega_max: float = DEFAULT_LEGACY_OMEGA_MAX_EV,
+    dry_run: bool = False,
 ) -> Path:
     """Generate a single backend script that runs the complete serial chain."""
 
     backend_key = backend.lower()
     if backend_key not in {"shell", "slurm", "torque"}:
         raise ValueError("backend must be one of: shell, slurm, torque")
+    if int(nodes) < 1 or int(tasks) < 1 or int(cpus_per_task) < 1:
+        raise ValueError("nodes, tasks, and cpus_per_task must be positive")
     root_path = Path(root).resolve()
     if output is None:
         suffix = {"shell": "sh", "slurm": "slurm", "torque": "pbs"}[backend_key]
         output_path = root_path / f"run_zstar_born.{suffix}"
     else:
         output_path = Path(output).resolve()
+
+    if abacus_command is None:
+        abacus_command = (
+            f"srun --ntasks={int(tasks)} abacus"
+            if backend_key == "slurm"
+            else f"mpirun -np {int(tasks)} abacus"
+        )
+    if pyatb_command is None:
+        pyatb_command = (
+            f"srun --ntasks={int(tasks)} pyatb"
+            if backend_key == "slurm"
+            else f"mpirun -np {int(tasks)} pyatb"
+        )
+    if env_script is not None:
+        env_script = str(Path(env_script).expanduser().resolve())
 
     insulation_option = (
         f" --min-gap {float(min_gap_eV):g}"
@@ -987,10 +1006,15 @@ def generate_backend_script(
         f"{insulation_option}"
         f" --legacy-omega-max {float(legacy_omega_max):g}"
         f" --omp-threads {int(cpus_per_task)}"
+        f"{' --dry-run' if dry_run else ''}"
         ' 2>&1 | tee -a "$ROOT/.zstar/workflow.log"'
     )
 
-    header = ["#!/usr/bin/env bash"]
+    header = [
+        "#!/usr/bin/env bash",
+        f"# ZStar execution backend: {backend_key}",
+        "# Displacement stages run serially and resume from .zstar/stages/*.json.",
+    ]
     if backend_key == "slurm":
         header.extend(
             [
@@ -999,7 +1023,7 @@ def generate_backend_script(
                 f"#SBATCH --ntasks={int(tasks)}",
                 f"#SBATCH --cpus-per-task={int(cpus_per_task)}",
                 f"#SBATCH --time={walltime}",
-                "#SBATCH --output=.zstar/slurm-%j.out",
+                f"#SBATCH --output={root_path}/.zstar/slurm-%j.out",
             ]
         )
         if queue:
@@ -1007,13 +1031,14 @@ def generate_backend_script(
         if account:
             header.append(f"#SBATCH --account={account}")
     elif backend_key == "torque":
+        ppn = int(math.ceil(int(tasks) * int(cpus_per_task) / int(nodes)))
         header.extend(
             [
                 f"#PBS -N {job_name}",
-                f"#PBS -l nodes={int(nodes)}:ppn={int(cpus_per_task)}",
+                f"#PBS -l nodes={int(nodes)}:ppn={ppn}",
                 f"#PBS -l walltime={walltime}",
-                "#PBS -o .zstar/torque-$PBS_JOBID.out",
-                "#PBS -e .zstar/torque-$PBS_JOBID.err",
+                f"#PBS -o {root_path}/.zstar/torque.out",
+                f"#PBS -e {root_path}/.zstar/torque.err",
             ]
         )
         if queue:
@@ -1026,12 +1051,7 @@ def generate_backend_script(
         f"ROOT={_quote_bash(str(root_path))}",
         'mkdir -p "$ROOT/.zstar"',
     ]
-    if backend_key == "slurm":
-        body.append('cd "${SLURM_SUBMIT_DIR:-$ROOT}"')
-    elif backend_key == "torque":
-        body.append('cd "${PBS_O_WORKDIR:-$ROOT}"')
-    else:
-        body.append('cd "$ROOT"')
+    body.append('cd "$ROOT"')
     if env_script:
         body.append(f"source {_quote_bash(env_script)}")
     body.extend(
@@ -1052,6 +1072,30 @@ def generate_backend_script(
     if os.name != "nt":
         output_path.chmod(output_path.stat().st_mode | 0o111)
     write_workflow_manifest(root_path)
+    backend_manifest = {
+        "schema": 1,
+        "backend": backend_key,
+        "script": str(output_path),
+        "execution": "serial",
+        "resume_state": str(root_path / ".zstar" / "stages"),
+        "resources": {
+            "nodes": int(nodes),
+            "tasks": int(tasks),
+            "cpus_per_task": int(cpus_per_task),
+            "walltime": walltime,
+            "queue": queue,
+            "account": account,
+        },
+        "commands": {
+            "abacus": abacus_command,
+            "pyatb": pyatb_command,
+        },
+        "environment_script": env_script,
+        "dry_run": bool(dry_run),
+    }
+    (root_path / ".zstar" / "backend_manifest.json").write_text(
+        json.dumps(backend_manifest, indent=2), encoding="utf-8"
+    )
     return output_path
 
 
@@ -1064,7 +1108,13 @@ def submit_backend_script(script: str | Path, backend: str) -> str:
     }.get(backend_key)
     if command is None:
         raise ValueError("backend must be one of: shell, slurm, torque")
-    result = subprocess.run(command, check=True, capture_output=True, text=True)
+    result = subprocess.run(
+        command,
+        check=True,
+        capture_output=True,
+        text=True,
+        cwd=Path(script).resolve().parent,
+    )
     return result.stdout.strip()
 
 

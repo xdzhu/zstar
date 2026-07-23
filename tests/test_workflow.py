@@ -54,16 +54,62 @@ class WorkflowTests(unittest.TestCase):
                 backend="slurm",
                 queue="compute",
                 min_gap_eV=0.02,
+                dry_run=True,
             )
             text = slurm.read_text(encoding="utf-8")
             self.assertIn("#SBATCH --partition=compute", text)
+            self.assertIn(
+                f"#SBATCH --output={root.resolve()}/.zstar/slurm-%j.out",
+                text,
+            )
             self.assertIn("zstar workflow run", text)
             self.assertIn("--min-gap 0.02", text)
             self.assertIn("--gap-mode path", text)
             self.assertIn("--legacy-omega-max 30", text)
+            self.assertIn("--dry-run", text)
+            self.assertIn("# ZStar execution backend: slurm", text)
+            self.assertIn(
+                "--abacus-command 'srun --ntasks=1 abacus'", text
+            )
             self.assertEqual(text.count("zstar workflow run"), 1)
             self.assertNotIn(b"\r\n", slurm.read_bytes())
             self.assertTrue((root / ".zstar" / "workflow_manifest.json").is_file())
+            self.assertTrue((root / ".zstar" / "backend_manifest.json").is_file())
+
+            shell = generate_backend_script(
+                root,
+                backend="shell",
+                tasks=2,
+                cpus_per_task=4,
+            )
+            shell_text = shell.read_text(encoding="utf-8")
+            self.assertIn("# ZStar execution backend: shell", shell_text)
+            self.assertIn(
+                "--abacus-command 'mpirun -np 2 abacus'", shell_text
+            )
+
+            torque = generate_backend_script(
+                root,
+                backend="torque",
+                tasks=2,
+                cpus_per_task=4,
+            )
+            torque_text = torque.read_text(encoding="utf-8")
+            self.assertIn("#PBS -l nodes=1:ppn=8", torque_text)
+            self.assertIn("# ZStar execution backend: torque", torque_text)
+
+            divided_torque = generate_backend_script(
+                root,
+                backend="torque",
+                output=root / "divided.pbs",
+                nodes=2,
+                tasks=3,
+                cpus_per_task=4,
+            )
+            self.assertIn(
+                "#PBS -l nodes=2:ppn=6",
+                divided_torque.read_text(encoding="utf-8"),
+            )
 
     def test_band_path_is_default_lightweight_gate(self):
         command = _pyatb_band_input_command(

@@ -1,4 +1,5 @@
 include README*.md
 include CHANGELOG.md
-recursive-include docs *.md *.png *.pdf *.css *.mjs
+recursive-include docs *.md *.png *.pdf *.svg *.css *.mjs *.py
+recursive-include docs *.json *.yaml *.csv *.dat *.npy *.out
 recursive-include job_scripts *

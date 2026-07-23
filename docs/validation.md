@@ -1,4 +1,4 @@
-# ZStar 0.1.0 Validation Record
+# ZStar 0.1.1 Validation Record
 
 [简体中文](validation.zh-CN.md)
 
@@ -16,7 +16,8 @@ parameters for every material.
   `wheels-cp310plus-2ad34bc.zip` build, detected as
   `1.1.2.dev0+2ad34bc`.
 - Scheduler script checks: shell and Torque/PBS on the direct-compute
-  environment; Slurm script and environment checks on the Slurm cluster.
+  environment; Slurm script and environment checks on an independent Slurm
+  cluster.
 
 ## Test Coverage
 
@@ -32,7 +33,7 @@ The source test suite covers:
 - IR mode charges, 2D sheet response, Raman finite differences, and spectra;
 - fixed and frame-resolved BEC input for MD dielectric post-processing.
 
-The release candidate passes all 32 source tests. The ignored local BTO
+The release candidate passes all 34 source tests. The ignored local BTO
 example also completes `zstar deal --dim 3 --method forward --pyatb` and
 reproduces the archived representative charges:
 
@@ -42,6 +43,25 @@ reproduces the archived representative charges:
 | Ti | 7.440 |
 | O parallel to Ti-O | -5.861 |
 | O perpendicular to Ti-O | -2.157 |
+
+## Scheduler Backend Smoke Checks
+
+`zstar workflow script` was exercised with one rank and `--dry-run` for every
+supported backend. These checks validate generation, environment loading,
+reference-first stage ordering, state output, and scheduler parsing without
+launching ABACUS or PyATB.
+
+| Backend | Generated driver | Default launcher | Environment evidence |
+| --- | --- | --- | --- |
+| Shell | `run_zstar_born.sh` | `mpirun -np N` | Bash syntax and direct execution passed |
+| Slurm | `run_zstar_born.slurm` | `srun --ntasks=N` | Bash/environment dry run passed with Slurm 22.05; `sbatch` accepted |
+| Torque/PBS | `run_zstar_born.pbs` | `mpirun -np N` | Bash/environment dry run passed with Torque 6.1.1.1; `qsub` accepted |
+
+The scheduler jobs were cancelled after acceptance when they remained queued;
+the material calculations themselves continued to use the dedicated direct
+compute nodes. Each generated `.zstar/backend_manifest.json` records the
+backend, resources, launch commands, environment script, serial execution
+model, and resume-state directory.
 
 ## Fresh Cross-Dimensional Regression
 
@@ -119,7 +139,7 @@ The same hBN sparse matrices were processed through both interfaces:
 
 The maximum absolute component difference is 0.0044. A legacy 0-0.1 eV
 window returned a spurious identity tensor and is therefore not used. ZStar
-0.1.0 defaults to the validated 0-30 eV compact window when direct-static
+0.1.1 defaults to the validated 0-30 eV compact window when direct-static
 calculation is unavailable.
 
 ## Infrared and Raman Checks
@@ -147,16 +167,30 @@ dielectric tensor. Intensities from these two conventions should not be
 compared as if they shared one bulk normalization.
 
 The Raman runner was exercised through complete plus/minus electronic
-calculations in both dimensions:
+calculations in both dimensions. The selected hBN mode tests the 2D
+sheet-susceptibility convention. Tetragonal BaTiO3 was extended to all ten
+positive-frequency optical modes, requiring 20 completed electronic-response
+tasks:
 
 | System | Response convention | Mode (cm-1) | Selected result |
 | --- | --- | ---: | --- |
 | hBN | 2D sheet-susceptibility derivative | 1371.42 | Rxx = 13.865, Ryy = -13.858, depolarization ratio = 0.7500 |
 | BaTiO3 | 3D dielectric derivative | 554.70 | diag(R) = (0.8465, 0.8465, 1.0978), depolarization ratio = 0.00484 |
 
-These selected modes test data transfer, normalization, central differences,
-tensor collection, and spectrum generation. They are workflow regressions,
-not claims of fully converged experimental peak positions or intensities.
+The BTO mode classification provides an additional selection-rule check: the
+293.38 cm-1 `B1` mode has zero IR mode charge and finite normalized Raman
+activity (0.0299), while the 342.94 cm-1 `A1` mode has the largest mode-charge
+magnitude (1.1848). The 554.70 cm-1 `A1` mode is the strongest calculated
+Raman line. These calculations test data transfer, degeneracy handling,
+normalization, central differences, tensor collection, and spectrum
+generation. They are workflow regressions, not claims of fully converged
+experimental peak positions or absolute intensities.
+
+The manuscript-ready figures, plotting code, compact source data, and hashes
+are archived in [docs/paper_figures](paper_figures/README.md):
+
+- [Tetragonal BTO mode, IR, and Raman figure](paper_figures/bto_mode_spectroscopy.png)
+- [Alpha-In2Se3 hybrid 2D polarization/BEC figure](paper_figures/in2se3_hybrid_polarization.png)
 
 ## Reproduction Boundaries
 

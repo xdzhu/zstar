@@ -66,6 +66,17 @@ Z*(kappa, alpha, beta) = Omega/e * dP_alpha / du_(kappa,beta)
 
 因此，完整二维 BEC 也需要 `x`、`y`、`z` 三个方向的位移。`zstar gen --dim 2` 默认会生成全部三个方向。当前混合算法要求薄膜法向与笛卡尔 `z` 轴对齐；对于倾斜薄膜会明确报错退出。
 
+可以独立审计一对参考/位移电荷密度 cube：
+
+```bash
+zstar polar2d --reference-cube reference.cube \
+  --displaced-cube atom_zplus.cube \
+  --displacement 0.01 --outdir slab_dipole_check
+```
+
+程序会输出平面电荷重排、偶极有限差分、有效电荷、诊断信息，以及
+PNG/PDF/SVG 图片。
+
 ## 安装
 
 ZStar 要求 Python 3.9 或更高版本。
@@ -183,6 +194,11 @@ zstar workflow script --backend torque --dim 3 \
   --queue batch --cpus-per-task 28 --walltime 24:00:00
 ```
 
+后端默认启动命令会自动适配：shell/Torque 使用 `mpirun -np N`，Slurm
+使用 `srun --ntasks=N`。加入 `--dry-run` 可以在不启动计算的情况下检查
+脚本、环境、执行顺序和断点状态。三类后端及调度器接收验证见
+[docs/validation.zh-CN.md](docs/validation.zh-CN.md#调度后端冒烟检查)。
+
 只有在检查脚本内容并确认运行环境正确后，再使用 `--submit`。
 
 ### 4. 后处理极化并构造 BEC
@@ -289,7 +305,7 @@ zstar ir --qpoints qpoints.yaml \
 zstar ir --modes "4,5,8-10" --outdir ir_selected
 ```
 
-典型输出包括 `ir_modes.csv`、`ir_spectrum.dat`、`ir_response_real.dat`、`ir_response_imag.dat`、`ir_spectrum.png` 和 `ir_summary.json`。
+典型输出包括 `ir_modes.csv`、`ir_spectrum.dat`、`ir_response_real.dat`、`ir_response_imag.dat`、`ir_spectrum.png`、`ir_spectrum.pdf`、`ir_spectrum.svg` 和 `ir_summary.json`。
 
 ## 拉曼谱
 
@@ -327,6 +343,25 @@ zstar raman spectrum --raman-dir raman --qpoints qpoints.yaml --dim 3
 ```
 
 二维体系使用 `--dim 2`。程序会利用声子数据中的超胞高度，将依赖真空的介电导数转换为片层极化率导数。
+
+## 代表性验证图
+
+紧凑源数据、绘图脚本、矢量图片和完整性清单均归档在
+[docs/paper_figures](docs/paper_figures/README.md)。
+
+<p align="center">
+  <img src="docs/paper_figures/bto_mode_spectroscopy.png" alt="四方 BaTiO3 模式分辨红外与拉曼谱" width="820">
+</p>
+
+BTO 验证包含全部 10 个正频光学模式和 20 个已完成的 Raman 正负有限差分
+响应任务，其中 293.38 cm-1 的 `B1` 模式 Raman 活性但 IR 静默。
+
+<p align="center">
+  <img src="docs/paper_figures/in2se3_hybrid_polarization.png" alt="alpha-In2Se3 二维混合极化与 BEC 验证" width="820">
+</p>
+
+In2Se3 验证展示了 Berry 相位/cube 积分的维度分工，以及 In 原子面外位移
+引起的真实平面电荷重排。
 
 ## MD + BEC 介电响应
 
@@ -397,6 +432,7 @@ zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
 | `zstar gen` | 生成参考和 BEC 位移目录。 |
 | `zstar workflow run/status/script` | 执行、查看或生成串行可恢复工作流。 |
 | `zstar deal` / `born` / `polar` | 收集极化并构造 BEC。 |
+| `zstar polar2d` | 审计薄膜 cube 对的偶极差与面外 BEC。 |
 | `zstar bornsym` / `symcheck` | 按对称性重构或校验张量。 |
 | `zstar ph` / `postph` | 生成和后处理声子任务。 |
 | `zstar irrep` | 分类 Gamma 点模式的光学活性。 |

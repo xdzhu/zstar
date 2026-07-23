@@ -1,0 +1,37 @@
+{
+  "reference_cube": "reference.cube",
+  "displaced_cube": "in1_zplus.cube",
+  "total_dipole_change_e_angstrom": 0.003633148357495363,
+  "sheet_polarization_change_C_per_m": 4.006866153350254e-13,
+  "displacement_angstrom": 0.01,
+  "effective_charge_e": 0.36331483574953627,
+  "reference_ion_positions_angstrom": [
+    2.047679179794051,
+    -2.1846637485146037,
+    3.367239706319459,
+    0.3622968598397662,
+    -3.4327366672647046
+  ],
+  "displaced_ion_positions_angstrom": [
+    2.057679041548486,
+    -2.1846637485146037,
+    3.367239706319459,
+    0.3622968598397662,
+    -3.4327366672647046
+  ],
+  "diagnostics": {
+    "reference_electron_count_raw": 43.99979566562241,
+    "displaced_electron_count_raw": 43.99981901559146,
+    "reference_neutrality_scale": 1.0000046439846937,
+    "displaced_neutrality_scale": 1.0000041132989315,
+    "reference_dipole_e_angstrom": -0.1293832025055318,
+    "displaced_dipole_e_angstrom": -0.12575005414803644,
+    "area_angstrom2": 14.527426630828415,
+    "height_angstrom": 36.366698382607964,
+    "profile_closure_error_e_angstrom": 6.471832618426543e-13
+  },
+  "files": {
+    "profile": "slab_charge_profile.csv",
+    "summary": "slab_dipole_summary.json"
+  }
+}

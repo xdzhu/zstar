@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "backend": "Python/matplotlib",
+  "figures": [
+    {
+      "figure": "bto_mode_spectroscopy",
+      "files": {
+        "png": "bto_mode_spectroscopy.png",
+        "pdf": "bto_mode_spectroscopy.pdf",
+        "svg": "bto_mode_spectroscopy.svg",
+        "tiff": "bto_mode_spectroscopy.tiff"
+      },
+      "optical_mode_groups": 7,
+      "raman_modes": 10
+    },
+    {
+      "figure": "in2se3_hybrid_polarization",
+      "files": {
+        "png": "in2se3_hybrid_polarization.png",
+        "pdf": "in2se3_hybrid_polarization.pdf",
+        "svg": "in2se3_hybrid_polarization.svg",
+        "tiff": "in2se3_hybrid_polarization.tiff"
+      },
+      "dipole_change_e_angstrom": 0.003633148357495363,
+      "effective_charge_e": 0.36331483574953627
+    }
+  ],
+  "source_data": [
+    {
+      "path": "bto/ir/ir_modes.csv",
+      "size": 1244,
+      "sha256": "334caf175ee42128216511381216dd14f4b9d273216aec0d494cb34483646d83"
+    },
+    {
+      "path": "bto/ir/ir_spectrum.dat",
+      "size": 250194,
+      "sha256": "3321027ade30d9179e2957491a21c63d7076da8e70835a68444caee85d66a33d"
+    },
+    {
+      "path": "bto/irreps.yaml",
+      "size": 2934,
+      "sha256": "15f65ad99d668a1e9aecee1c9d1d205110064392bc8b96372378bdb1ce3cf4b5"
+    },
+    {
+      "path": "bto/phonopy.yaml",
+      "size": 3867,
+      "sha256": "e54954473985c795c1b938934163a2f9386d900b2c0b24499363d93669ea21f8"
+    },
+    {
+      "path": "bto/qpoints.yaml",
+      "size": 13282,
+      "sha256": "7a127a2c22aae974395637189f999b923298de022b5301a3c27be15a38a877c9"
+    },
+    {
+      "path": "bto/raman/raman_modes.csv",
+      "size": 2106,
+      "sha256": "18956b48b718a3a70e161c5e2504ad7cec53d0bbdd8ba80f92be3f6d695fa2e7"
+    },
+    {
+      "path": "bto/raman/raman_spectrum.dat",
+      "size": 100088,
+      "sha256": "d05b47b048a229e96f24286e0352f4e6bd78ff035b3da7d9ca578d2250e08187"
+    },
+    {
+      "path": "bto/raman/raman_tensors.npy",
+      "size": 848,
+      "sha256": "66d9ec8a8982292547ac13ca3ed3cd34cf5c598b42898a1ec5df4e6fe9cd46de"
+    },
+    {
+      "path": "in2se3/phonopy.yaml",
+      "size": 3875,
+      "sha256": "4f3b570da70ae08468244852e65a06ac2bcaa77d4c0a9a920818d0c141b11fcb"
+    },
+    {
+      "path": "in2se3/profile/slab_charge_profile.csv",
+      "size": 58763,
+      "sha256": "eefe9402c571dba2e25326c6d76159b2a8e9890d6243cf63089e95dc91158d95"
+    },
+    {
+      "path": "in2se3/profile/slab_dipole_summary.json",
+      "size": 1244,
+      "sha256": "d4dd9ca454f6e12020ff0a2ce0dad227859c0fdbc486a6878faafdec451ea6c3"
+    },
+    {
+      "path": "in2se3/qpoints.yaml",
+      "size": 13282,
+      "sha256": "224039dbe6b53b69fa53984e4d4b85830cf2e933189921d4387d076044086587"
+    },
+    {
+      "path": "in2se3/Z-BORN-symm.out",
+      "size": 605,
+      "sha256": "1251f1bf5ee0f1c5006f8e0a357ea3042291b364de1bc2832fc175848f414cec"
+    }
+  ]
+}

@@ -47,6 +47,14 @@ zstar deal --dim 3 --method forward --pyatb
 
 For a 2D slab, use `--dim 2` in generation, execution, and post-processing. Full `x/y/z` displacements are required because the out-of-plane BEC row is obtained from the real-space slab dipole. The slab normal must currently align with Cartesian `z`.
 
+Audit one reference/displaced charge-density pair directly:
+
+```bash
+zstar polar2d --reference-cube reference.cube \
+  --displaced-cube atom_zplus.cube \
+  --displacement 0.01 --outdir slab_dipole_check
+```
+
 The default insulating gate runs only for `0.no-move` and uses:
 
 ```bash
@@ -62,6 +70,10 @@ zstar workflow script --backend shell
 zstar workflow script --backend slurm --queue compute --cpus-per-task 28
 zstar workflow script --backend torque --queue batch --cpus-per-task 28
 ```
+
+Shell/Torque default to `mpirun -np N`; Slurm defaults to
+`srun --ntasks=N`. Use `--dry-run` for an environment and state-output smoke
+test without launching an electronic-structure calculation.
 
 ## Phonon, IR, and Dielectric Response
 

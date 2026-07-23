@@ -8,6 +8,7 @@ ABACUS charge-density cube, including the ionic contribution.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import csv
 import json
 import math
 from pathlib import Path
@@ -46,6 +47,43 @@ class Hybrid2DBorn:
     method: str
     displacement_angstrom: float
     diagnostics: dict
+
+
+@dataclass(frozen=True)
+class SlabChargeDifference:
+    reference_cube: str
+    displaced_cube: str
+    coordinate_angstrom: np.ndarray
+    reference_electron_line_density_e_per_angstrom: np.ndarray
+    displaced_electron_line_density_e_per_angstrom: np.ndarray
+    electron_charge_difference_e_per_angstrom: np.ndarray
+    cumulative_charge_difference_e: np.ndarray
+    cumulative_dipole_difference_e_angstrom: np.ndarray
+    reference_ion_positions_angstrom: np.ndarray
+    displaced_ion_positions_angstrom: np.ndarray
+    total_dipole_change_e_angstrom: float
+    sheet_polarization_change_C_per_m: float
+    displacement_angstrom: Optional[float]
+    effective_charge_e: Optional[float]
+    diagnostics: dict
+
+
+@dataclass(frozen=True)
+class _CubeProfileData:
+    path: Path
+    dimensions: tuple[int, int, int]
+    origin: np.ndarray
+    step_vectors: np.ndarray
+    cell: np.ndarray
+    normal: np.ndarray
+    area_bohr2: float
+    height_bohr: float
+    charges: np.ndarray
+    positions: np.ndarray
+    density: np.ndarray
+    voxel_volume_bohr3: float
+    electron_count_raw: float
+    neutrality_scale: float
 
 
 def _find_geometry_block(lines: Sequence[str]) -> int:
@@ -95,13 +133,16 @@ def _periodic_unwrap(values: np.ndarray, center: float, period: float) -> np.nda
     return center + (values - center) - np.round((values - center) / period) * period
 
 
-def integrate_slab_dipole(
+def _read_cube_profile_data(
     cube_path: str | Path,
     *,
-    neutrality_tolerance: float = 0.05,
-) -> SlabDipole:
-    """Integrate the total out-of-plane dipole of a neutral periodic slab."""
-
+    neutrality_tolerance: float,
+) -> _CubeProfileData:
+    if (
+        not math.isfinite(float(neutrality_tolerance))
+        or float(neutrality_tolerance) < 0.0
+    ):
+        raise ValueError("neutrality_tolerance must be finite and non-negative")
     path = Path(cube_path).resolve()
     lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
     geometry_index = _find_geometry_block(lines)
@@ -122,25 +163,24 @@ def integrate_slab_dipole(
     volume = float(abs(np.linalg.det(cell)))
     if area <= 0.0 or volume <= 0.0:
         raise ValueError("Cube cell has zero area or volume")
-    normal_vector = np.cross(cell[0], cell[1])
-    normal = normal_vector / np.linalg.norm(normal_vector)
+    normal = np.cross(cell[0], cell[1])
+    normal /= np.linalg.norm(normal)
     if float(np.dot(normal, cell[2])) < 0.0:
         normal *= -1.0
     height = volume / area
 
     atom_start = geometry_index + 4
     atom_stop = atom_start + natoms
-    ionic_charges: list[float] = []
-    atom_positions: list[list[float]] = []
+    charges: list[float] = []
+    positions: list[list[float]] = []
     for line in lines[atom_start:atom_stop]:
         fields = line.split()
         if len(fields) < 5:
             raise ValueError(f"Malformed cube atom line: {line}")
-        ionic_charges.append(float(fields[1]))
-        atom_positions.append([float(value) for value in fields[2:5]])
-    charges = np.asarray(ionic_charges, dtype=float)
-    positions = np.asarray(atom_positions, dtype=float)
-    ionic_total = float(np.sum(charges))
+        charges.append(float(fields[1]))
+        positions.append([float(value) for value in fields[2:5]])
+    ionic_charges = np.asarray(charges, dtype=float)
+    ionic_total = float(np.sum(ionic_charges))
     if ionic_total <= 0.0:
         raise ValueError("Cube header does not contain positive ionic valence charges")
 
@@ -169,40 +209,396 @@ def integrate_slab_dipole(
             f"electrons={electron_count:.8f}, ionic={ionic_total:.8f}, "
             f"relative error={relative_error:.3%}"
         )
-    neutrality_scale = ionic_total / electron_count
 
-    atom_normal = positions @ normal
+    return _CubeProfileData(
+        path=path,
+        dimensions=(nx, ny, nz),
+        origin=origin,
+        step_vectors=step_vectors,
+        cell=cell,
+        normal=normal,
+        area_bohr2=area,
+        height_bohr=height,
+        charges=ionic_charges,
+        positions=np.asarray(positions, dtype=float),
+        density=density,
+        voxel_volume_bohr3=voxel_volume,
+        electron_count_raw=electron_count,
+        neutrality_scale=ionic_total / electron_count,
+    )
+
+
+def integrate_slab_dipole(
+    cube_path: str | Path,
+    *,
+    neutrality_tolerance: float = 0.05,
+) -> SlabDipole:
+    """Integrate the total out-of-plane dipole of a neutral periodic slab."""
+
+    cube = _read_cube_profile_data(
+        cube_path, neutrality_tolerance=neutrality_tolerance
+    )
+    charges = cube.charges
+    ionic_total = float(np.sum(charges))
+    atom_normal = cube.positions @ cube.normal
     center = float(np.sum(charges * atom_normal) / ionic_total)
-    origin_normal = float(origin @ normal)
-    center = origin_normal + ((center - origin_normal) % height)
-    atom_unwrapped = _periodic_unwrap(atom_normal, center, height)
+    origin_normal = float(cube.origin @ cube.normal)
+    center = origin_normal + ((center - origin_normal) % cube.height_bohr)
+    atom_unwrapped = _periodic_unwrap(
+        atom_normal, center, cube.height_bohr
+    )
 
     grid_normal = (
         origin_normal
-        + np.arange(nz, dtype=float) * float(step_vectors[2] @ normal)
+        + np.arange(cube.dimensions[2], dtype=float)
+        * float(cube.step_vectors[2] @ cube.normal)
     )
-    grid_unwrapped = _periodic_unwrap(grid_normal, center, height)
-    density_by_plane = np.sum(density, axis=(0, 1))
+    grid_unwrapped = _periodic_unwrap(
+        grid_normal, center, cube.height_bohr
+    )
+    density_by_plane = np.sum(cube.density, axis=(0, 1))
 
     ionic_dipole = float(np.sum(charges * atom_unwrapped))
     electronic_dipole = -float(
         np.sum(density_by_plane * grid_unwrapped)
-        * voxel_volume
-        * neutrality_scale
+        * cube.voxel_volume_bohr3
+        * cube.neutrality_scale
     )
     dipole = ionic_dipole + electronic_dipole
-    polarization = dipole / area * ELEMENTARY_CHARGE / BOHR_M
+    polarization = dipole / cube.area_bohr2 * ELEMENTARY_CHARGE / BOHR_M
     return SlabDipole(
-        cube=str(path),
+        cube=str(cube.path),
         dipole_e_bohr=dipole,
         polarization_C_per_m=polarization,
-        area_bohr2=area,
-        height_bohr=height,
-        electron_count_raw=electron_count,
+        area_bohr2=cube.area_bohr2,
+        height_bohr=cube.height_bohr,
+        electron_count_raw=cube.electron_count_raw,
         ionic_charge=ionic_total,
-        neutrality_scale=neutrality_scale,
-        normal=tuple(float(value) for value in normal),
+        neutrality_scale=cube.neutrality_scale,
+        normal=tuple(float(value) for value in cube.normal),
     )
+
+
+def compare_slab_charge_profiles(
+    reference_cube: str | Path,
+    displaced_cube: str | Path,
+    *,
+    displacement_angstrom: Optional[float] = None,
+    neutrality_tolerance: float = 0.05,
+) -> SlabChargeDifference:
+    """Resolve a slab dipole change into planar electronic and ionic terms."""
+
+    reference = _read_cube_profile_data(
+        reference_cube, neutrality_tolerance=neutrality_tolerance
+    )
+    displaced = _read_cube_profile_data(
+        displaced_cube, neutrality_tolerance=neutrality_tolerance
+    )
+    if reference.dimensions != displaced.dimensions:
+        raise ValueError("Reference and displaced cube grids have different dimensions")
+    if not np.allclose(reference.origin, displaced.origin, atol=1.0e-8):
+        raise ValueError("Reference and displaced cube grids have different origins")
+    if not np.allclose(reference.step_vectors, displaced.step_vectors, atol=1.0e-8):
+        raise ValueError("Reference and displaced cube grids have different steps")
+    if reference.charges.shape != displaced.charges.shape or not np.allclose(
+        reference.charges, displaced.charges, atol=1.0e-8
+    ):
+        raise ValueError("Reference and displaced cubes have different ionic charges")
+
+    normal = reference.normal
+    ionic_total = float(np.sum(reference.charges))
+    atom_normal = reference.positions @ normal
+    origin_normal = float(reference.origin @ normal)
+    center = float(np.sum(reference.charges * atom_normal) / ionic_total)
+    center = origin_normal + ((center - origin_normal) % reference.height_bohr)
+
+    grid_normal = (
+        origin_normal
+        + np.arange(reference.dimensions[2], dtype=float)
+        * float(reference.step_vectors[2] @ normal)
+    )
+    grid_unwrapped = _periodic_unwrap(
+        grid_normal, center, reference.height_bohr
+    )
+    order = np.argsort(grid_unwrapped)
+    coordinate_angstrom = (
+        grid_unwrapped[order] - center
+    ) * BOHR_M / 1.0e-10
+
+    reference_plane_electrons = (
+        np.sum(reference.density, axis=(0, 1))
+        * reference.voxel_volume_bohr3
+        * reference.neutrality_scale
+    )
+    displaced_plane_electrons = (
+        np.sum(displaced.density, axis=(0, 1))
+        * displaced.voxel_volume_bohr3
+        * displaced.neutrality_scale
+    )
+    reference_plane_electrons = reference_plane_electrons[order]
+    displaced_plane_electrons = displaced_plane_electrons[order]
+    dz_angstrom = (
+        abs(float(reference.step_vectors[2] @ normal))
+        * BOHR_M
+        / 1.0e-10
+    )
+    reference_line_density = reference_plane_electrons / dz_angstrom
+    displaced_line_density = displaced_plane_electrons / dz_angstrom
+    electron_charge_difference = -(
+        displaced_line_density - reference_line_density
+    )
+    electron_plane_charge = electron_charge_difference * dz_angstrom
+
+    reference_ion_positions = (
+        _periodic_unwrap(
+            reference.positions @ normal, center, reference.height_bohr
+        )
+        - center
+    ) * BOHR_M / 1.0e-10
+    displaced_ion_positions = (
+        _periodic_unwrap(
+            displaced.positions @ normal, center, reference.height_bohr
+        )
+        - center
+    ) * BOHR_M / 1.0e-10
+
+    cumulative_electron_charge = np.cumsum(electron_plane_charge)
+    cumulative_electron_dipole = np.cumsum(
+        electron_plane_charge * coordinate_angstrom
+    )
+    cumulative_ionic_charge = np.zeros_like(coordinate_angstrom)
+    cumulative_ionic_dipole = np.zeros_like(coordinate_angstrom)
+    thresholds = coordinate_angstrom + 0.5 * dz_angstrom
+    thresholds[-1] = np.inf
+    for index, threshold in enumerate(thresholds):
+        displaced_mask = displaced_ion_positions <= threshold
+        reference_mask = reference_ion_positions <= threshold
+        cumulative_ionic_charge[index] = float(
+            np.sum(reference.charges[displaced_mask])
+            - np.sum(reference.charges[reference_mask])
+        )
+        cumulative_ionic_dipole[index] = float(
+            np.sum(
+                reference.charges[displaced_mask]
+                * displaced_ion_positions[displaced_mask]
+            )
+            - np.sum(
+                reference.charges[reference_mask]
+                * reference_ion_positions[reference_mask]
+            )
+        )
+
+    cumulative_charge = cumulative_electron_charge + cumulative_ionic_charge
+    cumulative_dipole = cumulative_electron_dipole + cumulative_ionic_dipole
+    direct_reference = integrate_slab_dipole(
+        reference.path, neutrality_tolerance=neutrality_tolerance
+    )
+    direct_displaced = integrate_slab_dipole(
+        displaced.path, neutrality_tolerance=neutrality_tolerance
+    )
+    direct_delta_bohr = (
+        direct_displaced.dipole_e_bohr - direct_reference.dipole_e_bohr
+    )
+    direct_delta_bohr -= round(
+        direct_delta_bohr / reference.height_bohr
+    ) * reference.height_bohr
+    direct_delta_e_angstrom = direct_delta_bohr * BOHR_M / 1.0e-10
+    closure_error = float(cumulative_dipole[-1] - direct_delta_e_angstrom)
+
+    area_angstrom2 = (
+        reference.area_bohr2 * (BOHR_M / 1.0e-10) ** 2
+    )
+    sheet_polarization = (
+        direct_delta_e_angstrom
+        / area_angstrom2
+        * ELEMENTARY_CHARGE
+        / 1.0e-10
+    )
+    displacement = (
+        None if displacement_angstrom is None else float(displacement_angstrom)
+    )
+    if displacement is not None and (
+        not math.isfinite(displacement) or displacement == 0.0
+    ):
+        raise ValueError("displacement_angstrom must be finite and non-zero")
+    effective_charge = (
+        None
+        if displacement is None
+        else direct_delta_e_angstrom / displacement
+    )
+
+    return SlabChargeDifference(
+        reference_cube=str(reference.path),
+        displaced_cube=str(displaced.path),
+        coordinate_angstrom=coordinate_angstrom,
+        reference_electron_line_density_e_per_angstrom=reference_line_density,
+        displaced_electron_line_density_e_per_angstrom=displaced_line_density,
+        electron_charge_difference_e_per_angstrom=electron_charge_difference,
+        cumulative_charge_difference_e=cumulative_charge,
+        cumulative_dipole_difference_e_angstrom=cumulative_dipole,
+        reference_ion_positions_angstrom=reference_ion_positions,
+        displaced_ion_positions_angstrom=displaced_ion_positions,
+        total_dipole_change_e_angstrom=float(direct_delta_e_angstrom),
+        sheet_polarization_change_C_per_m=float(sheet_polarization),
+        displacement_angstrom=displacement,
+        effective_charge_e=(
+            None if effective_charge is None else float(effective_charge)
+        ),
+        diagnostics={
+            "reference_electron_count_raw": reference.electron_count_raw,
+            "displaced_electron_count_raw": displaced.electron_count_raw,
+            "reference_neutrality_scale": reference.neutrality_scale,
+            "displaced_neutrality_scale": displaced.neutrality_scale,
+            "reference_dipole_e_angstrom": (
+                direct_reference.dipole_e_bohr * BOHR_M / 1.0e-10
+            ),
+            "displaced_dipole_e_angstrom": (
+                direct_displaced.dipole_e_bohr * BOHR_M / 1.0e-10
+            ),
+            "area_angstrom2": area_angstrom2,
+            "height_angstrom": reference.height_bohr * BOHR_M / 1.0e-10,
+            "profile_closure_error_e_angstrom": closure_error,
+        },
+    )
+
+
+def write_slab_charge_difference(
+    outdir: str | Path,
+    result: SlabChargeDifference,
+    *,
+    plot: bool = True,
+) -> dict:
+    """Write source data and a compact visualization of a slab dipole change."""
+
+    output = Path(outdir)
+    output.mkdir(parents=True, exist_ok=True)
+    csv_path = output / "slab_charge_profile.csv"
+    with csv_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(
+            [
+                "z_angstrom",
+                "reference_electron_line_density_e_per_angstrom",
+                "displaced_electron_line_density_e_per_angstrom",
+                "electron_charge_difference_e_per_angstrom",
+                "cumulative_charge_difference_e",
+                "cumulative_dipole_difference_e_angstrom",
+            ]
+        )
+        for row in zip(
+            result.coordinate_angstrom,
+            result.reference_electron_line_density_e_per_angstrom,
+            result.displaced_electron_line_density_e_per_angstrom,
+            result.electron_charge_difference_e_per_angstrom,
+            result.cumulative_charge_difference_e,
+            result.cumulative_dipole_difference_e_angstrom,
+        ):
+            writer.writerow([float(value) for value in row])
+
+    summary_path = output / "slab_dipole_summary.json"
+    summary = {
+        "reference_cube": Path(result.reference_cube).name,
+        "displaced_cube": Path(result.displaced_cube).name,
+        "total_dipole_change_e_angstrom": result.total_dipole_change_e_angstrom,
+        "sheet_polarization_change_C_per_m": (
+            result.sheet_polarization_change_C_per_m
+        ),
+        "displacement_angstrom": result.displacement_angstrom,
+        "effective_charge_e": result.effective_charge_e,
+        "reference_ion_positions_angstrom": (
+            result.reference_ion_positions_angstrom.tolist()
+        ),
+        "displaced_ion_positions_angstrom": (
+            result.displaced_ion_positions_angstrom.tolist()
+        ),
+        "diagnostics": result.diagnostics,
+        "files": {"profile": csv_path.name},
+    }
+
+    if plot:
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+
+        with mpl.rc_context(
+            {
+                "font.family": "sans-serif",
+                "font.sans-serif": ["Arial", "DejaVu Sans"],
+                "font.size": 8,
+                "axes.spines.right": False,
+                "axes.spines.top": False,
+                "pdf.fonttype": 42,
+                "svg.fonttype": "none",
+            }
+        ):
+            fig, axes = plt.subplots(2, 1, figsize=(7.2, 5.8))
+            axes[0].plot(
+                result.coordinate_angstrom,
+                result.electron_charge_difference_e_per_angstrom,
+                color="#2f6b9a",
+                linewidth=1.4,
+            )
+            axes[0].axhline(0.0, color="#6b7280", linewidth=0.6)
+            for position in result.reference_ion_positions_angstrom:
+                axes[0].axvline(position, color="#d1d5db", linewidth=0.5)
+            axes[0].set_xlabel(r"Slab-normal coordinate ($\AA$)")
+            axes[0].set_ylabel(r"$\Delta\lambda_e(z)$ ($e$ $\AA^{-1}$)")
+            if result.displacement_angstrom is None:
+                finite_difference_x = np.asarray([0.0, 1.0])
+                axes[1].set_xticks(
+                    finite_difference_x, ["reference", "displaced"]
+                )
+                axes[1].set_xlabel("Charge-density cube")
+            else:
+                finite_difference_x = np.asarray(
+                    [0.0, result.displacement_angstrom]
+                )
+                axes[1].set_xlabel(r"Ionic displacement $\Delta u_z$ ($\AA$)")
+            axes[1].plot(
+                finite_difference_x,
+                [0.0, result.total_dipole_change_e_angstrom],
+                color="#b2472f",
+                marker="o",
+                linewidth=1.6,
+            )
+            axes[1].axhline(0.0, color="#6b7280", linewidth=0.6)
+            axes[1].set_ylabel(
+                r"$\mu_z-\mu_z^{\mathrm{ref}}$ ($e\AA$)"
+            )
+            annotation = (
+                rf"$\Delta\mu_z={result.total_dipole_change_e_angstrom:.4g}"
+                r"\ e\AA$"
+            )
+            if result.effective_charge_e is not None:
+                annotation += (
+                    "\n"
+                    rf"$Z^*_{{zz}}={result.effective_charge_e:.4g}\ e$"
+                )
+            axes[1].text(
+                0.04,
+                0.92,
+                annotation,
+                transform=axes[1].transAxes,
+                ha="left",
+                va="top",
+            )
+            axes[1].grid(axis="y", color="#d9dde1", linewidth=0.5)
+            fig.tight_layout()
+            plot_base = output / "slab_dipole_profile"
+            fig.savefig(plot_base.with_suffix(".png"), dpi=300)
+            fig.savefig(plot_base.with_suffix(".pdf"))
+            fig.savefig(plot_base.with_suffix(".svg"))
+            plt.close(fig)
+        summary["files"].update(
+            {
+                "plot": plot_base.with_suffix(".png").name,
+                "plot_pdf": plot_base.with_suffix(".pdf").name,
+                "plot_svg": plot_base.with_suffix(".svg").name,
+            }
+        )
+
+    summary["files"]["summary"] = summary_path.name
+    summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    return summary
 
 
 def _parse_pyatb_polarization(path: Path) -> tuple[np.ndarray, np.ndarray]:

@@ -13,6 +13,8 @@ from zstar.spectra import (
     load_gamma_modes,
     prepare_raman_displacements,
     read_born_data,
+    write_ir_outputs,
+    write_raman_outputs,
 )
 
 
@@ -110,6 +112,30 @@ class SpectraTests(unittest.TestCase):
             self.assertAlmostEqual(result.activities[0], 1.0)
             self.assertAlmostEqual(result.depolarization_ratios[0], 0.0)
             self.assertAlmostEqual(float(np.max(result.spectrum)), 1.0)
+
+    def test_spectrum_writers_export_raster_and_vector_plots(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            qpoints = root / "qpoints.yaml"
+            write_qpoints(qpoints)
+            modes = load_gamma_modes(qpoints)
+            born = BornData(
+                tensors=np.asarray([np.eye(3)]),
+                electronic_dielectric=np.eye(3),
+                source="test",
+            )
+            ir = calculate_ir_spectrum(
+                modes, born, acoustic_cutoff_cm1=0.0, points=101
+            )
+            ir_summary = write_ir_outputs(root / "ir", ir)
+            raman = calculate_raman_spectrum(
+                modes, [1], np.asarray([np.eye(3)]), points=101
+            )
+            raman_summary = write_raman_outputs(root / "raman", raman)
+
+            for summary in (ir_summary, raman_summary):
+                for key in ("plot", "plot_pdf", "plot_svg"):
+                    self.assertTrue(Path(summary["files"][key]).is_file())
 
     def test_prepare_raman_mode_pair(self):
         with tempfile.TemporaryDirectory() as tmp:

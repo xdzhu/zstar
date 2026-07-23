@@ -10,7 +10,9 @@ from zstar.polarization_2d import (
     BOHR_M,
     ELEMENTARY_CHARGE,
     calculate_hybrid_2d_born,
+    compare_slab_charge_profiles,
     integrate_slab_dipole,
+    write_slab_charge_difference,
 )
 
 
@@ -70,6 +72,42 @@ class Polarization2DTests(unittest.TestCase):
             self.assertAlmostEqual(result.dipole_e_bohr, 0.75, places=9)
             expected = 0.75 / 4.0 * ELEMENTARY_CHARGE / BOHR_M
             self.assertAlmostEqual(result.polarization_C_per_m, expected)
+
+    def test_slab_charge_profile_recovers_effective_charge(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            displacement_angstrom = 0.01
+            displacement_bohr = displacement_angstrom * 1.0e-10 / BOHR_M
+            reference = root / "reference.cube"
+            displaced = root / "displaced.cube"
+            write_cube(reference, 0.0)
+            write_cube(displaced, 2.5 * displacement_bohr)
+
+            result = compare_slab_charge_profiles(
+                reference,
+                displaced,
+                displacement_angstrom=displacement_angstrom,
+            )
+            self.assertAlmostEqual(result.effective_charge_e, 2.5, places=8)
+            self.assertLess(
+                abs(result.diagnostics["profile_closure_error_e_angstrom"]),
+                1.0e-10,
+            )
+            summary = write_slab_charge_difference(
+                root / "profile", result, plot=False
+            )
+            self.assertTrue(
+                (root / "profile" / summary["files"]["profile"]).is_file()
+            )
+            self.assertTrue(
+                (root / "profile" / summary["files"]["summary"]).is_file()
+            )
+            with self.assertRaisesRegex(ValueError, "finite and non-zero"):
+                compare_slab_charge_profiles(
+                    reference,
+                    displaced,
+                    displacement_angstrom=0.0,
+                )
 
     def test_hybrid_tensor_uses_berry_xy_and_cube_z(self):
         with tempfile.TemporaryDirectory() as tmp:

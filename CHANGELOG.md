@@ -1,3 +1,15 @@
+## 0.1.1 - 2026-07-23
+
+- Add `zstar polar2d` for a reproducible reference/displaced cube-pair charge
+  profile, slab-dipole difference, and out-of-plane effective-charge audit.
+- Export IR and Raman plots as publication-ready PDF and SVG in addition to
+  PNG, and archive the BTO/In2Se3 manuscript figures with compact source data.
+- Add backend-aware shell, Slurm, and Torque launch defaults, dry-run driver
+  generation, backend manifests, deterministic scheduler output paths, and
+  corrected multi-node Torque resource allocation.
+- Document and validate the full tetragonal BTO Raman mode set and all three
+  serial workflow backends.
+
 ## 0.1.0 - 2026-07-23
 
 - Add deterministic, resumable `0.no-move -> displacements` BEC workflows

@@ -414,6 +414,19 @@ def _write_tensor_frequency_file(
             handle.write(f"{omega:.8f} {flat}\n")
 
 
+def _save_figure_bundle(fig, output: Path, stem: str) -> dict[str, str]:
+    base = output / stem
+    paths = {
+        "plot": base.with_suffix(".png"),
+        "plot_pdf": base.with_suffix(".pdf"),
+        "plot_svg": base.with_suffix(".svg"),
+    }
+    fig.savefig(paths["plot"], dpi=300, bbox_inches="tight")
+    fig.savefig(paths["plot_pdf"], bbox_inches="tight")
+    fig.savefig(paths["plot_svg"], bbox_inches="tight")
+    return {key: str(path.resolve()) for key, path in paths.items()}
+
+
 def write_ir_outputs(
     outdir: str | Path,
     result: IRSpectrumResult,
@@ -473,20 +486,64 @@ def write_ir_outputs(
         imag_path, result.frequency_grid_cm1, result.response_imag
     )
 
-    plot_path = output / "ir_spectrum.png"
+    plot_files: dict[str, str] = {}
     if plot:
+        import matplotlib as mpl
         import matplotlib.pyplot as plt
 
-        fig, ax = plt.subplots(figsize=(7.2, 4.5))
-        total = np.sum(result.spectrum, axis=1)
-        ax.plot(result.frequency_grid_cm1, total, color="#b42318", linewidth=1.7)
-        ax.set_xlabel(r"Wavenumber (cm$^{-1}$)")
-        ax.set_ylabel("IR intensity (arb. units)")
-        ax.set_xlim(result.frequency_grid_cm1[0], result.frequency_grid_cm1[-1])
-        ax.grid(alpha=0.2)
-        fig.tight_layout()
-        fig.savefig(plot_path, dpi=300)
-        plt.close(fig)
+        with mpl.rc_context(
+            {
+                "font.family": "sans-serif",
+                "font.sans-serif": ["Arial", "DejaVu Sans"],
+                "font.size": 8,
+                "axes.spines.right": False,
+                "axes.spines.top": False,
+                "axes.linewidth": 0.8,
+                "legend.frameon": False,
+                "pdf.fonttype": 42,
+                "svg.fonttype": "none",
+            }
+        ):
+            fig, ax = plt.subplots(figsize=(7.2, 4.5))
+            total = np.sum(result.spectrum, axis=1)
+            scale = max(float(np.max(total)), np.finfo(float).tiny)
+            colors = ("#2f6b9a", "#5f9c76", "#c06b32")
+            for index, (label, color) in enumerate(zip(("x", "y", "z"), colors)):
+                ax.plot(
+                    result.frequency_grid_cm1,
+                    result.spectrum[:, index] / scale,
+                    color=color,
+                    linewidth=1.1,
+                    label=label,
+                )
+            ax.plot(
+                result.frequency_grid_cm1,
+                total / scale,
+                color="#202124",
+                linewidth=1.7,
+                label="total",
+            )
+            mode_strength = np.sum(result.intensities, axis=1)
+            if float(np.max(mode_strength)) > 0.0:
+                mode_strength = mode_strength / float(np.max(mode_strength))
+                ax.vlines(
+                    result.frequencies_cm1,
+                    -0.075,
+                    -0.075 + 0.06 * mode_strength,
+                    color="#4b5563",
+                    linewidth=0.8,
+                )
+            ax.set_xlabel(r"Wavenumber (cm$^{-1}$)")
+            ax.set_ylabel("Normalized IR intensity")
+            ax.set_xlim(
+                result.frequency_grid_cm1[0], result.frequency_grid_cm1[-1]
+            )
+            ax.set_ylim(-0.085, 1.05)
+            ax.grid(axis="y", alpha=0.18, linewidth=0.6)
+            ax.legend(ncol=4, loc="upper right")
+            fig.tight_layout()
+            plot_files = _save_figure_bundle(fig, output, "ir_spectrum")
+            plt.close(fig)
 
     summary = {
         "dimensionality": result.dimensionality,
@@ -497,7 +554,9 @@ def write_ir_outputs(
             "spectrum": str(spectrum_path.resolve()),
             "response_real": str(real_path.resolve()),
             "response_imag": str(imag_path.resolve()),
-            "plot": str(plot_path.resolve()) if plot else None,
+            "plot": plot_files.get("plot"),
+            "plot_pdf": plot_files.get("plot_pdf"),
+            "plot_svg": plot_files.get("plot_svg"),
         },
     }
     (output / "ir_summary.json").write_text(
@@ -866,24 +925,48 @@ def write_raman_outputs(
         header="frequency_cm-1 intensity_normalized",
     )
 
-    plot_path = output / "raman_spectrum.png"
+    plot_files: dict[str, str] = {}
     if plot:
+        import matplotlib as mpl
         import matplotlib.pyplot as plt
 
-        fig, ax = plt.subplots(figsize=(7.2, 4.5))
-        ax.plot(
-            result.frequency_grid_cm1,
-            result.spectrum,
-            color="#175cd3",
-            linewidth=1.7,
-        )
-        ax.set_xlabel(r"Raman shift (cm$^{-1}$)")
-        ax.set_ylabel("Normalized Raman intensity")
-        ax.set_xlim(result.frequency_grid_cm1[0], result.frequency_grid_cm1[-1])
-        ax.grid(alpha=0.2)
-        fig.tight_layout()
-        fig.savefig(plot_path, dpi=300)
-        plt.close(fig)
+        with mpl.rc_context(
+            {
+                "font.family": "sans-serif",
+                "font.sans-serif": ["Arial", "DejaVu Sans"],
+                "font.size": 8,
+                "axes.spines.right": False,
+                "axes.spines.top": False,
+                "axes.linewidth": 0.8,
+                "legend.frameon": False,
+                "pdf.fonttype": 42,
+                "svg.fonttype": "none",
+            }
+        ):
+            fig, ax = plt.subplots(figsize=(7.2, 4.5))
+            ax.plot(
+                result.frequency_grid_cm1,
+                result.spectrum,
+                color="#2f6b9a",
+                linewidth=1.7,
+            )
+            ax.vlines(
+                result.frequencies_cm1,
+                -0.075,
+                -0.075 + 0.06 * result.activities,
+                color="#b2472f",
+                linewidth=0.9,
+            )
+            ax.set_xlabel(r"Raman shift (cm$^{-1}$)")
+            ax.set_ylabel("Normalized Raman intensity")
+            ax.set_xlim(
+                result.frequency_grid_cm1[0], result.frequency_grid_cm1[-1]
+            )
+            ax.set_ylim(-0.085, 1.05)
+            ax.grid(axis="y", alpha=0.18, linewidth=0.6)
+            fig.tight_layout()
+            plot_files = _save_figure_bundle(fig, output, "raman_spectrum")
+            plt.close(fig)
 
     summary = {
         "tensor_kind": result.tensor_kind,
@@ -892,7 +975,9 @@ def write_raman_outputs(
             "modes": str(modes_path.resolve()),
             "tensors": str(tensor_path.resolve()),
             "spectrum": str(spectrum_path.resolve()),
-            "plot": str(plot_path.resolve()) if plot else None,
+            "plot": plot_files.get("plot"),
+            "plot_pdf": plot_files.get("plot_pdf"),
+            "plot_svg": plot_files.get("plot_svg"),
         },
     }
     (output / "raman_summary.json").write_text(
