@@ -629,18 +629,20 @@ export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
     article_env = os.environ.get("ZSTAR_ARTICLE_DIR")
     if article_env:
         article = Path(article_env).expanduser().resolve()
-        for name in ("zstar_CPC-full.tex", "zstar.bib", "zstar_CPC-full.pdf", "doi_verification.md"):
+        for name in (
+            "zstar_CPC-full.tex",
+            "zstar.bib",
+            "zstar_CPC-full.pdf",
+            "doi_verification.md",
+            "Figure_1_ZStar_workflow.png",
+            "Figure_2_BEC_physical_picture.png",
+            "Figure_3_In2Se3_hybrid_polarization.pdf",
+            "Figure_4_Spectroscopy_across_dimensions.pdf",
+            "Figure_5_Potential_examples_2D.pdf",
+        ):
             source = article / name
             if source.is_file():
                 copy_file(source, BUNDLE / "paper" / name)
-        for name in (
-            "ZStar-workflow-whole.png", "physical_picture.png",
-            "in2se3_hybrid_polarization.pdf", "spectroscopy_across_dimensions.pdf",
-            "potential_examples_2d.pdf",
-        ):
-            source = article / "figures" / name
-            if source.is_file():
-                copy_file(source, BUNDLE / "paper" / "figures" / name)
     sanitize_json_paths()
     write_manifests()
     sys.path.insert(0, str(ROOT))
