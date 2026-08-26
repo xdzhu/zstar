@@ -1089,152 +1089,172 @@ def read_zborn_representatives(path: Path) -> list[dict]:
 
 
 def make_bec_validation(data_root: Path, output: Path) -> dict:
-    """Summarize calculator agreement and dimensional BEC conventions."""
-    gaas_path = data_root / "gaas_nanowire" / "bec" / "abacus_vasp_comparison.json"
-    gaas = json.loads(gaas_path.read_text(encoding="utf-8"))
-    representative = gaas["bec"]["representative_abacus_atom_1"]
-    abacus = np.asarray(representative["abacus"], dtype=float)
-    vasp = np.asarray(representative["vasp"], dtype=float)
+    """Compare the main bulk, 2D, and molecular BEC/APT benchmarks."""
+    source_path = data_root / "bec_literature_benchmark.csv"
+    rows = read_csv(source_path)
 
-    two_dimensional = {
-        "MoS$_2$": data_root / "bec_summary" / "MoS2_Z-BORN-symm.out",
-        r"$\alpha$-In$_2$Se$_3$": data_root / "in2se3" / "Z-BORN-symm.out",
-    }
-    three_dimensional = {
-        "BaTiO$_3$": data_root / "bec_summary" / "BaTiO3_Z-BORN-symm.out",
-        "HfO$_2$": data_root / "bec_summary" / "HfO2_Z-BORN-symm.out",
-    }
+    def values_for(system: str, source: str) -> dict[str, float]:
+        return {
+            row["component"]: float(row["value_e"])
+            for row in rows
+            if row["system"] == system and row["source"] == source
+        }
 
-    fig = plt.figure(figsize=(7.2, 5.6), constrained_layout=True)
-    grid = fig.add_gridspec(2, 2, height_ratios=(0.92, 1.08))
-    ax_parity = fig.add_subplot(grid[0, 0])
-    ax_error = fig.add_subplot(grid[0, 1])
-    ax_2d = fig.add_subplot(grid[1, 0])
-    ax_3d = fig.add_subplot(grid[1, 1])
+    styles = [
+        (COLORS["red"], "o", True),
+        (COLORS["blue"], "s", False),
+        (COLORS["green"], "^", False),
+        (COLORS["gold"], "D", False),
+        (COLORS["muted"], "v", False),
+    ]
 
-    diagonal = np.asarray([True, False, False, False, True, False, False, False, True])
-    flat_abacus = abacus.ravel()
-    flat_vasp = vasp.ravel()
-    bounds = (
-        min(float(np.min(flat_abacus)), float(np.min(flat_vasp))) - 0.07,
-        max(float(np.max(flat_abacus)), float(np.max(flat_vasp))) + 0.07,
-    )
-    ax_parity.plot(bounds, bounds, color=COLORS["muted"], linewidth=0.8, linestyle="--")
-    ax_parity.scatter(
-        flat_vasp[~diagonal], flat_abacus[~diagonal],
-        s=27, marker="o", facecolor="white", edgecolor=COLORS["blue"],
-        linewidth=1.0, label="off-diagonal",
-    )
-    ax_parity.scatter(
-        flat_vasp[diagonal], flat_abacus[diagonal],
-        s=31, marker="o", facecolor=COLORS["red"], edgecolor=COLORS["red"],
-        linewidth=0.8, label="diagonal",
-    )
-    ax_parity.set_xlim(bounds)
-    ax_parity.set_ylim(bounds)
-    ax_parity.set_aspect("equal", adjustable="box")
-    ax_parity.set_xlabel(r"VASP $Z^*$ ($e$)")
-    ax_parity.set_ylabel(r"ABACUS/PyATB $Z^*$ ($e$)")
-    ax_parity.set_title("GaAs wire: representative As tensor", loc="left")
-    ax_parity.legend(loc="upper left", fontsize=6.8, handletextpad=0.4)
-
-    species = list(gaas["bec"]["species"])
-    rms = [gaas["bec"]["species"][name]["rms_e"] for name in species]
-    maximum = [gaas["bec"]["species"][name]["max_abs_e"] for name in species]
-    species.append("All")
-    rms.append(gaas["bec"]["rms_delta_e"])
-    maximum.append(gaas["bec"]["max_abs_delta_e"])
-    positions = np.arange(len(species))
-    ax_error.bar(
-        positions, rms, width=0.58, color="#b9d1d7", edgecolor=COLORS["blue"],
-        linewidth=0.8, label="RMS",
-    )
-    ax_error.scatter(
-        positions, maximum, marker="D", s=26, color=COLORS["red"],
-        zorder=3, label="maximum",
-    )
-    ax_error.set_xticks(positions, species)
-    ax_error.set_ylabel(r"ABACUS/PyATB--VASP difference ($e$)")
-    ax_error.set_ylim(0.0, 0.105)
-    ax_error.set_title("GaAs wire: all 216 BEC components", loc="left")
-    ax_error.grid(axis="y", color=COLORS["grid"], linewidth=0.5)
-    ax_error.legend(loc="upper left")
-    acoustic_sum = np.asarray(gaas["bec"]["abacus_acoustic_sum_e"])
-    ax_error.text(
-        0.97, 0.62,
-        "RMS = 0.02068 $e$\nmax = 0.08906 $e$\n"
-        rf"ASR residual $\leq {np.max(np.abs(acoustic_sum)):.1e}$ $e$",
-        transform=ax_error.transAxes, ha="right", va="top",
-        fontsize=7.0, color=COLORS["ink"],
-    )
-
-    def plot_site_components(ax, systems, dimensionality: int) -> None:
-        positions = []
-        labels = []
-        tensors = []
-        separators = []
-        cursor = 0
-        for system_name, path in systems.items():
-            rows = read_zborn_representatives(path)
-            start = cursor
-            for row in rows:
-                positions.append(cursor)
-                labels.append(row["atom"])
-                tensors.append(row["tensor"])
-                cursor += 1
-            center = 0.5 * (start + cursor - 1)
-            ax.text(
-                center, 1.025, system_name,
-                transform=ax.get_xaxis_transform(), ha="center", va="bottom",
-                fontsize=7.5, color=COLORS["ink"],
-            )
-            separators.append(cursor - 0.5)
-            cursor += 0.65
-        x_values = np.asarray(positions, dtype=float)
-        tensors_array = np.asarray(tensors)
-        if dimensionality == 2:
-            series = [
-                (0.5 * (tensors_array[:, 0, 0] + tensors_array[:, 1, 1]),
-                 COLORS["blue"], "o", r"$Z^*_{\parallel}$"),
-                (tensors_array[:, 2, 2], COLORS["red"], "s", r"$Z^*_{zz}$"),
-            ]
-        else:
-            series = [
-                (tensors_array[:, 0, 0], COLORS["blue"], "o", r"$Z^*_{xx}$"),
-                (tensors_array[:, 1, 1], COLORS["green"], "^", r"$Z^*_{yy}$"),
-                (tensors_array[:, 2, 2], COLORS["red"], "s", r"$Z^*_{zz}$"),
-            ]
-        for values, color, marker, label in series:
+    def comparison_panel(
+        ax,
+        *,
+        system: str,
+        components: list[str],
+        component_labels: list[str],
+        sources: list[tuple[str, str]],
+        title: str,
+        ylabel: str,
+        legend_columns: int = 2,
+    ) -> None:
+        base = np.arange(len(components), dtype=float)
+        width = min(0.16, 0.62 / max(len(sources), 1))
+        offsets = (np.arange(len(sources)) - 0.5 * (len(sources) - 1)) * width
+        for offset, (source, display), (color, marker, filled) in zip(
+            offsets, sources, styles
+        ):
+            lookup = values_for(system, source)
+            x_values = []
+            y_values = []
+            for x_value, component in zip(base, components):
+                if component in lookup:
+                    x_values.append(x_value + offset)
+                    y_values.append(lookup[component])
             ax.plot(
-                x_values, values, linestyle="none", marker=marker,
-                markersize=4.7, markerfacecolor="white", markeredgewidth=1.0,
-                color=color, label=label,
+                x_values,
+                y_values,
+                color=color,
+                marker=marker,
+                linestyle="none",
+                markersize=5.0,
+                markerfacecolor=color if filled else "white",
+                markeredgecolor=color,
+                markeredgewidth=1.0,
+                label=display,
+                zorder=3,
             )
-        for separator in separators[:-1]:
-            ax.axvline(separator, color=COLORS["grid"], linewidth=0.7)
-        ax.axhline(0.0, color=COLORS["muted"], linewidth=0.65)
-        ax.set_xticks(x_values, labels, rotation=35, ha="right")
-        ax.set_ylabel(r"Born effective charge ($e$)")
-        ax.grid(axis="y", color=COLORS["grid"], linewidth=0.45)
-        ax.legend(loc="best", ncol=len(series), columnspacing=0.9, handletextpad=0.35)
+        ax.axhline(0.0, color=COLORS["muted"], linewidth=0.65, zorder=1)
+        ax.set_xticks(base, component_labels)
+        ax.set_xlim(-0.55, len(components) - 0.45)
+        ax.set_ylabel(ylabel)
+        ax.set_title(title, loc="left", pad=7)
+        ax.grid(axis="y", color=COLORS["grid"], linewidth=0.45, zorder=0)
+        ax.legend(
+            loc="best",
+            ncol=legend_columns,
+            columnspacing=0.8,
+            handletextpad=0.35,
+            borderaxespad=0.35,
+            fontsize=6.7,
+        )
+        style_data_axis(ax)
 
-    plot_site_components(ax_2d, two_dimensional, dimensionality=2)
-    ax_2d.set_title(
-        "2D hybrid response: calculated representatives", loc="left", pad=28
+    fig, axes = plt.subplots(3, 2, figsize=(7.2, 7.5), constrained_layout=True)
+    comparison_panel(
+        axes[0, 0],
+        system="BaTiO3",
+        components=["Ba", "Ti", "O_parallel", "O_perp"],
+        component_labels=["Ba", "Ti", r"O$_{\parallel}$", r"O$_{\perp}$"],
+        sources=[
+            ("ZStar", "ZStar, PBEsol"),
+            ("Ghosez1995", "Ghosez, LDA"),
+            ("Bilc2008", "Bilc, PBE"),
+            ("Masuki2022", "Masuki, PBEsol"),
+        ],
+        title=r"Bulk: cubic BaTiO$_3$",
+        ylabel=r"Born effective charge ($e$)",
     )
-    ax_2d.text(
-        0.02, 0.05, "periodic in-plane\nopen-direction dipole",
-        transform=ax_2d.transAxes, ha="left", va="bottom",
-        color=COLORS["muted"], fontsize=6.9,
+    comparison_panel(
+        axes[0, 1],
+        system="HfO2",
+        components=["Hf_x", "Hf_z", "O_x", "O_y", "O_z"],
+        component_labels=[r"Hf$_x$", r"Hf$_z$", r"O$_x$", r"O$_y$", r"O$_z$"],
+        sources=[
+            ("ZStar", "ZStar, PBEsol"),
+            ("ZhaoVanderbilt2002", "Zhao, LDA"),
+            ("Fan2022", "Fan, PBEsol"),
+        ],
+        title=r"Bulk: tetragonal HfO$_2$",
+        ylabel=r"Born effective charge ($e$)",
     )
+    comparison_panel(
+        axes[1, 0],
+        system="hBN",
+        components=["B_parallel", "B_z"],
+        component_labels=[r"B$_{\parallel}$", r"B$_z$"],
+        sources=[
+            ("ZStar", "ZStar, PBE"),
+            ("SioGiustino2022", "Sio, PBE"),
+            ("Hu2018", "Hu, LDA"),
+        ],
+        title="2D: monolayer hBN",
+        ylabel=r"Born effective charge ($e$)",
+    )
+    comparison_panel(
+        axes[1, 1],
+        system="alpha-In2Se3",
+        components=[
+            "In1_parallel", "In2_parallel", "Se_c_parallel",
+            "In1_z", "In2_z", "Se_c_z",
+        ],
+        component_labels=[
+            r"In(low)$_{\parallel}$", r"In(high)$_{\parallel}$", r"Se(c)$_{\parallel}$",
+            r"In(low)$_z$", r"In(high)$_z$", r"Se(c)$_z$",
+        ],
+        sources=[
+            ("ZStar", "ZStar, 1L PBE"),
+            ("Soleimani2020", "Soleimani, 1L PBEsol"),
+            ("Wu2015", "Wu, 2L HSE06"),
+        ],
+        title=r"2D: $\alpha$-In$_2$Se$_3$",
+        ylabel=r"Born effective charge ($e$)",
+    )
+    axes[1, 1].tick_params(axis="x", labelrotation=18)
+    for label in axes[1, 1].get_xticklabels():
+        label.set_ha("right")
+    comparison_panel(
+        axes[2, 0],
+        system="H2O",
+        components=["O", "H"],
+        component_labels=["O", "H"],
+        sources=[
+            ("ZStar", "ZStar, PBE"),
+            ("Ferreira1990_exp", "Ferreira, exp."),
+            ("Ferreira1990_SCF", "Ferreira, SCF"),
+            ("Astrand1998", r"Astrand, HF"),
+        ],
+        title=r"Molecular: H$_2$O",
+        ylabel=r"GAPT charge ($e$)",
+    )
+    comparison_panel(
+        axes[2, 1],
+        system="CH4",
+        components=["C", "H"],
+        component_labels=["C", "H"],
+        sources=[
+            ("ZStar", "ZStar, PBE"),
+            ("FerreiraBassi1987", "Ferreira, exp."),
+            ("Oliveira2000_B3LYP", "Oliveira, B3LYP"),
+            ("Richter2021", "Richter, M06-2X"),
+        ],
+        title=r"Molecular: CH$_4$",
+        ylabel=r"GAPT charge ($e$)",
+    )
+    axes[2, 1].set_ylim(-0.032, 0.032)
 
-    plot_site_components(ax_3d, three_dimensional, dimensionality=3)
-    ax_3d.set_title(
-        "3D bulk response: calculated representatives", loc="left", pad=28
-    )
-
-    for label, axis in zip("abcd", (ax_parity, ax_error, ax_2d, ax_3d)):
-        style_data_axis(axis)
+    for label, axis in zip("abcdef", axes.ravel()):
         panel_label(axis, label)
 
     files = save_figure(fig, output, "bec_validation_across_dimensions")
@@ -1242,9 +1262,8 @@ def make_bec_validation(data_root: Path, output: Path) -> dict:
     return {
         "figure": "bec_validation_across_dimensions",
         "files": files,
-        "gaas_all_component_rms_e": gaas["bec"]["rms_delta_e"],
-        "gaas_all_component_max_abs_e": gaas["bec"]["max_abs_delta_e"],
-        "source_files": [gaas_path, *two_dimensional.values(), *three_dimensional.values()],
+        "systems": ["BaTiO3", "HfO2", "hBN", "alpha-In2Se3", "H2O", "CH4"],
+        "source_files": [source_path],
     }
 
 

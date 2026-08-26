@@ -717,10 +717,10 @@ def generate_qe_backend_script(
         body.append(f"source {shlex.quote(str(Path(env_script).expanduser().resolve()))}")
     body.extend([
         f"export OMP_NUM_THREADS={cpus_per_task}",
-        f"zstar backend qe run --root \"$ROOT\" --pw-command {shlex.quote(launcher + ' pw.x')} "
+        f"zstar qe-bec run --root \"$ROOT\" --pw-command {shlex.quote(launcher + ' pw.x')} "
         f"--ph-command {shlex.quote(launcher + ' ph.x')} --dynmat-command {shlex.quote(launcher + ' dynmat.x')} "
         f"--omp-threads {cpus_per_task} 2>&1 | tee -a \"$ROOT/.zstar/workflow.log\"",
-        'zstar backend qe collect --root "$ROOT" 2>&1 | tee -a "$ROOT/.zstar/workflow.log"',
+        'zstar qe-bec collect --root "$ROOT" 2>&1 | tee -a "$ROOT/.zstar/workflow.log"',
     ])
     target.write_text("\n".join(header + [""] + body) + "\n", encoding="utf-8", newline="\n")
     target.chmod(target.stat().st_mode | 0o111)

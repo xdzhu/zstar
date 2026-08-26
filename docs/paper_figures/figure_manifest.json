@@ -32,8 +32,14 @@
         "svg": "bec_validation_across_dimensions.svg",
         "tiff": "bec_validation_across_dimensions.tiff"
       },
-      "gaas_all_component_rms_e": 0.02067761559593997,
-      "gaas_all_component_max_abs_e": 0.08906354000000005
+      "systems": [
+        "BaTiO3",
+        "HfO2",
+        "hBN",
+        "alpha-In2Se3",
+        "H2O",
+        "CH4"
+      ]
     },
     {
       "figure": "potential_examples_2d",
@@ -108,19 +114,9 @@
   ],
   "source_data": [
     {
-      "path": "bec_summary/BaTiO3_Z-BORN-symm.out",
-      "size": 605,
-      "sha256": "84a3f93fd1b5854e34aec749757ccb69d33dd264c43d3fcde8bed2036ce1e079"
-    },
-    {
-      "path": "bec_summary/HfO2_Z-BORN-symm.out",
-      "size": 706,
-      "sha256": "8fab8749cfb4ae1ce03a3880cfac982ccf52d9fa3d1302339a0299d7290b72ff"
-    },
-    {
-      "path": "bec_summary/MoS2_Z-BORN-symm.out",
-      "size": 403,
-      "sha256": "896ee26fe8dce2bf1f5a0522a0f4751a7355c96671d1113f98a4b0f38aa19e6d"
+      "path": "bec_literature_benchmark.csv",
+      "size": 7659,
+      "sha256": "7dda0658ba2612e37da7da7235f72755304dab8185d7eb534112b3fcd6446721"
     },
     {
       "path": "bto/ir/ir_modes.csv",
@@ -161,11 +157,6 @@
       "path": "bto/raman/raman_tensors.npy",
       "size": 848,
       "sha256": "66d9ec8a8982292547ac13ca3ed3cd34cf5c598b42898a1ec5df4e6fe9cd46de"
-    },
-    {
-      "path": "gaas_nanowire/bec/abacus_vasp_comparison.json",
-      "size": 4927,
-      "sha256": "e6f5c029f9dc703762825142a0cf11d03f808445792fae09fa6aafd7804a4c49"
     },
     {
       "path": "in2se3/phonopy.yaml",
@@ -231,6 +222,26 @@
       "path": "potential/SnS/xy_map.dat",
       "size": 170285,
       "sha256": "f761155cc20fe8ae11c724c4e767072a4aba3f93556c5eb71b451bbcc5701703"
+    },
+    {
+      "path": "bec_summary/BaTiO3_Z-BORN-symm.out",
+      "size": 605,
+      "sha256": "84a3f93fd1b5854e34aec749757ccb69d33dd264c43d3fcde8bed2036ce1e079"
+    },
+    {
+      "path": "bec_summary/HfO2_Z-BORN-symm.out",
+      "size": 706,
+      "sha256": "8fab8749cfb4ae1ce03a3880cfac982ccf52d9fa3d1302339a0299d7290b72ff"
+    },
+    {
+      "path": "bec_summary/MoS2_Z-BORN-symm.out",
+      "size": 403,
+      "sha256": "896ee26fe8dce2bf1f5a0522a0f4751a7355c96671d1113f98a4b0f38aa19e6d"
+    },
+    {
+      "path": "gaas_nanowire/bec/abacus_vasp_comparison.json",
+      "size": 4927,
+      "sha256": "e6f5c029f9dc703762825142a0cf11d03f808445792fae09fa6aafd7804a4c49"
     },
     {
       "path": "bto/STRU",

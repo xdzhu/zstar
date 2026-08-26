@@ -193,10 +193,10 @@ class QeBackendTests(unittest.TestCase):
             text = script.read_text()
             self.assertIn("#SBATCH --ntasks=20", text)
             self.assertIn("srun --ntasks=20 pw.x", text)
-            self.assertIn("zstar backend qe run", text)
-            self.assertIn("zstar backend qe collect", text)
+            self.assertIn("zstar qe-bec run", text)
+            self.assertIn("zstar qe-bec collect", text)
 
-    def test_backend_namespace_and_legacy_alias_prepare_the_same_workflow(self):
+    def test_qe_bec_and_legacy_aliases_prepare_the_same_workflow(self):
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "source"
             (source / "pseudo_src").mkdir(parents=True)
@@ -208,7 +208,7 @@ class QeBackendTests(unittest.TestCase):
             canonical_root = Path(tmp) / "canonical"
             with redirect_stdout(StringIO()):
                 zstar_cli([
-                    "backend", "qe", "prepare", "--input", str(input_path),
+                    "qe-bec", "prepare", "--input", str(input_path),
                     "--root", str(canonical_root),
                 ])
             self.assertTrue((canonical_root / "qe_response_manifest.json").is_file())
@@ -223,13 +223,33 @@ class QeBackendTests(unittest.TestCase):
             self.assertTrue((legacy_root / "qe_response_manifest.json").is_file())
             self.assertIn("DEPRECATED", stderr.getvalue())
 
-    def test_top_level_help_prefers_backend_namespace(self):
+            backend_legacy_root = Path(tmp) / "backend-legacy"
+            stderr = StringIO()
+            with redirect_stdout(StringIO()), redirect_stderr(stderr):
+                zstar_cli([
+                    "backend", "qe", "prepare", "--input", str(input_path),
+                    "--root", str(backend_legacy_root),
+                ])
+            self.assertTrue(
+                (backend_legacy_root / "qe_response_manifest.json").is_file()
+            )
+            self.assertIn("DEPRECATED", stderr.getvalue())
+
+    def test_help_exposes_qe_bec_and_keeps_backend_query_only(self):
         stdout = StringIO()
         with self.assertRaisesRegex(SystemExit, "0"), redirect_stdout(stdout):
             zstar_cli(["--help"])
         help_text = stdout.getvalue()
         self.assertIn("backend", help_text)
-        self.assertNotIn("Deprecated alias", help_text)
+        self.assertIn("qe-bec", help_text)
+        self.assertNotIn("==SUPPRESS==", help_text)
+
+        stdout = StringIO()
+        with self.assertRaisesRegex(SystemExit, "0"), redirect_stdout(stdout):
+            zstar_cli(["backend", "--help"])
+        backend_help = stdout.getvalue()
+        self.assertIn("{list}", backend_help)
+        self.assertNotIn("{list,qe}", backend_help)
 
 
 if __name__ == "__main__":

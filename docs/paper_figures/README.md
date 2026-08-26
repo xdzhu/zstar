@@ -1,11 +1,29 @@
 # Paper Figure Archive
 
-This directory contains the source data and Python scripts used for the five
-validation figures added to the ZStar CPC manuscript. The archive reproduces
+This directory contains the source data and Python scripts used for the
+validation figures in the ZStar CPC manuscript. The archive reproduces
 the plotted figures; it does not redistribute the full ABACUS calculation
 folders, pseudopotentials, orbitals, or the ignored `examples/` tree.
 
 ## Figures
+
+### BEC and molecular APT literature validation
+
+![BEC and molecular APT validation](bec_validation_across_dimensions.png)
+
+The six panels follow the manuscript's main validation order: cubic BaTiO3
+and tetragonal HfO2 (Bulk), monolayer hBN and alpha-In2Se3 (2D), and isolated
+H2O and CH4 (Molecular). Filled circles are ZStar ABACUS+PYATB values; open
+symbols are values transcribed from the cited literature. The comparison is
+organized by phase, thickness, tensor frame, calculator, and functional rather
+than by a cross-code percentage error. The Wu alpha-In2Se3 values are marked as
+bilayer thickness context, and the near-zero CH4 GAPT signs are interpreted as
+method-sensitive rather than as a strict sign benchmark.
+
+`source_data/bec_literature_benchmark.csv` is the sole numerical input to this
+figure. Every literature row includes its DOI, software or numerical method,
+exchange-correlation approximation, structure, component, value, and whether
+it is a direct comparison or contextual evidence.
 
 ### IR/Raman spectroscopy across dimensionalities
 
@@ -115,6 +133,8 @@ source-data sizes, and SHA-256 hashes.
 
 - `source_data/bto/` contains the Gamma-point Phonopy data, irreducible
   representations, IR mode table/spectrum, and full Raman table/tensors/spectrum.
+- `source_data/bec_literature_benchmark.csv` contains the plotted ZStar and
+  literature BEC/APT values together with DOI and method provenance.
 - `source_data/in2se3/` contains the Gamma-point Phonopy data, corrected BEC
   tensors, and the derived planar charge-difference profile and dipole summary.
 - `source_data/potential/` contains compact slab-normal profiles, local

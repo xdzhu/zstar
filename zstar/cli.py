@@ -136,6 +136,15 @@ def zstar_cli(argv=None) -> None:
 
     If `argv` is None, arguments are taken from `sys.argv[1:]` (normal CLI use).
     """
+    cli_argv = list(sys.argv[1:] if argv is None else argv)
+    legacy_qe_command = None
+    if cli_argv[:1] == ['qe']:
+        legacy_qe_command = 'zstar qe'
+        cli_argv[0] = 'qe-bec'
+    elif cli_argv[:2] == ['backend', 'qe']:
+        legacy_qe_command = 'zstar backend qe'
+        cli_argv = ['qe-bec', *cli_argv[2:]]
+
     parser = argparse.ArgumentParser(
         prog="zstar",
         description="ZStar: A Python toolkit for first-principles Born effective charge, "
@@ -473,9 +482,10 @@ def zstar_cli(argv=None) -> None:
     parser_vasp_bec_compare.add_argument('--second', required=True)
     parser_vasp_bec_compare.add_argument('--output', default='vasp_bec_comparison.json')
 
-    # ---------------- Quantum ESPRESSO response backend ----------------
+    # ---------------- Quantum ESPRESSO BEC/response backend ----------------
     parser_qe = subparsers.add_parser(
-        'qe', help=argparse.SUPPRESS
+        'qe-bec',
+        help='Prepare, run, and collect Quantum ESPRESSO BEC/IR/Raman workflows.',
     )
     qe_actions = parser_qe.add_subparsers(dest='qe_action', required=True)
     _add_qe_action_parsers(qe_actions)
@@ -626,7 +636,7 @@ def zstar_cli(argv=None) -> None:
 
     # ---------------- calculator-neutral backend and response contracts ----------------
     parser_backend = subparsers.add_parser(
-        'backend', help='Inspect and run calculator backend adapters.'
+        'backend', help='Inspect calculator backend capabilities.'
     )
     backend_actions = parser_backend.add_subparsers(
         dest='backend_action', required=True
@@ -639,14 +649,6 @@ def zstar_cli(argv=None) -> None:
         '--discover', action='store_true',
         help='Load third-party plugins registered under zstar.backends.'
     )
-    parser_backend_qe = backend_actions.add_parser(
-        'qe', help='Prepare, run, and collect native Quantum ESPRESSO responses.'
-    )
-    backend_qe_actions = parser_backend_qe.add_subparsers(
-        dest='qe_action', required=True
-    )
-    _add_qe_action_parsers(backend_qe_actions)
-
     parser_response = subparsers.add_parser(
         'response', help='Validate or convert calculator-neutral response records.'
     )
@@ -1265,7 +1267,14 @@ def zstar_cli(argv=None) -> None:
     parser_potential.add_argument('--cmap', default='viridis',
                                   help='Matplotlib colormap for plane maps.')
 
-    args = parser.parse_args(argv)
+    args = parser.parse_args(cli_argv)
+
+    if legacy_qe_command:
+        print(
+            f"[DEPRECATED] Use 'zstar qe-bec ...' instead of "
+            f"'{legacy_qe_command} ...'.",
+            file=sys.stderr,
+        )
 
     if args.version:
         print(VERSION_STR)
@@ -1500,15 +1509,7 @@ def zstar_cli(argv=None) -> None:
             print(f"max |Delta epsilon_inf| = {result['epsilon_max_abs']:.6e}")
             print(f"[OUT] {output}")
 
-    elif args.command == 'qe':
-        print(
-            "[DEPRECATED] Use 'zstar backend qe ...'; "
-            "the top-level 'zstar qe' alias will be removed in a future release.",
-            file=sys.stderr,
-        )
-        _run_qe_action(args)
-
-    elif args.command == 'backend' and args.backend_action == 'qe':
+    elif args.command == 'qe-bec':
         _run_qe_action(args)
 
     elif args.command == 'spectra':
