@@ -160,6 +160,31 @@ class QeBackendTests(unittest.TestCase):
             self.assertIn("raman_activity", names)
             self.assertEqual(result["raman_activities"], [0.0, 12.0])
 
+    def test_molecular_qe_response_names_atomic_polar_tensor(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "phonon").mkdir()
+            (root / "dynmat").mkdir()
+            (root / "phonon" / "ph.out").write_text(PH_OUTPUT, encoding="utf-8")
+            (root / "dynmat" / "dynmat.out").write_text(
+                DYNMAT_OUTPUT, encoding="utf-8"
+            )
+            (root / "qe_response_manifest.json").write_text(
+                json.dumps(
+                    {
+                        "prefix": "molecule",
+                        "raman_requested": True,
+                        "dimensionality": {"value": 0, "periodic_axes": []},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            collect_qe_response(root, plot=False, points=101)
+            response = json.loads((root / "zstar_response.json").read_text())
+            names = [quantity["name"] for quantity in response["quantities"]]
+            self.assertIn("atomic_polar_tensor", names)
+            self.assertNotIn("born_effective_charge", names)
+
     def test_script_supports_slurm(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

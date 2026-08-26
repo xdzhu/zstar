@@ -1,7 +1,8 @@
 # CP2K Born Effective Charge Backend
 
-ZStar can construct three-dimensional Born effective charge (BEC) tensors from
-CP2K Berry-phase dipoles. The backend generates finite atomic displacements,
+ZStar can construct molecular atomic polar tensors (APT) from nonperiodic CP2K
+dipoles and three-dimensional Born effective charge (BEC) tensors from periodic
+Berry-phase dipoles. The backend generates finite atomic displacements,
 runs them serially, reuses the converged reference wavefunction, unwraps the
 periodic dipole branch, and writes both a compact tensor table and machine-readable
 diagnostics.
@@ -18,8 +19,10 @@ Z*(kappa, beta, alpha) = (1/e) d mu_alpha / d u_(kappa,beta)
 with a central difference by default. Tensor rows are atomic-displacement (or
 force) components and columns are polarization (or electric-field) components.
 CP2K reports dipoles in Debye; ZStar converts them using
-`1 e Angstrom = 4.80320471257 Debye` and selects the nearest periodic Berry
-branch from CP2K's full dipole-quantum matrix.
+`1 e Angstrom = 4.80320471257 Debye`. For `--dim 3`, it selects the nearest
+periodic Berry branch from CP2K's full dipole-quantum matrix. For `--dim 0`, it
+sets `PERIODIC FALSE` and `REFERENCE COM` and differentiates the molecular
+dipole directly.
 
 CP2K 2025.2 and newer also provide `PROPERTIES/LINRES/DCDR/APT_FD`. This native
 route evaluates the equivalent Maxwell relation
@@ -37,12 +40,18 @@ before comparison and retains the raw matrix as `tensor_raw_cp2k`.
 
 ## Current scope
 
-The validated backend currently requires:
+The validated backend currently supports neutral molecules (`--dim 0`) and
+three-dimensional periodic insulators (`--dim 3`). Both routes require:
 
-- a three-dimensional periodic, insulating, Gamma-point CP2K calculation;
+- a Gamma-point CP2K calculation;
 - inline Cartesian coordinates in `&FORCE_EVAL / &SUBSYS / &COORD`;
 - an `&SCF / &OT` calculation with integer occupations; and
-- a neutral cell for an unambiguous periodic dipole.
+- a neutral system.
+
+Periodic BEC additionally requires an insulating reference and a stable Berry
+branch. Molecular APT uses a nonperiodic Poisson solver and should keep the
+molecule centered consistently, preferably through `&TOPOLOGY /
+&CENTER_COORDINATES`.
 
 ZStar rejects explicit k-point meshes, smearing, nonzero `ADDED_MOS`, scaled
 coordinates, and external coordinate files. These checks catch incompatible
@@ -76,7 +85,7 @@ Generate a central-difference workflow:
 
 ```bash
 zstar cp2k-bec prepare --input input.inp --root cp2k_bec \
-  --method central --displacement 0.005 --atoms all
+  --dim 0 --method central --displacement 0.005 --atoms all
 ```
 
 For a symmetry diagnostic, a comma-separated subset such as `--atoms 1,5` is
@@ -110,7 +119,7 @@ The collector writes:
 
 | File | Contents |
 | --- | --- |
-| `Z-BORN-all.out` | One flattened 3 x 3 tensor per selected atom. |
+| `Z-BORN-all.out` | One flattened 3 x 3 APT/BEC tensor per selected atom. |
 | `cp2k_bec.json` | Settings, dipoles, branch shifts, tensors, and sum residual. |
 
 The existing entry points can also select this backend with `zstar gen --cp2k`,
@@ -158,6 +167,11 @@ $CP2K_ROOT/data
 The official `h2o_apt_fdiff.inp` regression produced checksum `0.0034319918`,
 exactly matching the CP2K 2025.2 regression reference. The MgO and tight-SCF
 H2O finite-difference comparisons are recorded in the validation document.
+Fresh nonperiodic H2O and CH4 calculations additionally closed every serial
+stage at both 0.01 and 0.005 Angstrom displacement. At the converged 0.005
+Angstrom setting, the displacement-dipole versus native-APT RMS differences
+were 0.01043 and 0.00422 e, respectively. The CH4 native field scan also shows
+why the translational-sum residual must accompany any small molecular GAPT.
 
 ## Numerical checklist
 
@@ -169,3 +183,6 @@ H2O finite-difference comparisons are recorded in the validation document.
    `3e-4` atomic units.
 5. Check symmetry-equivalent atoms and the acoustic sum rule before applying
    any correction.
+6. Do not assume that the smallest finite field is the most accurate. For a
+   small molecular GAPT formed by cancellation, require both a field-strength
+   plateau and a small uncorrected translational-sum residual.

@@ -184,8 +184,15 @@ def preflight_report(
             "Berry phase. Do not apply bulk NAC; finite-q polar dispersion still "
             "requires a genuine 1D Coulomb cutoff."
         )
-    if dimensionality == "molecule" and lane not in {"ir", "raman"}:
-        warnings.append("Molecule mode is currently intended for the IR/Raman workflow.")
+    if dimensionality == "molecule" and lane == "bec":
+        warnings.append(
+            "For dim=0, ZStar reports molecular atomic polar tensors (APT) in e, "
+            "not periodic-crystal Born effective charges."
+        )
+    elif dimensionality == "molecule" and lane not in {"ir", "raman", "cp2k"}:
+        warnings.append(
+            "Confirm that the selected workflow has a nonperiodic molecular response definition."
+        )
 
     return {
         "schema_version": 1,

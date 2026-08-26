@@ -1,8 +1,8 @@
 # CP2K Born 有效电荷后端
 
-ZStar 现在可以从 CP2K 的 Berry 相位偶极构造三维 Born 有效电荷（BEC）张量。
-该后端会生成原子有限位移、串行执行任务、复用参考结构收敛波函数、匹配周期偶极
-分支，并输出便于审计的张量和 JSON 诊断文件。
+ZStar 现在可以从 CP2K 非周期偶极构造分子原子极化张量（APT），也可以从周期
+Berry 相位偶极构造三维 Born 有效电荷（BEC）张量。该后端会生成原子有限位移、
+串行执行任务、复用参考结构收敛波函数，并输出便于审计的张量和 JSON 诊断文件。
 
 ## 物理定义
 
@@ -13,8 +13,9 @@ Z*(kappa, beta, alpha) = (1/e) d mu_alpha / d u_(kappa,beta)
 ```
 
 张量的行对应原子位移（或力）方向，列对应极化（或电场）方向。CP2K 以 Debye
-输出偶极，ZStar 使用 `1 e Angstrom = 4.80320471257 Debye` 换算，并利用 CP2K
-给出的完整偶极量子矩阵选择最近的 Berry 分支。
+输出偶极，ZStar 使用 `1 e Angstrom = 4.80320471257 Debye` 换算。`--dim 3`
+利用 CP2K 给出的完整偶极量子矩阵选择最近的 Berry 分支；`--dim 0` 自动设置
+`PERIODIC FALSE` 与 `REFERENCE COM`，直接对分子偶极求导。
 
 CP2K 2025.2 及以上版本还提供 `PROPERTIES/LINRES/DCDR/APT_FD`，通过六次有限
 电场力计算求取等价的 Maxwell 关系：
@@ -31,12 +32,16 @@ CP2K 原始 APT 文件以电场方向为行、力方向为列。解析器会先�
 
 ## 当前适用范围
 
-目前已验证的 CP2K 后端要求：
+目前已验证的 CP2K 后端支持中性分子（`--dim 0`）和三维周期绝缘体（`--dim 3`）。
+两条路线都要求：
 
-- 三维周期、绝缘、Gamma 点体系；
+- Gamma 点计算；
 - 在 `&FORCE_EVAL / &SUBSYS / &COORD` 内直接给出笛卡尔坐标；
 - 采用整数占据和 `&SCF / &OT`；
-- 使用中性超胞，以保证周期偶极定义明确。
+- 使用中性体系。
+
+周期 BEC 还要求参考结构绝缘且 Berry 分支稳定。分子 APT 应采用非周期 Poisson
+求解器，并通过 `&TOPOLOGY / &CENTER_COORDINATES` 等方式保持分子居中约定一致。
 
 程序会拒绝显式 k 点网格、展宽、非零 `ADDED_MOS`、分数坐标和外部坐标文件。
 这些输入检查只能发现明显不兼容的设置，不能代替严格的能隙计算。在解释 BEC
@@ -68,7 +73,7 @@ CP2K 后端尚未实现二维薄膜面外分量所需的实空间积分。二维
 
 ```bash
 zstar cp2k-bec prepare --input input.inp --root cp2k_bec \
-  --method central --displacement 0.005 --atoms all
+  --dim 0 --method central --displacement 0.005 --atoms all
 ```
 
 也可以用 `--atoms 1,5` 只选择对称性代表原子做诊断。中心差分包含一个参考任务，
@@ -101,7 +106,7 @@ zstar cp2k-bec collect --root cp2k_bec
 
 | 文件 | 内容 |
 | --- | --- |
-| `Z-BORN-all.out` | 每个选定原子的展平 3 x 3 BEC 张量。 |
+| `Z-BORN-all.out` | 每个选定原子的展平 3 x 3 APT/BEC 张量。 |
 | `cp2k_bec.json` | 参数、偶极、分支移动、张量和求和残差。 |
 
 原有入口也可以使用 `zstar gen --cp2k`、`zstar deal --cp2k` 和
@@ -145,6 +150,10 @@ $CP2K_ROOT/data
 
 官方 `h2o_apt_fdiff.inp` 回归测试得到 checksum `0.0034319918`，与 CP2K 2025.2
 参考值完全一致。MgO 和紧 SCF H2O 的有限差分对照记录在验证文档中。
+新完成的非周期 H2O 与 CH4 计算还分别闭环了 0.01 和 0.005 Angstrom 的全部串行
+阶段。在收敛的 0.005 Angstrom 设置下，位移-偶极相对原生 APT 的 RMS 差分别为
+0.01043 与 0.00422 e。CH4 原生电场扫描进一步说明，分子小 GAPT 必须与平移求和
+残差一起报告。
 
 ## 数值检查清单
 
@@ -153,3 +162,5 @@ $CP2K_ROOT/data
 3. 至少比较两个原子位移量，通常为 0.005 和 0.01 Angstrom。
 4. 原生 APT 至少比较 `1e-4` 至 `3e-4` 原子单位附近的两个电场步长。
 5. 在施加任何修正之前，先检查对称等价原子和声学求和规则。
+6. 不要默认最小有限场最准确。对于由较大贡献相消得到的分子小 GAPT，必须同时
+   检查场强平台和未经修正的平移求和残差。

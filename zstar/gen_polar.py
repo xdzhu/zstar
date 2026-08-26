@@ -360,7 +360,9 @@ def gen_input_in_folder(
         _copy_input_sets_to_here(input_sets=input_sets, source_dir=source_dir)
         
     # ABACUS (SCF + NSCF) or PYATB (SCF only)
-    if dimension == 1:
+    if dimension == 0:
+        k_grid = "1 1 1"
+    elif dimension == 1:
         k_grid = f"1 1 {k_grid}"
     elif dimension == 2:
         k_grid = f"{k_grid} {k_grid} 1"

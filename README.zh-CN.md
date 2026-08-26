@@ -178,7 +178,7 @@ zstar gen --stru STRU --dim 1 --pyatb --method central --force
 | `--reduce` / `--all` | 默认只算对称性代表原子，或强制计算全部原子。 |
 | `--move "x y z"` | 显式指定原子位移方向。 |
 | `--displacement 0.01` | 有限位移的半步长，单位为 Angstrom。 |
-| `--dim 1|2|3` | 一维、二维或三维处理。 |
+| `--dim 0|1|2|3` | 分子、一维、二维或三维处理。 |
 | `--input-mode abacus|pyatb|hamgnn|custom` | 输入文件准备方式。 |
 | `--input_sets FILES` | 复制到任务目录的附加文件或文件夹。 |
 
@@ -194,6 +194,8 @@ zstar workflow run --root . --dim 3 \
 ```
 
 一维纳米线和二维材料分别使用 `--dim 1` 与 `--dim 2`。
+孤立分子使用 `--dim 0`；程序采用 Gamma 点真空超胞并输出原子极化张量
+（APT），不把它误称为周期晶体的 BEC。
 低维极化/BEC 任务会自动写入 `out_chg 1 10`，避免 ABACUS cube 默认舍入精度限制
 横向偶极差分。
 
@@ -250,6 +252,20 @@ zstar workflow script --backend torque --dim 3 \
 
 ### 4. 后处理极化并构造 BEC
 
+ABACUS + PYATB 分子 APT：
+
+```bash
+zstar gen --dim 0 --method central --displacement 0.01 --pyatb
+zstar workflow run --root . --dim 0 \
+  --abacus-command abacus --pyatb-command pyatb --omp-threads 20
+zstar deal --dim 0 --method central --displacement 0.01 --pyatb
+```
+
+分子收集器会展开对称等价原子、施加平移不变性约束，并写出
+`molecular_apt.json` 和统一格式的 `zstar_response.json`。当 PYATB 最终极化行
+因六位小数舍入而不足以解析分子微小响应时，解析器会从分别输出的离子相位和
+电子相位重构更高精度的极化。
+
 三维：
 
 ```bash
@@ -282,14 +298,15 @@ zstar deal --dim 1 --method central --pyatb
 | `born_symmetry_report.json` | 对称重构与残差报告。 |
 | `zstar_2d_bec.json` | 二维混合 BEC 的逐原子积分诊断。 |
 | `zstar_1d_bec.json` | 一维混合 BEC 的逐原子积分诊断。 |
+| `molecular_apt.json` | 分子 APT、对称展开和平移求和诊断。 |
 
 ## CP2K BEC 后端
 
-对于三维、绝缘、Gamma 点 CP2K 输入，ZStar 可以从周期 Berry 相位偶极直接构造
-BEC 张量：
+对于分子（`--dim 0`）或三维绝缘 Gamma 点 CP2K 输入，ZStar 可以从偶极直接
+构造 APT 或 BEC 张量：
 
 ```bash
-zstar cp2k-bec prepare --input input.inp --root cp2k_bec \
+zstar cp2k-bec prepare --input input.inp --root cp2k_bec --dim 0 \
   --method central --displacement 0.005
 zstar cp2k-bec run --root cp2k_bec --cp2k-command cp2k.ssmp \
   --omp-threads 20 --data-dir /path/to/cp2k/data

@@ -149,8 +149,8 @@ def zstar_cli(argv=None) -> None:
     parser_gen.add_argument('-i', '--input', type=str, default=None,
                             help='Given your own INPUT file for ABACUS SCF')
     parser_gen.add_argument(
-        '--dim', type=int, choices=[1, 2, 3], default=3,
-        help='Physical dimensionality: 1 for a z-periodic wire, 2 for a slab, or 3 for bulk.'
+        '--dim', type=int, choices=[0, 1, 2, 3], default=3,
+        help='Physical dimensionality: 0 for a molecule, 1 for a z-periodic wire, 2 for a slab, or 3 for bulk.'
     )
     parser_gen.add_argument('--method', type=str, help='Type of finite difference method, by forward or central, with pricesion of first and seconde order.', default='forward')
     parser_gen.add_argument('--xc', type=str,
@@ -216,8 +216,8 @@ def zstar_cli(argv=None) -> None:
         'deal', help='Deal with polarization data to get BORN effective charge.'
     )
     parser_deal.add_argument(
-        '--dim', type=int, choices=[1, 2, 3], default=3,
-        help='Physical dimensionality: 1 for a z-periodic wire, 2 for a slab, or 3 for bulk.'
+        '--dim', type=int, choices=[0, 1, 2, 3], default=3,
+        help='Physical dimensionality: 0 for a molecule, 1 for a z-periodic wire, 2 for a slab, or 3 for bulk.'
     )
     parser_deal.add_argument('--method', type=str, help='Finite difference method, by forward or central, with pricesion of first and seconde order. To save calculation resource you can choose forward', default='forward')
     parser_deal.add_argument(
@@ -259,7 +259,7 @@ def zstar_cli(argv=None) -> None:
     parser_born = subparsers.add_parser(
         'born', help='Deal with polarization data to get BORN effective charge.'
     )
-    parser_born.add_argument('--dim', type=int, choices=[1, 2, 3], default=3)
+    parser_born.add_argument('--dim', type=int, choices=[0, 1, 2, 3], default=3)
     parser_born.add_argument('--stru', help='Path to the STRU file', default='STRU')
     parser_born.add_argument('--symmprec', '--tol', type=float,
                              help='Symmetry precision of STRU, default is 1e-3',
@@ -274,7 +274,7 @@ def zstar_cli(argv=None) -> None:
 
     # ---------------- polar ----------------
     parser_polar = subparsers.add_parser('polar', help='Polarization data only.')
-    parser_polar.add_argument('--dim', type=int, choices=[1, 2, 3], default=3)
+    parser_polar.add_argument('--dim', type=int, choices=[0, 1, 2, 3], default=3)
     parser_polar.add_argument('--stru', help='Path to the STRU file', default='STRU')
     parser_polar.add_argument('--symmprec', '--tol', type=float,
                               help='Symmetry precision of STRU, default is 1e-3',
@@ -359,6 +359,10 @@ def zstar_cli(argv=None) -> None:
     parser_cp2k_prepare.add_argument('--input', required=True)
     parser_cp2k_prepare.add_argument('--root', default='cp2k_bec')
     parser_cp2k_prepare.add_argument(
+        '--dim', type=int, choices=[0, 3], default=3,
+        help='0 for a molecular atomic polar tensor; 3 for periodic BEC.'
+    )
+    parser_cp2k_prepare.add_argument(
         '--method', choices=['forward', 'central'], default='central'
     )
     parser_cp2k_prepare.add_argument('--displacement', type=float, default=0.01)
@@ -381,7 +385,7 @@ def zstar_cli(argv=None) -> None:
     parser_cp2k_status.add_argument('--root', default='cp2k_bec')
 
     parser_cp2k_collect = cp2k_actions.add_parser(
-        'collect', help='Construct BEC tensors from CP2K periodic dipoles.'
+        'collect', help='Construct molecular APT or periodic BEC tensors from CP2K dipoles.'
     )
     parser_cp2k_collect.add_argument('--root', default='cp2k_bec')
     parser_cp2k_collect.add_argument('--output', default='Z-BORN-all.out')
@@ -751,7 +755,7 @@ def zstar_cli(argv=None) -> None:
         help='One-time 0.no-move PYATB band-path gate; use mp for stricter sampling.'
     )
     parser_workflow_run.add_argument(
-        '--dimensionality', '--dim', type=int, choices=[1, 2, 3], default=3
+        '--dimensionality', '--dim', type=int, choices=[0, 1, 2, 3], default=3
     )
     parser_workflow_run.add_argument('--min-gap', type=float, default=0.01)
     parser_workflow_run.add_argument(
@@ -806,7 +810,7 @@ def zstar_cli(argv=None) -> None:
         '--gap-mode', choices=['path', 'mp'], default='path'
     )
     parser_workflow_script.add_argument(
-        '--dimensionality', '--dim', type=int, choices=[1, 2, 3], default=3
+        '--dimensionality', '--dim', type=int, choices=[0, 1, 2, 3], default=3
     )
     parser_workflow_script.add_argument('--min-gap', type=float, default=0.01)
     parser_workflow_script.add_argument(
@@ -1350,6 +1354,7 @@ def zstar_cli(argv=None) -> None:
                 method=args.method,
                 displacement_angstrom=args.displacement,
                 atoms=args.atoms,
+                dimensionality=args.dim,
                 force=args.force,
             )
             print(f"[OUT] {root}")
@@ -1408,8 +1413,13 @@ def zstar_cli(argv=None) -> None:
             result = compare_cp2k_bec(args.zstar_json, args.native_apt)
             output = Path(args.output).resolve()
             output.write_text(json.dumps(result, indent=2), encoding='utf-8')
-            print(f"max |Delta Z*| = {result['max_abs']:.6e} e")
-            print(f"RMS Delta Z* = {result['rms']:.6e} e")
+            print(f"max |Delta tensor| = {result['max_abs']:.6e} e")
+            print(f"RMS Delta tensor = {result['rms']:.6e} e")
+            print(
+                "max translational-sum residual: "
+                f"ZStar={result['zstar_acoustic_sum_max_abs']:.6e} e, "
+                f"native={result['native_acoustic_sum_max_abs']:.6e} e"
+            )
             print(f"[OUT] {output}")
 
     elif args.command == 'vasp-bec':
@@ -2297,6 +2307,7 @@ def zstar_cli(argv=None) -> None:
                 method=args.method,
                 displacement_angstrom=args.displacement,
                 atoms=args.atom or 'all',
+                dimensionality=args.dim,
                 force=args.force,
             )
             print(f"[OUT] {root}")

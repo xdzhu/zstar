@@ -232,6 +232,38 @@ class SpectraTests(unittest.TestCase):
             )
             np.testing.assert_allclose(skew_derivatives[0], expected_skew)
 
+    def test_read_pyatb_reconstructs_small_polarization_from_phases(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "polarization.dat"
+            path.write_text(
+                "The Ionic Phase      : 0.002000 0.000000 0.000000\n"
+                "The Electronic Phase : -0.002011 0.000000 0.000000\n"
+                "The calculated polarization direction is in a, "
+                "P = -0.000000 (mod 0.040024) C/m^2.\n"
+                "The calculated polarization direction is in b, "
+                "P = 0.000000 (mod 0.040024) C/m^2.\n"
+                "The calculated polarization direction is in c, "
+                "P = 0.000000 (mod 0.040024) C/m^2.\n",
+                encoding="utf-8",
+            )
+            values, quanta, _ = read_pyatb_polarization(path)
+            np.testing.assert_allclose(quanta, [0.040024] * 3)
+            np.testing.assert_allclose(values, [-4.40264e-7, 0.0, 0.0])
+
+            precise = path.read_text(encoding="utf-8").replace(
+                "P = -0.000000 (mod", "P = -0.000000410000 (mod", 1
+            )
+            path.write_text(precise, encoding="utf-8")
+            precise_values, _, _ = read_pyatb_polarization(path)
+            self.assertEqual(precise_values[0], -4.1e-7)
+
+            bulk_like = path.read_text(encoding="utf-8").replace(
+                "-0.000000410000", "-0.000000", 1
+            ).replace("0.040024", "1.000000")
+            path.write_text(bulk_like, encoding="utf-8")
+            bulk_values, _, _ = read_pyatb_polarization(path)
+            self.assertEqual(bulk_values[0], 0.0)
+
     def test_calculate_molecular_ir_spectrum(self):
         with tempfile.TemporaryDirectory() as tmp:
             qpoints = Path(tmp) / "qpoints.yaml"

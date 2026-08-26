@@ -11,7 +11,7 @@ zstar workflow status --root .
 zstar deal --stru STRU --pyatb --method forward --dim 3
 ```
 
-The workflow executor option is `--dimensionality 1|2|3` (with `--dim` as an
+The workflow executor option is `--dimensionality 0|1|2|3` (with `--dim` as an
 alias); the Agent Skill preflight uses the user-facing values
 `molecule|1d|2d|bulk`. Use `--gap-mode path` by default or `--gap-mode mp` when a
 denser insulation check is scientifically required.
@@ -35,6 +35,22 @@ zstar cp2k-bec run --root cp2k_bec --dry-run
 zstar cp2k-bec status --root cp2k_bec
 zstar cp2k-bec collect --root cp2k_bec
 ```
+
+## Molecular atomic polar tensors
+
+For an isolated molecule, use `--dim 0` and central differences. ZStar reports
+an atomic polar tensor (APT), the molecular analogue of a periodic BEC:
+
+```bash
+zstar gen --stru STRU --pyatb --method central --dim 0 --force
+zstar workflow run --root . --dim 0
+zstar deal --stru STRU --pyatb --method central --dim 0
+```
+
+Check `molecular_apt.json`, including the symmetry-expanded raw translational
+sum and the corrected sum. CP2K can run the same definition with
+`zstar cp2k-bec prepare --dim 0`; compare rotationally invariant GAPT values
+(`trace(APT)/3`) when molecular orientations differ.
 
 ## Two-dimensional BEC
 

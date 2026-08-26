@@ -9,6 +9,7 @@ ZStar is a Python workflow toolkit for polarization, Born effective charge (BEC)
 ## Highlights
 
 - Forward or central finite-difference BECs.
+- Molecular atomic polar tensors (APT) from ABACUS + PYATB or CP2K dipoles.
 - Symmetry reduction, full-cell reconstruction, and acoustic-sum-rule correction.
 - Serial and resumable `0.no-move -> displacements` execution.
 - Reuse of the converged reference charge density.
@@ -71,6 +72,16 @@ the longitudinal column from PYATB Berry polarization:
 zstar gen --stru STRU --dim 1 --pyatb --method central --force
 zstar workflow run --root . --dim 1
 zstar deal --stru STRU --dim 1 --pyatb --method central
+```
+
+For an isolated molecule, `--dim 0` generates and collects atomic polar
+tensors in units of `e`. The name is deliberate: an APT is the molecular
+analogue of a periodic-crystal BEC.
+
+```bash
+zstar gen --stru STRU --dim 0 --pyatb --method central --force
+zstar workflow run --root . --dim 0
+zstar deal --stru STRU --dim 0 --pyatb --method central
 ```
 
 For a 2D slab, use `--dim 2` in generation, execution, and post-processing.

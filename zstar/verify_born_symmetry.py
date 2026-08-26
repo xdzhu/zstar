@@ -270,7 +270,8 @@ def run_symcheck(stru: str = "STRU",
                  symprec: float = 1e-3,
                  out: Optional[str] = "born_symmetry_report.txt",
                  json_path: Optional[str] = "born_symmetry_report.json",
-                 csv_path: Optional[str] = None):
+                 csv_path: Optional[str] = None,
+                 symm_out: str = "Z-BORN-symm.out"):
     """
     当 all 存在 => 验证模式；否则 => 生成模式（只用 reduced + 对称生成）
     """
@@ -364,13 +365,21 @@ def run_symcheck(stru: str = "STRU",
                 lines.append(msg + "\n")
                 continue
 
+            mapped = []
+            for op_index in hits:
+                rotation_cartesian = cart_rotation_from_fractional(
+                    lattice, rotations[op_index]
+                )
+                mapped.append(rotation_cartesian @ Z0 @ rotation_cartesian.T)
+            Z_pred = np.mean(np.stack(mapped, axis=0), axis=0)
+            pred_lists[j].append(Z_pred)  # 收集到目标原子的预测
+
+            # The tensor uses every valid mapping; retain one operation only
+            # as a compact representative in the diagnostic report.
             k = hits[0]
             Rf = rotations[k]
             tf = translations[k]
             Rc = cart_rotation_from_fractional(lattice, Rf)
-
-            Z_pred = Rc @ Z0 @ Rc.T
-            pred_lists[j].append(Z_pred)  # 收集到目标原子的预测
 
             if has_all:
                 Z_ref = Z_all.get(j)
@@ -385,7 +394,10 @@ def run_symcheck(stru: str = "STRU",
                 err_rms = float(np.sqrt(np.mean(diff ** 2)))
 
                 # 屏幕输出：并排表格（3位小数）
-                print(f"  -> Atom {ridx} -> Atom {j} via op #{k}")
+                print(
+                    f"  -> Atom {ridx} -> Atom {j} via {len(hits)} mapping op(s) "
+                    f"(representative #{k})"
+                )
                 print("     R_frac =")
                 print("     " + np.array2string(Rf, formatter={'int': lambda x: f"{x:2d}"}).replace("\n", "\n     "))
                 print(f"     t_frac = {np.array2string(tf, precision=6)}")
@@ -398,7 +410,10 @@ def run_symcheck(stru: str = "STRU",
                 print("-" * 80)
 
                 # 报告（同样 3 位小数，保持一致风格）
-                lines.append(f"  -> Atom {ridx} -> Atom {j} via op #{k}\n")
+                lines.append(
+                    f"  -> Atom {ridx} -> Atom {j} via {len(hits)} mapping op(s) "
+                    f"(representative #{k})\n"
+                )
                 lines.append(f"     R_frac =\n{np.array2string(Rf, formatter={'int':lambda x:f'{x:2d}'})}\n")
                 lines.append(f"     t_frac = {np.array2string(tf, precision=6)}\n")
                 lines.append(f"     R_cart =\n{np.array2string(Rc, precision=6, floatmode='maxprec')}\n")
@@ -409,6 +424,7 @@ def run_symcheck(stru: str = "STRU",
                 block["equivalents"].append({
                     "target_index": int(j),
                     "op_index": int(k),
+                    "mapping_op_indices": [int(value) for value in hits],
                     "R_frac": Rf.tolist(),
                     "t_frac": [float(x) for x in tf],
                     "R_cart": Rc.tolist(),
@@ -478,7 +494,6 @@ def run_symcheck(stru: str = "STRU",
         flat = matrix.reshape(-1)
         return " ".join(f"{float(x):>{w}.{prec}f}" for x in flat)
 
-    symm_out = "Z-BORN-symm.out"
     xx_len = BORN_OUTPUT_WIDTH
     header = f"{'No. Atom': <9} {'xx': >{xx_len}} {'xy': >{xx_len}} {'xz': >{xx_len}} {'yx': >{xx_len}} {'yy': >{xx_len}} {'yz': >{xx_len}} {'zx': >{xx_len}} {'zy': >{xx_len}} {'zz': >{xx_len}}\n"
     with open(symm_out, "w") as f:

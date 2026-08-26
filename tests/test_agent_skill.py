@@ -67,6 +67,17 @@ class AgentSkillTests(unittest.TestCase):
             self.assertTrue(report["ready"])
             self.assertTrue(any("bulk NAC" in item for item in report["warnings"]))
 
+    def test_preflight_describes_molecular_bec_as_apt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "STRU").write_text("placeholder\n", encoding="utf-8")
+            report = preflight_report(root, lane="bec", dimensionality="molecule")
+
+            self.assertTrue(report["ready"])
+            self.assertTrue(
+                any("atomic polar tensors" in item for item in report["warnings"])
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

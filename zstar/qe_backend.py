@@ -542,7 +542,11 @@ def collect_qe_response(
     dim = dimension_spec(dim_data["value"], dim_data["periodic_axes"])
     quantities = [
         ResponseQuantity(
-            name="born_effective_charge",
+            name=(
+                "atomic_polar_tensor"
+                if dim.value == 0
+                else "born_effective_charge"
+            ),
             values=ph["born_tensors"],
             unit="e",
             normalization="per_atom",

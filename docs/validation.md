@@ -297,6 +297,57 @@ The compact source data and reproducible figure are archived in
 
 ![Combined CH4 and CO2 molecular validation](paper_figures/molecular_validation_overview.png)
 
+## Molecular atomic polar tensors
+
+The ABACUS + PYATB `--dim 0` route was exercised with H2O and CH4 in 20
+Angstrom vacuum cells. Both used PBE, a 100 Ry cutoff, 9 au numerical atomic
+orbitals, 0.01 Angstrom central atomic displacements, ABACUS 3.10.0 LTS, and
+PYATB 1.1.2.dev0+2ad34bc. The CP2K check used the same molecular geometries,
+PBE/TZV2P-MOLOPT-GTH, a 500 Ry GPW cutoff, `EPS_SCF=1e-10`, and a nonperiodic
+Wavelet Poisson solver. GAPT is the rotational invariant `trace(APT)/3`.
+
+| Molecule | Site | ABACUS + PYATB GAPT (e) | CP2K dipole, 0.005 Angstrom (e) | CP2K native APT (e) |
+| --- | --- | ---: | ---: | ---: |
+| H2O | O | -0.480524 | -0.491314 | -0.515970 |
+| H2O | H | +0.240262 | +0.245754 | +0.257731 |
+| CH4 | C | -0.020784 | -0.046884 | -0.061499 |
+| CH4 | H | +0.005196 | +0.011719 | +0.015391 |
+
+The native column uses `1e-4` a.u. for H2O and the converged `1e-3` a.u.
+plateau point for CH4.
+
+For H2O, halving the CP2K atomic displacement from 0.01 to 0.005 Angstrom
+changed the O and H GAPT values by only `4.9e-5` and `6.5e-5 e`. Changing the
+native field from `3e-4` to `1e-4` a.u. changed any H2O tensor component by at
+most `5.3e-6 e`. At the converged settings, the CP2K displacement-dipole and
+native force-field tensors differ by `0.03062 e` maximum and `0.01043 e` RMS.
+
+CH4 exposes a more delicate cancellation. Its four H off-diagonal components
+from the CP2K displacement route have magnitude `0.05975 e`, compared with
+`0.05987 e` from native APT at `3e-4` a.u. The small C diagonal response is
+field-noise sensitive: the native translational-sum residual is `0.0418 e` at
+`1e-4` a.u., `0.00114 e` at `3e-4` a.u., `8.55e-5 e` at `5e-4` a.u., and
+`6.57e-5 e` at `1e-3` a.u. The last two fields form a plateau; their maximum
+tensor difference is `1.51e-4 e`. Using `1e-3` a.u., the displacement-dipole
+and native tensors differ by `0.01462 e` maximum and `0.00422 e` RMS.
+
+PYATB prints the final polarization with six decimal places. In a large
+molecular vacuum cell this rounded line can erase the CH4 C signal. ZStar
+therefore reconstructs the polarization from PYATB's separately printed ionic
+and electronic phases when they are consistent with the rounded value. Before
+translational correction, the symmetry-expanded ABACUS + PYATB sums are about
+`1.0e-3 e`; after correction they are zero to `1.8e-18 e`. The corresponding
+uncorrected CP2K displacement sums are `7.86e-4 e` for H2O and `7.61e-6 e` for
+CH4.
+
+These comparisons validate the tensor convention, symmetry expansion,
+translation rule, small-signal parsing, and two independent CP2K response
+routes. They are not a claim that absolute APT components must be identical
+across ABACUS and CP2K: their pseudopotentials and atom-centered bases differ.
+Although equilibrium CH4 has no permanent dipole, its per-atom APTs are not
+zero; they generate the IR-active T2 normal modes while their full molecular
+sum obeys translational invariance.
+
 ## CP2K BEC Backend
 
 The CP2K backend was exercised directly on a dedicated compute node with the official static

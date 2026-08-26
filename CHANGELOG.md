@@ -1,5 +1,14 @@
 ## Unreleased
 
+- Add a production `dim=0` molecular atomic-polar-tensor workflow for
+  ABACUS/PYATB, including symmetry expansion, translational-sum correction,
+  per-atom GAPT values, and normalized response records.
+- Extend `zstar cp2k-bec` to nonperiodic molecular dipoles and validate H2O and
+  CH4 against CP2K 2025.2 native APT across displacement and field-strength
+  convergence scans.
+- Recover small molecular PYATB polarization signals from ionic/electronic
+  phases only when their printed precision improves on the final polarization
+  line, while preserving the established bulk parser behavior.
 - Add an end-to-end `dim=1` ABACUS/PYATB workflow for `z`-periodic wires:
   transverse cube-dipole polarization, longitudinal Berry polarization,
   line-polarizability normalization, Gamma-point IR/Raman, and explicit

@@ -187,7 +187,7 @@ Useful generation options:
 | `--reduce` / `--all` | Symmetry-reduced atoms (default) or every atom. |
 | `--move "x y z"` | Explicit displacement directions. |
 | `--displacement 0.01` | Finite-displacement half-step in Angstrom. |
-| `--dim 1|2|3` | One-dimensional, two-dimensional, or three-dimensional analysis. |
+| `--dim 0|1|2|3` | Molecular, one-dimensional, two-dimensional, or three-dimensional analysis. |
 | `--input-mode abacus|pyatb|hamgnn|custom` | Input preparation route. |
 | `--input_sets FILES` | Extra files or directories copied into generated tasks. |
 
@@ -203,6 +203,8 @@ zstar workflow run --root . --dim 3 \
 ```
 
 For a wire or slab, use `--dim 1` or `--dim 2`, respectively.
+For an isolated molecule, use `--dim 0`; the workflow uses a Gamma-only
+supercell and reports atomic polar tensors (APT), not periodic-crystal BEC.
 For low-dimensional polarization/BEC runs, ZStar writes `out_chg 1 10` so
 real-space transverse dipole differences are not limited by ABACUS cube
 rounding.
@@ -261,6 +263,21 @@ Add `--submit` only when the generated script has been reviewed and the active e
 
 ### 4. Collect polarization and construct BEC tensors
 
+Molecular APT from ABACUS + PYATB:
+
+```bash
+zstar gen --dim 0 --method central --displacement 0.01 --pyatb
+zstar workflow run --root . --dim 0 \
+  --abacus-command abacus --pyatb-command pyatb --omp-threads 20
+zstar deal --dim 0 --method central --displacement 0.01 --pyatb
+```
+
+The molecular collector reconstructs symmetry-equivalent atoms, enforces
+translational invariance, and writes `molecular_apt.json` plus the normalized
+`zstar_response.json`. It also reconstructs small polarization signals from
+PYATB's separately printed ionic and electronic phases when the rounded final
+polarization line is insufficient.
+
 Three-dimensional:
 
 ```bash
@@ -293,14 +310,15 @@ Key outputs:
 | `born_symmetry_report.json` | Machine-readable reconstruction and residual report. |
 | `zstar_2d_bec.json` | Per-atom diagnostics for hybrid 2D BEC calculations. |
 | `zstar_1d_bec.json` | Per-atom diagnostics for hybrid 1D BEC calculations. |
+| `molecular_apt.json` | Molecular APT tensors, symmetry expansion, and translational-sum diagnostics. |
 
 ## CP2K BEC Backend
 
-For a three-dimensional, insulating Gamma-point CP2K input, ZStar can build BEC
-tensors directly from periodic Berry-phase dipoles:
+For a molecular (`--dim 0`) or three-dimensional insulating Gamma-point CP2K
+input, ZStar can build APT or BEC tensors directly from dipoles:
 
 ```bash
-zstar cp2k-bec prepare --input input.inp --root cp2k_bec \
+zstar cp2k-bec prepare --input input.inp --root cp2k_bec --dim 0 \
   --method central --displacement 0.005
 zstar cp2k-bec run --root cp2k_bec --cp2k-command cp2k.ssmp \
   --omp-threads 20 --data-dir /path/to/cp2k/data

@@ -68,7 +68,13 @@ class BornPrecisionTests(unittest.TestCase):
 
             text = (root / "Z-BORN-symm.out").read_text(encoding="utf-8")
             self.assertIn("1.02345679", text)
-            self.assertIn("0.00734568", text)
+            # The cubic site group removes the deliberately injected xy terms;
+            # retained diagonal digits still exercise the output precision.
+            self.assertNotIn("0.00734568", text)
+            first_tensor = np.asarray(
+                [float(value) for value in text.splitlines()[1].split()[-9:]]
+            ).reshape(3, 3)
+            self.assertTrue(np.allclose(first_tensor - np.diag(np.diag(first_tensor)), 0.0))
             self.assertIn("-1.02345679", text)
 
 

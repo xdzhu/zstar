@@ -9,6 +9,7 @@ from zstar.cp2k_bec import (
     DEBYE_PER_E_ANGSTROM,
     collect_cp2k_bec,
     compare_cp2k_bec,
+    ensure_moments,
     ensure_periodic_moments,
     parse_cp2k_moment,
     parse_native_apt,
@@ -61,11 +62,26 @@ def cp2k_output(dipole, quantum=24.01602136):
     )
 
 
+def cp2k_molecular_output(dipole):
+    return (
+        "  Dipole moment [Debye]\n"
+        f"    X= {dipole[0]: .10E} Y= {dipole[1]: .10E} "
+        f"Z= {dipole[2]: .10E} Total= 0.0\n"
+        "  PROGRAM ENDED AT 2026-01-01 00:00:00\n"
+    )
+
+
 class Cp2kBecTests(unittest.TestCase):
     def test_moments_are_injected_under_dft_print(self):
         rendered = ensure_periodic_moments(MINIMAL_INPUT)
         self.assertIn("&MOMENTS", rendered)
         self.assertIn("PERIODIC TRUE", rendered)
+        self.assertLess(rendered.index("&MOMENTS"), rendered.index("&END DFT"))
+
+    def test_nonperiodic_moments_use_center_of_mass_reference(self):
+        rendered = ensure_moments(MINIMAL_INPUT, periodic=False)
+        self.assertIn("PERIODIC FALSE", rendered)
+        self.assertIn("REFERENCE COM", rendered)
         self.assertLess(rendered.index("&MOMENTS"), rendered.index("&END DFT"))
 
     def test_prepare_generates_central_stages_and_restart_guess(self):
@@ -130,6 +146,51 @@ class Cp2kBecTests(unittest.TestCase):
             self.assertEqual(response["backend"], "cp2k")
             self.assertEqual(response["quantities"][0]["shape"], [1, 3, 3])
 
+    def test_collect_molecular_apt_without_periodic_quantum(self):
+        expected = np.array(
+            [[-0.7, 0.1, 0.0], [0.2, -0.5, 0.3], [0.0, -0.1, -0.4]]
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "input.inp"
+            source.write_text(MINIMAL_INPUT, encoding="utf-8")
+            root = prepare_cp2k_bec(
+                source,
+                Path(tmp) / "molecule",
+                atoms="1",
+                dimensionality=0,
+            )
+            manifest = json.loads((root / "cp2k_bec_manifest.json").read_text())
+            self.assertEqual(manifest["dimensionality"], 0)
+            prepared = (root / "reference" / "input.inp").read_text()
+            self.assertIn("PERIODIC FALSE", prepared)
+            self.assertIn("REFERENCE COM", prepared)
+
+            (root / "reference" / "output.log").write_text(
+                cp2k_molecular_output((0.3, -0.2, 0.1)), encoding="utf-8"
+            )
+            scale = 0.01 * DEBYE_PER_E_ANGSTROM
+            for row, direction in zip(expected, ("x", "y", "z")):
+                atom_dir = root / "atom-0001-Mg"
+                (atom_dir / f"{direction}-plus" / "output.log").write_text(
+                    cp2k_molecular_output(np.array((0.3, -0.2, 0.1)) + scale * row),
+                    encoding="utf-8",
+                )
+                (atom_dir / f"{direction}-minus" / "output.log").write_text(
+                    cp2k_molecular_output(np.array((0.3, -0.2, 0.1)) - scale * row),
+                    encoding="utf-8",
+                )
+
+            result = collect_cp2k_bec(root)
+            self.assertEqual(result["dimensionality"], 0)
+            self.assertEqual(result["quantity"], "atomic_polar_tensor")
+            self.assertAlmostEqual(result["atoms"][0]["gapt"], -1.6 / 3.0)
+            self.assertTrue(
+                np.allclose(np.asarray(result["atoms"][0]["tensor"]), expected)
+            )
+            response = json.loads((root / "zstar_response.json").read_text())
+            self.assertEqual(response["dimensionality"]["value"], 0)
+            self.assertEqual(response["quantities"][0]["name"], "atomic_polar_tensor")
+
     def test_native_apt_parser_and_comparison(self):
         native_text = """     1    Mg        2.0000000000
         2.0000000000        0.1000000000        0.0000000000
@@ -152,6 +213,14 @@ Sum of Born charges: 2.0
             )
             comparison = compare_cp2k_bec(zstar, native)
             self.assertEqual(comparison["max_abs"], 0.0)
+            self.assertEqual(comparison["components"], 9)
+            self.assertAlmostEqual(
+                comparison["per_atom"][0]["zstar_gapt"], 2.0
+            )
+            self.assertAlmostEqual(
+                comparison["per_atom"][0]["gapt_difference"], 0.0
+            )
+            self.assertEqual(comparison["zstar_acoustic_sum_max_abs"], 2.1)
 
     def test_native_input_and_domain_guards(self):
         with tempfile.TemporaryDirectory() as tmp:

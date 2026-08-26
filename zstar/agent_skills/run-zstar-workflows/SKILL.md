@@ -61,6 +61,9 @@ Gamma-point IR/Raman response, but it does not implement a finite-wavevector
   real-space out-of-plane polarization requirement.
 - For molecules, pass `--dim 0` to the spectroscopy commands even though the
   user-facing category is "Molecule".
+- For molecular charge response, call the result an atomic polar tensor (APT),
+  use central differences, and compare orientation-independent GAPT traces
+  before comparing individual Cartesian components.
 - Treat MD+BEC as post-processing of user-supplied fixed or frame-resolved BECs;
   do not claim that ZStar predicts those tensors from the trajectory.
 - Keep atom ordering consistent among structures, BEC tensors, Phonopy data,

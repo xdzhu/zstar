@@ -33,6 +33,11 @@ _PYATB_POLARIZATION_RE = re.compile(
     rf"\(mod\s*({_FLOAT_RE.pattern})\)\s*C/m\^2",
     re.IGNORECASE,
 )
+_PYATB_PHASE_RE = re.compile(
+    rf"The\s+(Ionic|Electronic)\s+Phase\s*:\s*"
+    rf"({_FLOAT_RE.pattern})\s+({_FLOAT_RE.pattern})\s+({_FLOAT_RE.pattern})",
+    re.IGNORECASE,
+)
 
 
 @dataclass(frozen=True)
@@ -646,18 +651,56 @@ def read_pyatb_polarization(
             continue
         values: dict[str, float] = {}
         quanta: dict[str, float] = {}
+        value_decimal_places: dict[str, int] = {}
+        phases: dict[str, np.ndarray] = {}
         for line in candidate.read_text(
             encoding="utf-8", errors="ignore"
         ).splitlines():
+            phase_match = _PYATB_PHASE_RE.search(line)
+            if phase_match:
+                phases[phase_match.group(1).lower()] = np.asarray(
+                    [float(phase_match.group(index)) for index in range(2, 5)],
+                    dtype=float,
+                )
             match = _PYATB_POLARIZATION_RE.search(line)
             if match:
                 axis = match.group(1).lower()
                 values[axis] = float(match.group(2))
+                mantissa = re.split(r"[Ee]", match.group(2), maxsplit=1)[0]
+                value_decimal_places[axis] = (
+                    len(mantissa.rsplit(".", 1)[1]) if "." in mantissa else 0
+                )
                 quanta[axis] = float(match.group(3))
         if set(values) == {"a", "b", "c"}:
+            polarization = np.asarray(
+                [values[axis] for axis in "abc"], dtype=float
+            )
+            quantum = np.asarray([quanta[axis] for axis in "abc"], dtype=float)
+            if (
+                set(phases) == {"ionic", "electronic"}
+                and max(value_decimal_places.values()) <= 6
+            ):
+                # PYATB currently prints both phase components and the final
+                # polarization with six decimal places. Their sum times the
+                # branch quantum preserves small molecular signals that round
+                # to zero in the final P line.
+                reconstructed = (
+                    phases["ionic"] + phases["electronic"]
+                ) * quantum
+                rounding_tolerance = 5.1e-7 + 1.1e-6 * np.abs(quantum)
+                consistent = (
+                    np.abs(reconstructed - polarization) <= rounding_tolerance
+                )
+                # Two phase values each carry six-decimal rounding. Their sum
+                # improves on the final P line only when the branch quantum is
+                # small, as in a large-vacuum molecular or low-dimensional cell.
+                more_precise = np.abs(quantum) < (1.0 / np.sqrt(2.0))
+                polarization = np.where(
+                    consistent & more_precise, reconstructed, polarization
+                )
             return (
-                np.asarray([values[axis] for axis in "abc"], dtype=float),
-                np.asarray([quanta[axis] for axis in "abc"], dtype=float),
+                polarization,
+                quantum,
                 candidate.resolve(),
             )
     raise FileNotFoundError(

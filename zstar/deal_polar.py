@@ -1732,7 +1732,13 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
 
     if running_type == 'solo':
         # 如果独立运行极化，只计算并输出当前目录的极化
-        if dimension == 3:
+        if dimension == 0:
+            from .spectra import read_pyatb_polarization
+
+            polarization, _quanta, source = read_pyatb_polarization("pyatb")
+            print(f"Molecular supercell polarization (C/m^2): {polarization.tolist()}")
+            print(f"[OUT] {source}")
+        elif dimension == 3:
             deal_polar_solo(nscf_calculator)
         elif dimension == 2:
             print("2d case")
@@ -1743,7 +1749,7 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
             output = write_reference_1d_polarization(".")
             print(f"[INFO] Wrote {output}")
         else:
-            raise ValueError("dimension must be 1, 2, or 3")
+            raise ValueError("dimension must be 0, 1, 2, or 3")
             
         return
 
@@ -1760,6 +1766,23 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
         f"({displacement_source})"
     )
     cord_type = {'cart': half_displacement}
+
+    if dimension == 0:
+        from .molecular_bec import collect_molecular_apts
+
+        result = collect_molecular_apts(
+            ".",
+            method=method,
+            displacement_angstrom=half_displacement,
+            symprec=symm_tol,
+        )
+        print(
+            f"[INFO] Collected {result['natoms_calculated']} molecular APT tensors; "
+            f"symmetry-expanded total: {len(result['atoms'])}."
+        )
+        print(f"[OUT] {result['json_output']}")
+        print(f"[OUT] {result['response_output']}")
+        return
 
 
     if method == "central" and dimension == 3:

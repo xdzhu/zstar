@@ -54,7 +54,7 @@ class Coordinate:
 @dataclass(frozen=True)
 class Cp2kMoment:
     dipole_debye: tuple[float, float, float]
-    quantum_debye: tuple[tuple[float, float, float], ...]
+    quantum_debye: tuple[tuple[float, float, float], ...] | None = None
 
 
 @dataclass
@@ -106,7 +106,7 @@ def _has_section(lines: Sequence[str], path: Sequence[str]) -> bool:
 
 
 def validate_cp2k_bec_input(text: str) -> None:
-    """Reject inputs outside the validated Berry-phase BEC domain."""
+    """Reject inputs outside the validated CP2K dipole-derivative domain."""
 
     upper = text.upper()
     if re.search(r"(?m)^\s*&\s*KPOINTS\b", upper):
@@ -116,7 +116,7 @@ def validate_cp2k_bec_input(text: str) -> None:
     ):
         raise ValueError("CP2K BEC requires an insulating, integer-occupation SCF")
     if not re.search(r"(?m)^\s*&\s*OT\b", upper):
-        raise ValueError("CP2K BEC requires &SCF/&OT for periodic Berry-phase fields")
+        raise ValueError("CP2K APT/BEC workflows require &SCF/&OT")
     if re.search(r"(?m)^\s*COORD_FILE_NAME\b", upper):
         raise ValueError("External CP2K coordinate files are not supported; use inline &COORD")
     if re.search(r"(?m)^\s*SCALED\s+(?:T|TRUE|\.TRUE\.)", upper):
@@ -208,22 +208,34 @@ def _set_section_keyword(
     return "\n".join(lines) + "\n"
 
 
-def ensure_periodic_moments(text: str) -> str:
+def ensure_moments(text: str, *, periodic: bool) -> str:
     lines = text.splitlines()
     moments_path = ("FORCE_EVAL", "DFT", "PRINT", "MOMENTS")
+    periodic_value = "TRUE" if periodic else "FALSE"
     if _has_section(lines, moments_path):
         start, end = _find_section(lines, moments_path)
         has_periodic = False
+        has_reference = False
         for index in range(start + 1, end):
             if re.match(r"(?i)^\s*PERIODIC\b", _without_comment(lines[index])):
-                lines[index] = "        PERIODIC TRUE"
+                lines[index] = f"        PERIODIC {periodic_value}"
                 has_periodic = True
+            elif re.match(r"(?i)^\s*REFERENCE\b", _without_comment(lines[index])):
+                if not periodic:
+                    lines[index] = "        REFERENCE COM"
+                has_reference = True
         if not has_periodic:
-            lines.insert(end, "        PERIODIC TRUE")
+            lines.insert(end, f"        PERIODIC {periodic_value}")
+            end += 1
+        if not periodic and not has_reference:
+            lines.insert(end, "        REFERENCE COM")
         return "\n".join(lines) + "\n"
 
     print_path = ("FORCE_EVAL", "DFT", "PRINT")
-    block = ["      &MOMENTS", "        PERIODIC TRUE", "      &END MOMENTS"]
+    block = ["      &MOMENTS", f"        PERIODIC {periodic_value}"]
+    if not periodic:
+        block.append("        REFERENCE COM")
+    block.append("      &END MOMENTS")
     if _has_section(lines, print_path):
         return _insert_before_section_end(text, print_path, block)
     return _insert_before_section_end(
@@ -231,6 +243,12 @@ def ensure_periodic_moments(text: str) -> str:
         ("FORCE_EVAL", "DFT"),
         ["    &PRINT", *block, "    &END PRINT"],
     )
+
+
+def ensure_periodic_moments(text: str) -> str:
+    """Backward-compatible periodic MOMENTS helper."""
+
+    return ensure_moments(text, periodic=True)
 
 
 def _set_restart_guess(text: str) -> str:
@@ -311,6 +329,7 @@ def prepare_cp2k_bec(
     method: str = "central",
     displacement_angstrom: float = 0.01,
     atoms: str | Sequence[int] | None = "all",
+    dimensionality: int = 3,
     force: bool = False,
 ) -> Path:
     """Generate reference and finite-displacement CP2K stages."""
@@ -327,10 +346,12 @@ def prepare_cp2k_bec(
         raise ValueError("method must be central or forward")
     if displacement_angstrom <= 0:
         raise ValueError("displacement_angstrom must be positive")
+    if dimensionality not in {0, 3}:
+        raise ValueError("CP2K BEC dimensionality must be 0 or 3")
 
     text = source.read_text(encoding="utf-8")
     validate_cp2k_bec_input(text)
-    text = ensure_periodic_moments(text)
+    text = ensure_moments(text, periodic=dimensionality == 3)
     lines, coordinates, units_per_angstrom = parse_cp2k_coordinates(text)
     selected = _parse_atom_selection(atoms, len(coordinates))
     assets = _referenced_assets(text, source.parent)
@@ -385,6 +406,7 @@ def prepare_cp2k_bec(
         "source_input": str(source),
         "method": method_key,
         "displacement_angstrom": float(displacement_angstrom),
+        "dimensionality": int(dimensionality),
         "atoms": [
             {"index": index, "label": coordinates[index - 1].label}
             for index in selected
@@ -399,18 +421,24 @@ def prepare_cp2k_bec(
     return target
 
 
-def parse_cp2k_moment(path: str | Path) -> Cp2kMoment:
+def parse_cp2k_moment(
+    path: str | Path, *, require_quantum: bool = True
+) -> Cp2kMoment:
     text = Path(path).read_text(encoding="utf-8", errors="ignore")
     moments = _MOMENT_RE.findall(text)
     if not moments:
-        raise ValueError(f"No CP2K periodic dipole moment found in {path}")
+        raise ValueError(f"No CP2K dipole moment found in {path}")
     quantum_rows: dict[str, tuple[float, float, float]] = {}
     for match in _QUANTUM_RE.findall(text):
         quantum_rows[match[0].upper()] = tuple(_float(value) for value in match[1:])
-    if set(quantum_rows) != {"X", "Y", "Z"}:
+    if require_quantum and set(quantum_rows) != {"X", "Y", "Z"}:
         raise ValueError(f"No complete CP2K dipole quantum matrix found in {path}")
     dipole = tuple(_float(value) for value in moments[-1])
-    quantum = tuple(quantum_rows[key] for key in ("X", "Y", "Z"))
+    quantum = (
+        tuple(quantum_rows[key] for key in ("X", "Y", "Z"))
+        if set(quantum_rows) == {"X", "Y", "Z"}
+        else None
+    )
     return Cp2kMoment(dipole_debye=dipole, quantum_debye=quantum)
 
 
@@ -465,6 +493,7 @@ def run_cp2k_bec(
     """Run all CP2K BEC stages serially and resume completed stages."""
 
     root_path, manifest = _load_manifest(root)
+    dimensionality = int(manifest.get("dimensionality", 3))
     state_dir = root_path / ".zstar"
     state_dir.mkdir(exist_ok=True)
     state_path = state_dir / "cp2k_bec_state.json"
@@ -489,7 +518,7 @@ def run_cp2k_bec(
             error=previous.get("error"),
         )
         if cp2k_output_complete(output):
-            parse_cp2k_moment(output)
+            parse_cp2k_moment(output, require_quantum=dimensionality == 3)
             state.status = "completed"
             states.append(state)
             continue
@@ -526,7 +555,7 @@ def run_cp2k_bec(
                 states.append(state)
                 _write_states(state_path, states)
                 raise RuntimeError(f"{state.name}: {state.error}")
-            parse_cp2k_moment(output)
+            parse_cp2k_moment(output, require_quantum=dimensionality == 3)
             state.status = "completed"
             state.finished_at = _utc_now()
         states.append(state)
@@ -590,10 +619,14 @@ def collect_cp2k_bec(
     json_output: str | Path = "cp2k_bec.json",
     response_output: str | Path | None = "zstar_response.json",
 ) -> dict:
-    """Collect periodic dipole derivatives into ZStar-order BEC tensors."""
+    """Collect molecular APT or periodic BEC dipole derivatives."""
 
     root_path, manifest = _load_manifest(root)
-    reference = parse_cp2k_moment(root_path / "reference" / "output.log")
+    dimensionality = int(manifest.get("dimensionality", 3))
+    periodic = dimensionality == 3
+    reference = parse_cp2k_moment(
+        root_path / "reference" / "output.log", require_quantum=periodic
+    )
     method = manifest["method"]
     displacement = float(manifest["displacement_angstrom"])
     tensors = []
@@ -604,17 +637,39 @@ def collect_cp2k_bec(
         safe_label = re.sub(r"[^A-Za-z0-9_-]+", "_", atom["label"])
         atom_dir = root_path / f"atom-{atom['index']:04d}-{safe_label}"
         for direction_index, direction in enumerate(("x", "y", "z")):
-            plus = parse_cp2k_moment(atom_dir / f"{direction}-plus" / "output.log")
+            plus = parse_cp2k_moment(
+                atom_dir / f"{direction}-plus" / "output.log",
+                require_quantum=periodic,
+            )
             if method == "central":
-                minus = parse_cp2k_moment(atom_dir / f"{direction}-minus" / "output.log")
-                delta, shifts = unwrap_dipole_delta(
-                    plus.dipole_debye, minus.dipole_debye, plus.quantum_debye
+                minus = parse_cp2k_moment(
+                    atom_dir / f"{direction}-minus" / "output.log",
+                    require_quantum=periodic,
                 )
+                if periodic:
+                    delta, shifts = unwrap_dipole_delta(
+                        plus.dipole_debye,
+                        minus.dipole_debye,
+                        plus.quantum_debye,
+                    )
+                else:
+                    delta = np.asarray(plus.dipole_debye) - np.asarray(
+                        minus.dipole_debye
+                    )
+                    shifts = np.zeros(3, dtype=int)
                 denominator = 2.0 * displacement * DEBYE_PER_E_ANGSTROM
             else:
-                delta, shifts = unwrap_dipole_delta(
-                    plus.dipole_debye, reference.dipole_debye, reference.quantum_debye
-                )
+                if periodic:
+                    delta, shifts = unwrap_dipole_delta(
+                        plus.dipole_debye,
+                        reference.dipole_debye,
+                        reference.quantum_debye,
+                    )
+                else:
+                    delta = np.asarray(plus.dipole_debye) - np.asarray(
+                        reference.dipole_debye
+                    )
+                    shifts = np.zeros(3, dtype=int)
                 denominator = displacement * DEBYE_PER_E_ANGSTROM
             tensor[direction_index, :] = delta / denominator
             atom_diag["directions"][direction] = {
@@ -629,6 +684,10 @@ def collect_cp2k_bec(
     result = {
         "schema_version": 1,
         "backend": "cp2k",
+        "dimensionality": dimensionality,
+        "quantity": (
+            "atomic_polar_tensor" if dimensionality == 0 else "born_effective_charge"
+        ),
         "method": method,
         "displacement_angstrom": displacement,
         "natoms_total": int(manifest["natoms_total"]),
@@ -640,7 +699,15 @@ def collect_cp2k_bec(
         ),
         "tensor_convention": "rows=atomic displacement/force; columns=polarization/electric field",
         "atoms": [
-            {**atom, "tensor": tensor.tolist()}
+            {
+                **atom,
+                "tensor": tensor.tolist(),
+                **(
+                    {"gapt": float(np.trace(tensor) / 3.0)}
+                    if dimensionality == 0
+                    else {}
+                ),
+            }
             for atom, tensor in zip(manifest["atoms"], tensor_array)
         ],
         "acoustic_sum_tensor": acoustic_sum.tolist(),
@@ -674,7 +741,7 @@ def collect_cp2k_bec(
             response_path = root_path / response_path
         response_record_from_bec_result(
             result,
-            dimensionality=3,
+            dimensionality=dimensionality,
             provenance={
                 "collector": "zstar.cp2k_bec.collect_cp2k_bec",
                 "source": str(root_path.resolve()),
@@ -858,26 +925,44 @@ def compare_cp2k_bec(zstar_json: str | Path, native_apt: str | Path) -> dict:
     native = parse_native_apt(native_apt)
     native_by_index = {int(atom["index"]): atom for atom in native}
     differences = []
+    zstar_tensors = []
+    native_tensors = []
     per_atom = []
     for left in zstar["atoms"]:
         atom_index = int(left["index"])
         if atom_index not in native_by_index:
             raise ValueError(f"Atom {atom_index} is missing from CP2K native APT")
         right = native_by_index[atom_index]
-        delta = np.asarray(left["tensor"], dtype=float) - np.asarray(right["tensor"], dtype=float)
+        left_tensor = np.asarray(left["tensor"], dtype=float)
+        right_tensor = np.asarray(right["tensor"], dtype=float)
+        delta = left_tensor - right_tensor
         differences.append(delta)
+        zstar_tensors.append(left_tensor)
+        native_tensors.append(right_tensor)
+        left_gapt = float(np.trace(left_tensor) / 3.0)
+        right_gapt = float(np.trace(right_tensor) / 3.0)
         per_atom.append(
             {
                 "index": left["index"],
                 "label": left["label"],
                 "max_abs": float(np.max(np.abs(delta))),
                 "rms": float(np.sqrt(np.mean(delta**2))),
+                "zstar_gapt": left_gapt,
+                "native_gapt": right_gapt,
+                "gapt_difference": left_gapt - right_gapt,
                 "difference": delta.tolist(),
             }
         )
     all_delta = np.asarray(differences)
+    zstar_sum = np.sum(np.asarray(zstar_tensors), axis=0)
+    native_sum = np.sum(np.asarray(native_tensors), axis=0)
     return {
+        "components": int(all_delta.size),
         "max_abs": float(np.max(np.abs(all_delta))),
         "rms": float(np.sqrt(np.mean(all_delta**2))),
+        "zstar_acoustic_sum_tensor": zstar_sum.tolist(),
+        "zstar_acoustic_sum_max_abs": float(np.max(np.abs(zstar_sum))),
+        "native_acoustic_sum_tensor": native_sum.tolist(),
+        "native_acoustic_sum_max_abs": float(np.max(np.abs(native_sum))),
         "per_atom": per_atom,
     }

@@ -99,6 +99,9 @@ class ResponseArchitectureTests(unittest.TestCase):
     def test_registry_reports_only_implemented_capabilities(self):
         registry = builtin_registry()
         self.assertTrue(registry.get("pyatb").spec.supports("born_effective_charge", 2))
+        self.assertTrue(registry.get("pyatb").spec.supports("atomic_polar_tensor", 0))
+        self.assertTrue(registry.get("cp2k").spec.supports("atomic_polar_tensor", 0))
+        self.assertFalse(registry.get("cp2k").spec.supports("born_effective_charge", 0))
         self.assertFalse(registry.get("vasp").spec.supports("born_effective_charge", 2))
         self.assertTrue(registry.get("phonopy").spec.supports("gamma_modes", 1))
         custom = BackendRegistry()

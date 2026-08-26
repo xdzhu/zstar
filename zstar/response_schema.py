@@ -192,6 +192,7 @@ def response_record_from_bec_result(
 ) -> ResponseRecord:
     """Convert current VASP/CP2K BEC JSON into the common response schema."""
 
+    dim = dimension_spec(dimensionality, periodic_axes)
     atoms = list(data.get("atoms", ()))
     if not atoms:
         raise ValueError("BEC result has no atoms")
@@ -200,7 +201,7 @@ def response_record_from_bec_result(
         raise ValueError(f"BEC tensors must have shape (natom, 3, 3); got {tensors.shape}")
     quantities = [
         ResponseQuantity(
-            name="born_effective_charge",
+            name=("atomic_polar_tensor" if dim.value == 0 else "born_effective_charge"),
             values=tensors,
             unit="e",
             normalization="per_atom",
@@ -212,7 +213,6 @@ def response_record_from_bec_result(
     ]
     epsilon = data.get("epsilon_infinity")
     if epsilon is not None:
-        dim = dimension_spec(dimensionality, periodic_axes)
         name = (
             "electronic_dielectric"
             if dim.value == 3
@@ -231,8 +231,6 @@ def response_record_from_bec_result(
                 },
             )
         )
-    else:
-        dim = dimension_spec(dimensionality, periodic_axes)
     source = dict(provenance or {})
     source.setdefault("backend_result_schema_version", data.get("schema_version"))
     source.setdefault("source_backend", data.get("backend", "unknown"))
