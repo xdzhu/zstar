@@ -360,8 +360,16 @@ def gen_input_in_folder(
         _copy_input_sets_to_here(input_sets=input_sets, source_dir=source_dir)
         
     # ABACUS (SCF + NSCF) or PYATB (SCF only)
-    if dimension == 2:
+    if dimension == 1:
+        k_grid = f"1 1 {k_grid}"
+    elif dimension == 2:
         k_grid = f"{k_grid} {k_grid} 1"
+
+    # Transverse low-dimensional polarization is integrated from the charge
+    # cube. ABACUS defaults to only three output digits, which is too coarse
+    # for finite-difference Born charges; its documented high-precision form
+    # is ``out_chg 1 10``.
+    charge_output = "1 10" if dimension in (1, 2) else "1"
 
     gdirs = [1, 2, 3]
     file_suffix = ['a', 'b', 'c']
@@ -395,7 +403,7 @@ def gen_input_in_folder(
                     output_file.write("calculation         scf\n")
                 elif line.startswith("out_chg "):
                     out_chg_found = True
-                    output_file.write("out_chg             1\n")
+                    output_file.write(f"out_chg             {charge_output}\n")
                 elif line.startswith("kspacing "):
                     kspacing_found = True
                     output_file.write(f"kspacing           {k_grid}\n")
@@ -440,7 +448,7 @@ def gen_input_in_folder(
             if not calculation_found:
                 output_file.write("calculation         scf\n")
             if not out_chg_found:
-                output_file.write("out_chg             1\n")
+                output_file.write(f"out_chg             {charge_output}\n")
             if not init_chg_found:
                 output_file.write(f"init_chg            {initial_charge}\n")
             if not xc_found and xc is not None:
@@ -548,7 +556,7 @@ def gen_input_in_folder(
         input_file.write("stru_file           STRU\n")
         input_file.write("out_mat_hs2         1\n")
         input_file.write("out_mat_r           1\n")
-        input_file.write("out_chg             1\n\n")
+        input_file.write(f"out_chg             {charge_output}\n\n")
         input_file.write("dft_functional      " + xc + "\n")
         input_file.write("kspacing            " + str(k_grid) + "\n")
         if vdw is not None and dimension == 2:
@@ -704,7 +712,8 @@ def gen_polar(f_stru="STRU",
     input_mode='pyatb',
     input_sets=None,
     extract_starred_atoms_only=False,
-    method='central'
+    method='central',
+    displacement_angstrom=0.01,
     ):
     """
     Generate polar calculations for a given crystal structure.
@@ -722,6 +731,9 @@ def gen_polar(f_stru="STRU",
     # === 新增：参数日志（逐行写入 gen_polar.out，位于调用该函数时的当前目录） ===
     _call_start_dir = os.getcwd()
     source_dir = os.path.abspath(os.getcwd())
+    displacement_angstrom = float(displacement_angstrom)
+    if not np.isfinite(displacement_angstrom) or displacement_angstrom <= 0.0:
+        raise ValueError("displacement_angstrom must be finite and positive")
 
     # 常规模式：先复制额外文件（若用户提供）
     if input_mode in ('abacus', 'pyatb'):
@@ -754,6 +766,7 @@ def gen_polar(f_stru="STRU",
             _log.write(f"input_sets={input_sets}\n")
             _log.write(f"source_dir={source_dir}\n")
             _log.write(f"extract_starred_atoms_only={extract_starred_atoms_only}\n")
+            _log.write(f"displacement_angstrom={displacement_angstrom}\n")
     except Exception as _e:
         # 日志失败不影响主流程
         print(f"[gen_polar] warn: 写入 gen_polar.out 失败: {_e}")
@@ -1088,7 +1101,7 @@ def gen_polar(f_stru="STRU",
                 # 进入文件夹
                 os.chdir(reduced_folder)
                 print(f"STRU coordinate_type is {coordinate_type}")
-                cartesian_disp = move_length
+                cartesian_disp = displacement_angstrom
                 move_vector_x, move_vector_y, move_vector_z = move_along_lattice_vector_cart(cartesian_disp, a, b, c)
 
                 if method == 'forward':

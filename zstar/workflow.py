@@ -18,6 +18,7 @@ from .pyatb_compat import (
     DEFAULT_LEGACY_DOMEGA_EV,
     DEFAULT_LEGACY_OMEGA_MAX_EV,
     configure_optical_input,
+    configure_polarization_input,
     detect_pyatb_capabilities,
     read_band_gap,
 )
@@ -287,7 +288,12 @@ def _set_abacus_parameter(text: str, key: str, value: str) -> str:
     return "\n".join(lines) + ("\n" if text.endswith("\n") else "")
 
 
-def _prepare_abacus_input(stage_dir: Path, *, reference: bool) -> None:
+def _prepare_abacus_input(
+    stage_dir: Path,
+    *,
+    reference: bool,
+    dimensionality: int = 3,
+) -> None:
     source = stage_dir / "INPUT-scf"
     destination = stage_dir / "INPUT"
     if not source.is_file():
@@ -301,7 +307,8 @@ def _prepare_abacus_input(stage_dir: Path, *, reference: bool) -> None:
         text = source.read_text(encoding="utf-8")
     if not reference:
         text = _set_abacus_parameter(text, "init_chg", "file")
-    text = _set_abacus_parameter(text, "out_chg", "1")
+    charge_output = "1 10" if int(dimensionality) in (1, 2) else "1"
+    text = _set_abacus_parameter(text, "out_chg", charge_output)
     text = _set_abacus_parameter(text, "out_mat_hs2", "1")
     text = _set_abacus_parameter(text, "out_mat_r", "1")
     destination.write_bytes(text.replace("\r\n", "\n").encode("utf-8"))
@@ -311,6 +318,7 @@ def _pyatb_input_command(
     executable: str,
     *,
     reference: bool,
+    dimensionality: int,
     mp_density: float,
     legacy_omega_max: float,
     polarization: bool = True,
@@ -320,6 +328,11 @@ def _pyatb_input_command(
     if polarization:
         parts.append("--polar")
     parts.extend(["--mp", f"{mp_density:g}"])
+    if int(dimensionality) == 1:
+        # PYATB's MP-grid parser uses a compact periodicity mask.
+        parts.extend(["--dim", "001"])
+    elif int(dimensionality) == 2:
+        parts.extend(["--dim", "2"])
     if reference:
         parts.extend(
             ["--optical", "--orange", "0.0", f"{legacy_omega_max:g}"]
@@ -342,7 +355,10 @@ def _pyatb_band_input_command(
         parts.extend(["--kmode", "mp", "--mp", f"{mp_density:g}"])
     elif gap_mode != "path":
         raise ValueError("gap_mode must be path or mp")
-    if int(dimensionality) == 2:
+    if int(dimensionality) == 1:
+        # PYATB's ASE band-path helper expects a space-separated PBC mask.
+        parts.extend(["--dim", shlex.quote("0 0 1")])
+    elif int(dimensionality) == 2:
         parts.extend(["--dim", "2"])
     parts.extend(["--output", shlex.quote(output)])
     return " ".join(parts)
@@ -515,7 +531,11 @@ def run_serial_workflow(
                 state.scf = "completed"
                 store.event(stage.name, "scf-skip", reason="completion marker found")
             else:
-                _prepare_abacus_input(stage.path, reference=stage.reference)
+                _prepare_abacus_input(
+                    stage.path,
+                    reference=stage.reference,
+                    dimensionality=dimensionality,
+                )
                 if not stage.reference and not dry_run:
                     copied = reuse_reference_charge(reference_dir, stage.path)
                     store.event(
@@ -585,6 +605,7 @@ def run_serial_workflow(
                     command = _pyatb_input_command(
                         pyatb_input,
                         reference=need_dielectric,
+                        dimensionality=dimensionality,
                         mp_density=mp_density,
                         legacy_omega_max=legacy_omega_max,
                     )
@@ -604,6 +625,10 @@ def run_serial_workflow(
                         legacy_domega=legacy_domega,
                     )
                 if not dry_run:
+                    configure_polarization_input(
+                        pyatb_input_path,
+                        dimensionality=dimensionality,
+                    )
                     prepare_pyatb_assets(stage.path, pyatb_dir)
                 state.pyatb = "running"
                 state.dielectric = "running" if need_dielectric else "not-requested"
@@ -807,6 +832,7 @@ def run_raman_workflow(
                         _pyatb_input_command(
                             pyatb_input,
                             reference=True,
+                            dimensionality=dimensionality,
                             mp_density=mp_density,
                             legacy_omega_max=legacy_omega_max,
                             polarization=False,
@@ -851,6 +877,7 @@ def run_raman_workflow(
                         _pyatb_input_command(
                             pyatb_input,
                             reference=False,
+                            dimensionality=dimensionality,
                             mp_density=mp_density,
                             legacy_omega_max=legacy_omega_max,
                             polarization=True,

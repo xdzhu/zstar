@@ -9,7 +9,7 @@
 
 - `epsilon_infinity`：固定离子的电子介电张量；
 - `epsilon_static_total`：三维 bulk 的电子加谐振离子静态总介电张量；
-- 二维片层极化率与分子响应导数：可以保存，但不得混入三维 High-K 排名。
+- 一维线极化率、二维片层极化率与分子响应导数：可以保存，但不得混入三维 High-K 排名。
 
 只有参考结构为绝缘体、BEC 完整、并且具有三维静态总介电张量的材料才参与排名。
 缺失值保持缺失，不能把电子介电常数悄悄当成静态总介电常数。
@@ -61,7 +61,7 @@ zstar db collect --manifest candidates.csv --output database
 `representative_tensors_only`，不会用不完整张量做全晶胞求和或进入排名。
 
 `response_kind` 与 `status` 用于防止不同物理量混用：三维 bulk 为 `bulk_3d`，二维为
-`sheet_2d`，分子为 `molecular_spectroscopy`。具有已验证光谱但不适用周期 BEC 的分子
+`sheet_2d`，一维为 `line_1d`，分子为 `molecular_spectroscopy`。具有已验证光谱但不适用周期 BEC 的分子
 记录为 `complete_auxiliary`，而不是伪报“缺失 BEC”。
 
 ## 最小来源记录
@@ -70,5 +70,5 @@ zstar db collect --manifest candidates.csv --output database
 能、k 点、SCF 阈值、位移量、对称性阈值、声子超胞、电子/静态总介电张量、原始/
 修正 BEC、能隙门控、收敛等级和失败原因。
 
-合作交付包内包含 BaTiO3、HfO2、MoS2、In2Se3、CH4 和 CO2 的已验证案例，以及
+合作交付包内包含 GaAs 纳米线、BaTiO3、HfO2、MoS2、In2Se3、CH4 和 CO2 的已验证案例，以及
 批量准备与数据库冒烟脚本。

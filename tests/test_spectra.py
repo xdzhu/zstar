@@ -8,12 +8,14 @@ import yaml
 
 from zstar.spectra import (
     BornData,
+    GammaModes,
     calculate_ir_spectrum,
     calculate_molecular_ir_spectrum,
     calculate_raman_spectrum,
     collect_molecular_dipole_derivatives,
     collect_raman_tensors,
     load_gamma_modes,
+    mode_effective_charges,
     prepare_raman_displacements,
     read_born_data,
     read_pyatb_polarization,
@@ -66,6 +68,23 @@ def write_polarization(path: Path, values, quanta=(100.0, 100.0, 100.0)):
 
 
 class SpectraTests(unittest.TestCase):
+    def test_mode_effective_charge_uses_displacement_rows(self):
+        modes = GammaModes(
+            frequencies_thz=np.asarray([10.0]),
+            eigenvectors=np.asarray([[[1.0, 0.0, 0.0]]]),
+            masses_amu=np.asarray([1.0]),
+            lattice_angstrom=np.eye(3),
+            symbols=("X",),
+            positions_fractional=np.zeros((1, 3)),
+        )
+        canonical = np.asarray(
+            [[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]]
+        )
+
+        effective = mode_effective_charges(modes, canonical)
+
+        np.testing.assert_allclose(effective, [[1.0, 2.0, 3.0]])
+
     def test_load_gamma_modes_uses_companion_phonopy_yaml(self):
         with tempfile.TemporaryDirectory() as tmp:
             qpoints = Path(tmp) / "qpoints.yaml"
@@ -111,6 +130,41 @@ class SpectraTests(unittest.TestCase):
             )
             self.assertEqual(result.response_kind, "2D sheet polarizability (Angstrom)")
             self.assertTrue(np.all(np.isfinite(result.response_real)))
+
+    def test_ir_1d_line_response_is_vacuum_invariant(self):
+        target = np.diag([3.0, 2.0, 1.0])
+        responses = []
+        for vacuum in (10.0, 20.0):
+            lattice = np.diag([vacuum, vacuum, 5.0])
+            modes = GammaModes(
+                frequencies_thz=np.asarray([10.0]),
+                eigenvectors=np.asarray([[[1.0, 0.0, 0.0]]]),
+                masses_amu=np.asarray([1.0]),
+                lattice_angstrom=lattice,
+                symbols=("X",),
+                positions_fractional=np.asarray([[0.0, 0.0, 0.0]]),
+            )
+            born = BornData(
+                tensors=np.zeros((1, 3, 3)),
+                electronic_dielectric=np.eye(3) + target / (vacuum * vacuum),
+                source="test",
+            )
+            result = calculate_ir_spectrum(
+                modes,
+                born,
+                dimensionality=1,
+                acoustic_cutoff_cm1=0.0,
+                points=11,
+            )
+            responses.append(result.response_real[0])
+            self.assertEqual(
+                result.response_kind,
+                "1D line polarizability (Angstrom^2; SI-reduced)",
+            )
+            self.assertEqual(result.response_unit, "angstrom^2")
+            self.assertIn("nonperiodic_cross_section", result.response_convention)
+        np.testing.assert_allclose(responses[0], target)
+        np.testing.assert_allclose(responses[1], target)
 
     def test_read_and_collect_molecular_dipole_derivatives(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -375,6 +429,17 @@ X
                 tensors[0], np.eye(3) * 1000.0 / (4.0 * np.pi)
             )
             self.assertIn("molecular polarizability derivative", kind)
+
+            numbers, tensors, kind = collect_raman_tensors(
+                root / "raman",
+                dimensionality=1,
+                cell_cross_section_angstrom2=25.0,
+            )
+            np.testing.assert_array_equal(numbers, [1])
+            np.testing.assert_allclose(
+                tensors[0], np.eye(3) * 50.0 / (4.0 * np.pi)
+            )
+            self.assertIn("1D line polarizability derivative", kind)
 
 
 if __name__ == "__main__":

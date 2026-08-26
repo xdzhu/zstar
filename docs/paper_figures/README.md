@@ -9,25 +9,22 @@ folders, pseudopotentials, orbitals, or the ignored `examples/` tree.
 
 ### IR/Raman spectroscopy across dimensionalities
 
-![Validated IR/Raman spectroscopy across dimensionalities](spectroscopy_validated_dimensions.png)
+![Validated IR/Raman spectroscopy across dimensionalities](spectroscopy_across_dimensions.png)
 
-The manuscript uses the nine-panel `spectroscopy_validated_dimensions` figure.
-It contains only completed calculations: CH4 (0D), 2H-MoS2 (2D), and
-tetragonal BaTiO3 (3D). Each row contains a structure rendered directly from
-its archived ABACUS `STRU`, followed by the calculated IR and Raman spectra.
-The MoS2 and BaTiO3 IR panels retain the in-plane, out-of-plane, and total
-components; the common normalization scale within each panel preserves their
-relative directional strengths. Different panels are normalized independently
-because molecular, sheet, and bulk response conventions do not share an
-absolute intensity scale.
+The manuscript uses the twelve-panel `spectroscopy_across_dimensions` figure.
+Its completed rows are CH4 (`0D, Molecule`), a hydrogen-passivated GaAs
+nanowire (`1D, Nanowire`), 2H-MoS2 (`2D, Slab`), and tetragonal BaTiO3
+(`3D, Bulk`). Each row contains a structure rendered directly from its
+archived ABACUS `STRU`, followed by calculated IR and Raman spectra. The GaAs,
+MoS2, and BaTiO3 IR panels retain directional and total components. Different
+panels are normalized independently because molecular, line, sheet, and bulk
+response conventions do not share an absolute intensity scale.
 
-The companion roadmap figure retains the explicitly reserved 1D row:
-
-![IR/Raman dimensional roadmap](spectroscopy_across_dimensions.png)
-
-The twelve-panel `spectroscopy_across_dimensions` roadmap fixes the intended
-0D-to-3D layout. Its 1D nanowire row contains no calculated data and is not
-used in the manuscript or any validation claim.
+The GaAs row contains all 68 positive-frequency IR modes and the disclosed
+ten-mode Raman validation subset. The subset covers all four irreducible
+representations of the `mm2` point group and required 20 completed
+positive/negative electronic-response stages. Its strongest selected Raman
+line is the `A1` mode at 143.41 cm-1.
 
 The MoS2 row includes all six optical modes. Its Raman tensors were obtained
 from 12 completed central-difference response stages with the PyATB
@@ -103,7 +100,6 @@ python docs/paper_figures/make_validation_figures.py
 python docs/paper_figures/plot_co2_molecular_benchmark.py
 python docs/paper_figures/plot_molecular_validation_overview.py
 python docs/paper_figures/plot_spectroscopy_across_dimensions.py
-python docs/paper_figures/plot_spectroscopy_across_dimensions.py --variant publication
 ```
 
 The main script writes PNG (400 dpi), vector PDF, editable SVG, and
@@ -124,6 +120,10 @@ source-data sizes, and SHA-256 hashes.
   from the completed PBE molecular benchmark.
 - `source_data/molecular/` contains the shared CH4/CO2 benchmark table plus
   the production mode tables and normalized spectra used by the overview.
+- `source_data/gaas_nanowire/` contains the public structure provenance,
+  Gamma-point modes and irreducible representations, the full eight-decimal
+  hybrid BEC tensors, all-mode IR data, the selected-mode Raman data, and a
+  hash-based ABACUS/PYATB--VASP comparison record.
 - `source_data/hbn/` contains the sanitized reference structure and compact IR
   and Raman outputs from the fresh two-dimensional validation workflow.
 - `source_data/mos2/` contains the PBE reference structure, Gamma-point modes

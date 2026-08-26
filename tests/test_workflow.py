@@ -156,12 +156,30 @@ class WorkflowTests(unittest.TestCase):
         command = _pyatb_input_command(
             "pyatb_input",
             reference=True,
+            dimensionality=3,
             mp_density=0.08,
             legacy_omega_max=0.1,
             polarization=False,
         )
         self.assertIn("--optical", command)
         self.assertNotIn("--polar", command)
+
+    def test_one_dimensional_pyatb_commands_declare_periodicity(self):
+        polar = _pyatb_input_command(
+            "pyatb_input",
+            reference=False,
+            dimensionality=1,
+            mp_density=0.08,
+            legacy_omega_max=0.1,
+        )
+        band = _pyatb_band_input_command(
+            "pyatb_input",
+            gap_mode="path",
+            dimensionality=1,
+            mp_density=0.08,
+        )
+        self.assertIn("--dim 001", polar)
+        self.assertIn("--dim '0 0 1'", band)
 
     def test_pyatb_assets_are_copied_next_to_generated_input(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -265,6 +283,23 @@ class WorkflowTests(unittest.TestCase):
             self.assertIn("out_chg             1", text)
             self.assertIn("out_mat_hs2         1", text)
             self.assertIn("out_mat_r           1", text)
+
+    def test_low_dimensional_workflow_uses_high_precision_charge_cube(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            stage = Path(tmp)
+            (stage / "INPUT-scf").write_text(
+                "INPUT_PARAMETERS\nout_chg 0\n",
+                encoding="utf-8",
+            )
+
+            _prepare_abacus_input(
+                stage,
+                reference=True,
+                dimensionality=1,
+            )
+
+            text = (stage / "INPUT").read_text(encoding="utf-8")
+            self.assertIn("out_chg             1 10", text)
 
     def test_reference_charge_is_copied_into_abacus_output_directory(self):
         with tempfile.TemporaryDirectory() as tmp:

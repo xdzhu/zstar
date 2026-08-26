@@ -165,13 +165,15 @@ def prepare_vasp_spectra(
             "VASP 2D out-of-plane IR/Raman is not enabled: use the ZStar real-space "
             "slab polarization workflow for the vacuum direction"
         )
-    if dimensionality not in {0, 3}:
-        raise ValueError("VASP spectroscopy dimensionality must be 0 or 3")
+    if dimensionality not in {0, 1, 3}:
+        raise ValueError("VASP spectroscopy dimensionality must be 0, 1, or 3")
     if amplitude <= 0.0:
         raise ValueError("amplitude must be positive")
     method_key = method.lower()
     if method_key not in {"dfpt", "finite-field"}:
         raise ValueError("method must be dfpt or finite-field")
+    if dimensionality == 1 and method_key != "dfpt":
+        raise ValueError("VASP 1D spectroscopy currently requires method=dfpt")
     source = Path(input_dir).resolve()
     required = ("INCAR", "POSCAR", "KPOINTS", "POTCAR")
     missing = [name for name in required if not (source / name).is_file()]
@@ -253,6 +255,8 @@ def prepare_vasp_spectra(
         "source_directory": str(source),
         "modes_source": str(modes_source),
         "dimensionality": dimensionality,
+        "periodic_axes": "z" if dimensionality == 1 else ("xyz" if dimensionality == 3 else ""),
+        "nac_model": "none" if dimensionality == 1 else "bulk",
         "method": method_key,
         "field_strength_eV_per_angstrom": (
             field_strength if method_key == "finite-field" else None
@@ -584,14 +588,15 @@ def _collect_vasp_spectra(
     selected = [int(entry["mode"]) for entry in manifest["modes"]]
     dimensionality = int(manifest["dimensionality"])
     born = BornData(tensors=tensors, electronic_dielectric=epsilon, source="VASP OUTCAR")
-    if dimensionality == 3:
+    if dimensionality in {1, 3}:
         ir = calculate_ir_spectrum(
             modes,
             born,
-            dimensionality=3,
+            dimensionality=dimensionality,
             mode_numbers=selected,
             broadening_cm1=broadening_cm1,
             points=points,
+            periodic_axis=2,
         )
         ir_summary = write_ir_outputs(root / "ir_spectrum", ir, plot=plot)
     else:
@@ -615,13 +620,15 @@ def _collect_vasp_spectra(
         derivative = (plus - minus) / (2.0 * amplitude)
         if dimensionality == 0:
             derivative *= modes.volume_angstrom3 / (4.0 * math.pi)
+        elif dimensionality == 1:
+            derivative *= modes.cross_section_angstrom2(2) / (4.0 * math.pi)
         raman_tensors.append(0.5 * (derivative + derivative.T))
         sources.append({"mode": entry["mode"], "plus": entry["plus"], "minus": entry["minus"]})
-    tensor_kind = (
-        "molecular polarizability derivative (Angstrom^3 per Angstrom sqrt(amu))"
-        if dimensionality == 0
-        else "dielectric tensor derivative"
-    )
+    tensor_kind = {
+        0: "molecular polarizability derivative (Angstrom^3 per Angstrom sqrt(amu))",
+        1: "1D line polarizability derivative (Angstrom^2 per Angstrom sqrt(amu))",
+        3: "dielectric tensor derivative",
+    }[dimensionality]
     raman = calculate_raman_spectrum(
         modes,
         selected,
@@ -637,6 +644,8 @@ def _collect_vasp_spectra(
         "schema_version": 1,
         "calculator": "vasp",
         "dimensionality": dimensionality,
+        "periodic_axes": manifest.get("periodic_axes"),
+        "nac_model": manifest.get("nac_model"),
         "mode_numbers": selected,
         "frequencies_cm-1": modes.frequencies_cm1[np.asarray(selected) - 1].tolist(),
         "electronic_dielectric": epsilon.tolist(),

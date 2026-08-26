@@ -1,4 +1,4 @@
-"""Infrared and Raman spectra for three-dimensional crystals and 2D slabs."""
+"""Infrared and Raman spectra across 0D, 1D, 2D, and 3D systems."""
 
 from __future__ import annotations
 
@@ -64,6 +64,17 @@ class GammaModes:
     def cell_height_angstrom(self) -> float:
         return self.volume_angstrom3 / self.area_angstrom2
 
+    def periodic_length_angstrom(self, axis: int = 2) -> float:
+        if axis not in (0, 1, 2):
+            raise ValueError("periodic axis must be 0, 1, or 2")
+        length = float(np.linalg.norm(self.lattice_angstrom[axis]))
+        if length <= 0.0:
+            raise ValueError("periodic lattice length must be positive")
+        return length
+
+    def cross_section_angstrom2(self, axis: int = 2) -> float:
+        return self.volume_angstrom3 / self.periodic_length_angstrom(axis)
+
 
 @dataclass(frozen=True)
 class BornData:
@@ -84,6 +95,8 @@ class IRSpectrumResult:
     response_imag: np.ndarray
     dimensionality: int
     response_kind: str
+    response_unit: str
+    response_convention: str
 
 
 @dataclass(frozen=True)
@@ -327,7 +340,9 @@ def mode_effective_charges(
         )
     eigenvectors = _mode_phase_real(modes.eigenvectors)
     mass_weighted = eigenvectors / np.sqrt(modes.masses_amu)[None, :, None]
-    return np.einsum("aij,maj->mi", born, mass_weighted)
+    # Canonical ZStar tensors store displacement/force as rows and
+    # polarization/electric field as columns.
+    return np.einsum("aji,maj->mi", born, mass_weighted)
 
 
 def _selected_mode_indices(
@@ -497,11 +512,14 @@ def calculate_ir_spectrum(
     max_frequency_cm1: Optional[float] = None,
     points: int = 2001,
     thickness_angstrom: Optional[float] = None,
+    periodic_axis: int = 2,
 ) -> IRSpectrumResult:
-    """Calculate IR oscillator strengths and dielectric/sheet response."""
+    """Calculate IR oscillator strengths and dimensional dielectric response."""
 
-    if dimensionality not in (2, 3):
-        raise ValueError("dimensionality must be 2 or 3")
+    if dimensionality not in (1, 2, 3):
+        raise ValueError("dimensionality must be 1, 2, or 3")
+    if dimensionality == 1 and thickness_angstrom is not None:
+        raise ValueError("thickness_angstrom applies only to dimensionality=2")
     effective_all = mode_effective_charges(modes, born.tensors)
     frequencies_all = modes.frequencies_cm1
     indices = _selected_mode_indices(
@@ -542,7 +560,9 @@ def calculate_ir_spectrum(
         else:
             response += born.electronic_dielectric[None, :, :]
         response_kind = "relative dielectric tensor"
-    else:
+        response_unit = "1"
+        response_convention = "relative permittivity"
+    elif dimensionality == 2:
         prefactor = common / (modes.area_angstrom2 * 1.0e-20)
         response = prefactor * np.einsum(
             "mij,wm->wij", oscillator_tensors, 1.0 / denominator
@@ -560,9 +580,39 @@ def calculate_ir_spectrum(
                 + response / (float(thickness_angstrom) * 1.0e-10)
             )
             response_kind = "effective relative dielectric tensor"
+            response_unit = "1"
+            response_convention = (
+                "epsilon_effective = I + (alpha_2D/epsilon_0)/thickness"
+            )
         else:
             response *= 1.0e10
             response_kind = "2D sheet polarizability (Angstrom)"
+            response_unit = "angstrom"
+            response_convention = (
+                "SI-reduced; alpha_2D/epsilon_0 = "
+                "cell_height*(epsilon_supercell-I)"
+            )
+    else:
+        length_m = modes.periodic_length_angstrom(periodic_axis) * 1.0e-10
+        prefactor = common / length_m
+        response = prefactor * np.einsum(
+            "mij,wm->wij", oscillator_tensors, 1.0 / denominator
+        )
+        if born.electronic_dielectric is not None:
+            cross_section_m2 = (
+                modes.cross_section_angstrom2(periodic_axis) * 1.0e-20
+            )
+            response += (
+                cross_section_m2
+                * (born.electronic_dielectric - np.eye(3))
+            )[None, :, :]
+        response *= 1.0e20
+        response_kind = "1D line polarizability (Angstrom^2; SI-reduced)"
+        response_unit = "angstrom^2"
+        response_convention = (
+            "SI-reduced; alpha_1D/epsilon_0 = "
+            "nonperiodic_cross_section*(epsilon_supercell-I)"
+        )
 
     return IRSpectrumResult(
         mode_numbers=indices + 1,
@@ -575,6 +625,8 @@ def calculate_ir_spectrum(
         response_imag=response.imag,
         dimensionality=dimensionality,
         response_kind=response_kind,
+        response_unit=response_unit,
+        response_convention=response_convention,
     )
 
 
@@ -906,6 +958,8 @@ def write_ir_outputs(
     summary = {
         "dimensionality": result.dimensionality,
         "response_kind": result.response_kind,
+        "response_unit": result.response_unit,
+        "response_convention": result.response_convention,
         "modes": len(result.mode_numbers),
         "files": {
             "modes": str(modes_path.resolve()),
@@ -1191,6 +1245,7 @@ def collect_raman_tensors(
     dimensionality: int = 3,
     cell_height_angstrom: Optional[float] = None,
     cell_volume_angstrom3: Optional[float] = None,
+    cell_cross_section_angstrom2: Optional[float] = None,
 ) -> tuple[np.ndarray, np.ndarray, str]:
     """Central-difference PYATB dielectric tensors in ``mode-*/plus|minus``."""
 
@@ -1224,8 +1279,18 @@ def collect_raman_tensors(
             derivative = (
                 derivative * float(cell_volume_angstrom3) / (4.0 * math.pi)
             )
+        elif dimensionality == 1:
+            if cell_cross_section_angstrom2 is None:
+                raise ValueError(
+                    "cell_cross_section_angstrom2 is required for 1D Raman collection"
+                )
+            derivative = (
+                derivative
+                * float(cell_cross_section_angstrom2)
+                / (4.0 * math.pi)
+            )
         elif dimensionality != 3:
-            raise ValueError("dimensionality must be 0, 2, or 3")
+            raise ValueError("dimensionality must be 0, 1, 2, or 3")
         mode_numbers.append(int(entry["mode"]))
         tensors.append(0.5 * (derivative + derivative.T))
         entry["plus_dielectric"] = str(plus_source)
@@ -1233,6 +1298,7 @@ def collect_raman_tensors(
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     kind = {
         0: "molecular polarizability derivative (Angstrom^3 per Angstrom sqrt(amu))",
+        1: "1D line polarizability derivative (Angstrom^2 per Angstrom sqrt(amu))",
         2: "2D sheet susceptibility derivative",
         3: "dielectric tensor derivative",
     }[dimensionality]
@@ -1249,10 +1315,19 @@ def collect_raman_tensors(
                     if dimensionality == 0
                     else None
                 ),
+                "cell_cross_section_A2": (
+                    float(cell_cross_section_angstrom2)
+                    if dimensionality == 1
+                    else None
+                ),
                 "conversion": (
                     "dalpha/dQ = V/(4*pi) * d(epsilon_r)/dQ"
                     if dimensionality == 0
-                    else None
+                    else (
+                        "dalpha_1D/dQ = A_perp/(4*pi) * d(epsilon_r)/dQ"
+                        if dimensionality == 1
+                        else None
+                    )
                 ),
             },
             indent=2,

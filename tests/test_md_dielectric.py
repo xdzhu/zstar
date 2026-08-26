@@ -10,12 +10,23 @@ from zstar.md_dielectric import (
     MDDielectricResult,
     MDTrajectory,
     combine_dielectric_contributions,
+    dipoles_from_bec,
     load_bec_provider,
     write_outputs,
 )
 
 
 class MDDielectricTests(unittest.TestCase):
+    def test_bec_dipole_contraction_uses_displacement_rows(self):
+        displacements = np.asarray([[[1.0, 2.0, 3.0]]])
+        canonical = np.asarray(
+            [[[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]]]
+        )
+
+        dipoles = dipoles_from_bec(displacements, canonical)
+
+        np.testing.assert_allclose(dipoles, [[30.0, 36.0, 42.0]])
+
     @staticmethod
     def trajectory() -> MDTrajectory:
         return MDTrajectory(

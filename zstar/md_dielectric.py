@@ -501,7 +501,9 @@ def compute_displacements(
 
 
 def dipoles_from_bec(displacements: np.ndarray, bec_tensors: np.ndarray) -> np.ndarray:
-    return np.einsum("tiab,tib->ta", bec_tensors, displacements)
+    """Contract canonical displacement-row BEC tensors into dipole vectors."""
+
+    return np.einsum("tiba,tib->ta", bec_tensors, displacements)
 
 
 def dielectric_from_dipoles(

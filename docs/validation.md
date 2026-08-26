@@ -28,14 +28,16 @@ The source test suite covers:
 - default band-path and explicit Monkhorst-Pack insulation gates;
 - shell, Slurm, and Torque single-driver scripts;
 - legacy and direct-static PyATB input/output compatibility;
-- 3D and hybrid 2D BEC assembly, including rejection of tilted slab normals;
+- 3D, hybrid 2D, and hybrid 1D BEC assembly, including low-dimensional
+  tensor conventions and geometric guards;
 - phonon folder generation and force post-processing;
-- IR mode charges, 2D sheet response, Raman finite differences, and spectra;
+- IR mode charges, 1D line response, 2D sheet response, Raman finite
+  differences, and spectra;
 - fixed and frame-resolved BEC input for MD dielectric post-processing; and
 - local two-sided slab vacuum plateaus in the presence of a
   dipole-correction reset.
 
-The current source tree passes all 37 source tests. The ignored local BTO
+The current source tree passes all 130 source tests. The ignored local BTO
 example also completes `zstar deal --dim 3 --method forward --pyatb` and
 reproduces the archived representative charges:
 
@@ -107,9 +109,11 @@ not interpreted as a material result.
 
 ## Hybrid 2D Born Charges
 
-The in-plane rows below come from Berry-phase polarization differences. The
-out-of-plane row comes from real-space integration of the total slab dipole
-using charge-density cubes. Values shown are acoustic-sum-rule corrected.
+Rows denote atomic-displacement directions and columns denote polarization
+directions. The two in-plane columns come from Berry-phase polarization
+differences; the out-of-plane column comes from real-space integration of the
+total slab dipole using charge-density cubes. Values shown are acoustic-sum-
+rule corrected.
 
 | System | Site | Zxx | Zyy | Zzz |
 | --- | --- | ---: | ---: | ---: |
@@ -164,6 +168,33 @@ window returned a spurious identity tensor and is therefore not used. ZStar
 Since 0.1.1, ZStar defaults to the validated 0-30 eV compact window when direct-static
 calculation is unavailable.
 
+## One-Dimensional GaAs Nanowire
+
+The production 1D route was validated with a 24-atom hydrogen-passivated GaAs
+nanowire reconstructed from Materials Cloud record 2023.148. The reference
+ABACUS/PYATB band-path gap is 3.3994 eV. A central-difference BEC run completed
+49 reference/displacement stages and combined the periodic `z` Berry response
+with transverse `x/y` high-precision charge-density dipoles. Coordinate-based
+matching against an independent VASP `LEPSILON` calculation gives an RMS BEC
+component difference of 0.02068 e and a maximum difference of 0.08906 e over
+all 24 atoms. For representative As atom 1, mapped to VASP atom 3, all nine
+component differences are at most 0.02508 e.
+
+The periodic-axis electronic line polarizability is 27.099 Angstrom^2 with
+ABACUS/PYATB and 27.218 Angstrom^2 with VASP, a relative difference of 0.436%.
+The transverse values are not used as a like-for-like validation because VASP
+`LEPSILON` includes DFT local-field effects and the PYATB Kubo response is
+independent-particle; the discrepancy is retained in the machine-readable
+comparison record rather than hidden.
+
+The 1 x 1 x 2 Phonopy supercell required 40 completed ABACUS force stages and
+produced 72 Gamma modes. The four near-zero branches from -10.00 to -1.70
+cm-1 are the longitudinal, torsional, and two flexural acoustic branches of a
+free wire. For the 56 stable lattice modes below 800 cm-1, comparison with the
+archived Quantum ESPRESSO reference gives MAE 7.6878 cm-1 and RMSE 8.8459
+cm-1. These results validate the 1D force, mode-ordering, and symmetry chain
+before BEC contraction is used for spectroscopy.
+
 ## Infrared and Raman Checks
 
 A fresh In2Se3 Gamma-point force chain generated 20 displacement-force
@@ -173,10 +204,11 @@ response. The strongest tested pair occurs at 156.06 and 156.24 cm-1, with
 in-plane mode-charge magnitudes of 0.4951 and 0.4946. A predominantly
 out-of-plane entry at 254.65 cm-1 has `Zmode_z = -0.0598`.
 
-The same IR command completed for all six validation systems:
+The same IR command completed for all seven validation systems:
 
 | System | Reported optical modes | Strongest mode (cm-1) | Mode-charge norm |
 | --- | ---: | ---: | ---: |
+| GaAs nanowire | 68 | 502.50 | 1.6890 |
 | MoS2 | 6 | 359.65 | 0.1153 |
 | hBN | 3 | 1371.42 | 1.0937 |
 | In2Se3 | 12 | 156.06 | 0.4951 |
@@ -189,13 +221,14 @@ dielectric tensor. Intensities from these two conventions should not be
 compared as if they shared one bulk normalization.
 
 The Raman runner was exercised through complete plus/minus electronic
-calculations in both dimensions. The selected hBN mode and the complete MoS2
-optical manifold test the 2D sheet-susceptibility convention. Tetragonal
-BaTiO3 was extended to all ten positive-frequency optical modes, requiring 20
-completed electronic-response tasks:
+calculations for 1D, 2D, and 3D periodic systems. The selected GaAs modes test
+the line-polarizability derivative, the selected hBN mode and complete MoS2
+optical manifold test the sheet convention, and tetragonal BaTiO3 was extended
+to all ten positive-frequency optical modes:
 
 | System | Response convention | Mode (cm-1) | Selected result |
 | --- | --- | ---: | --- |
+| GaAs nanowire | 1D line-polarizability derivative | 143.41 A1 | diag(R) = (0.4352, 0.4302, 0.5185), normalized activity = 1.0000 |
 | hBN | 2D sheet-susceptibility derivative | 1371.42 | Rxx = 13.865, Ryy = -13.858, depolarization ratio = 0.7500 |
 | MoS2 | 2D sheet-susceptibility derivative | 388.44 A1' | diag(R) = (-1.7774, -1.7774, -8.8043), depolarization ratio = 0.1541 |
 | BaTiO3 | 3D dielectric derivative | 554.70 | diag(R) = (0.8465, 0.8465, 1.0978), depolarization ratio = 0.00484 |
@@ -223,8 +256,7 @@ are archived in [docs/paper_figures](paper_figures/README.md):
 
 - [Tetragonal BTO mode, IR, and Raman figure](paper_figures/bto_mode_spectroscopy.png)
 - [Alpha-In2Se3 hybrid 2D polarization/BEC figure](paper_figures/in2se3_hybrid_polarization.png)
-- [Validated molecule, MoS2, and bulk IR/Raman comparison](paper_figures/spectroscopy_validated_dimensions.png)
-- [0D-to-3D spectroscopy roadmap with reserved 1D row](paper_figures/spectroscopy_across_dimensions.png)
+- [Validated Molecule--Nanowire--Slab--Bulk IR/Raman comparison](paper_figures/spectroscopy_across_dimensions.png)
 
 ## Molecular Spectroscopy
 

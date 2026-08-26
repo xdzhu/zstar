@@ -144,6 +144,40 @@ def _read_gap(root: Path) -> tuple[float | None, bool | None, str | None]:
     return None, None, None
 
 
+def _read_intrinsic_response(
+    root: Path,
+    dimensionality: int,
+) -> tuple[dict[str, Any] | None, str | None]:
+    expected = {
+        0: "molecular_polarizability",
+        1: "line_polarizability",
+        2: "sheet_polarizability",
+    }.get(int(dimensionality))
+    if expected is None:
+        return None, None
+    candidates = [root / "zstar_response.json"]
+    candidates.extend(sorted(root.glob("**/zstar_response.json")))
+    for path in candidates:
+        data = _read_json(path)
+        if not data:
+            continue
+        for quantity in data.get("quantities", ()):
+            if not isinstance(quantity, dict) or quantity.get("name") != expected:
+                continue
+            values = np.asarray(quantity.get("values"), dtype=float)
+            if values.shape != (3, 3) or not np.all(np.isfinite(values)):
+                continue
+            return {
+                "name": expected,
+                "unit": quantity.get("unit"),
+                "normalization": quantity.get("normalization"),
+                "convention": quantity.get("convention"),
+                "values": values.tolist(),
+                "mean_diagonal": float(np.trace(values) / 3.0),
+            }, str(path)
+    return None, None
+
+
 def _atomic_labels_from_stru(path: Path) -> list[str]:
     if not path.is_file():
         return []
@@ -217,6 +251,10 @@ def write_manifest_template(path: str | Path) -> Path:
 
 def collect_entry(entry: ManifestEntry) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     root = entry.workspace
+    if entry.dimensionality not in {0, 1, 2, 3}:
+        raise ValueError(
+            f"{entry.material_id}: dimensionality must be 0, 1, 2, or 3"
+        )
     record: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "material_id": entry.material_id,
@@ -248,14 +286,25 @@ def collect_entry(entry: ManifestEntry) -> tuple[dict[str, Any], list[dict[str, 
         record["response_kind"] = "bulk_3d"
     elif entry.dimensionality == 2:
         record["response_kind"] = "sheet_2d"
+    elif entry.dimensionality == 1:
+        record["response_kind"] = "line_1d"
     else:
         record["response_kind"] = "molecular_spectroscopy"
 
     gap, insulating, gap_source = _read_gap(root)
     static_total, static_source = _read_static_response(root)
+    intrinsic, intrinsic_source = _read_intrinsic_response(
+        root, entry.dimensionality
+    )
     if epsilon_inf is not None:
         record["epsilon_infinity"] = epsilon_inf.tolist()
-        record["k_electronic_mean"] = float(np.trace(epsilon_inf) / 3.0)
+        if entry.dimensionality == 3:
+            record["k_electronic_mean"] = float(np.trace(epsilon_inf) / 3.0)
+    if intrinsic is not None:
+        record["intrinsic_response"] = intrinsic
+        record["intrinsic_response_mean_diagonal"] = intrinsic["mean_diagonal"]
+    elif epsilon_inf is not None and entry.dimensionality < 3:
+        record["quality_flags"].append("missing_intrinsic_response")
     if static_total is not None and entry.dimensionality == 3:
         record["epsilon_static_total"] = static_total.tolist()
         record["k_static_mean"] = float(np.trace(static_total) / 3.0)
@@ -269,7 +318,7 @@ def collect_entry(entry: ManifestEntry) -> tuple[dict[str, Any], list[dict[str, 
     record.update({"gap_eV": gap, "insulating": insulating})
     if insulating is False:
         record["quality_flags"].append("metallic_reference")
-    if gap is None and entry.dimensionality in {2, 3}:
+    if gap is None and entry.dimensionality in {1, 2, 3}:
         record["quality_flags"].append("missing_gap_gate")
 
     atom_rows: list[dict[str, Any]] = []
@@ -318,6 +367,7 @@ def collect_entry(entry: ManifestEntry) -> tuple[dict[str, Any], list[dict[str, 
         "born": str(tensor_path) if tensor_path else None,
         "gap": gap_source,
         "static_response": static_source,
+        "intrinsic_response": intrinsic_source,
     }
     return record, atom_rows
 
@@ -336,7 +386,7 @@ def collect_database(manifest: str | Path, output: str | Path) -> dict[str, Any]
     columns = [
         "material_id", "formula", "dimensionality", "backend", "status",
         "gap_eV", "insulating", "natoms_structure", "natoms_bec", "tensor_scope",
-        "response_kind", "k_electronic_mean",
+        "response_kind", "k_electronic_mean", "intrinsic_response_mean_diagonal",
         "k_static_mean", "high_k_rank_basis", "max_bec_component_abs_e",
         "max_bec_singular_value_e", "acoustic_sum_max_abs_e", "quality_flags",
         "workspace", "structure_source", "notes",

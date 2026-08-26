@@ -215,6 +215,19 @@ class SpectroscopyBackendTests(unittest.TestCase):
                 self.assertIn("ISYM = 0", incar)
                 self.assertTrue((root / relative / "POSCAR").is_file())
 
+            wire = prepare_vasp_spectra(
+                source,
+                modes_xml,
+                Path(tmp) / "wire-spectra",
+                mode_numbers=[4],
+                dimensionality=1,
+            )
+            wire_manifest = json.loads(
+                (wire / "spectra_manifest.json").read_text()
+            )
+            self.assertEqual(wire_manifest["periodic_axes"], "z")
+            self.assertEqual(wire_manifest["nac_model"], "none")
+
     def test_two_dimensional_native_backends_are_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "input.inp"
@@ -242,7 +255,7 @@ class SpectroscopyBackendTests(unittest.TestCase):
 
     @patch("zstar.spectroscopy_backends.load_vasp_gamma_modes", return_value=fake_modes())
     def test_vasp_collection_writes_both_spectra(self, _mock_modes):
-        for dimensionality in (0, 3):
+        for dimensionality in (0, 1, 3):
             with self.subTest(dimensionality=dimensionality):
                 with tempfile.TemporaryDirectory() as tmp:
                     root = Path(tmp)

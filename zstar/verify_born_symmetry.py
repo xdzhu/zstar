@@ -45,6 +45,10 @@ except Exception:
     atomic_numbers = None
 
 
+BORN_OUTPUT_PRECISION = 8
+BORN_OUTPUT_WIDTH = 13
+
+
 # ========================== 基础 I/O ==========================
 
 def _strip_comments(text: str) -> str:
@@ -466,19 +470,23 @@ def run_symcheck(stru: str = "STRU",
     print(np.array2string(C, precision=6))
 
     # 写出 Z-BORN-symm.out（格式与 Z-BORN-all.out 类似，*标记 reduced 原子）
-    def _fmt_row(matrix: np.ndarray, w=9, prec=3) -> str:
+    def _fmt_row(
+        matrix: np.ndarray,
+        w=BORN_OUTPUT_WIDTH,
+        prec=BORN_OUTPUT_PRECISION,
+    ) -> str:
         flat = matrix.reshape(-1)
         return " ".join(f"{float(x):>{w}.{prec}f}" for x in flat)
 
     symm_out = "Z-BORN-symm.out"
-    xx_len = 9
+    xx_len = BORN_OUTPUT_WIDTH
     header = f"{'No. Atom': <9} {'xx': >{xx_len}} {'xy': >{xx_len}} {'xz': >{xx_len}} {'yx': >{xx_len}} {'yy': >{xx_len}} {'yz': >{xx_len}} {'zx': >{xx_len}} {'zy': >{xx_len}} {'zz': >{xx_len}}\n"
     with open(symm_out, "w") as f:
         f.write(header)
         for j in all_indices:
             mark = "*" if j in reduced_indices else " "
             sym = symbols[j - 1] if 1 <= j <= len(symbols) else species_by_idx.get(j, "?")
-            row = _fmt_row(Z_corr[j], w=xx_len, prec=3)
+            row = _fmt_row(Z_corr[j])
             f.write(f"{mark}{j:>5} {sym:<3} {row}\n")
     print(f"[OK] Wrote symmetry-reconstructed Born with neutrality: {symm_out}")
 
@@ -487,7 +495,7 @@ def run_symcheck(stru: str = "STRU",
         fz.write(header)
         for ridx in sorted(reduced_indices):
             sym = symbols[ridx - 1] if 1 <= ridx <= len(symbols) else species_by_idx.get(ridx, "?")
-            row = _fmt_row(Z_corr[ridx], w=xx_len, prec=3)
+            row = _fmt_row(Z_corr[ridx])
             fz.write(f"*{ridx:>5} {sym:<3} {row}\n")
     print("[OK] Wrote Z-BORN-reduced-neutral.out")
 

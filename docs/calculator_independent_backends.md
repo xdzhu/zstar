@@ -19,8 +19,11 @@ The code uses `dim=0`, `1`, `2`, or `3` plus explicit periodic axes.
 For `dim=1`, the longitudinal BEC component can use periodic Berry
 polarization, whereas the two transverse components require real-space dipole
 differences. The corresponding supercell dielectric tensor is vacuum dependent.
-ZStar can store and normalize 1D data, but it deliberately rejects a bulk NAC
-model for 1D/2D systems. A Coulomb-cutoff phonon solver is not yet implemented.
+The ABACUS/PYATB route implements this hybrid BEC construction and supports
+vacuum-independent line-response normalization for Gamma-point IR and Raman.
+ZStar deliberately rejects a bulk NAC model for 1D/2D systems. A finite-
+wavevector Coulomb-cutoff phonon solver is outside the current scope. See the
+[one-dimensional workflow](one_dimensional_workflow.md) for the complete route.
 
 ## Inspect capabilities
 

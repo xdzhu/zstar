@@ -43,7 +43,7 @@ ZStar 不会隐藏中间步骤。结构、输入文件、绝缘性门控、极�
 - 生成 shell、Slurm 和 Torque/PBS 驱动脚本。
 - 自动兼容旧版 PyATB 与支持静态直算的新版本 PyATB。
 - CP2K Berry 相位 BEC 的串行断点续算后端及原生 APT 对照。
-- 三维与二维混合极化/BEC 处理。
+- 三维、二维混合以及一维混合极化/BEC 处理。
 - 声子生成、后处理、模式分类、红外谱、拉曼谱和介电响应。
 - 使用固定或逐帧 BEC 的 MD 偶极涨落介电计算。
 - 面向薄膜和极性材料的静电势辅助分析。
@@ -67,15 +67,25 @@ Z*(kappa, alpha, beta) = Omega/e * dP_alpha / du_(kappa,beta)
 
 计算 BEC。有限差分之前会按照极化量子对 Berry 相位极化分支进行匹配，避免直接相减导致的分支跳变。
 
+### 一维链与纳米线
+
+对于沿 `z` 周期的纳米线，ZStar 将周期 `z` 方向的 PYATB Berry 极化与非周期
+`x/y` 方向的 ABACUS 电荷 cube 实空间偶极结合，输出与真空无关的 BEC 和单位为
+`Angstrom^2` 的线极化率，并支持 Gamma 点 IR/Raman。程序会拒绝错误的 bulk NAC，
+因为有限波矢极性声子需要真正的 1D Coulomb cutoff。详见
+[一维工作流中文手册](docs/one_dimensional_workflow.zh-CN.md)。
+
 ### 二维材料
 
 二维薄膜的面内与面外响应采用不同处理：
 
-- **面内分量：**在体系保持绝缘的前提下，沿用 Berry 相位极化差分。
-- **面外分量：**从 ABACUS 电荷密度 cube 文件做实空间积分，同时包含离子和电子偶极。
+- **面内极化列：**在体系保持绝缘的前提下，沿用 Berry 相位极化差分。
+- **面外极化列：**从 ABACUS 电荷密度 cube 文件做实空间积分，同时包含离子和电子偶极。
 - **归一化：**面内 BEC 通过超胞体积因子消除真空层高度依赖；二维介电谱默认输出与真空无关的片层极化率。
 
-因此，完整二维 BEC 也需要 `x`、`y`、`z` 三个方向的位移。`zstar gen --dim 2` 默认会生成全部三个方向。当前混合算法要求薄膜法向与笛卡尔 `z` 轴对齐；对于倾斜薄膜会明确报错退出。
+ZStar 的统一张量约定为：行表示原子位移/力，列表示极化/电场。因此，完整二维
+BEC 需要 `x`、`y`、`z` 三个方向的位移。`zstar gen --dim 2` 默认会生成全部三个
+方向。当前混合算法要求薄膜法向与笛卡尔 `z` 轴对齐；对于倾斜薄膜会明确报错退出。
 
 可以独立审计一对参考/位移电荷密度 cube：
 
@@ -152,6 +162,12 @@ zstar gen --stru STRU --pyatb --method forward --force
 zstar gen --stru STRU --dim 2 --pyatb --method forward --force
 ```
 
+沿 `z` 周期的一维纳米线：
+
+```bash
+zstar gen --stru STRU --dim 1 --pyatb --method central --force
+```
+
 生成的目录从 `0.no-move` 开始，后面是类似 `1.Ti/x+` 的原子/方向位移目录。每个位移目录不再需要单独复制一份任务脚本。
 
 常用选项：
@@ -161,7 +177,8 @@ zstar gen --stru STRU --dim 2 --pyatb --method forward --force
 | `--method forward|central` | 前向或中心有限差分。 |
 | `--reduce` / `--all` | 默认只算对称性代表原子，或强制计算全部原子。 |
 | `--move "x y z"` | 显式指定原子位移方向。 |
-| `--dim 2|3` | 二维或三维处理。 |
+| `--displacement 0.01` | 有限位移的半步长，单位为 Angstrom。 |
+| `--dim 1|2|3` | 一维、二维或三维处理。 |
 | `--input-mode abacus|pyatb|hamgnn|custom` | 输入文件准备方式。 |
 | `--input_sets FILES` | 复制到任务目录的附加文件或文件夹。 |
 
@@ -176,7 +193,9 @@ zstar workflow run --root . --dim 3 \
   --omp-threads 28
 ```
 
-二维材料使用 `--dim 2`。
+一维纳米线和二维材料分别使用 `--dim 1` 与 `--dim 2`。
+低维极化/BEC 任务会自动写入 `out_chg 1 10`，避免 ABACUS cube 默认舍入精度限制
+横向偶极差分。
 
 默认执行顺序如下：
 
@@ -243,6 +262,12 @@ zstar deal --dim 3 --method forward --pyatb
 zstar deal --dim 2 --method forward --pyatb
 ```
 
+沿 `z` 周期的一维混合处理：
+
+```bash
+zstar deal --dim 1 --method central --pyatb
+```
+
 中心差分必须在 `gen` 和 `deal` 两步中都使用 `--method central`。
 
 关键输出：
@@ -256,6 +281,7 @@ zstar deal --dim 2 --method forward --pyatb
 | `BORN-for-phonopy.out` | 与 `BORN` 内容一致、名称更明确的输出。 |
 | `born_symmetry_report.json` | 对称重构与残差报告。 |
 | `zstar_2d_bec.json` | 二维混合 BEC 的逐原子积分诊断。 |
+| `zstar_1d_bec.json` | 一维混合 BEC 的逐原子积分诊断。 |
 
 ## CP2K BEC 后端
 
@@ -468,6 +494,14 @@ VASP 对原生介电响应做模式中心差分；CP2K 使用原生振动偶极�
 
 紧凑源数据、绘图脚本、矢量图片和完整性清单均归档在
 [docs/paper_figures](docs/paper_figures/README.md)。
+
+<p align="center">
+  <img src="docs/paper_figures/spectroscopy_across_dimensions.png" alt="分子、纳米线、片层与体材料的 IR 和 Raman 验证谱" width="820">
+</p>
+
+四行对比图均为已完成计算，依次对应 `0D, Molecule`、`1D, Nanowire`、
+`2D, Slab` 和 `3D, Bulk`。GaAs 行包含全部 68 个正频 IR 模式，并给出覆盖
+`mm2` 四类不可约表示且明确说明范围的 10 模式 Raman 子集。
 
 <p align="center">
   <img src="docs/paper_figures/bto_mode_spectroscopy.png" alt="四方 BaTiO3 模式分辨红外与拉曼谱" width="820">

@@ -103,6 +103,57 @@ class BecDatabaseTests(unittest.TestCase):
             self.assertEqual(record["status"], "complete_auxiliary")
             self.assertNotIn("missing_bec_tensor", record["quality_flags"])
 
+    def test_one_dimensional_response_is_stored_but_not_ranked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            case = root / "wire"
+            (case / "0.no-move").mkdir(parents=True)
+            (case / "BORN").write_text(
+                "1.1 0 0 0 1.2 0 0 0 1.3\n"
+                "2 0 0 0 2 0 0 0 2\n"
+                "-2 0 0 0 -2 0 0 0 -2\n",
+                encoding="utf-8",
+            )
+            (case / "0.no-move" / "zstar_insulation.json").write_text(
+                json.dumps({"gap_eV": 2.1, "insulating": True}),
+                encoding="utf-8",
+            )
+            (case / "zstar_response.json").write_text(
+                json.dumps(
+                    {
+                        "quantities": [
+                            {
+                                "name": "line_polarizability",
+                                "unit": "angstrom^2",
+                                "normalization": "isolated_object",
+                                "convention": "gaussian",
+                                "values": [[1, 0, 0], [0, 2, 0], [0, 0, 3]],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            manifest = root / "manifest.csv"
+            manifest.write_text(
+                "material_id,formula,dimensionality,workspace\n"
+                "wire-1,GaAs,1,wire\n",
+                encoding="utf-8",
+            )
+
+            summary = collect_database(manifest, root / "database")
+            record = json.loads(
+                (root / "database" / "materials.jsonl").read_text().splitlines()[0]
+            )
+
+            self.assertEqual(summary["complete"], 1)
+            self.assertEqual(summary["ranked_high_k_3d"], 0)
+            self.assertEqual(record["response_kind"], "line_1d")
+            self.assertEqual(record["intrinsic_response"]["unit"], "angstrom^2")
+            self.assertEqual(record["intrinsic_response_mean_diagonal"], 2.0)
+            self.assertEqual(record["high_k_rank_basis"], "not_applicable")
+            self.assertNotIn("k_electronic_mean", record)
+
 
 if __name__ == "__main__":
     unittest.main()

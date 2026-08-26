@@ -16,6 +16,10 @@ from pathlib import Path
 # cartesian_disp = 0.01 # Angstrom
 A_to_bohr = 1.889726
 
+# Preserve finite-difference precision in machine-readable BEC artifacts.
+BORN_OUTPUT_PRECISION = 8
+BORN_OUTPUT_WIDTH = 13
+
 # 设置 Z 相对阈值
 Z_relative_tolerance = 1e-2
 
@@ -138,7 +142,13 @@ def _load_born_indexed(path):
                 mp[idx] = np.array(vals, dtype=float).reshape(3, 3)
     return mp
 
-def _write_born_for_phonopy(diel_3x3, reduced_mats, out_path='BORN-for-phonopy.out', width=8, prec=3):
+def _write_born_for_phonopy(
+    diel_3x3,
+    reduced_mats,
+    out_path='BORN-for-phonopy.out',
+    width=BORN_OUTPUT_WIDTH,
+    prec=BORN_OUTPUT_PRECISION,
+):
     """
     BORN-for-phonopy.out:
       # header(列名)
@@ -1659,7 +1669,11 @@ def read_and_insert_dielectric(file_path, insert_data):
     with open(file_path, 'w') as file:
         file.writelines(lines)
 
-def format_and_combine_data(z_data, dielectric_matrix_zero, xx_len=8):
+def format_and_combine_data(
+    z_data,
+    dielectric_matrix_zero,
+    xx_len=BORN_OUTPUT_WIDTH,
+):
     """
     格式化并合并处理后的矩阵数据到 Z-BORN-all.out 的格式。
 
@@ -1670,7 +1684,10 @@ def format_and_combine_data(z_data, dielectric_matrix_zero, xx_len=8):
     """
     # 将矩阵扁平化为一行，并格式化每个元素
     flattened_matrix = dielectric_matrix_zero.flatten()
-    formatted_matrix = ' '.join([f"{element: >{xx_len}.3f}" for element in flattened_matrix])
+    formatted_matrix = ' '.join(
+        f"{element: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+        for element in flattened_matrix
+    )
 
     # 将格式化后的矩阵数据插入到 Z-BORN-all.out 数据的第一行后
     z_data[1:1] = [formatted_matrix + '\n']
@@ -1688,26 +1705,65 @@ def sort_key(name):
         # 如果名称不符合预期的格式，返回一个使其排在最后的元组
         return (float('inf'), name)
 
-def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb', method="central", running_type = None):
+def _infer_displacement_angstrom(default=0.01):
+    """Read the generated half displacement from an atom-level audit file."""
+
+    from pathlib import Path
+
+    for path in sorted(Path(".").glob("[0-9]*.*/disp_Angstrom.out")):
+        norms = []
+        for raw in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+            fields = raw.split()
+            if len(fields) < 3:
+                continue
+            try:
+                vector = np.asarray([float(value) for value in fields[:3]])
+            except ValueError:
+                continue
+            norm = float(np.linalg.norm(vector))
+            if norm > 0.0:
+                norms.append(norm)
+        if norms:
+            return min(norms), str(path.resolve())
+    return float(default), "default"
+
+
+def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb', method="central", running_type = None, displacement_angstrom=None):
 
     if running_type == 'solo':
         # 如果独立运行极化，只计算并输出当前目录的极化
         if dimension == 3:
             deal_polar_solo(nscf_calculator)
-        else:
+        elif dimension == 2:
             print("2d case")
             deal_polar_2d()
+        elif dimension == 1:
+            from .polarization_1d import write_reference_1d_polarization
+
+            output = write_reference_1d_polarization(".")
+            print(f"[INFO] Wrote {output}")
+        else:
+            raise ValueError("dimension must be 1, 2, or 3")
             
         return
 
 
-    cord_type = {}  # 初始情况下不设置任何值
-    # 使用方式 python deal_polar_simple.py cart 0.01
-    cord_type['cart'] = 0.01
+    if displacement_angstrom is None:
+        half_displacement, displacement_source = _infer_displacement_angstrom()
+    else:
+        half_displacement = float(displacement_angstrom)
+        displacement_source = "command line"
+    if not np.isfinite(half_displacement) or half_displacement <= 0.0:
+        raise ValueError("displacement_angstrom must be finite and positive")
+    print(
+        f"[INFO] Atomic displacement half-step: {half_displacement:g} Angstrom "
+        f"({displacement_source})"
+    )
+    cord_type = {'cart': half_displacement}
 
 
     if method == "central" and dimension == 3:
-        cord_type['cart'] = 0.02
+        cord_type['cart'] = 2.0 * half_displacement
         f_stru = os.path.join('.', 'STRU')
         star_atom_list, star_atom, star_atom_mass = get_star_atom(f_stru, symm_tol)
         if dimension == 3:
@@ -1741,7 +1797,7 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
             # 从 no-move 目录提取基准极化/量子与坐标变换
 
             P_0, Quanta_a, Quanta_b, Quanta_c, transformation_matrix = deal_poalr_no_move(nscf_calculator)
-            xx_len = 8
+            xx_len = BORN_OUTPUT_WIDTH
             header = (
                 f"{'No. Atom': <8} "
                 f"{'xx': >{xx_len}} {'xy': >{xx_len}} {'xz': >{xx_len}} "
@@ -1786,7 +1842,10 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     })
 
                     # 格式化一行
-                    formatted_row = ' '.join(f"{val: >{xx_len}.3f}" for val in Z.reshape(9))
+                    formatted_row = ' '.join(
+                        f"{val: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                        for val in Z.reshape(9)
+                    )
 
                     # reduced：只写带 * 的原子
                     if star_flag:
@@ -1831,7 +1890,8 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                         dielectric_matrix, Z_relative_tolerance
                     )
                     formatted_dielectric = ' '.join(
-                        f"{x: >{xx_len}.3f}" for x in dielectric_matrix_zero.flatten()
+                        f"{x: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                        for x in dielectric_matrix_zero.flatten()
                     )
                     dielectric_data_processed = formatted_dielectric + '\n'
                 except Exception as e:
@@ -1901,7 +1961,10 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     with open("Z-BORN-reduced-neutral.out", "w") as fz:
                         fz.write(header)
                         for idx, sym, M in reduced_neutral:
-                            row = " ".join(f"{v: >{xx_len}.3f}" for v in M.reshape(9))
+                            row = " ".join(
+                                f"{v: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                                for v in M.reshape(9)
+                            )
                             fz.write(f"*{idx: >4} {sym: <3} {row}\n")
                     print("[symm] Wrote Z-BORN-reduced-neutral.out")
 
@@ -1932,9 +1995,21 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                         # 生成 BORN(for phonopy) 内容：一份写 BORN-for-phonopy.out，一份写 BORN
                         born_lines = []
                         born_lines.append(new_header)
-                        born_lines.append(" ".join(f"{v: >{xx_len}.3f}" for v in diel_mat.reshape(9)) + "\n")
+                        born_lines.append(
+                            " ".join(
+                                f"{v: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                                for v in diel_mat.reshape(9)
+                            )
+                            + "\n"
+                        )
                         for M in mats:
-                            born_lines.append(" ".join(f"{v: >{xx_len}.3f}" for v in M.reshape(9)) + "\n")
+                            born_lines.append(
+                                " ".join(
+                                    f"{v: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                                    for v in M.reshape(9)
+                                )
+                                + "\n"
+                            )
 
                         with open('BORN-for-phonopy.out', 'w') as f:
                             f.writelines(born_lines)
@@ -1987,7 +2062,7 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
             # 从 no-move 目录提取基准极化/量子与坐标变换
             P_0, Quanta_a, Quanta_b, Quanta_c, transformation_matrix = deal_poalr_no_move(nscf_calculator)
 
-            xx_len = 8
+            xx_len = BORN_OUTPUT_WIDTH
             header = (
                 f"{'No. Atom': <8} "
                 f"{'xx': >{xx_len}} {'xy': >{xx_len}} {'xz': >{xx_len}} "
@@ -2030,7 +2105,10 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     })
 
                     # 格式化一行
-                    formatted_row = ' '.join(f"{val: >{xx_len}.3f}" for val in Z.reshape(9))
+                    formatted_row = ' '.join(
+                        f"{val: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                        for val in Z.reshape(9)
+                    )
 
                     # reduced：只写带 * 的原子
                     if star_flag:
@@ -2075,7 +2153,8 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                         dielectric_matrix, Z_relative_tolerance
                     )
                     formatted_dielectric = ' '.join(
-                        f"{x: >{xx_len}.3f}" for x in dielectric_matrix_zero.flatten()
+                        f"{x: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                        for x in dielectric_matrix_zero.flatten()
                     )
                     dielectric_data_processed = formatted_dielectric + '\n'
                 except Exception as e:
@@ -2145,7 +2224,10 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     with open("Z-BORN-reduced-neutral.out", "w") as fz:
                         fz.write(header)
                         for idx, sym, M in reduced_neutral:
-                            row = " ".join(f"{v: >{xx_len}.3f}" for v in M.reshape(9))
+                            row = " ".join(
+                                f"{v: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                                for v in M.reshape(9)
+                            )
                             fz.write(f"*{idx: >4} {sym: <3} {row}\n")
                     print("[symm] Wrote Z-BORN-reduced-neutral.out")
 
@@ -2176,9 +2258,21 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                         # 生成 BORN(for phonopy) 内容：一份写 BORN-for-phonopy.out，一份写 BORN
                         born_lines = []
                         born_lines.append(new_header)
-                        born_lines.append(" ".join(f"{v: >{xx_len}.3f}" for v in diel_mat.reshape(9)) + "\n")
+                        born_lines.append(
+                            " ".join(
+                                f"{v: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                                for v in diel_mat.reshape(9)
+                            )
+                            + "\n"
+                        )
                         for M in mats:
-                            born_lines.append(" ".join(f"{v: >{xx_len}.3f}" for v in M.reshape(9)) + "\n")
+                            born_lines.append(
+                                " ".join(
+                                    f"{v: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                                    for v in M.reshape(9)
+                                )
+                                + "\n"
+                            )
 
                         with open('BORN-for-phonopy.out', 'w') as f:
                             f.writelines(born_lines)
@@ -2192,10 +2286,10 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                 elif not starred_map:
                     print("[INFO] Skipped BORN-for-phonopy.out (no starred Born in Z-BORN-symm.out).")
 
-    elif dimension == 2:
-        # 2D case:
-        # In-plane rows use PYATB Berry polarization. The out-of-plane row
-        # uses the real-space dipole integrated from ABACUS charge cubes.
+    elif dimension in (1, 2):
+        # Low-dimensional hybrid cases.  A slab uses Berry polarization for
+        # x/y and a cube dipole for z.  A z-periodic wire uses cube dipoles for
+        # x/y and Berry polarization for z.
 
         if '0.no-move' in os.listdir('.'):
             # =========================
@@ -2224,10 +2318,10 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
             ]
             subfolders = sorted(init_subfolders, key=sort_key)
 
-            # 2D 分支这里仍然复用 no-move 的极化参考与量子展开信息
+            # Reuse the no-move PYATB output for branch tracking and epsilon.
             P_0, Quanta_a, Quanta_b, Quanta_c, transformation_matrix = deal_poalr_no_move(nscf_calculator)
 
-            xx_len = 8
+            xx_len = BORN_OUTPUT_WIDTH
             header = (
                 f"{'No. Atom': <8} "
                 f"{'xx': >{xx_len}} {'xy': >{xx_len}} {'xz': >{xx_len}} "
@@ -2241,9 +2335,6 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
             dielectric_data_processed = None
             dielectric_matrix_ready = None
 
-            # 可单独调
-            warn_tol_2d_cross = max(1.0e-4, 10.0 * Z_relative_tolerance)
- 
             with open('Z-BORN-reduced.out', 'w') as file_reduced:
                 file_reduced.write(header)
 
@@ -2251,21 +2342,36 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     os.chdir(folder)
                     print(f"Now processing folder: {folder}")
 
-                    from .polarization_2d import (
-                        calculate_hybrid_2d_born,
-                        write_hybrid_2d_report,
-                    )
-                    hybrid_result = calculate_hybrid_2d_born(
-                        ".",
-                        "../0.no-move",
-                        method=method,
-                        displacement_angstrom=cord_type["cart"],
-                    )
+                    if dimension == 1:
+                        from .polarization_1d import (
+                            calculate_hybrid_1d_born,
+                            write_hybrid_1d_report,
+                        )
+
+                        hybrid_result = calculate_hybrid_1d_born(
+                            ".",
+                            "../0.no-move",
+                            method=method,
+                            displacement_angstrom=cord_type["cart"],
+                        )
+                        report_name = "zstar_1d_bec.json"
+                        report_writer = write_hybrid_1d_report
+                    else:
+                        from .polarization_2d import (
+                            calculate_hybrid_2d_born,
+                            write_hybrid_2d_report,
+                        )
+
+                        hybrid_result = calculate_hybrid_2d_born(
+                            ".",
+                            "../0.no-move",
+                            method=method,
+                            displacement_angstrom=cord_type["cart"],
+                        )
+                        report_name = "zstar_2d_bec.json"
+                        report_writer = write_hybrid_2d_report
                     Z = hybrid_result.tensor
-                    write_hybrid_2d_report(
-                        "zstar_2d_bec.json",
-                        hybrid_result,
-                    )
+                    report_writer(report_name, hybrid_result)
 
                     os.chdir('..')
 
@@ -2281,7 +2387,10 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                         'Z': Z.copy()
                     })
 
-                    formatted_row = ' '.join(f"{val: >{xx_len}.3f}" for val in Z.reshape(9))
+                    formatted_row = ' '.join(
+                        f"{val: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                        for val in Z.reshape(9)
+                    )
 
                     if star_flag:
                         formatted_folder = f"*{folder_number: >4} {folder_label: <3}"
@@ -2327,7 +2436,8 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     )
                     dielectric_matrix_ready = dielectric_matrix_zero
                     formatted_dielectric = ' '.join(
-                        f"{x: >{xx_len}.3f}" for x in dielectric_matrix_zero.flatten()
+                        f"{x: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                        for x in dielectric_matrix_zero.flatten()
                     )
                     dielectric_data_processed = formatted_dielectric + '\n'
                 except Exception as e:
@@ -2365,7 +2475,10 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     kwargs["all"] = "Z-BORN-all.out"
 
                 run_symcheck(**kwargs)
-                print("[symm] Reconstructed hybrid 2D Z-BORN-symm.out via symmetry + ASR.")
+                print(
+                    f"[symm] Reconstructed hybrid {dimension}D "
+                    "Z-BORN-symm.out via symmetry + ASR."
+                )
             except Exception as e:
                 print(f"[symm][ERROR] Symmetry reconstruction failed: {e}")
 
@@ -2389,7 +2502,10 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     with open("Z-BORN-reduced-neutral.out", "w") as fz:
                         fz.write(header)
                         for idx, sym, M in reduced_neutral:
-                            row = " ".join(f"{v: >{xx_len}.3f}" for v in M.reshape(9))
+                            row = " ".join(
+                                f"{v: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                                for v in M.reshape(9)
+                            )
                             fz.write(f"*{idx: >4} {sym: <3} {row}\n")
                     print("[symm] Wrote Z-BORN-reduced-neutral.out")
 
@@ -2417,9 +2533,21 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     else:
                         born_lines = []
                         born_lines.append(new_header)
-                        born_lines.append(" ".join(f"{v: >{xx_len}.3f}" for v in diel_mat.reshape(9)) + "\n")
+                        born_lines.append(
+                            " ".join(
+                                f"{v: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                                for v in diel_mat.reshape(9)
+                            )
+                            + "\n"
+                        )
                         for M in mats:
-                            born_lines.append(" ".join(f"{v: >{xx_len}.3f}" for v in M.reshape(9)) + "\n")
+                            born_lines.append(
+                                " ".join(
+                                    f"{v: >{xx_len}.{BORN_OUTPUT_PRECISION}f}"
+                                    for v in M.reshape(9)
+                                )
+                                + "\n"
+                            )
 
                         with open('BORN-for-phonopy.out', 'w') as f:
                             f.writelines(born_lines)
@@ -2433,6 +2561,38 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
                     print("[INFO] Skipped BORN-for-phonopy.out (dielectric not available).")
                 elif not reduced_neutral:
                     print("[INFO] Skipped BORN-for-phonopy.out (no reduced-neutral Born).")
+
+            if (
+                dimension == 1
+                and os.path.isfile("Z-BORN-symm.out")
+                and os.path.isfile("BORN")
+            ):
+                try:
+                    from .interoperability import add_intrinsic_response
+                    from .polarization_2d import read_pyatb_lattice
+                    from .response_schema import response_record_from_abacus_files
+
+                    lattice = read_pyatb_lattice(
+                        os.path.join("0.no-move", "pyatb", "Out", "input.json")
+                    )
+                    response = response_record_from_abacus_files(
+                        "Z-BORN-symm.out",
+                        born_path="BORN",
+                        dimensionality=1,
+                        periodic_axes="z",
+                    )
+                    response = add_intrinsic_response(
+                        response,
+                        lattice,
+                        convention="gaussian",
+                    )
+                    response.write("zstar_response.json")
+                    print(
+                        "[INFO] Wrote zstar_response.json with the vacuum-independent "
+                        "1D line polarizability."
+                    )
+                except Exception as e:
+                    print(f"[WARN] Could not write the 1D response record: {e}")
 
     else:
         # 如果没有提供输入参数，添加默认的 cart 类型值

@@ -7,6 +7,7 @@ import numpy as np
 from zstar.pyatb_compat import (
     PyATBCapabilities,
     configure_optical_input,
+    configure_polarization_input,
     detect_pyatb_capabilities,
     read_band_gap,
     read_static_dielectric,
@@ -29,6 +30,38 @@ POLARIZATION
 
 
 class PyATBCompatTests(unittest.TestCase):
+    def test_one_dimensional_polarization_pads_all_berry_loops(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "Input"
+            path.write_text(BASE_INPUT, encoding="utf-8")
+
+            report = configure_polarization_input(
+                path,
+                dimensionality=1,
+                periodic_axis=2,
+            )
+
+            text = path.read_text(encoding="utf-8")
+            self.assertRegex(text, r"nk1\s+5")
+            self.assertRegex(text, r"nk2\s+6")
+            self.assertRegex(text, r"nk3\s+2")
+            self.assertEqual(report["original_grid"], [5, 6, 1])
+            self.assertEqual(report["effective_grid"], [5, 6, 2])
+            self.assertEqual(report["periodic_axis"], 2)
+            self.assertTrue(
+                (path.parent / "zstar_pyatb_polarization_compat.json").is_file()
+            )
+
+    def test_three_dimensional_polarization_input_is_unchanged(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "Input"
+            path.write_text(BASE_INPUT, encoding="utf-8")
+
+            report = configure_polarization_input(path, dimensionality=3)
+
+            self.assertFalse(report["modified"])
+            self.assertEqual(path.read_text(encoding="utf-8"), BASE_INPUT)
+
     def test_detects_adjacent_pip_target_installation(self):
         with tempfile.TemporaryDirectory() as tmp:
             target = Path(tmp)

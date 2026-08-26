@@ -1,0 +1,12 @@
+{
+  "tensor_kind": "1D line polarizability derivative (Angstrom^2 per Angstrom sqrt(amu))",
+  "modes": 10,
+  "files": {
+    "modes": "raman/raman_modes.csv",
+    "tensors": "raman/raman_tensors.npy",
+    "spectrum": "raman/raman_spectrum.dat",
+    "plot": "raman/raman_spectrum.png",
+    "plot_pdf": "raman/raman_spectrum.pdf",
+    "plot_svg": "raman/raman_spectrum.svg"
+  }
+}

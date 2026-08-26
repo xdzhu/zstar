@@ -8,13 +8,49 @@ from io import StringIO
 from zstar.gen_polar import (
     _abacus_assets_from_stru,
     _copy_input_sets_to_here,
+    gen_input_in_folder,
     print_modified_coordinates,
 )
+from zstar.deal_polar import _infer_displacement_angstrom
 from zstar.phonopy_stru import write_phonopy_compatible_stru
 from zstar.stru_analyzer import stru_analyzer
 
 
 class GenPolarTests(unittest.TestCase):
+    def test_dim1_generation_requests_high_precision_charge_cube(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            previous = Path.cwd()
+            try:
+                os.chdir(tmp)
+                gen_input_in_folder(
+                    5,
+                    dimension=1,
+                    input_mode="pyatb",
+                    xc="pbe",
+                )
+                text = Path("INPUT-scf").read_text(encoding="utf-8")
+            finally:
+                os.chdir(previous)
+            self.assertIn("out_chg             1 10", text)
+
+    def test_deal_infers_generated_half_displacement(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            audit = root / "1.X" / "disp_Angstrom.out"
+            audit.parent.mkdir()
+            audit.write_text(
+                "0.050000 0 0\n-0.050000 0 0\n",
+                encoding="utf-8",
+            )
+            previous = Path.cwd()
+            try:
+                os.chdir(root)
+                displacement, source = _infer_displacement_angstrom()
+            finally:
+                os.chdir(previous)
+            self.assertAlmostEqual(displacement, 0.05)
+            self.assertTrue(source.endswith("disp_Angstrom.out"))
+
     def test_magnetic_initialization_is_preserved_in_displaced_structure(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

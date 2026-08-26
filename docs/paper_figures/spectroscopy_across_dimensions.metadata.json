@@ -1,15 +1,22 @@
 {
   "figure": "spectroscopy_across_dimensions",
   "backend": "Python/matplotlib 3.10.9",
-  "core_conclusion": "ZStar produces mode-resolved IR and Raman spectra for molecules, 2D materials, and bulk crystals under dimension-appropriate response conventions.",
+  "core_conclusion": "ZStar produces mode-resolved IR and Raman spectra for molecules, 1D nanowires, 2D slabs, and 3D bulk crystals under dimension-appropriate response conventions.",
   "normalization": "Each IR or Raman panel is independently normalized to its own maximum; intensities are not compared across rows or response types.",
   "systems": [
-    "CH4 0D molecule",
-    "reserved 1D nanowire benchmark",
-    "2H-MoS2 2D slab",
-    "tetragonal BaTiO3 3D bulk"
+    "CH4",
+    "GaAsNW",
+    "MoS2",
+    "BaTiO3"
   ],
-  "placeholder": "The 1D row is reserved and contains no calculated data.",
+  "display_systems": [
+    "CH$_4$",
+    "GaAs nanowire",
+    "MoS$_2$",
+    "BaTiO$_3$"
+  ],
+  "layout": "4 rows by 3 columns",
+  "one_dimensional_raman_scope": "The GaAs row uses the disclosed ten-mode Raman validation subset; its IR panel contains all 68 positive-frequency modes.",
   "source_data": {
     "molecular/ch4/STRU": {
       "bytes": 753,
@@ -30,6 +37,26 @@
     "molecular/ch4/raman_spectrum.dat": {
       "bytes": 100088,
       "sha256": "efe98b16e022c9547966e3e300b6df04b49fbafd8ae820e92314ecbbf5a1b03e"
+    },
+    "gaas_nanowire/STRU": {
+      "bytes": 1793,
+      "sha256": "8341aacd89a2caa7c026a3a2e7abbed6e529ac02959a521175885f195e0be536"
+    },
+    "gaas_nanowire/ir/ir_modes.csv": {
+      "bytes": 12159,
+      "sha256": "ecc7eb882393ed2c9dfb240b2b19e77cc09ed42abcfeea0481cd275d4bc51b68"
+    },
+    "gaas_nanowire/ir/ir_spectrum.dat": {
+      "bytes": 250194,
+      "sha256": "789b8a3ee7e3751e544b7900f43a35faaf6cdc835a7bf42e63f7a028a74507ef"
+    },
+    "gaas_nanowire/raman/raman_modes.csv": {
+      "bytes": 2235,
+      "sha256": "864654b6ae4928b26329d7b4ac08a26c4bec65e019b7779f3e66c2d53770d512"
+    },
+    "gaas_nanowire/raman/raman_spectrum.dat": {
+      "bytes": 100088,
+      "sha256": "90231191e6d25dce0d7ea0fb31c2f75a0f855efe39ae8329101bdc00da6a69cc"
     },
     "mos2/STRU": {
       "bytes": 703,

@@ -38,7 +38,14 @@ def add_case(category: str, name: str, source: Path, dimensionality: int) -> Non
     input_dir = target / "input"
     assets = input_dir / "assets"
     reference = target / "reference_results"
-    for filename in ("STRU", "INPUT", "INPUT.seed", "KPT"):
+    for filename in ("README.md", "README.zh-CN.md", "ASSET_PROVENANCE.md"):
+        path = source / filename
+        if path.is_file():
+            copy_file(path, target / filename)
+    for filename in (
+        "STRU", "INPUT", "INPUT.seed", "KPT", "INPUT.phonon", "KPT.phonon",
+        "run_phonon_serial.sh",
+    ):
         path = source / filename
         if path.is_file():
             if filename == "STRU":
@@ -52,8 +59,11 @@ def add_case(category: str, name: str, source: Path, dimensionality: int) -> Non
             copy_file(path, assets / path.name)
     for filename in (
         "BORN", "BORN-for-phonopy.out", "Z-BORN-symm.out",
-        "born_symmetry_report.json", "zstar_insulation.json", "ir_modes.csv",
-        "ir_response_real.dat", "ir_summary.json",
+        "born_symmetry_report.json", "zstar_insulation.json", "zstar_response.json",
+        "qpoints.yaml", "irreps.yaml", "ir_modes.csv", "ir_spectrum.dat",
+        "ir_response_real.dat", "ir_summary.json", "raman_modes.csv",
+        "raman_spectrum.dat", "raman_summary.json", "raman_manifest.json",
+        "frequency_summary.txt", "abacus_vasp_comparison.json",
     ):
         path = source / filename
         if path.is_file():
@@ -65,8 +75,9 @@ def add_case(category: str, name: str, source: Path, dimensionality: int) -> Non
             copy_file(path, destination)
     if (source / "STRU").is_file():
         portable_stru(source / "STRU", reference / "STRU")
-    for path in source.glob("*zstar_2d_bec.json"):
-        copy_file(path, reference / "2d_diagnostics" / path.name)
+    for dimension in (1, 2):
+        for path in source.glob(f"*zstar_{dimension}d_bec.json"):
+            copy_file(path, reference / f"{dimension}d_diagnostics" / path.name)
     (target / "case.json").write_text(
         json.dumps(
             {
@@ -141,6 +152,7 @@ python scripts/smoke_reference_database.py
 ## 内容
 
 - `wheel/`：当前 ZStar wheel，可离线安装。
+- `cases/1d_wires/`：GaAs 纳米线，展示纵向 Berry 极化、横向 cube 偶极及线响应。
 - `cases/3d_bulk/`：BaTiO3、HfO2，面向 BEC、声子与 High-K。
 - `cases/2d_materials/`：MoS2、alpha-In2Se3，展示面内 Berry 相位与面外 cube 积分。
 - `cases/molecules/`：CH4、CO2，展示 `--dim 0` IR/Raman 工作流。
@@ -172,6 +184,8 @@ zstar db collect --manifest project/results_manifest.csv --output project/databa
 - 案例参数用于工作流复现，不自动保证新材料收敛。
 - 新候选必须统一赝势、轨道、XC 和收敛策略，并保存文件哈希。
 - 路径能带门控适合批量初筛；晋级材料应补 MP 网格绝缘性确认。
+- 一维体系沿周期轴使用 Berry 极化，两个开放方向必须使用电荷 cube 偶极；
+  含真空超胞的介电常数应转换为线极化率。
 - 二维面外 BEC 必须使用电荷 cube 实空间积分，不能直接套用三维体极化公式。
 - 分子真空超胞中的介电张量依赖超胞体积，应报告偶极/极化率导数和 IR/Raman 活性。
 """
@@ -190,8 +204,8 @@ python scripts/smoke_reference_database.py
 ```
 
 Edit `config/environment.sh` and `project/candidates.csv` before any DFT run.
-The bundle contains validated 3D bulk (BaTiO3, HfO2), 2D (MoS2, alpha-In2Se3),
-and molecular (CH4, CO2) examples, calculator-backend references, the full
+The bundle contains validated 1D wire (GaAs), 3D bulk (BaTiO3, HfO2), 2D
+(MoS2, alpha-In2Se3), and molecular (CH4, CO2) examples, calculator-backend references, the full
 test suite, and an optional manuscript snapshot. Only insulating 3D materials with a total
 static dielectric tensor enter `high_k_rank.csv`; electronic-only, 2D, and
 molecular responses remain clearly labeled and unranked.
@@ -312,8 +326,8 @@ for row in rows:
         continue
     material = row["material_id"].strip()
     dim = int(row["dimensionality"])
-    if dim not in {2, 3}:
-        errors.append(f"{material}: BEC batch accepts dim 2 or 3, got {dim}")
+    if dim not in {1, 2, 3}:
+        errors.append(f"{material}: BEC batch accepts dim 1, 2, or 3, got {dim}")
         continue
     input_dir = Path(row["input_dir"])
     workdir = Path(row["workdir"])
@@ -366,7 +380,7 @@ PYATB 的 wheel 与 Python ABI 有关，不在本包中强行附带。请按目�
 python scripts/smoke_reference_database.py
 ```
 
-该命令读取 3D、2D 和分子参考目录，确认数据库能区分完整 BEC、非 BEC 分子案例、
+该命令读取 3D、2D、1D 和分子参考目录，确认数据库能区分完整 BEC、非 BEC 分子案例、
 电子介电响应和静态总响应。
 
 ## 3. 跑一个 BTO 案例
@@ -404,6 +418,7 @@ CASE_GUIDE_ZH = r"""# 三类案例与项目接入指南
 
 | 类别 | 案例 | 主要验证 | 是否进入 bulk High-K 排名 |
 | --- | --- | --- | --- |
+| 一维纳米线 | GaAs | 纵向 Berry 极化、横向 cube 偶极、1D IR/Raman | 否 |
 | 三维 bulk | BaTiO3 | 铁电 BEC、声子、IR 与静态总介电响应 | 是 |
 | 三维 bulk | HfO2 | High-K 氧化物 BEC 与介电响应 | 是 |
 | 二维材料 | MoS2 | 面内 Berry 极化与面外 cube 积分 | 否 |
@@ -440,6 +455,14 @@ zstar calc --plot
 位移前后电荷密度 cube，沿真空方向积分电荷重排得到偶极差；不能将含真空超胞的
 三维体极化或介电常数直接当成材料本征量。生产数据库应保存面内/面外方法、真空厚度、
 有效厚度约定和二维片层响应，且不进入三维排名。
+
+## 一维纳米线
+
+`zstar gen --dim 1` 当前用于沿 Cartesian `z` 周期的绝缘纳米线。纵向 BEC
+来自 PYATB Berry 极化差分，横向两列来自高精度 ABACUS 电荷 cube 偶极差分；
+输出的本征电子量是面积单位的线极化率，不是含真空超胞的三维介电常数。Gamma 点
+IR/Raman 可直接计算，但有限波矢极性声子仍要求真正的 1D Coulomb cutoff，不能
+套用 bulk NAC。
 
 ## 分子
 
@@ -479,6 +502,7 @@ def write_manifests() -> None:
     with (project / "reference_manifest.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
         writer.writerow(["material_id", "formula", "dimensionality", "workspace", "backend", "structure_source", "notes"])
+        writer.writerow(["gaas-nanowire-reference", "GaAs", 1, "../cases/1d_wires/GaAs_nanowire/reference_results", "abacus-pyatb-1d", "Materials Cloud 2023.148", "line response; no bulk NAC"])
         writer.writerow(["bto-reference", "BaTiO3", 3, "../cases/3d_bulk/BaTiO3/reference_results", "abacus-pyatb", "bundled validated case", "PBEsol"])
         writer.writerow(["hfo2-reference", "HfO2", 3, "../cases/3d_bulk/HfO2/reference_results", "abacus-pyatb", "bundled validated case", "PBEsol"])
         writer.writerow(["mos2-reference", "MoS2", 2, "../cases/2d_materials/MoS2/reference_results", "abacus-pyatb-2d", "bundled validated case", "sheet response"])
@@ -492,6 +516,7 @@ def write_manifests() -> None:
         writer.writerow(["hfo2-demo", "HfO2", 3, "../cases/3d_bulk/HfO2/input", "work/hfo2-demo", "slurm", "replace-with-source-id", 0, "enable after environment review"])
         writer.writerow(["mos2-demo", "MoS2", 2, "../cases/2d_materials/MoS2/input", "work/mos2-demo", "slurm", "replace-with-source-id", 0, "2D method"])
         writer.writerow(["in2se3-demo", "In2Se3", 2, "../cases/2d_materials/In2Se3/input", "work/in2se3-demo", "slurm", "replace-with-source-id", 0, "polar 2D method"])
+        writer.writerow(["gaas-nanowire-demo", "GaAs", 1, "../cases/1d_wires/GaAs_nanowire/input", "work/gaas-nanowire-demo", "shell", "Materials Cloud 2023.148", 0, "z-periodic 1D method"])
     copy_file(project / "reference_manifest.csv", project / "results_manifest.csv")
 
 
@@ -569,6 +594,7 @@ export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
         "potential_examples.md", "potential_examples.zh-CN.md",
         "qnep_dataset.md", "qnep_dataset_zh.md",
         "validation.md", "validation.zh-CN.md",
+        "one_dimensional_workflow.md", "one_dimensional_workflow.zh-CN.md",
         "vasp_bec.md", "vasp_bec_zh.md",
     ):
         source = ROOT / "docs" / name
@@ -597,6 +623,7 @@ export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
     add_case("3d_bulk", "HfO2", SOURCE / "3d" / "HfO2", 3)
     add_case("2d_materials", "MoS2", SOURCE / "2d" / "MoS2", 2)
     add_case("2d_materials", "In2Se3", SOURCE / "2d" / "In2Se3", 2)
+    add_case("1d_wires", "GaAs_nanowire", SOURCE / "1d" / "GaAs_nanowire", 1)
     add_molecule("CH4", SOURCE / "molecules" / "CH4")
     add_molecule("CO2", SOURCE / "molecules" / "CO2")
     article_env = os.environ.get("ZSTAR_ARTICLE_DIR")
@@ -609,7 +636,6 @@ export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
         for name in (
             "ZStar-workflow-whole.png", "physical_picture.png",
             "in2se3_hybrid_polarization.pdf", "spectroscopy_across_dimensions.pdf",
-            "spectroscopy_validated_dimensions.pdf",
             "potential_examples_2d.pdf",
         ):
             source = article / "figures" / name

@@ -91,8 +91,9 @@ Raman support is available.
 
 The built-in registry now covers ABACUS/PYATB, VASP, CP2K, Quantum ESPRESSO,
 and Phonopy. Quantum ESPRESSO parser and completion contracts pass fixture
-tests and real molecular/bulk calculations on dedicated compute nodes. The 1D data contract,
-normalization, and safety guards are implemented; a physical 1D Coulomb-cutoff
+tests and real molecular/bulk calculations on dedicated compute nodes. The
+ABACUS/PYATB 1D route implements hybrid Berry/dipole BECs, line-response
+normalization, and Gamma-point IR/Raman. A finite-wavevector 1D Coulomb-cutoff
 phonon solver remains explicitly outside the current release.
 
 ## Completion status
@@ -101,6 +102,7 @@ phonon solver remains explicitly outside the current release.
 - [x] ABACUS, VASP, and CP2K response adapters without breaking legacy files.
 - [x] Resumable Quantum ESPRESSO SCF/DFPT/dynmat workflow and real closure.
 - [x] Phonopy mode/BORN import and intrinsic 0D/1D/2D normalization.
+- [x] Hybrid ABACUS/PYATB 1D BEC and Gamma-point IR/Raman workflow.
 - [x] Shared VASP/QE/CP2K cube preparation for real-space dipoles.
 - [x] Dimensional NAC guards, polarized Raman, and optical observables.
 - [x] Fixed, frame-resolved, command, and plugin BEC providers for MD.

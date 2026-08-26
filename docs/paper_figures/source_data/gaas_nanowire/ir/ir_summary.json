@@ -1,0 +1,16 @@
+{
+  "dimensionality": 1,
+  "response_kind": "1D line polarizability (Angstrom^2; SI-reduced)",
+  "response_unit": "angstrom^2",
+  "response_convention": "SI-reduced; alpha_1D/epsilon_0 = nonperiodic_cross_section*(epsilon_supercell-I)",
+  "modes": 68,
+  "files": {
+    "modes": "ir/ir_modes.csv",
+    "spectrum": "ir/ir_spectrum.dat",
+    "response_real": "ir/ir_response_real.dat",
+    "response_imag": "ir/ir_response_imag.dat",
+    "plot": "ir/ir_spectrum.png",
+    "plot_pdf": "ir/ir_spectrum.pdf",
+    "plot_svg": "ir/ir_spectrum.svg"
+  }
+}

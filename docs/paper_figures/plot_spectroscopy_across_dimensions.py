@@ -32,6 +32,8 @@ COLORS = {
     "Ba": "#6b9f73",
     "Ti": "#5f78a8",
     "O": "#c84d4d",
+    "Ga": "#4f8f72",
+    "As": "#a95b69",
 }
 RADII = {
     "H": 34,
@@ -43,6 +45,8 @@ RADII = {
     "Ba": 150,
     "Ti": 105,
     "O": 82,
+    "Ga": 104,
+    "As": 108,
 }
 
 
@@ -51,14 +55,14 @@ def configure_matplotlib() -> None:
         {
             "font.family": "sans-serif",
             "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
-            "font.size": 8.1,
-            "axes.labelsize": 8.2,
-            "axes.titlesize": 9.2,
-            "axes.linewidth": 0.7,
-            "axes.spines.right": False,
-            "axes.spines.top": False,
-            "xtick.labelsize": 7.4,
-            "ytick.labelsize": 7.4,
+            "font.size": 9.0,
+            "axes.labelsize": 9.1,
+            "axes.titlesize": 10.3,
+            "axes.linewidth": 0.8,
+            "axes.spines.right": True,
+            "axes.spines.top": True,
+            "xtick.labelsize": 8.2,
+            "ytick.labelsize": 8.2,
             "xtick.direction": "in",
             "ytick.direction": "in",
             "xtick.major.width": 0.65,
@@ -136,6 +140,22 @@ def structure_atoms(
     return labels, np.asarray(cartesian)
 
 
+def center_fractional_open_axes(
+    fractional: np.ndarray,
+    axes: tuple[int, ...],
+) -> np.ndarray:
+    """Center a localized object without cutting it at a periodic boundary."""
+
+    centered = np.asarray(fractional, dtype=float).copy()
+    for axis in axes:
+        resultant = np.mean(np.exp(2j * np.pi * centered[:, axis]))
+        if abs(resultant) < 1.0e-10:
+            continue
+        circular_center = (np.angle(resultant) / (2.0 * np.pi)) % 1.0
+        centered[:, axis] = (centered[:, axis] - circular_center + 0.5) % 1.0
+    return centered
+
+
 def draw_structure(
     ax,
     stru_path: Path,
@@ -145,6 +165,8 @@ def draw_structure(
     elevation: float,
 ) -> None:
     lattice, species, fractional = read_abacus_stru(stru_path)
+    if system == "GaAsNW":
+        fractional = center_fractional_open_axes(fractional, (0, 1))
     labels, points = structure_atoms(lattice, species, fractional, repeats)
     projected, depth = rotate_project(points, azimuth, elevation)
 
@@ -153,6 +175,11 @@ def draw_structure(
         "hBN": {frozenset(("B", "N")): 1.65},
         "MoS2": {frozenset(("Mo", "S")): 2.65},
         "BaTiO3": {frozenset(("Ti", "O")): 2.25},
+        "GaAsNW": {
+            frozenset(("Ga", "As")): 2.65,
+            frozenset(("Ga", "H")): 1.90,
+            frozenset(("As", "H")): 1.75,
+        },
     }[system]
     for i in range(len(points)):
         for j in range(i + 1, len(points)):
@@ -194,7 +221,7 @@ def draw_structure(
         frameon=False,
         handletextpad=0.25,
         columnspacing=0.65,
-        fontsize=7.2,
+            fontsize=7.8,
     )
     margin = 0.13 * max(np.ptp(projected[:, 0]), np.ptp(projected[:, 1]), 1.0)
     ax.set_xlim(projected[:, 0].min() - margin, projected[:, 0].max() + margin)
@@ -260,7 +287,7 @@ def draw_spectrum(
             textcoords="offset points",
             ha="center",
             va="bottom",
-            fontsize=6.8,
+            fontsize=7.7,
             color=COLORS["ink"],
         )
     ax.set_xlim(*xlim)
@@ -281,36 +308,14 @@ def draw_spectrum(
 
 def panel_label(ax, label: str) -> None:
     ax.text(
-        -0.19,
-        1.09,
+        -0.18,
+        1.10,
         f"({label})",
         transform=ax.transAxes,
         ha="left",
         va="top",
-        fontsize=9.6,
+        fontsize=10.5,
         fontweight="normal",
-    )
-
-
-def draw_placeholder(ax) -> None:
-    ax.set_facecolor("#f7f8f9")
-    for spine in ax.spines.values():
-        spine.set_visible(True)
-        spine.set_color(COLORS["grid"])
-        spine.set_linestyle((0, (3, 3)))
-        spine.set_linewidth(0.8)
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.text(
-        0.5,
-        0.5,
-        "Reserved for validated\n1D benchmark",
-        transform=ax.transAxes,
-        ha="center",
-        va="center",
-        fontsize=8.0,
-        color=COLORS["muted"],
-        linespacing=1.35,
     )
 
 
@@ -322,11 +327,57 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def update_figure_manifest(
+    output: Path,
+    data_root: Path,
+    metadata: dict,
+    products: dict[str, Path],
+    source_files: list[Path],
+) -> None:
+    manifest_path = output / "figure_manifest.json"
+    if manifest_path.is_file():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    else:
+        manifest = {
+            "schema": 1,
+            "backend": "Python/matplotlib",
+            "figures": [],
+            "source_data": [],
+        }
+
+    figure_record = {
+        "figure": metadata["figure"],
+        "files": {key: path.name for key, path in products.items()},
+        "layout": metadata["layout"],
+        "completed_systems": metadata["display_systems"],
+        "placeholder": False,
+    }
+    manifest["figures"] = [
+        item
+        for item in manifest.get("figures", [])
+        if item.get("figure") != metadata["figure"]
+    ] + [figure_record]
+
+    records = {
+        item["path"]: item for item in manifest.get("source_data", [])
+    }
+    for path in source_files:
+        relative = str(path.relative_to(data_root)).replace("\\", "/")
+        records[relative] = {
+            "path": relative,
+            "size": path.stat().st_size,
+            "sha256": sha256(path),
+        }
+    manifest["source_data"] = [records[key] for key in sorted(records)]
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
 def build_figure(
     data_root: Path,
     output: Path,
-    *,
-    include_placeholder: bool = True,
 ) -> dict[str, object]:
     systems = [
         {
@@ -346,9 +397,20 @@ def build_figure(
             "directional": False,
         },
         {
-            "name": "1D-placeholder",
-            "row": "TBD\n1D, Nanowire",
-            "placeholder": True,
+            "name": "GaAsNW",
+            "row": "GaAs nanowire\n1D, Nanowire",
+            "stru": data_root / "gaas_nanowire" / "STRU",
+            "ir": data_root / "gaas_nanowire" / "ir" / "ir_spectrum.dat",
+            "ir_modes": data_root / "gaas_nanowire" / "ir" / "ir_modes.csv",
+            "raman": data_root / "gaas_nanowire" / "raman" / "raman_spectrum.dat",
+            "raman_modes": data_root / "gaas_nanowire" / "raman" / "raman_modes.csv",
+            "repeats": (1, 1, 3),
+            "view": (34, 14),
+            "ir_xlim": (20, 660),
+            "raman_xlim": (20, 660),
+            "ir_labels": [(19, r"$A_1$"), (43, r"$A_1$"), (55, r"$A_1$")],
+            "raman_labels": [(17, r"$A_1$"), (24, r"$A_2$"), (40, r"$A_2$"), (55, r"$A_1$")],
+            "directional": True,
         },
         {
             "name": "MoS2",
@@ -384,15 +446,12 @@ def build_figure(
         },
     ]
 
-    if not include_placeholder:
-        systems = [system for system in systems if not system.get("placeholder", False)]
-
     row_count = len(systems)
     fig, axes = plt.subplots(
         row_count,
         3,
-        figsize=(7.2, 8.75 if include_placeholder else 6.75),
-        gridspec_kw={"width_ratios": (0.92, 1.12, 1.12), "hspace": 0.43, "wspace": 0.36},
+        figsize=(7.6, 9.2),
+        gridspec_kw={"width_ratios": (0.94, 1.14, 1.14), "hspace": 0.50, "wspace": 0.38},
     )
     column_titles = ["Structure", "Infrared spectrum", "Raman spectrum"]
     for column, title in enumerate(column_titles):
@@ -401,23 +460,6 @@ def build_figure(
     panel = ord("a")
     source_files: list[Path] = []
     for row, system in enumerate(systems):
-        if system.get("placeholder", False):
-            for column in range(3):
-                draw_placeholder(axes[row, column])
-                panel_label(axes[row, column], chr(panel))
-                panel += 1
-            axes[row, 0].text(
-                -0.30,
-                0.5,
-                system["row"],
-                transform=axes[row, 0].transAxes,
-                ha="right",
-                va="center",
-                fontsize=8.4,
-                fontweight="bold",
-                linespacing=1.35,
-            )
-            continue
         draw_structure(
             axes[row, 0],
             system["stru"],
@@ -434,7 +476,7 @@ def build_figure(
             system["ir_xlim"],
             [(mode_frequency(system["ir_modes"], mode), label) for mode, label in system["ir_labels"]],
             directional=system["directional"],
-            show_legend=system["name"] == "MoS2",
+            show_legend=system["name"] == "GaAsNW",
         )
         draw_spectrum(
             axes[row, 2],
@@ -451,7 +493,7 @@ def build_figure(
             transform=axes[row, 0].transAxes,
             ha="right",
             va="center",
-            fontsize=8.4,
+            fontsize=9.2,
             fontweight="bold",
             linespacing=1.35,
         )
@@ -468,17 +510,13 @@ def build_figure(
         "Each spectrum is normalized independently.",
         ha="right",
         va="bottom",
-        fontsize=7.0,
+        fontsize=7.8,
         color=COLORS["muted"],
     )
     fig.subplots_adjust(left=0.15, right=0.985, top=0.94, bottom=0.07)
 
     output.mkdir(parents=True, exist_ok=True)
-    stem = (
-        "spectroscopy_across_dimensions"
-        if include_placeholder
-        else "spectroscopy_validated_dimensions"
-    )
+    stem = "spectroscopy_across_dimensions"
     products = {
         "png": output / f"{stem}.png",
         "pdf": output / f"{stem}.pdf",
@@ -494,15 +532,12 @@ def build_figure(
     metadata = {
         "figure": stem,
         "backend": f"Python/matplotlib {mpl.__version__}",
-        "core_conclusion": "ZStar produces mode-resolved IR and Raman spectra for molecules, 2D materials, and bulk crystals under dimension-appropriate response conventions.",
+        "core_conclusion": "ZStar produces mode-resolved IR and Raman spectra for molecules, 1D nanowires, 2D slabs, and 3D bulk crystals under dimension-appropriate response conventions.",
         "normalization": "Each IR or Raman panel is independently normalized to its own maximum; intensities are not compared across rows or response types.",
         "systems": [system["name"] for system in systems],
+        "display_systems": [system["row"].split("\n", 1)[0] for system in systems],
         "layout": f"{row_count} rows by 3 columns",
-        "placeholder": (
-            "The 1D row is reserved and contains no calculated data."
-            if include_placeholder
-            else None
-        ),
+        "one_dimensional_raman_scope": "The GaAs row uses the disclosed ten-mode Raman validation subset; its IR panel contains all 68 positive-frequency modes.",
         "source_data": {
             str(path.relative_to(data_root)).replace("\\", "/"): {"bytes": path.stat().st_size, "sha256": sha256(path)}
             for path in source_files
@@ -511,6 +546,7 @@ def build_figure(
     }
     metadata_path = output / f"{stem}.metadata.json"
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+    update_figure_manifest(output, data_root, metadata, products, source_files)
     return metadata
 
 
@@ -526,18 +562,11 @@ def main() -> None:
         type=Path,
         default=Path(__file__).resolve().parent,
     )
-    parser.add_argument(
-        "--variant",
-        choices=("roadmap", "publication"),
-        default="roadmap",
-        help="Include the reserved 1D row or render only completed validations.",
-    )
     args = parser.parse_args()
     configure_matplotlib()
     metadata = build_figure(
         args.data_root.resolve(),
         args.output.resolve(),
-        include_placeholder=args.variant == "roadmap",
     )
     print(json.dumps(metadata, indent=2))
 

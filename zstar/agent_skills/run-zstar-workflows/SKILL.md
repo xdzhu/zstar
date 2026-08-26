@@ -21,9 +21,9 @@ Identify the requested lane before constructing commands:
 
 Determine whether the system is a molecule, a 1D wire or chain, a 2D slab, or
 bulk. Do not infer dimensionality from vacuum alone when the user's scientific
-intent is available. ZStar can store and normalize `dim=1` response records,
-but the packaged skill must stop before claiming an end-to-end 1D BEC or
-Coulomb-cutoff phonon result.
+intent is available. ZStar supports a `z`-periodic 1D hybrid BEC workflow and
+Gamma-point IR/Raman response, but it does not implement a finite-wavevector
+1D Coulomb-cutoff phonon kernel.
 
 ## Start with inspection
 
@@ -45,6 +45,12 @@ Coulomb-cutoff phonon result.
 - Reuse the converged reference charge density for displaced ABACUS stages.
 - For 2D slabs, use Berry-phase response in plane and charge-density-cube dipole
   integration out of plane. The current slab normal must be Cartesian `z`.
+- For 1D wires, use charge-density-cube dipoles in transverse `x/y` and the
+  PYATB Berry phase along periodic `z`. Keep the automatic PYATB loop-padding
+  provenance and do not consume the artificial transverse Berry results.
+- Reject bulk/Gonze non-analytic corrections for `dim=1`; Gamma-point spectra
+  are supported without NAC, while finite-wavevector polar dispersion requires
+  a genuine `1d-cutoff` implementation from the calculator.
 - Use central differences for Raman tensors. Do not interpret broadened or
   normalized spectra as absolute experimental intensities.
 - Route VASP or CP2K spectroscopy through `zstar spectra`; inspect

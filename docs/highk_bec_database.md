@@ -10,7 +10,7 @@ The database keeps three response classes separate:
 
 - `epsilon_infinity`: clamped-ion electronic dielectric tensor;
 - `epsilon_static_total`: electronic plus harmonic ionic response for a 3D bulk;
-- 2D sheet polarizability or molecular response derivatives, which are stored but
+- 1D line polarizability, 2D sheet polarizability, or molecular response derivatives, which are stored but
   never mixed into the 3D High-K ranking.
 
 A material is rankable only when the reference is insulating, a complete BEC is
@@ -79,5 +79,6 @@ SCF threshold, displacement amplitude, symmetry tolerance, phonon supercell,
 electronic and total dielectric tensors, raw/corrected BEC tensors, gap-gate
 result, convergence tier, and failure reason.
 
-The collaboration bundle supplies validated BaTiO3, HfO2, MoS2, In2Se3, CH4,
-and CO2 examples plus batch preparation and database smoke-test scripts.
+The collaboration bundle supplies validated GaAs nanowire, BaTiO3, HfO2,
+MoS2, In2Se3, CH4, and CO2 examples plus batch preparation and database
+smoke-test scripts.

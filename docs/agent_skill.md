@@ -94,8 +94,8 @@ The skill encodes the non-obvious invariants that should survive model changes:
 | Contract | Agent behavior |
 | --- | --- |
 | Reference first | Complete and gate `0.no-move` before displaced BEC stages. |
-| Dimensional split | Use Berry response in plane and cube-integrated dipole out of plane for 2D. |
-| 1D boundary | Store and normalize 1D records, but stop before claiming an unimplemented end-to-end 1D BEC or Coulomb-cutoff phonon result. |
+| Dimensional split | Use Berry response along periodic axes and cube-integrated dipoles along open axes for 1D wires and 2D slabs. |
+| 1D boundary | Run the implemented `z`-periodic ABACUS/PYATB BEC and Gamma-spectroscopy route, but do not claim finite-wavevector polar phonons without a genuine 1D Coulomb cutoff. |
 | Resumability | Reuse `.zstar` state and repeat the same serial executor command. |
 | Raman derivative | Use positive/negative normal-coordinate pairs. |
 | MD+BEC scope | Consume supplied BECs; do not claim trajectory-to-BEC prediction. |

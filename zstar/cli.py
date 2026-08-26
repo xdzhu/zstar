@@ -42,7 +42,10 @@ def zstar_cli(argv=None) -> None:
     parser_gen = subparsers.add_parser('gen', help='Generate polarization data.')
     parser_gen.add_argument('-i', '--input', type=str, default=None,
                             help='Given your own INPUT file for ABACUS SCF')
-    parser_gen.add_argument('--dim', type=int, help='Dim of your systems, 2 for 2D, default is 3.', default=3)
+    parser_gen.add_argument(
+        '--dim', type=int, choices=[1, 2, 3], default=3,
+        help='Physical dimensionality: 1 for a z-periodic wire, 2 for a slab, or 3 for bulk.'
+    )
     parser_gen.add_argument('--method', type=str, help='Type of finite difference method, by forward or central, with pricesion of first and seconde order.', default='forward')
     parser_gen.add_argument('--xc', type=str,
                             help='dft_functional in abacus INPUT, default is pbe, you can change to pbesol',
@@ -100,15 +103,21 @@ def zstar_cli(argv=None) -> None:
     parser_gen.add_argument('--cp2k-root', default='cp2k_bec',
                             help='Output root for --cp2k (default: cp2k_bec).')
     parser_gen.add_argument('--displacement', type=float, default=0.01,
-                            help='CP2K atomic displacement in Angstrom.')
+                            help='Atomic finite-displacement half-step in Angstrom.')
 
     # ---------------- deal ----------------
     parser_deal = subparsers.add_parser(
         'deal', help='Deal with polarization data to get BORN effective charge.'
     )
-    parser_deal.add_argument('--dim', type=int,
-                             help='Dim of your systems, 2 for 2D, default is 3.', default=3)
+    parser_deal.add_argument(
+        '--dim', type=int, choices=[1, 2, 3], default=3,
+        help='Physical dimensionality: 1 for a z-periodic wire, 2 for a slab, or 3 for bulk.'
+    )
     parser_deal.add_argument('--method', type=str, help='Finite difference method, by forward or central, with pricesion of first and seconde order. To save calculation resource you can choose forward', default='forward')
+    parser_deal.add_argument(
+        '--displacement', type=float, default=None,
+        help='Finite-displacement half-step in Angstrom; default reads disp_Angstrom.out.'
+    )
     parser_deal.add_argument('--stru', help='Path to the STRU file', default='STRU')
     parser_deal.add_argument('--symmprec', '--tol', type=float,
                              help='Symmetry precision of STRU, default is 1e-3',
@@ -144,8 +153,7 @@ def zstar_cli(argv=None) -> None:
     parser_born = subparsers.add_parser(
         'born', help='Deal with polarization data to get BORN effective charge.'
     )
-    parser_born.add_argument('--dim', type=int,
-                             help='Dim of your systems, 2 for 2D.', default=3)
+    parser_born.add_argument('--dim', type=int, choices=[1, 2, 3], default=3)
     parser_born.add_argument('--stru', help='Path to the STRU file', default='STRU')
     parser_born.add_argument('--symmprec', '--tol', type=float,
                              help='Symmetry precision of STRU, default is 1e-3',
@@ -160,8 +168,7 @@ def zstar_cli(argv=None) -> None:
 
     # ---------------- polar ----------------
     parser_polar = subparsers.add_parser('polar', help='Polarization data only.')
-    parser_polar.add_argument('--dim', type=int,
-                              help='Dim of your systems, 2 for 2D.', default=3)
+    parser_polar.add_argument('--dim', type=int, choices=[1, 2, 3], default=3)
     parser_polar.add_argument('--stru', help='Path to the STRU file', default='STRU')
     parser_polar.add_argument('--symmprec', '--tol', type=float,
                               help='Symmetry precision of STRU, default is 1e-3',
@@ -413,7 +420,7 @@ def zstar_cli(argv=None) -> None:
         '--calculator', choices=['vasp', 'cp2k'], required=True
     )
     parser_spectra_prepare.add_argument('--root', default='calculator_spectra')
-    parser_spectra_prepare.add_argument('--dim', type=int, choices=[0, 2, 3], default=3)
+    parser_spectra_prepare.add_argument('--dim', type=int, choices=[0, 1, 2, 3], default=3)
     parser_spectra_prepare.add_argument('--input-dir', default='.')
     parser_spectra_prepare.add_argument('--modes-xml', default=None)
     parser_spectra_prepare.add_argument('--input', default=None)
@@ -667,7 +674,7 @@ def zstar_cli(argv=None) -> None:
         help='One-time 0.no-move PYATB band-path gate; use mp for stricter sampling.'
     )
     parser_workflow_run.add_argument(
-        '--dimensionality', '--dim', type=int, choices=[2, 3], default=3
+        '--dimensionality', '--dim', type=int, choices=[1, 2, 3], default=3
     )
     parser_workflow_run.add_argument('--min-gap', type=float, default=0.01)
     parser_workflow_run.add_argument(
@@ -722,7 +729,7 @@ def zstar_cli(argv=None) -> None:
         '--gap-mode', choices=['path', 'mp'], default='path'
     )
     parser_workflow_script.add_argument(
-        '--dimensionality', '--dim', type=int, choices=[2, 3], default=3
+        '--dimensionality', '--dim', type=int, choices=[1, 2, 3], default=3
     )
     parser_workflow_script.add_argument('--min-gap', type=float, default=0.01)
     parser_workflow_script.add_argument(
@@ -791,7 +798,11 @@ def zstar_cli(argv=None) -> None:
         '--dielectric', default=None,
         help='Optional BORN or PYATB optical output used for epsilon infinity.'
     )
-    parser_ir.add_argument('--dim', type=int, choices=[0, 2, 3], default=3)
+    parser_ir.add_argument('--dim', type=int, choices=[0, 1, 2, 3], default=3)
+    parser_ir.add_argument(
+        '--periodic-axis', choices=['x', 'y', 'z'], default='z',
+        help='Periodic axis for --dim 1; default: z.'
+    )
     parser_ir.add_argument(
         '--displacements', '--dipole-dir', default=None,
         help='For --dim 0, Raman-style +/- mode directory containing '
@@ -848,7 +859,10 @@ def zstar_cli(argv=None) -> None:
     parser_raman_run.add_argument('--raman-dir', default='raman')
     parser_raman_run.add_argument('--reference', default='0.no-move')
     parser_raman_run.add_argument('--qpoints', default='qpoints.yaml')
-    parser_raman_run.add_argument('--dim', type=int, choices=[0, 2, 3], default=3)
+    parser_raman_run.add_argument('--dim', type=int, choices=[0, 1, 2, 3], default=3)
+    parser_raman_run.add_argument(
+        '--periodic-axis', choices=['x', 'y', 'z'], default='z'
+    )
     parser_raman_run.add_argument(
         '--abacus-command', default='mpirun -np 1 abacus'
     )
@@ -906,7 +920,10 @@ def zstar_cli(argv=None) -> None:
     parser_raman_collect.add_argument('--raman-dir', default='raman')
     parser_raman_collect.add_argument('--qpoints', default='qpoints.yaml')
     parser_raman_collect.add_argument(
-        '--dim', type=int, choices=[0, 2, 3], default=3
+        '--dim', type=int, choices=[0, 1, 2, 3], default=3
+    )
+    parser_raman_collect.add_argument(
+        '--periodic-axis', choices=['x', 'y', 'z'], default='z'
     )
 
     parser_raman_spectrum = raman_actions.add_parser(
@@ -919,7 +936,10 @@ def zstar_cli(argv=None) -> None:
     raman_tensor_source.add_argument('--tensors', default=None)
     raman_tensor_source.add_argument('--raman-dir', default=None)
     parser_raman_spectrum.add_argument(
-        '--dim', type=int, choices=[0, 2, 3], default=3
+        '--dim', type=int, choices=[0, 1, 2, 3], default=3
+    )
+    parser_raman_spectrum.add_argument(
+        '--periodic-axis', choices=['x', 'y', 'z'], default='z'
     )
     parser_raman_spectrum.add_argument('--temperature', type=float, default=300.0)
     parser_raman_spectrum.add_argument('--laser-nm', type=float, default=532.0)
@@ -977,7 +997,11 @@ def zstar_cli(argv=None) -> None:
     parser_calc.add_argument('--qpoints', default='qpoints.yaml')
     parser_calc.add_argument('--born', default='BORN')
     parser_calc.add_argument('--dielectric', default=None)
-    parser_calc.add_argument('--dim', type=int, choices=[2, 3], default=3)
+    parser_calc.add_argument('--dim', type=int, choices=[1, 2, 3], default=3)
+    parser_calc.add_argument(
+        '--periodic-axis', choices=['x', 'y', 'z'], default='z',
+        help='Periodic axis for --dim 1; default: z.'
+    )
     parser_calc.add_argument('--thickness', type=float, default=None)
     parser_calc.add_argument('--acoustic-cutoff', type=float, default=5.0)
     parser_calc.add_argument('--broadening', type=float, default=10.0)
@@ -1009,7 +1033,11 @@ def zstar_cli(argv=None) -> None:
     parser_freq.add_argument('--qpoints', default='qpoints.yaml')
     parser_freq.add_argument('--born', default='BORN')
     parser_freq.add_argument('--dielectric', default=None)
-    parser_freq.add_argument('--dim', type=int, choices=[2, 3], default=3)
+    parser_freq.add_argument('--dim', type=int, choices=[1, 2, 3], default=3)
+    parser_freq.add_argument(
+        '--periodic-axis', choices=['x', 'y', 'z'], default='z',
+        help='Periodic axis for --dim 1; default: z.'
+    )
     parser_freq.add_argument('--thickness', type=float, default=None)
     parser_freq.add_argument('--acoustic-cutoff', type=float, default=5.0)
     parser_freq.add_argument('--broadening', type=float, default=10.0)
@@ -1853,6 +1881,7 @@ def zstar_cli(argv=None) -> None:
                 max_frequency_cm1=args.max_frequency,
                 points=args.points,
                 thickness_angstrom=args.thickness,
+                periodic_axis='xyz'.index(args.periodic_axis),
             )
             summary = write_ir_outputs(
                 args.outdir, result, plot=not args.no_plot
@@ -1936,6 +1965,9 @@ def zstar_cli(argv=None) -> None:
                 dimensionality=args.dim,
                 cell_height_angstrom=modes.cell_height_angstrom,
                 cell_volume_angstrom3=modes.volume_angstrom3,
+                cell_cross_section_angstrom2=modes.cross_section_angstrom2(
+                    'xyz'.index(args.periodic_axis)
+                ),
             )
             print(f"Collected {len(mode_numbers)} {tensor_kind} tensors.")
             if not args.no_spectrum:
@@ -2010,6 +2042,9 @@ def zstar_cli(argv=None) -> None:
                 dimensionality=args.dim,
                 cell_height_angstrom=modes.cell_height_angstrom,
                 cell_volume_angstrom3=modes.volume_angstrom3,
+                cell_cross_section_angstrom2=modes.cross_section_angstrom2(
+                    'xyz'.index(args.periodic_axis)
+                ),
             )
             print(
                 f"Collected {len(mode_numbers)} {tensor_kind} tensors "
@@ -2023,6 +2058,9 @@ def zstar_cli(argv=None) -> None:
                     dimensionality=args.dim,
                     cell_height_angstrom=modes.cell_height_angstrom,
                     cell_volume_angstrom3=modes.volume_angstrom3,
+                    cell_cross_section_angstrom2=modes.cross_section_angstrom2(
+                        'xyz'.index(args.periodic_axis)
+                    ),
                 )
             else:
                 mode_numbers, tensors, tensor_kind = load_raman_tensors(
@@ -2108,6 +2146,7 @@ def zstar_cli(argv=None) -> None:
             max_frequency_cm1=args.max_frequency,
             points=args.points,
             thickness_angstrom=args.thickness,
+            periodic_axis='xyz'.index(args.periodic_axis),
         )
         write_ir_outputs(args.outdir, result, plot=args.plot)
         print(f"Static {result.response_kind}:")
@@ -2137,6 +2176,7 @@ def zstar_cli(argv=None) -> None:
             max_frequency_cm1=args.max_frequency,
             points=args.points,
             thickness_angstrom=args.thickness,
+            periodic_axis='xyz'.index(args.periodic_axis),
         )
         write_ir_outputs(args.outdir, result, plot=True)
         print(f"[OUT] {os.path.abspath(args.outdir)}")
@@ -2274,7 +2314,8 @@ def zstar_cli(argv=None) -> None:
             input_mode=input_mode,
             input_sets=input_sets,
             extract_starred_atoms_only=args.reduce,
-            method=method_fd
+            method=method_fd,
+            displacement_angstrom=args.displacement,
         )
 
     elif args.command == 'ph':
@@ -2327,7 +2368,8 @@ def zstar_cli(argv=None) -> None:
             symm_tol=args.symmprec,
             dimension=args.dim,
             method=method_fd,
-            running_type=running_type
+            running_type=running_type,
+            displacement_angstrom=getattr(args, 'displacement', None),
         )
         if calc_flag:
             kwargs['nscf_calculator'] = calc_flag

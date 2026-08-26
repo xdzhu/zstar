@@ -1,3 +1,29 @@
+## Unreleased
+
+- Add an end-to-end `dim=1` ABACUS/PYATB workflow for `z`-periodic wires:
+  transverse cube-dipole polarization, longitudinal Berry polarization,
+  line-polarizability normalization, Gamma-point IR/Raman, and explicit
+  rejection of bulk non-analytic phonon corrections.
+- Work around PYATB's unconditional three-axis Berry loops by recording and
+  applying a minimum `2 x 2 x N` polarization grid for 1D inputs while using
+  only the physical periodic-axis Berry result.
+- Request ten-digit ABACUS charge-density cubes in low-dimensional workflows
+  so transverse dipole finite differences are numerically resolved.
+- Unwrap open-direction charge densities around a weighted circular ionic
+  center, keeping slabs and wires contiguous when they cross a cell boundary.
+- Enforce the canonical BEC convention (rows are atomic displacement/force;
+  columns are polarization/electric field) in low-dimensional collection,
+  mode-charge contraction, and MD dipole reconstruction.
+- Preserve eight decimal places in reduced, symmetry-reconstructed, and
+  Phonopy BEC artifacts so high-precision finite differences are not truncated
+  before symmetry reconstruction or acoustic-sum correction.
+- Validate the complete 1D route on a hydrogen-passivated GaAs nanowire with
+  49 BEC stages, 40 phonon-force stages, all-mode IR, selected-mode Raman, and
+  coordinate-matched VASP and archived Quantum ESPRESSO comparisons.
+- Extend the bundled `run-zstar-workflows` skill and JSON preflight to route
+  supported 1D BEC and Gamma-spectroscopy calculations with finite-q cutoff
+  limitations kept explicit.
+
 ## 0.2.0 - 2026-08-26
 
 - Add the versioned `zstar-response` 1.0 schema, calculator backend registry,

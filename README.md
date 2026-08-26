@@ -45,7 +45,7 @@ The numerical checks used for the current release are summarized in [docs/valida
 - Shell, Slurm, and Torque driver generation.
 - Automatic compatibility with legacy and direct-static-response PyATB versions.
 - A serial, resumable CP2K backend for Berry-phase BEC tensors and native APT checks.
-- Three-dimensional and hybrid two-dimensional polarization/BEC analysis.
+- Three-dimensional, hybrid two-dimensional, and hybrid one-dimensional polarization/BEC analysis.
 - Phonon generation, post-processing, mode classification, IR spectra, Raman spectra, and dielectric response.
 - MD dipole-fluctuation dielectric analysis using fixed or frame-dependent BEC tensors.
 - Auxiliary electrostatic-potential analysis for slabs and polar materials.
@@ -70,15 +70,29 @@ Z*(kappa, alpha, beta) = Omega/e * dP_alpha / du_(kappa,beta)
 
 from Berry-phase polarization differences. Polarization branches are matched modulo the polarization quantum before the finite difference is taken.
 
+### One-dimensional wires and nanowires
+
+For a `z`-periodic wire, ZStar combines PYATB Berry polarization along `z`
+with real-space ABACUS cube dipoles along the nonperiodic `x/y` directions.
+It reports vacuum-independent BEC tensors and `Angstrom^2` line
+polarizabilities, and supports Gamma-point IR and Raman spectra. A bulk NAC is
+explicitly rejected because finite-wavevector polar phonons require a genuine
+1D Coulomb cutoff. See the [one-dimensional workflow](docs/one_dimensional_workflow.md).
+
 ### Two-dimensional slabs
 
 A slab requires separate treatment of in-plane and out-of-plane response:
 
-- **In-plane rows:** Berry-phase polarization is used while the full supercell remains insulating.
-- **Out-of-plane row:** the total slab dipole is integrated from the ABACUS charge-density cube, including ionic and electronic contributions.
+- **In-plane polarization columns:** Berry-phase polarization is used while the full supercell remains insulating.
+- **Out-of-plane polarization column:** the total slab dipole is integrated from the ABACUS charge-density cube, including ionic and electronic contributions.
 - **Normalization:** in-plane BECs are made independent of vacuum height through the usual volume factor; 2D dielectric spectra are reported as sheet polarizability unless an effective thickness is supplied.
 
-Accordingly, a complete 2D BEC calculation needs `x`, `y`, and `z` displacements. The default `zstar gen --dim 2` workflow generates all three. The current hybrid implementation requires the slab normal to align with Cartesian `z`; a tilted slab is rejected explicitly.
+Canonical ZStar tensors store atomic displacement/force as rows and
+polarization/electric field as columns. Accordingly, a complete 2D BEC
+calculation needs `x`, `y`, and `z` displacements. The default
+`zstar gen --dim 2` workflow generates all three. The current hybrid
+implementation requires the slab normal to align with Cartesian `z`; a tilted
+slab is rejected explicitly.
 
 One reference/displaced cube pair can be audited independently:
 
@@ -157,6 +171,12 @@ For a 2D slab:
 zstar gen --stru STRU --dim 2 --pyatb --method forward --force
 ```
 
+For a `z`-periodic wire:
+
+```bash
+zstar gen --stru STRU --dim 1 --pyatb --method central --force
+```
+
 The generated tree starts with `0.no-move`, followed by atom/direction folders such as `1.Ti/x+`. No per-displacement scheduler script is required.
 
 Useful generation options:
@@ -166,7 +186,8 @@ Useful generation options:
 | `--method forward|central` | One-sided or central finite difference. |
 | `--reduce` / `--all` | Symmetry-reduced atoms (default) or every atom. |
 | `--move "x y z"` | Explicit displacement directions. |
-| `--dim 2|3` | Two-dimensional or three-dimensional analysis. |
+| `--displacement 0.01` | Finite-displacement half-step in Angstrom. |
+| `--dim 1|2|3` | One-dimensional, two-dimensional, or three-dimensional analysis. |
 | `--input-mode abacus|pyatb|hamgnn|custom` | Input preparation route. |
 | `--input_sets FILES` | Extra files or directories copied into generated tasks. |
 
@@ -181,7 +202,10 @@ zstar workflow run --root . --dim 3 \
   --omp-threads 28
 ```
 
-For a slab, use `--dim 2`.
+For a wire or slab, use `--dim 1` or `--dim 2`, respectively.
+For low-dimensional polarization/BEC runs, ZStar writes `out_chg 1 10` so
+real-space transverse dipole differences are not limited by ABACUS cube
+rounding.
 
 The default execution order is:
 
@@ -249,6 +273,12 @@ Two-dimensional hybrid treatment:
 zstar deal --dim 2 --method forward --pyatb
 ```
 
+One-dimensional hybrid treatment for a `z`-periodic wire:
+
+```bash
+zstar deal --dim 1 --method central --pyatb
+```
+
 For central differences, use `--method central` consistently in both `gen` and `deal`.
 
 Key outputs:
@@ -262,6 +292,7 @@ Key outputs:
 | `BORN-for-phonopy.out` | Explicitly named copy of the Phonopy-compatible data. |
 | `born_symmetry_report.json` | Machine-readable reconstruction and residual report. |
 | `zstar_2d_bec.json` | Per-atom diagnostics for hybrid 2D BEC calculations. |
+| `zstar_1d_bec.json` | Per-atom diagnostics for hybrid 1D BEC calculations. |
 
 ## CP2K BEC Backend
 
@@ -481,6 +512,15 @@ vibrational dipole and `LINRES/POLAR` intensities. See the
 
 The compact source data, plotting script, vector files, and integrity manifest
 are archived in [docs/paper_figures](docs/paper_figures/README.md).
+
+<p align="center">
+  <img src="docs/paper_figures/spectroscopy_across_dimensions.png" alt="Validated IR and Raman spectra for a molecule, nanowire, slab, and bulk crystal" width="820">
+</p>
+
+The four-row comparison contains completed `0D, Molecule`, `1D, Nanowire`,
+`2D, Slab`, and `3D, Bulk` calculations. The GaAs row retains all 68
+positive-frequency IR modes and a disclosed ten-mode Raman subset covering
+all four `mm2` irreducible representations.
 
 <p align="center">
   <img src="docs/paper_figures/bto_mode_spectroscopy.png" alt="Tetragonal BaTiO3 mode-resolved IR and Raman spectra" width="820">

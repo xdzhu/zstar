@@ -178,14 +178,11 @@ def preflight_report(
             "Confirm that the slab normal is Cartesian z; out-of-plane BEC requires charge-density cubes."
         )
     if dimensionality == "1d":
-        if lane != "database":
-            blockers.append(
-                "ZStar can store and normalize 1D response records, but an end-to-end "
-                "1D BEC and Coulomb-cutoff phonon workflow is not implemented."
-            )
         warnings.append(
-            "Do not apply a bulk non-analytic correction to a 1D system; retain explicit "
-            "periodic-axis and line-normalization metadata."
+            "Use the current z-periodic orthogonal-wire convention: transverse BEC "
+            "from neutral charge-density cubes and longitudinal BEC from the PYATB "
+            "Berry phase. Do not apply bulk NAC; finite-q polar dispersion still "
+            "requires a genuine 1D Coulomb cutoff."
         )
     if dimensionality == "molecule" and lane not in {"ir", "raman"}:
         warnings.append("Molecule mode is currently intended for the IR/Raman workflow.")

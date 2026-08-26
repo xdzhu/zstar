@@ -24,6 +24,9 @@ _FLOAT_RE = re.compile(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][-+]?\d+)?")
 _OPTICAL_BLOCK_RE = re.compile(
     r"(?ms)^[ \t]*OPTICAL_CONDUCTIVITY[ \t]*\n[ \t]*\{.*?^[ \t]*\}[ \t]*$"
 )
+_POLARIZATION_BLOCK_RE = re.compile(
+    r"(?ms)^[ \t]*POLARIZATION[ \t]*\n[ \t]*\{.*?^[ \t]*\}[ \t]*$"
+)
 
 
 @dataclass(frozen=True)
@@ -271,6 +274,72 @@ def configure_optical_input(
     }
     report_path = path.parent / "zstar_pyatb_compat.json"
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    return report
+
+
+def configure_polarization_input(
+    input_path: str | Path,
+    *,
+    dimensionality: int,
+    periodic_axis: int = 2,
+    minimum_loop_points: int = 2,
+) -> dict:
+    """Make PYATB Berry loops valid for a low-dimensional calculation.
+
+    Current PYATB releases evaluate all three Cartesian Berry loops even when
+    only one direction is physically periodic. A 1D ``1 x 1 x N`` grid thus
+    fails before the useful periodic-axis result is written. ZStar pads the
+    two nonperiodic directions to the minimum valid loop length and consumes
+    only the periodic-axis Berry phase; transverse dipoles remain cube based.
+    """
+
+    path = Path(input_path)
+    text = path.read_text(encoding="utf-8")
+    dimension = int(dimensionality)
+    if dimension != 1:
+        return {
+            "input": str(path.resolve()),
+            "dimensionality": dimension,
+            "modified": False,
+        }
+    if periodic_axis not in (0, 1, 2):
+        raise ValueError("periodic_axis must be 0, 1, or 2")
+    if minimum_loop_points < 2:
+        raise ValueError("minimum_loop_points must be at least 2")
+
+    match = _POLARIZATION_BLOCK_RE.search(text)
+    if match is None:
+        raise ValueError("Cannot configure 1D polarization: POLARIZATION block missing")
+
+    block = match.group(0)
+    original_grid = []
+    padded_grid = []
+    for axis in range(3):
+        key = f"nk{axis + 1}"
+        value = _extract_scalar(block, key)
+        if value is None:
+            raise ValueError(f"Cannot configure 1D polarization: {key} is missing")
+        original_grid.append(value)
+        padded = max(value, minimum_loop_points)
+        padded_grid.append(padded)
+        block = _replace_or_append_parameter(block, key, str(padded))
+
+    output = text[: match.start()] + block + text[match.end() :]
+    path.write_text(output, encoding="utf-8")
+    report = {
+        "input": str(path.resolve()),
+        "dimensionality": 1,
+        "periodic_axis": int(periodic_axis),
+        "original_grid": original_grid,
+        "effective_grid": padded_grid,
+        "modified": original_grid != padded_grid,
+        "reason": "PYATB evaluates Berry loops along all three axes",
+        "consumed_response": "periodic-axis Berry polarization only",
+        "transverse_response": "neutral charge-density cube dipole",
+    }
+    (path.parent / "zstar_pyatb_polarization_compat.json").write_text(
+        json.dumps(report, indent=2), encoding="utf-8"
+    )
     return report
 
 

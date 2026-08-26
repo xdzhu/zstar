@@ -43,7 +43,7 @@ class SlabDipole:
 class Hybrid2DBorn:
     tensor: np.ndarray
     in_plane_tensor: np.ndarray
-    out_of_plane_row: np.ndarray
+    out_of_plane_column: np.ndarray
     method: str
     displacement_angstrom: float
     diagnostics: dict
@@ -135,6 +135,33 @@ def find_charge_cube(directory: str | Path) -> Path:
 
 def _periodic_unwrap(values: np.ndarray, center: float, period: float) -> np.ndarray:
     return center + (values - center) - np.round((values - center) / period) * period
+
+
+def _periodic_weighted_center(
+    values: np.ndarray,
+    weights: np.ndarray,
+    origin: float,
+    period: float,
+) -> float:
+    """Return a weighted circular center for coordinates in one periodic cell."""
+
+    coordinates = np.asarray(values, dtype=float)
+    charges = np.asarray(weights, dtype=float)
+    if coordinates.shape != charges.shape or coordinates.ndim != 1:
+        raise ValueError("periodic center values and weights must be matching 1D arrays")
+    total = float(np.sum(charges))
+    if total <= 0.0 or period <= 0.0:
+        raise ValueError("periodic center weights and period must be positive")
+    phases = 2.0 * math.pi * (coordinates - float(origin)) / float(period)
+    resultant = np.sum(charges * np.exp(1j * phases)) / total
+    if abs(resultant) < 1.0e-10:
+        # A delocalized or exactly inversion-balanced distribution has no
+        # unique circular center. Preserve the historical arithmetic fallback.
+        center = float(np.sum(charges * coordinates) / total)
+    else:
+        phase = float(np.angle(resultant)) % (2.0 * math.pi)
+        center = float(origin) + phase * float(period) / (2.0 * math.pi)
+    return float(origin) + ((center - float(origin)) % float(period))
 
 
 def _cube_sidecar_charges(path: Path, natoms: int) -> np.ndarray | None:
@@ -276,9 +303,13 @@ def integrate_slab_dipole(
     charges = cube.charges
     ionic_total = float(np.sum(charges))
     atom_normal = cube.positions @ cube.normal
-    center = float(np.sum(charges * atom_normal) / ionic_total)
     origin_normal = float(cube.origin @ cube.normal)
-    center = origin_normal + ((center - origin_normal) % cube.height_bohr)
+    center = _periodic_weighted_center(
+        atom_normal,
+        charges,
+        origin_normal,
+        cube.height_bohr,
+    )
     atom_unwrapped = _periodic_unwrap(
         atom_normal, center, cube.height_bohr
     )
@@ -349,8 +380,12 @@ def compare_slab_charge_profiles(
     ionic_total = float(np.sum(reference.charges))
     atom_normal = reference.positions @ normal
     origin_normal = float(reference.origin @ normal)
-    center = float(np.sum(reference.charges * atom_normal) / ionic_total)
-    center = origin_normal + ((center - origin_normal) % reference.height_bohr)
+    center = _periodic_weighted_center(
+        atom_normal,
+        reference.charges,
+        origin_normal,
+        reference.height_bohr,
+    )
 
     grid_normal = (
         origin_normal
@@ -666,7 +701,8 @@ def _parse_pyatb_polarization(path: Path) -> tuple[np.ndarray, np.ndarray]:
     )
 
 
-def _read_pyatb_cell(input_json: Path) -> tuple[np.ndarray, float]:
+def read_pyatb_lattice(input_json: str | Path) -> np.ndarray:
+    input_json = Path(input_json)
     data = json.loads(input_json.read_text(encoding="utf-8"))
     candidates = (
         data.get("lattice_vector"),
@@ -689,6 +725,11 @@ def _read_pyatb_cell(input_json: Path) -> tuple[np.ndarray, float]:
     matrix_angstrom = np.asarray(lattice, dtype=float)
     if matrix_angstrom.shape != (3, 3):
         raise ValueError(f"Invalid lattice in {input_json}")
+    return matrix_angstrom
+
+
+def _read_pyatb_cell(input_json: Path) -> tuple[np.ndarray, float]:
+    matrix_angstrom = read_pyatb_lattice(input_json)
     unit_vectors = matrix_angstrom / np.linalg.norm(
         matrix_angstrom, axis=1, keepdims=True
     )
@@ -814,8 +855,8 @@ def calculate_hybrid_2d_born(
         # PYATB P is a 3D polarization. Multiplication by cell volume gives the
         # vacuum-independent in-plane Born response.
         in_plane = volume_m3 / ELEMENTARY_CHARGE * polar_derivative[:2]
-        tensor[:2, beta] = in_plane
-        tensor[2, beta] = z_born
+        tensor[beta, :2] = in_plane
+        tensor[beta, 2] = z_born
         diagnostics["directions"][direction] = {
             "plus": plus_dipole.to_dict(),
             "minus": minus_report,
@@ -826,8 +867,8 @@ def calculate_hybrid_2d_born(
 
     return Hybrid2DBorn(
         tensor=tensor,
-        in_plane_tensor=tensor[:2].copy(),
-        out_of_plane_row=tensor[2].copy(),
+        in_plane_tensor=tensor[:, :2].copy(),
+        out_of_plane_column=tensor[:, 2].copy(),
         method=method_key,
         displacement_angstrom=float(displacement_angstrom),
         diagnostics=diagnostics,
@@ -841,9 +882,13 @@ def write_hybrid_2d_report(
     data = {
         "method": result.method,
         "displacement_angstrom": result.displacement_angstrom,
+        "tensor_convention": (
+            "rows=atomic displacement/force; "
+            "columns=polarization/electric field"
+        ),
         "tensor": result.tensor.tolist(),
         "in_plane_tensor": result.in_plane_tensor.tolist(),
-        "out_of_plane_row": result.out_of_plane_row.tolist(),
+        "out_of_plane_column": result.out_of_plane_column.tolist(),
         "diagnostics": result.diagnostics,
     }
     Path(path).write_text(json.dumps(data, indent=2), encoding="utf-8")

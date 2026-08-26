@@ -49,22 +49,23 @@ class AgentSkillTests(unittest.TestCase):
             replaced = install_agent_skill(root, force=True)
             self.assertEqual(replaced, installed)
 
-    def test_preflight_accepts_1d_but_blocks_unimplemented_workflow(self):
+    def test_preflight_accepts_supported_1d_workflow_with_scope_warning(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "STRU").write_text("placeholder\n", encoding="utf-8")
             report = preflight_report(root, lane="bec", dimensionality="1d")
 
-            self.assertFalse(report["ready"])
+            self.assertTrue(report["ready"])
             self.assertEqual(report["dimensionality"], "1d")
-            self.assertTrue(any("not implemented" in item for item in report["blockers"]))
+            self.assertFalse(report["blockers"])
+            self.assertTrue(any("bulk NAC" in item for item in report["warnings"]))
 
     def test_preflight_allows_1d_database_records(self):
         with tempfile.TemporaryDirectory() as tmp:
             report = preflight_report(tmp, lane="database", dimensionality="1d")
 
             self.assertTrue(report["ready"])
-            self.assertTrue(any("bulk non-analytic" in item for item in report["warnings"]))
+            self.assertTrue(any("bulk NAC" in item for item in report["warnings"]))
 
 
 if __name__ == "__main__":

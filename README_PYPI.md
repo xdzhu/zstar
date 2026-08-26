@@ -15,6 +15,7 @@ ZStar is a Python workflow toolkit for polarization, Born effective charge (BEC)
 - A one-time insulating-state gate using a normal band path by default.
 - Shell, Slurm, and Torque/PBS driver generation.
 - Legacy and direct-static-response PyATB compatibility.
+- Hybrid 1D BECs: transverse charge-density dipoles plus longitudinal Berry polarization.
 - Hybrid 2D BECs: Berry-phase in-plane response plus cube-integrated out-of-plane dipole.
 - IR, Raman, static/frequency-dependent dielectric, and MD + BEC response.
 - A packaged `run-zstar-workflows` Agent Skill with JSON preflight.
@@ -62,7 +63,20 @@ zstar workflow status
 zstar deal --dim 3 --method forward --pyatb
 ```
 
-For a 2D slab, use `--dim 2` in generation, execution, and post-processing. Full `x/y/z` displacements are required because the out-of-plane BEC row is obtained from the real-space slab dipole. The slab normal must currently align with Cartesian `z`.
+For a `z`-periodic 1D wire, use `--dim 1` throughout. ZStar obtains the two
+transverse polarization columns from high-precision charge-density cubes and
+the longitudinal column from PYATB Berry polarization:
+
+```bash
+zstar gen --stru STRU --dim 1 --pyatb --method central --force
+zstar workflow run --root . --dim 1
+zstar deal --stru STRU --dim 1 --pyatb --method central
+```
+
+For a 2D slab, use `--dim 2` in generation, execution, and post-processing.
+Full `x/y/z` displacements are required because the out-of-plane polarization
+column is obtained from the real-space slab dipole. The slab normal must
+currently align with Cartesian `z`.
 
 Audit one reference/displaced charge-density pair directly:
 
@@ -107,7 +121,10 @@ zstar freq --qpoints qpoints.yaml --born Z-BORN-symm.out --dielectric BORN
 zstar ir --qpoints qpoints.yaml --born Z-BORN-symm.out --dielectric BORN
 ```
 
-For `--dim 2`, dielectric/IR response is reported as sheet polarizability unless an effective `--thickness` is supplied.
+For `--dim 1`, dielectric/IR response is reported as an `Angstrom^2` line
+polarizability; for `--dim 2`, it is a sheet polarizability unless an effective
+`--thickness` is supplied. Gamma-point 1D IR/Raman is supported, while finite-q
+polar phonons still require a genuine 1D Coulomb cutoff and must not use bulk NAC.
 
 ## Raman Workflow
 
@@ -177,7 +194,8 @@ polarization magnitudes.
 | `Z-BORN-reduced.out` | Raw explicitly calculated representative tensors. |
 | `Z-BORN-symm.out` | Full-cell symmetry-reconstructed and neutral BEC tensors. |
 | `BORN` | Electronic dielectric tensor plus Phonopy-order BECs. |
-| `ir_spectrum/` | Mode charges, IR spectrum, and dielectric/sheet response. |
+| `zstar_response.json` | Versioned BEC and intrinsic 1D/2D electronic response. |
+| `ir_spectrum/` | Mode charges, IR spectrum, and line/sheet/bulk response. |
 | `raman_spectrum/` | Raman activities, tensors, and broadened spectrum. |
 | `md_dielectric/` | Ionic, electronic, and total MD dielectric tensors. |
 

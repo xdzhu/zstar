@@ -170,9 +170,9 @@ class Polarization2DTests(unittest.TestCase):
             )
             expected = np.asarray(
                 [
-                    [2.0, 0.3, 0.4],
-                    [0.2, 3.0, 0.5],
-                    [0.6, 0.7, 4.0],
+                    [2.0, 0.2, 0.6],
+                    [0.3, 3.0, 0.7],
+                    [0.4, 0.5, 4.0],
                 ]
             )
             np.testing.assert_allclose(result.tensor, expected, atol=1.0e-8)
@@ -185,7 +185,7 @@ class Polarization2DTests(unittest.TestCase):
                 directions=("y",),
             )
             expected_y = np.zeros((3, 3))
-            expected_y[:, 1] = expected[:, 1]
+            expected_y[1, :] = expected[1, :]
             np.testing.assert_allclose(y_only.tensor, expected_y, atol=1.0e-8)
 
     def test_hybrid_tensor_rejects_a_tilted_slab_normal(self):
