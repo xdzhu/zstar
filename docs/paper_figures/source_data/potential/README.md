@@ -11,6 +11,8 @@ the manuscript figure:
 
 The original `ElecStaticPot.cube` files are intentionally omitted because they
 are large solver outputs. The plotted potential zero is set independently for
-each slab-normal profile using its lower-side vacuum value. Directional
-contrasts are mean-centered diagnostics and must not be interpreted as a
-polarization magnitude.
+each slab-normal profile using its lower-side vacuum value. The manuscript
+mean-centers the SnS `a+b` profile and optimizes its reflection center to test
+mirror symmetry within one period. This profile-level diagnostic must not be
+interpreted as a polarization magnitude or as a distortion-induced potential
+without a separately calculated symmetry-restored reference.

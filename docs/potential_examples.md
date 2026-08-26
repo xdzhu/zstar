@@ -59,12 +59,17 @@ zstar potential --cube OUT.ABACUS/ElecStaticPot.cube \
 
 To compare the legacy hard-binning curve with interpolated perpendicular slices, repeat `--direction-method` or use `--direction-method all`. The generated `*-compare*.png` overlay shows how much of the apparent saw-tooth structure comes from discretization.
 
-For the manuscript comparison, each direction was mean-centered and the
-contrast
-`V_tilde(a+b) - V_tilde(a-b)` was evaluated. Its RMS value is `0.568 eV` for
-SnS, `0.411 eV` for SnSe, and `0.188 eV` for SnTe. These values quantify the
-directional contrast of the plotted potential only. They are not polarization
-values and do not replace a Berry-phase or real-space dipole calculation.
+The manuscript uses the SnS `a+b` profile for a one-period mirror test. After
+removing the arbitrary potential offset, the reflection center `c` is optimized
+to minimize
+`A_M = ||V(s) - V(2c-s)||_2 / (2 ||V(s)||_2)`.
+The resulting `A_M = 0.033` and mirror-odd RMS amplitude of `0.048 eV` show a
+small but finite microscopic mirror asymmetry. Comparing `a+b` with `a-b`
+instead measures directional anisotropy and is not used as an asymmetry metric.
+This profile-level test is neither a polarization value nor evidence of
+switchability. A distortion-induced potential requires a separately calculated
+symmetry-restored reference structure, and polarization still requires a
+Berry-phase or real-space dipole calculation.
 
 ### SnS
 

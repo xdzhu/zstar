@@ -82,10 +82,11 @@ surface-adjacent boundary and reports the window standard deviation.
 The earlier In2Se3 value of `0.361722 eV` is rejected: it resulted from
 averaging an entire half of the periodic vacuum, which mixed the upper surface
 plateau with the dipole-correction reset. The local-window result places both
-reported means on visibly flat regions. Mean-centered `a+b` versus `a-b`
-directional contrasts give RMS values of `0.568`, `0.411`, and `0.188 eV` for
-SnS, SnSe, and SnTe, respectively. These are potential-profile diagnostics,
-not polarization magnitudes.
+reported means on visibly flat regions. For the SnS `a+b` profile, optimizing
+the reflection center over one period gives a normalized mirror mismatch
+`A_M = 0.033` and a mirror-odd RMS amplitude of `0.048 eV`. This is a
+microscopic symmetry diagnostic, not a polarization magnitude or a substitute
+for a separately calculated symmetry-restored reference structure.
 
 ## Fresh Cross-Dimensional Regression
 

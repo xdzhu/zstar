@@ -36,10 +36,12 @@
         "MoS2": -1.6509e-05,
         "In2Se3": 1.22081212731
       },
-      "directional_contrast_rms_eV": {
-        "SnS": 0.5679160599000568,
-        "SnSe": 0.4111572938641483,
-        "SnTe": 0.1881846868901786
+      "mirror_asymmetry": {
+        "material": "SnS",
+        "direction": "a+b",
+        "metric": 0.0330278236857746,
+        "optimized_center_fraction": 0.9125825939441915,
+        "input_periods_folded": 2
       }
     },
     {

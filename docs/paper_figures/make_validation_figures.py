@@ -15,6 +15,8 @@ from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.patches import Rectangle
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
+from scipy.interpolate import CubicSpline
+from scipy.optimize import minimize_scalar
 import yaml
 
 from zstar.spectra import load_gamma_modes, read_born_data
@@ -663,19 +665,82 @@ def read_vacuum_sides(path: Path) -> dict[str, float]:
     return result
 
 
-def load_direction_contrast(root: Path, material: str) -> tuple[np.ndarray, np.ndarray, float]:
-    plus = np.loadtxt(root / material / "a_plus_b.dat")
-    minus = np.loadtxt(root / material / "a_minus_b.dat")
-    if plus.shape != minus.shape:
-        raise ValueError(f"Direction-profile shape mismatch for {material}")
-    plus_centered = plus[:, 1] - np.mean(plus[:, 1])
-    minus_centered = minus[:, 1] - np.mean(minus[:, 1])
-    contrast = plus_centered - minus_centered
-    step = float(plus[1, 0] - plus[0, 0])
-    period = float(plus[-1, 0] + step)
-    fractional_coord = plus[:, 0] / period
-    rms = float(np.sqrt(np.mean(contrast**2)))
-    return fractional_coord, contrast, rms
+def load_mirror_asymmetry(
+    root: Path,
+    material: str,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, float, int]:
+    data = np.loadtxt(root / material / "a_plus_b.dat")
+    coordinate = data[:, 0]
+    values = data[:, 1]
+    repeated_periods = 1
+    profile_rms = float(np.sqrt(np.mean((values - np.mean(values)) ** 2)))
+    for candidate in range(min(8, len(values)), 1, -1):
+        if len(values) % candidate != 0:
+            continue
+        blocks = values.reshape(candidate, -1)
+        folded = np.mean(blocks, axis=0)
+        folding_error = float(np.sqrt(np.mean((blocks - folded) ** 2)))
+        if folding_error <= 1.0e-5 * max(profile_rms, 1.0):
+            repeated_periods = candidate
+            values = folded
+            coordinate = coordinate[: len(folded)]
+            break
+    centered = values - np.mean(values)
+    step = float(np.median(np.diff(coordinate)))
+    period = step * len(coordinate)
+    origin = float(coordinate[0])
+    spline = CubicSpline(
+        np.append(coordinate, origin + period),
+        np.append(centered, centered[0]),
+        bc_type="periodic",
+    )
+
+    def periodic_values(query: np.ndarray) -> np.ndarray:
+        wrapped = np.mod(query - origin, period) + origin
+        return spline(wrapped)
+
+    denominator = 2.0 * np.linalg.norm(centered)
+
+    def mismatch(center: float) -> float:
+        mirrored = periodic_values(2.0 * center - coordinate)
+        return float(np.linalg.norm(centered - mirrored) / denominator)
+
+    trial_centers = np.linspace(
+        origin,
+        origin + period,
+        4 * len(coordinate),
+        endpoint=False,
+    )
+    trial_scores = np.array([mismatch(center) for center in trial_centers])
+    initial_center = float(trial_centers[np.argmin(trial_scores)])
+    optimum = minimize_scalar(
+        mismatch,
+        bounds=(initial_center - step, initial_center + step),
+        method="bounded",
+        options={"xatol": 1.0e-12},
+    )
+    mirror_center = float(np.mod(optimum.x - origin, period) + origin)
+
+    fractional_coordinate = np.linspace(
+        0.0,
+        1.0,
+        len(coordinate),
+        endpoint=False,
+    )
+    offset = (fractional_coordinate - 0.5) * period
+    profile = periodic_values(mirror_center + offset)
+    mirrored = periodic_values(mirror_center - offset)
+    odd_component = 0.5 * (profile - mirrored)
+    center_fraction = float((mirror_center - origin) / period)
+    return (
+        fractional_coordinate,
+        profile,
+        mirrored,
+        odd_component,
+        float(optimum.fun),
+        center_fraction,
+        repeated_periods,
+    )
 
 
 def make_potential_examples(data_root: Path, output: Path) -> dict:
@@ -700,7 +765,14 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
     ax_mos2 = fig.add_subplot(grid[0, 0])
     ax_in2se3 = fig.add_subplot(grid[0, 1])
     ax_map = fig.add_subplot(grid[1, 0])
-    ax_direction = fig.add_subplot(grid[1, 1])
+    direction_grid = grid[1, 1].subgridspec(
+        2,
+        1,
+        height_ratios=(2.25, 1.0),
+        hspace=0.08,
+    )
+    ax_direction = fig.add_subplot(direction_grid[0, 0])
+    ax_odd = fig.add_subplot(direction_grid[1, 0], sharex=ax_direction)
 
     slab_sources = {}
     for material, axis in (("MoS2", ax_mos2), ("In2Se3", ax_in2se3)):
@@ -828,25 +900,21 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
         float(x_coord[-1] - x_coord[0]),
         float(y_coord[-1] - y_coord[0]),
     )
-    for dy, label, color in (
-        (arrow_scale, r"$a+b$", COLORS["red"]),
-        (-arrow_scale, r"$a-b$", COLORS["blue"]),
-    ):
-        ax_map.annotate(
-            "",
-            xy=(x_mid + arrow_scale, y_mid + dy),
-            xytext=(x_mid, y_mid),
-            arrowprops={"arrowstyle": "-|>", "color": color, "lw": 1.1},
-        )
-        ax_map.text(
-            x_mid + arrow_scale,
-            y_mid + dy,
-            label,
-            color=color,
-            ha="left",
-            va="center",
-            fontsize=7.4,
-        )
+    ax_map.annotate(
+        "",
+        xy=(x_mid + arrow_scale, y_mid + arrow_scale),
+        xytext=(x_mid, y_mid),
+        arrowprops={"arrowstyle": "-|>", "color": COLORS["red"], "lw": 1.1},
+    )
+    ax_map.text(
+        x_mid + arrow_scale,
+        y_mid + arrow_scale,
+        r"$a+b$",
+        color=COLORS["red"],
+        ha="left",
+        va="center",
+        fontsize=7.4,
+    )
     colorbar_axis = make_axes_locatable(ax_map).append_axes(
         "right",
         size="4.5%",
@@ -868,44 +936,96 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
         labelright=True,
     )
 
-    direction_sources = []
-    directional_rms = {}
-    for material in ("SnS", "SnSe", "SnTe"):
-        fractional_coord, contrast, rms = load_direction_contrast(
-            root,
-            material,
-        )
-        directional_rms[material] = rms
-        ax_direction.plot(
-            fractional_coord,
-            contrast,
-            color=materials[material],
-            linewidth=1.15,
-            label=display[material],
-        )
-        direction_sources.extend(
-            [
-                root / material / "a_plus_b.dat",
-                root / material / "a_minus_b.dat",
-            ]
-        )
+    (
+        fractional_coord,
+        direction_profile,
+        mirrored_profile,
+        odd_component,
+        mirror_metric,
+        mirror_center,
+        folded_periods,
+    ) = load_mirror_asymmetry(root, "SnS")
+    ax_direction.plot(
+        fractional_coord,
+        direction_profile,
+        color=COLORS["red"],
+        linewidth=1.25,
+        label=r"$V(s)$",
+    )
+    ax_direction.plot(
+        fractional_coord,
+        mirrored_profile,
+        color=COLORS["blue"],
+        linewidth=1.05,
+        linestyle=(0, (4, 2.5)),
+        label=r"$V(2c-s)$",
+    )
+    ax_direction.fill_between(
+        fractional_coord,
+        direction_profile,
+        mirrored_profile,
+        color=COLORS["gold"],
+        alpha=0.24,
+        linewidth=0,
+    )
     ax_direction.axhline(0.0, color=COLORS["muted"], linewidth=0.55)
     ax_direction.set_xlim(0.0, 1.0)
-    ax_direction.set_xlabel("Fractional coordinate along lattice direction")
-    ax_direction.set_ylabel(
-        r"$\widetilde{V}_{a+b}-\widetilde{V}_{a-b}$ (eV)"
+    ax_direction.tick_params(labelbottom=False)
+    ax_direction.set_ylabel(r"$V-\langle V\rangle$ (eV)")
+    ax_direction.set_title(
+        r"SnS one-period mirror test along $a+b$",
+        loc="left",
     )
-    ax_direction.set_title("Lattice-direction potential contrast", loc="left")
     ax_direction.grid(axis="y", color=COLORS["grid"], linewidth=0.45)
     ax_direction.legend(
-        loc="lower right",
-        bbox_to_anchor=(1.0, 1.08),
-        ncol=3,
+        loc="lower center",
+        bbox_to_anchor=(0.62, 0.02),
+        ncol=2,
         handlelength=1.6,
         columnspacing=0.9,
     )
+    ax_direction.text(
+        0.03,
+        0.08,
+        rf"$A_\mathrm{{M}}={mirror_metric:.3f}$",
+        transform=ax_direction.transAxes,
+        ha="left",
+        va="bottom",
+        color=COLORS["ink"],
+        fontsize=7.6,
+    )
 
-    for axis in (ax_mos2, ax_in2se3, ax_map, ax_direction):
+    ax_odd.fill_between(
+        fractional_coord,
+        0.0,
+        odd_component,
+        where=odd_component >= 0.0,
+        color=COLORS["red"],
+        alpha=0.45,
+        linewidth=0,
+    )
+    ax_odd.fill_between(
+        fractional_coord,
+        0.0,
+        odd_component,
+        where=odd_component < 0.0,
+        color=COLORS["blue"],
+        alpha=0.45,
+        linewidth=0,
+    )
+    ax_odd.plot(
+        fractional_coord,
+        odd_component,
+        color=COLORS["ink"],
+        linewidth=0.75,
+    )
+    ax_odd.axhline(0.0, color=COLORS["muted"], linewidth=0.55)
+    ax_odd.set_xlim(0.0, 1.0)
+    ax_odd.set_xlabel("Fractional coordinate within one period")
+    ax_odd.set_ylabel(r"$V_\mathrm{odd}$ (eV)")
+    ax_odd.grid(axis="y", color=COLORS["grid"], linewidth=0.45)
+
+    for axis in (ax_mos2, ax_in2se3, ax_map, ax_direction, ax_odd):
         style_data_axis(axis)
 
     for label, axis in zip(
@@ -924,7 +1044,7 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
         slab_sources["In2Se3"][0],
         slab_sources["In2Se3"][1],
         map_path,
-        *direction_sources,
+        root / "SnS" / "a_plus_b.dat",
     ]
     return {
         "figure": "potential_examples_2d",
@@ -933,7 +1053,13 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
             material: slab_sources[material][2]["delta_eV"]
             for material in ("MoS2", "In2Se3")
         },
-        "directional_contrast_rms_eV": directional_rms,
+        "mirror_asymmetry": {
+            "material": "SnS",
+            "direction": "a+b",
+            "metric": mirror_metric,
+            "optimized_center_fraction": mirror_center,
+            "input_periods_folded": folded_periods,
+        },
         "source_files": source_files,
     }
 

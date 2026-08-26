@@ -77,9 +77,11 @@ vacuum levels differ by `1.220812 eV`. The revised side-vacuum estimator uses
 so a dipole-correction reset elsewhere in the vacuum is not averaged into a
 surface plateau. The lower panels show a plotting-only 3x3 tiling of the SnS
 in-plane potential texture, with the central primitive cell outlined by a
-dashed box, and the mean-centered `a+b` versus `a-b` contrast for SnS, SnSe,
-and SnTe. This
-last quantity is an inspection diagnostic, not a polarization magnitude.
+dashed box, and a one-period mirror test along `a+b`. The reflection center is
+optimized before comparing the profile with its mirrored copy; the normalized
+mismatch is `A_M = 0.033`, and the mirror-odd component is shown separately.
+This is a microscopic symmetry diagnostic, not a polarization magnitude or a
+substitute for a symmetry-restored reference calculation.
 
 ### CO2 molecular IR/Raman benchmark
 
