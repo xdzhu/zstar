@@ -66,17 +66,19 @@ QE，ZStar 会把 `K_POINTS gamma` 自动改写成显式 `1 1 1` 网格，使 `p
 能够读取重启数据。
 
 ```bash
-zstar qe prepare --input scf.in --root qe_work --dim 3
-zstar qe run --root qe_work \
+zstar backend qe prepare --input scf.in --root qe_work --dim 3
+zstar backend qe run --root qe_work \
   --pw-command "mpirun -np 20 pw.x" --ph-command "mpirun -np 20 ph.x"
-zstar qe status --root qe_work
-zstar qe collect --root qe_work
+zstar backend qe status --root qe_work
+zstar backend qe collect --root qe_work
 ```
 
 可断点续算的串行流程为 `pw.x -> ph.x -> dynmat.x`。只有 SCF 输出给出正的
 最高占据/最低未占据能级差后，DFPT 才会启动。若当前 QE 版本或泛函不支持原生
-Raman，使用 `--no-raman`。`zstar qe script` 可生成 shell、Slurm 和 Torque
+Raman，使用 `--no-raman`。`zstar backend qe script` 可生成 shell、Slurm 和 Torque
 驱动脚本。
+
+旧的顶层写法 `zstar qe ...` 暂时保留为兼容别名，并会输出弃用提示。新建工作流应统一采用计算器无关的 `zstar backend <calculator> ...` 命名空间。
 
 ## 统一实空间电荷密度路线
 

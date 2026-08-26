@@ -2,9 +2,12 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
+from io import StringIO
 
 import numpy as np
 
+from zstar.cli import zstar_cli
 from zstar.qe_backend import (
     collect_qe_response,
     generate_qe_backend_script,
@@ -165,6 +168,43 @@ class QeBackendTests(unittest.TestCase):
             text = script.read_text()
             self.assertIn("#SBATCH --ntasks=20", text)
             self.assertIn("srun --ntasks=20 pw.x", text)
+            self.assertIn("zstar backend qe run", text)
+            self.assertIn("zstar backend qe collect", text)
+
+    def test_backend_namespace_and_legacy_alias_prepare_the_same_workflow(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "source"
+            (source / "pseudo_src").mkdir(parents=True)
+            input_path = source / "pw.in"
+            input_path.write_text(PW_INPUT, encoding="utf-8")
+            for name in ("Si.UPF", "C.UPF"):
+                (source / "pseudo_src" / name).write_text("pseudo", encoding="utf-8")
+
+            canonical_root = Path(tmp) / "canonical"
+            with redirect_stdout(StringIO()):
+                zstar_cli([
+                    "backend", "qe", "prepare", "--input", str(input_path),
+                    "--root", str(canonical_root),
+                ])
+            self.assertTrue((canonical_root / "qe_response_manifest.json").is_file())
+
+            legacy_root = Path(tmp) / "legacy"
+            stderr = StringIO()
+            with redirect_stdout(StringIO()), redirect_stderr(stderr):
+                zstar_cli([
+                    "qe", "prepare", "--input", str(input_path),
+                    "--root", str(legacy_root),
+                ])
+            self.assertTrue((legacy_root / "qe_response_manifest.json").is_file())
+            self.assertIn("DEPRECATED", stderr.getvalue())
+
+    def test_top_level_help_prefers_backend_namespace(self):
+        stdout = StringIO()
+        with self.assertRaisesRegex(SystemExit, "0"), redirect_stdout(stdout):
+            zstar_cli(["--help"])
+        help_text = stdout.getvalue()
+        self.assertIn("backend", help_text)
+        self.assertNotIn("Deprecated alias", help_text)
 
 
 if __name__ == "__main__":

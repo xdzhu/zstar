@@ -1064,6 +1064,190 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
     }
 
 
+def read_zborn_representatives(path: Path) -> list[dict]:
+    """Read explicitly calculated representatives from a Z-BORN table."""
+    rows = []
+    counts: dict[str, int] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.lstrip().startswith("*"):
+            continue
+        fields = line.replace("*", "", 1).split()
+        if len(fields) != 11:
+            continue
+        symbol = fields[1]
+        counts[symbol] = counts.get(symbol, 0) + 1
+        suffix = counts[symbol] if counts[symbol] > 1 else ""
+        rows.append(
+            {
+                "atom": f"{symbol}{suffix}",
+                "tensor": np.asarray(fields[2:], dtype=float).reshape(3, 3),
+            }
+        )
+    if not rows:
+        raise ValueError(f"No representative BEC rows found in {path}")
+    return rows
+
+
+def make_bec_validation(data_root: Path, output: Path) -> dict:
+    """Summarize calculator agreement and dimensional BEC conventions."""
+    gaas_path = data_root / "gaas_nanowire" / "bec" / "abacus_vasp_comparison.json"
+    gaas = json.loads(gaas_path.read_text(encoding="utf-8"))
+    representative = gaas["bec"]["representative_abacus_atom_1"]
+    abacus = np.asarray(representative["abacus"], dtype=float)
+    vasp = np.asarray(representative["vasp"], dtype=float)
+
+    two_dimensional = {
+        "MoS$_2$": data_root / "bec_summary" / "MoS2_Z-BORN-symm.out",
+        r"$\alpha$-In$_2$Se$_3$": data_root / "in2se3" / "Z-BORN-symm.out",
+    }
+    three_dimensional = {
+        "BaTiO$_3$": data_root / "bec_summary" / "BaTiO3_Z-BORN-symm.out",
+        "HfO$_2$": data_root / "bec_summary" / "HfO2_Z-BORN-symm.out",
+    }
+
+    fig = plt.figure(figsize=(7.2, 5.6), constrained_layout=True)
+    grid = fig.add_gridspec(2, 2, height_ratios=(0.92, 1.08))
+    ax_parity = fig.add_subplot(grid[0, 0])
+    ax_error = fig.add_subplot(grid[0, 1])
+    ax_2d = fig.add_subplot(grid[1, 0])
+    ax_3d = fig.add_subplot(grid[1, 1])
+
+    diagonal = np.asarray([True, False, False, False, True, False, False, False, True])
+    flat_abacus = abacus.ravel()
+    flat_vasp = vasp.ravel()
+    bounds = (
+        min(float(np.min(flat_abacus)), float(np.min(flat_vasp))) - 0.07,
+        max(float(np.max(flat_abacus)), float(np.max(flat_vasp))) + 0.07,
+    )
+    ax_parity.plot(bounds, bounds, color=COLORS["muted"], linewidth=0.8, linestyle="--")
+    ax_parity.scatter(
+        flat_vasp[~diagonal], flat_abacus[~diagonal],
+        s=27, marker="o", facecolor="white", edgecolor=COLORS["blue"],
+        linewidth=1.0, label="off-diagonal",
+    )
+    ax_parity.scatter(
+        flat_vasp[diagonal], flat_abacus[diagonal],
+        s=31, marker="o", facecolor=COLORS["red"], edgecolor=COLORS["red"],
+        linewidth=0.8, label="diagonal",
+    )
+    ax_parity.set_xlim(bounds)
+    ax_parity.set_ylim(bounds)
+    ax_parity.set_aspect("equal", adjustable="box")
+    ax_parity.set_xlabel(r"VASP $Z^*$ ($e$)")
+    ax_parity.set_ylabel(r"ABACUS/PyATB $Z^*$ ($e$)")
+    ax_parity.set_title("GaAs wire: representative As tensor", loc="left")
+    ax_parity.legend(loc="upper left", fontsize=6.8, handletextpad=0.4)
+
+    species = list(gaas["bec"]["species"])
+    rms = [gaas["bec"]["species"][name]["rms_e"] for name in species]
+    maximum = [gaas["bec"]["species"][name]["max_abs_e"] for name in species]
+    species.append("All")
+    rms.append(gaas["bec"]["rms_delta_e"])
+    maximum.append(gaas["bec"]["max_abs_delta_e"])
+    positions = np.arange(len(species))
+    ax_error.bar(
+        positions, rms, width=0.58, color="#b9d1d7", edgecolor=COLORS["blue"],
+        linewidth=0.8, label="RMS",
+    )
+    ax_error.scatter(
+        positions, maximum, marker="D", s=26, color=COLORS["red"],
+        zorder=3, label="maximum",
+    )
+    ax_error.set_xticks(positions, species)
+    ax_error.set_ylabel(r"ABACUS/PyATB--VASP difference ($e$)")
+    ax_error.set_ylim(0.0, 0.105)
+    ax_error.set_title("GaAs wire: all 216 BEC components", loc="left")
+    ax_error.grid(axis="y", color=COLORS["grid"], linewidth=0.5)
+    ax_error.legend(loc="upper left")
+    acoustic_sum = np.asarray(gaas["bec"]["abacus_acoustic_sum_e"])
+    ax_error.text(
+        0.97, 0.62,
+        "RMS = 0.02068 $e$\nmax = 0.08906 $e$\n"
+        rf"ASR residual $\leq {np.max(np.abs(acoustic_sum)):.1e}$ $e$",
+        transform=ax_error.transAxes, ha="right", va="top",
+        fontsize=7.0, color=COLORS["ink"],
+    )
+
+    def plot_site_components(ax, systems, dimensionality: int) -> None:
+        positions = []
+        labels = []
+        tensors = []
+        separators = []
+        cursor = 0
+        for system_name, path in systems.items():
+            rows = read_zborn_representatives(path)
+            start = cursor
+            for row in rows:
+                positions.append(cursor)
+                labels.append(row["atom"])
+                tensors.append(row["tensor"])
+                cursor += 1
+            center = 0.5 * (start + cursor - 1)
+            ax.text(
+                center, 1.025, system_name,
+                transform=ax.get_xaxis_transform(), ha="center", va="bottom",
+                fontsize=7.5, color=COLORS["ink"],
+            )
+            separators.append(cursor - 0.5)
+            cursor += 0.65
+        x_values = np.asarray(positions, dtype=float)
+        tensors_array = np.asarray(tensors)
+        if dimensionality == 2:
+            series = [
+                (0.5 * (tensors_array[:, 0, 0] + tensors_array[:, 1, 1]),
+                 COLORS["blue"], "o", r"$Z^*_{\parallel}$"),
+                (tensors_array[:, 2, 2], COLORS["red"], "s", r"$Z^*_{zz}$"),
+            ]
+        else:
+            series = [
+                (tensors_array[:, 0, 0], COLORS["blue"], "o", r"$Z^*_{xx}$"),
+                (tensors_array[:, 1, 1], COLORS["green"], "^", r"$Z^*_{yy}$"),
+                (tensors_array[:, 2, 2], COLORS["red"], "s", r"$Z^*_{zz}$"),
+            ]
+        for values, color, marker, label in series:
+            ax.plot(
+                x_values, values, linestyle="none", marker=marker,
+                markersize=4.7, markerfacecolor="white", markeredgewidth=1.0,
+                color=color, label=label,
+            )
+        for separator in separators[:-1]:
+            ax.axvline(separator, color=COLORS["grid"], linewidth=0.7)
+        ax.axhline(0.0, color=COLORS["muted"], linewidth=0.65)
+        ax.set_xticks(x_values, labels, rotation=35, ha="right")
+        ax.set_ylabel(r"Born effective charge ($e$)")
+        ax.grid(axis="y", color=COLORS["grid"], linewidth=0.45)
+        ax.legend(loc="best", ncol=len(series), columnspacing=0.9, handletextpad=0.35)
+
+    plot_site_components(ax_2d, two_dimensional, dimensionality=2)
+    ax_2d.set_title(
+        "2D hybrid response: calculated representatives", loc="left", pad=28
+    )
+    ax_2d.text(
+        0.02, 0.05, "periodic in-plane\nopen-direction dipole",
+        transform=ax_2d.transAxes, ha="left", va="bottom",
+        color=COLORS["muted"], fontsize=6.9,
+    )
+
+    plot_site_components(ax_3d, three_dimensional, dimensionality=3)
+    ax_3d.set_title(
+        "3D bulk response: calculated representatives", loc="left", pad=28
+    )
+
+    for label, axis in zip("abcd", (ax_parity, ax_error, ax_2d, ax_3d)):
+        style_data_axis(axis)
+        panel_label(axis, label)
+
+    files = save_figure(fig, output, "bec_validation_across_dimensions")
+    plt.close(fig)
+    return {
+        "figure": "bec_validation_across_dimensions",
+        "files": files,
+        "gaas_all_component_rms_e": gaas["bec"]["rms_delta_e"],
+        "gaas_all_component_max_abs_e": gaas["bec"]["max_abs_delta_e"],
+        "source_files": [gaas_path, *two_dimensional.values(), *three_dimensional.values()],
+    }
+
+
 def file_record(path: Path, base: Path) -> dict[str, str | int]:
     return {
         "path": str(path.relative_to(base)).replace("\\", "/"),
@@ -1089,27 +1273,45 @@ def main() -> None:
 
     bto = make_bto_spectroscopy(args.data_root, args.output)
     in2se3 = make_in2se3_polarization(args.data_root, args.output)
+    bec = make_bec_validation(args.data_root, args.output)
     potential = make_potential_examples(args.data_root, args.output)
     source_paths = sorted(
         {
             Path(path)
-            for item in (bto, in2se3, potential)
+            for item in (bto, in2se3, bec, potential)
             for path in item["source_files"]
         }
     )
+    generated_items = (bto, in2se3, bec, potential)
+    generated_figures = [
+        {key: value for key, value in item.items() if key != "source_files"}
+        for item in generated_items
+    ]
+    source_records = [
+        file_record(path, args.data_root) for path in source_paths
+    ]
+    manifest_path = args.output / "figure_manifest.json"
+    existing = {}
+    if manifest_path.is_file():
+        existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+    generated_names = {item["figure"] for item in generated_figures}
+    generated_sources = {item["path"] for item in source_records}
+    retained_figures = [
+        item for item in existing.get("figures", [])
+        if item.get("figure") not in generated_names
+    ]
+    retained_sources = [
+        item for item in existing.get("source_data", [])
+        if item.get("path") not in generated_sources
+    ]
     manifest = {
         "schema": 1,
         "backend": "Python/matplotlib",
-        "figures": [
-            {key: value for key, value in item.items() if key != "source_files"}
-            for item in (bto, in2se3, potential)
-        ],
-        "source_data": [
-            file_record(path, args.data_root) for path in source_paths
-        ],
+        "figures": generated_figures + retained_figures,
+        "source_data": source_records + retained_sources,
     }
-    (args.output / "figure_manifest.json").write_text(
-        json.dumps(manifest, indent=2), encoding="utf-8"
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
 
 

@@ -24,6 +24,112 @@ from . import __version__
 VERSION_STR = f"ZStar {__version__}"
 
 
+def _add_qe_action_parsers(action_subparsers) -> None:
+    """Register the shared Quantum ESPRESSO response actions."""
+    parser_prepare = action_subparsers.add_parser('prepare')
+    parser_prepare.add_argument('--input', required=True)
+    parser_prepare.add_argument('--root', default='qe_response')
+    parser_prepare.add_argument('--dim', type=int, choices=[0, 3], default=3)
+    parser_prepare.add_argument('--periodic-axes', default=None)
+    parser_prepare.add_argument('--tr2-ph', type=float, default=1.0e-14)
+    parser_prepare.add_argument('--no-raman', action='store_true')
+    parser_prepare.add_argument('--force', action='store_true')
+
+    parser_run = action_subparsers.add_parser('run')
+    parser_run.add_argument('--root', default='qe_response')
+    parser_run.add_argument('--pw-command', default='pw.x')
+    parser_run.add_argument('--ph-command', default='ph.x')
+    parser_run.add_argument('--dynmat-command', default='dynmat.x')
+    parser_run.add_argument('--min-gap', type=float, default=0.01)
+    parser_run.add_argument('--omp-threads', type=int, default=1)
+    parser_run.add_argument('--dry-run', action='store_true')
+
+    parser_status = action_subparsers.add_parser('status')
+    parser_status.add_argument('--root', default='qe_response')
+
+    parser_collect = action_subparsers.add_parser('collect')
+    parser_collect.add_argument('--root', default='qe_response')
+    parser_collect.add_argument('--broadening', type=float, default=8.0)
+    parser_collect.add_argument('--points', type=int, default=2001)
+    parser_collect.add_argument('--no-plot', action='store_true')
+
+    parser_script = action_subparsers.add_parser('script')
+    parser_script.add_argument('--root', default='qe_response')
+    parser_script.add_argument(
+        '--backend', choices=['shell', 'slurm', 'torque'], default='shell'
+    )
+    parser_script.add_argument('--output', default=None)
+    parser_script.add_argument('--job-name', default='zstar-qe-response')
+    parser_script.add_argument('--nodes', type=int, default=1)
+    parser_script.add_argument('--tasks', type=int, default=1)
+    parser_script.add_argument('--cpus-per-task', type=int, default=1)
+    parser_script.add_argument('--walltime', default='24:00:00')
+    parser_script.add_argument('--queue', default=None)
+    parser_script.add_argument('--account', default=None)
+    parser_script.add_argument('--env-script', default=None)
+
+
+def _run_qe_action(args) -> None:
+    from .qe_backend import (
+        collect_qe_response,
+        format_qe_status,
+        generate_qe_backend_script,
+        prepare_qe_response,
+        qe_response_status,
+        run_qe_response,
+    )
+
+    if args.qe_action == 'prepare':
+        root = prepare_qe_response(
+            args.input,
+            args.root,
+            dimensionality=args.dim,
+            periodic_axes=args.periodic_axes,
+            tr2_ph=args.tr2_ph,
+            raman=not args.no_raman,
+            force=args.force,
+        )
+        print(f"[OUT] {root}")
+    elif args.qe_action == 'run':
+        states = run_qe_response(
+            args.root,
+            pw_command=args.pw_command,
+            ph_command=args.ph_command,
+            dynmat_command=args.dynmat_command,
+            min_gap_eV=args.min_gap,
+            omp_threads=args.omp_threads,
+            dry_run=args.dry_run,
+        )
+        print(format_qe_status(states))
+        if any(state.status not in {'completed', 'dry-run'} for state in states):
+            raise SystemExit(1)
+    elif args.qe_action == 'status':
+        print(format_qe_status(qe_response_status(args.root)))
+    elif args.qe_action == 'collect':
+        result = collect_qe_response(
+            args.root,
+            broadening_cm1=args.broadening,
+            points=args.points,
+            plot=not args.no_plot,
+        )
+        print(f"[OUT] {result['response_output']}")
+    elif args.qe_action == 'script':
+        output = generate_qe_backend_script(
+            args.root,
+            backend=args.backend,
+            output=args.output,
+            job_name=args.job_name,
+            nodes=args.nodes,
+            tasks=args.tasks,
+            cpus_per_task=args.cpus_per_task,
+            walltime=args.walltime,
+            queue=args.queue,
+            account=args.account,
+            env_script=args.env_script,
+        )
+        print(f"[OUT] {output}")
+
+
 def zstar_cli(argv=None) -> None:
     """
     Entry point function for the `zstar` command.
@@ -365,46 +471,10 @@ def zstar_cli(argv=None) -> None:
 
     # ---------------- Quantum ESPRESSO response backend ----------------
     parser_qe = subparsers.add_parser(
-        'qe', help='Prepare, run, and collect Quantum ESPRESSO responses.'
+        'qe', help=argparse.SUPPRESS
     )
     qe_actions = parser_qe.add_subparsers(dest='qe_action', required=True)
-    parser_qe_prepare = qe_actions.add_parser('prepare')
-    parser_qe_prepare.add_argument('--input', required=True)
-    parser_qe_prepare.add_argument('--root', default='qe_response')
-    parser_qe_prepare.add_argument('--dim', type=int, choices=[0, 3], default=3)
-    parser_qe_prepare.add_argument('--periodic-axes', default=None)
-    parser_qe_prepare.add_argument('--tr2-ph', type=float, default=1.0e-14)
-    parser_qe_prepare.add_argument('--no-raman', action='store_true')
-    parser_qe_prepare.add_argument('--force', action='store_true')
-    parser_qe_run = qe_actions.add_parser('run')
-    parser_qe_run.add_argument('--root', default='qe_response')
-    parser_qe_run.add_argument('--pw-command', default='pw.x')
-    parser_qe_run.add_argument('--ph-command', default='ph.x')
-    parser_qe_run.add_argument('--dynmat-command', default='dynmat.x')
-    parser_qe_run.add_argument('--min-gap', type=float, default=0.01)
-    parser_qe_run.add_argument('--omp-threads', type=int, default=1)
-    parser_qe_run.add_argument('--dry-run', action='store_true')
-    parser_qe_status = qe_actions.add_parser('status')
-    parser_qe_status.add_argument('--root', default='qe_response')
-    parser_qe_collect = qe_actions.add_parser('collect')
-    parser_qe_collect.add_argument('--root', default='qe_response')
-    parser_qe_collect.add_argument('--broadening', type=float, default=8.0)
-    parser_qe_collect.add_argument('--points', type=int, default=2001)
-    parser_qe_collect.add_argument('--no-plot', action='store_true')
-    parser_qe_script = qe_actions.add_parser('script')
-    parser_qe_script.add_argument('--root', default='qe_response')
-    parser_qe_script.add_argument(
-        '--backend', choices=['shell', 'slurm', 'torque'], default='shell'
-    )
-    parser_qe_script.add_argument('--output', default=None)
-    parser_qe_script.add_argument('--job-name', default='zstar-qe-response')
-    parser_qe_script.add_argument('--nodes', type=int, default=1)
-    parser_qe_script.add_argument('--tasks', type=int, default=1)
-    parser_qe_script.add_argument('--cpus-per-task', type=int, default=1)
-    parser_qe_script.add_argument('--walltime', default='24:00:00')
-    parser_qe_script.add_argument('--queue', default=None)
-    parser_qe_script.add_argument('--account', default=None)
-    parser_qe_script.add_argument('--env-script', default=None)
+    _add_qe_action_parsers(qe_actions)
 
     # ---------------- calculator-native IR/Raman ----------------
     parser_spectra_backend = subparsers.add_parser(
@@ -552,7 +622,7 @@ def zstar_cli(argv=None) -> None:
 
     # ---------------- calculator-neutral backend and response contracts ----------------
     parser_backend = subparsers.add_parser(
-        'backend', help='Inspect calculator backend capabilities.'
+        'backend', help='Inspect and run calculator backend adapters.'
     )
     backend_actions = parser_backend.add_subparsers(
         dest='backend_action', required=True
@@ -565,6 +635,13 @@ def zstar_cli(argv=None) -> None:
         '--discover', action='store_true',
         help='Load third-party plugins registered under zstar.backends.'
     )
+    parser_backend_qe = backend_actions.add_parser(
+        'qe', help='Prepare, run, and collect native Quantum ESPRESSO responses.'
+    )
+    backend_qe_actions = parser_backend_qe.add_subparsers(
+        dest='qe_action', required=True
+    )
+    _add_qe_action_parsers(backend_qe_actions)
 
     parser_response = subparsers.add_parser(
         'response', help='Validate or convert calculator-neutral response records.'
@@ -1414,64 +1491,15 @@ def zstar_cli(argv=None) -> None:
             print(f"[OUT] {output}")
 
     elif args.command == 'qe':
-        from .qe_backend import (
-            collect_qe_response,
-            format_qe_status,
-            generate_qe_backend_script,
-            prepare_qe_response,
-            qe_response_status,
-            run_qe_response,
+        print(
+            "[DEPRECATED] Use 'zstar backend qe ...'; "
+            "the top-level 'zstar qe' alias will be removed in a future release.",
+            file=sys.stderr,
         )
+        _run_qe_action(args)
 
-        if args.qe_action == 'prepare':
-            root = prepare_qe_response(
-                args.input,
-                args.root,
-                dimensionality=args.dim,
-                periodic_axes=args.periodic_axes,
-                tr2_ph=args.tr2_ph,
-                raman=not args.no_raman,
-                force=args.force,
-            )
-            print(f"[OUT] {root}")
-        elif args.qe_action == 'run':
-            states = run_qe_response(
-                args.root,
-                pw_command=args.pw_command,
-                ph_command=args.ph_command,
-                dynmat_command=args.dynmat_command,
-                min_gap_eV=args.min_gap,
-                omp_threads=args.omp_threads,
-                dry_run=args.dry_run,
-            )
-            print(format_qe_status(states))
-            if any(state.status not in {'completed', 'dry-run'} for state in states):
-                raise SystemExit(1)
-        elif args.qe_action == 'status':
-            print(format_qe_status(qe_response_status(args.root)))
-        elif args.qe_action == 'collect':
-            result = collect_qe_response(
-                args.root,
-                broadening_cm1=args.broadening,
-                points=args.points,
-                plot=not args.no_plot,
-            )
-            print(f"[OUT] {result['response_output']}")
-        elif args.qe_action == 'script':
-            output = generate_qe_backend_script(
-                args.root,
-                backend=args.backend,
-                output=args.output,
-                job_name=args.job_name,
-                nodes=args.nodes,
-                tasks=args.tasks,
-                cpus_per_task=args.cpus_per_task,
-                walltime=args.walltime,
-                queue=args.queue,
-                account=args.account,
-                env_script=args.env_script,
-            )
-            print(f"[OUT] {output}")
+    elif args.command == 'backend' and args.backend_action == 'qe':
+        _run_qe_action(args)
 
     elif args.command == 'spectra':
         from .spectroscopy_backends import (

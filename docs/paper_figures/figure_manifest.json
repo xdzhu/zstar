@@ -25,6 +25,17 @@
       "effective_charge_e": 0.36331483574953627
     },
     {
+      "figure": "bec_validation_across_dimensions",
+      "files": {
+        "png": "bec_validation_across_dimensions.png",
+        "pdf": "bec_validation_across_dimensions.pdf",
+        "svg": "bec_validation_across_dimensions.svg",
+        "tiff": "bec_validation_across_dimensions.tiff"
+      },
+      "gaas_all_component_rms_e": 0.02067761559593997,
+      "gaas_all_component_max_abs_e": 0.08906354000000005
+    },
+    {
       "figure": "potential_examples_2d",
       "files": {
         "png": "potential_examples_2d.png",
@@ -97,9 +108,19 @@
   ],
   "source_data": [
     {
-      "path": "bto/STRU",
-      "size": 946,
-      "sha256": "9c6a384a825f12bddfbf7f577b33b8f0e7be4adf1b32f81a71b7311860735bb7"
+      "path": "bec_summary/BaTiO3_Z-BORN-symm.out",
+      "size": 605,
+      "sha256": "84a3f93fd1b5854e34aec749757ccb69d33dd264c43d3fcde8bed2036ce1e079"
+    },
+    {
+      "path": "bec_summary/HfO2_Z-BORN-symm.out",
+      "size": 706,
+      "sha256": "8fab8749cfb4ae1ce03a3880cfac982ccf52d9fa3d1302339a0299d7290b72ff"
+    },
+    {
+      "path": "bec_summary/MoS2_Z-BORN-symm.out",
+      "size": 403,
+      "sha256": "896ee26fe8dce2bf1f5a0522a0f4751a7355c96671d1113f98a4b0f38aa19e6d"
     },
     {
       "path": "bto/ir/ir_modes.csv",
@@ -140,6 +161,81 @@
       "path": "bto/raman/raman_tensors.npy",
       "size": 848,
       "sha256": "66d9ec8a8982292547ac13ca3ed3cd34cf5c598b42898a1ec5df4e6fe9cd46de"
+    },
+    {
+      "path": "gaas_nanowire/bec/abacus_vasp_comparison.json",
+      "size": 4927,
+      "sha256": "e6f5c029f9dc703762825142a0cf11d03f808445792fae09fa6aafd7804a4c49"
+    },
+    {
+      "path": "in2se3/phonopy.yaml",
+      "size": 3875,
+      "sha256": "4f3b570da70ae08468244852e65a06ac2bcaa77d4c0a9a920818d0c141b11fcb"
+    },
+    {
+      "path": "in2se3/profile/slab_charge_profile.csv",
+      "size": 58763,
+      "sha256": "eefe9402c571dba2e25326c6d76159b2a8e9890d6243cf63089e95dc91158d95"
+    },
+    {
+      "path": "in2se3/profile/slab_dipole_summary.json",
+      "size": 1244,
+      "sha256": "d4dd9ca454f6e12020ff0a2ce0dad227859c0fdbc486a6878faafdec451ea6c3"
+    },
+    {
+      "path": "in2se3/qpoints.yaml",
+      "size": 13269,
+      "sha256": "2d338a930fe89ba22722861ad3cd6af218c5d98bae21bc639eadb5bc8f8e1d5f"
+    },
+    {
+      "path": "in2se3/Z-BORN-symm.out",
+      "size": 605,
+      "sha256": "1251f1bf5ee0f1c5006f8e0a357ea3042291b364de1bc2832fc175848f414cec"
+    },
+    {
+      "path": "potential/calculation_metadata.json",
+      "size": 2580,
+      "sha256": "ff1e96aedccab021bf955dcad88683f94b97952112a262b017731693770908ad"
+    },
+    {
+      "path": "potential/In2Se3/E_vacuum_sides.out",
+      "size": 471,
+      "sha256": "44d28dd372b1b205a876b928add7edcc6d1d4c683052d3497ffe5ea1ea81cdb5"
+    },
+    {
+      "path": "potential/In2Se3/z_profile.dat",
+      "size": 19434,
+      "sha256": "0276b2574df417845e064c20e3923571adc659b8ab86e29644b8703a3d36259a"
+    },
+    {
+      "path": "potential/MoS2/E_vacuum_sides.out",
+      "size": 471,
+      "sha256": "5ed702afc37b8cb8cee9d52546c68ae75acb4f360f3fccec643006b7505dee16"
+    },
+    {
+      "path": "potential/MoS2/z_profile.dat",
+      "size": 18660,
+      "sha256": "afdc8a70076f088b11a13006f56a0541ce1c4b8d912f0065efca7ac9ca197fa9"
+    },
+    {
+      "path": "potential/README.md",
+      "size": 931,
+      "sha256": "c284586ea79c64666af1c4409d5188c1d5bcf3113143f1a54c42ffefb0994655"
+    },
+    {
+      "path": "potential/SnS/a_plus_b.dat",
+      "size": 7786,
+      "sha256": "b7b76368bed6e5e723b47d0694c316d05cca111fe70119dafb16f6d4748f2333"
+    },
+    {
+      "path": "potential/SnS/xy_map.dat",
+      "size": 170285,
+      "sha256": "f761155cc20fe8ae11c724c4e767072a4aba3f93556c5eb71b451bbcc5701703"
+    },
+    {
+      "path": "bto/STRU",
+      "size": 946,
+      "sha256": "9c6a384a825f12bddfbf7f577b33b8f0e7be4adf1b32f81a71b7311860735bb7"
     },
     {
       "path": "co2/ir_modes.csv",
@@ -185,31 +281,6 @@
       "path": "gaas_nanowire/raman/raman_spectrum.dat",
       "size": 100088,
       "sha256": "90231191e6d25dce0d7ea0fb31c2f75a0f855efe39ae8329101bdc00da6a69cc"
-    },
-    {
-      "path": "in2se3/Z-BORN-symm.out",
-      "size": 605,
-      "sha256": "1251f1bf5ee0f1c5006f8e0a357ea3042291b364de1bc2832fc175848f414cec"
-    },
-    {
-      "path": "in2se3/phonopy.yaml",
-      "size": 3875,
-      "sha256": "4f3b570da70ae08468244852e65a06ac2bcaa77d4c0a9a920818d0c141b11fcb"
-    },
-    {
-      "path": "in2se3/profile/slab_charge_profile.csv",
-      "size": 58763,
-      "sha256": "eefe9402c571dba2e25326c6d76159b2a8e9890d6243cf63089e95dc91158d95"
-    },
-    {
-      "path": "in2se3/profile/slab_dipole_summary.json",
-      "size": 1244,
-      "sha256": "d4dd9ca454f6e12020ff0a2ce0dad227859c0fdbc486a6878faafdec451ea6c3"
-    },
-    {
-      "path": "in2se3/qpoints.yaml",
-      "size": 13269,
-      "sha256": "2d338a930fe89ba22722861ad3cd6af218c5d98bae21bc639eadb5bc8f8e1d5f"
     },
     {
       "path": "molecular/benchmark_modes.csv",
@@ -287,44 +358,9 @@
       "sha256": "aa36cc83449aaa236ecd505a30f7d5fb0670ecb4516e90ca0f5a3a881049b53e"
     },
     {
-      "path": "potential/In2Se3/E_vacuum_sides.out",
-      "size": 471,
-      "sha256": "44d28dd372b1b205a876b928add7edcc6d1d4c683052d3497ffe5ea1ea81cdb5"
-    },
-    {
-      "path": "potential/In2Se3/z_profile.dat",
-      "size": 19434,
-      "sha256": "0276b2574df417845e064c20e3923571adc659b8ab86e29644b8703a3d36259a"
-    },
-    {
-      "path": "potential/MoS2/E_vacuum_sides.out",
-      "size": 471,
-      "sha256": "5ed702afc37b8cb8cee9d52546c68ae75acb4f360f3fccec643006b7505dee16"
-    },
-    {
-      "path": "potential/MoS2/z_profile.dat",
-      "size": 18660,
-      "sha256": "afdc8a70076f088b11a13006f56a0541ce1c4b8d912f0065efca7ac9ca197fa9"
-    },
-    {
-      "path": "potential/README.md",
-      "size": 731,
-      "sha256": "160885c62a834df0038743368c8c9520663bc8427a13adbeaf3986e256417d73"
-    },
-    {
       "path": "potential/SnS/a_minus_b.dat",
       "size": 7787,
       "sha256": "d84ce7321f378dfda68a28c8a05de90da41ea27482f04fa2feb68ff7bf9dd08a"
-    },
-    {
-      "path": "potential/SnS/a_plus_b.dat",
-      "size": 7786,
-      "sha256": "b7b76368bed6e5e723b47d0694c316d05cca111fe70119dafb16f6d4748f2333"
-    },
-    {
-      "path": "potential/SnS/xy_map.dat",
-      "size": 170285,
-      "sha256": "f761155cc20fe8ae11c724c4e767072a4aba3f93556c5eb71b451bbcc5701703"
     },
     {
       "path": "potential/SnSe/a_minus_b.dat",
@@ -345,11 +381,6 @@
       "path": "potential/SnTe/a_plus_b.dat",
       "size": 7786,
       "sha256": "71a9b17eb3aa971c8f54659a806c3517a52f27d51b94e382b4dfedd0e3854465"
-    },
-    {
-      "path": "potential/calculation_metadata.json",
-      "size": 2580,
-      "sha256": "ff1e96aedccab021bf955dcad88683f94b97952112a262b017731693770908ad"
     }
   ]
 }

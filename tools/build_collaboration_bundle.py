@@ -636,9 +636,10 @@ export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
             "doi_verification.md",
             "Figure_1_ZStar_workflow.pdf",
             "Figure_2_BEC_physical_picture.pdf",
-            "Figure_3_In2Se3_hybrid_polarization.pdf",
+            "Figure_3_BEC_validation_across_dimensions.pdf",
             "Figure_4_Spectroscopy_across_dimensions.pdf",
-            "Figure_5_Potential_examples_2D.pdf",
+            "Figure_Appendix_In2Se3_hybrid_polarization.pdf",
+            "Figure_Appendix_Potential_examples_2D.pdf",
         ):
             source = article / name
             if source.is_file():

@@ -75,18 +75,22 @@ the band-gap gate. For old QE versions, ZStar automatically converts
 restart.
 
 ```bash
-zstar qe prepare --input scf.in --root qe_work --dim 3
-zstar qe run --root qe_work \
+zstar backend qe prepare --input scf.in --root qe_work --dim 3
+zstar backend qe run --root qe_work \
   --pw-command "mpirun -np 20 pw.x" --ph-command "mpirun -np 20 ph.x"
-zstar qe status --root qe_work
-zstar qe collect --root qe_work
+zstar backend qe status --root qe_work
+zstar backend qe collect --root qe_work
 ```
 
 The serial, resumable chain is `pw.x -> ph.x -> dynmat.x`. The SCF stage must
 show a positive highest-occupied/lowest-unoccupied gap before DFPT starts.
 Use `--no-raman` when the installed QE build or functional does not support
 native Raman response. Shell, Slurm, and Torque drivers are generated with
-`zstar qe script`.
+`zstar backend qe script`.
+
+The former top-level form, `zstar qe ...`, remains a deprecated compatibility
+alias for existing scripts. New workflows should use the calculator-neutral
+`zstar backend <calculator> ...` namespace.
 
 ## Shared real-space density route
 
