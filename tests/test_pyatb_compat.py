@@ -119,6 +119,141 @@ class PyATBCompatTests(unittest.TestCase):
             self.assertFalse(result.insulating)
             self.assertEqual(result.gap_eV, 0.0)
 
+    def test_band_gap_recovers_manifold_gap_when_pyatb_uses_same_band(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "band_info.dat").write_text(
+                "Fermi Energy (eV): 8.5656\n"
+                "Band gap (eV): 0.0020\n"
+                "Eigenvalue of VBM (eV): 8.5637\n"
+                "Eigenvalue of CBM (eV): 8.5656\n"
+                "VBM 1 (band index and k coor): 1 0 0 0\n"
+                "CBM 1 (band index and k coor): 1 0.5 0 0\n",
+                encoding="utf-8",
+            )
+            np.savetxt(
+                root / "band.dat",
+                np.array(
+                    [
+                        [-5.0, 8.40, 11.20, 15.0],
+                        [-4.8, 8.57, 11.09, 15.2],
+                        [-4.9, 8.50, 11.30, 15.1],
+                    ]
+                ),
+            )
+
+            result = read_band_gap(root, threshold_eV=0.1)
+
+            self.assertTrue(result.insulating)
+            self.assertAlmostEqual(result.vbm_eV, 8.57)
+            self.assertAlmostEqual(result.cbm_eV, 11.09)
+            self.assertAlmostEqual(result.gap_eV, 2.52)
+            self.assertEqual(Path(result.source), (root / "band.dat").resolve())
+
+    def test_band_gap_uses_integer_occupied_count_at_degenerate_vbm(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            band_dir = root / "Out" / "Band_Structure"
+            band_dir.mkdir(parents=True)
+            (root / "get_Energy.out").write_text(
+                "E_FERMI (eV) = 10.689367773\n"
+                "Occupied bands = 41\n"
+                "NBANDS = 51\n"
+                "NELEC = 82\n",
+                encoding="utf-8",
+            )
+            (band_dir / "band_info.dat").write_text(
+                "Fermi Energy (eV): 10.689367773\n"
+                "Band gap (eV): 0.0000\n"
+                "Eigenvalue of VBM (eV): 10.6894\n"
+                "Eigenvalue of CBM (eV): 10.6894\n"
+                "VBM 1 (band index and k coor): 39 0 0 0\n"
+                "CBM 1 (band index and k coor): 40 0 0 0\n",
+                encoding="utf-8",
+            )
+            bands = np.zeros((3, 43))
+            bands[:, 39] = [10.68, 10.67, 10.66]
+            bands[:, 40] = [10.68936783, 10.68, 10.67]
+            bands[:, 41] = [14.15, 14.03508710, 14.20]
+            np.savetxt(band_dir / "band.dat", bands)
+
+            result = read_band_gap(band_dir, threshold_eV=0.01)
+
+            self.assertTrue(result.insulating)
+            self.assertAlmostEqual(result.vbm_eV, 10.68936783)
+            self.assertAlmostEqual(result.cbm_eV, 14.03508710)
+            self.assertAlmostEqual(result.gap_eV, 3.34571927)
+            self.assertEqual(Path(result.source), (band_dir / "band.dat").resolve())
+
+    def test_spin_band_crossing_is_metal_not_millielectronvolt_gap(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "band_info.dat").write_text(
+                "Fermi Energy (eV): 12.3638\n"
+                "Band gap (eV): 0.0032\n"
+                "Eigenvalue of VBM (eV): 12.3610\n"
+                "Eigenvalue of CBM (eV): 12.3642\n"
+                "VBM 1 (band index and k coor): 1 0 0 0\n"
+                "CBM 1 (band index and k coor): 1 0.5 0 0\n",
+                encoding="utf-8",
+            )
+            bands = np.array(
+                [
+                    [-5.0, 12.20, 13.0],
+                    [-4.9, 12.50, 13.2],
+                    [-4.8, 12.36, 13.1],
+                ]
+            )
+            np.savetxt(root / "band_up.dat", bands)
+            np.savetxt(root / "band_dn.dat", bands)
+            log_dir = root / "OUT.test"
+            log_dir.mkdir()
+            (log_dir / "running_scf.log").write_text(
+                "nelec for spin up = 40.5\n"
+                "nelec for spin down = 40.5\n",
+                encoding="utf-8",
+            )
+
+            result = read_band_gap(root, threshold_eV=0.01)
+
+            self.assertFalse(result.insulating)
+            self.assertEqual(result.gap_eV, 0.0)
+            self.assertAlmostEqual(result.vbm_eV, 12.3638)
+            self.assertEqual(Path(result.source), (root / "band_up.dat").resolve())
+
+    def test_spin_polarized_gap_uses_total_band_block(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "band_info.dat").write_text(
+                "Fermi Energy (eV): 12.1525\n\n"
+                "For nspin up:\n"
+                "Band gap (eV): 1.3650\n"
+                "Eigenvalue of VBM (eV): 11.8979\n"
+                "Eigenvalue of CBM (eV): 13.2630\n"
+                "VBM 1 (band index and k coor): 42 0 0 0\n"
+                "CBM 1 (band index and k coor): 43 0 0 0\n\n"
+                "For nspin down:\n"
+                "Band gap (eV): 0.0074\n"
+                "Eigenvalue of VBM (eV): 12.1480\n"
+                "Eigenvalue of CBM (eV): 12.1553\n"
+                "VBM 1 (band index and k coor): 40 0 0 0\n"
+                "CBM 1 (band index and k coor): 41 0 0 0\n\n"
+                "For total band:\n"
+                "Band gap (eV): 0.0074\n"
+                "Eigenvalue of VBM (eV): 12.1480\n"
+                "Eigenvalue of CBM (eV): 12.1553\n"
+                "VBM 1 (band index and k coor): 40 0 0 0\n"
+                "CBM 1 (band index and k coor): 41 0 0 0\n",
+                encoding="utf-8",
+            )
+
+            result = read_band_gap(root, threshold_eV=0.01)
+
+            self.assertFalse(result.insulating)
+            self.assertAlmostEqual(result.gap_eV, 0.0074)
+            self.assertAlmostEqual(result.vbm_eV, 12.1480)
+            self.assertAlmostEqual(result.cbm_eV, 12.1553)
+
 
 if __name__ == "__main__":
     unittest.main()

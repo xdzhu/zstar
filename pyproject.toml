@@ -4,11 +4,26 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zstar"
-version = "0.1.1"
-description = "Zstar: A code for calculations of Born effective charge and dielectric responses."
+version = "0.2.0"
+description = "Auditable workflows for polarization, Born effective charges, and dielectric spectroscopy."
 readme = "README_PYPI.md"
 requires-python = ">=3.9"
 license = "GPL-3.0-only"
+keywords = [
+  "born-effective-charge",
+  "polarization",
+  "dielectric-response",
+  "infrared",
+  "raman",
+  "materials-science"
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Scientific/Engineering :: Physics"
+]
 
 authors = [
   { name = "Xudong Zhu", email = "zhuxudong@ustc.edu.cn" }
@@ -35,4 +50,16 @@ zstar = "zstar.cli:zstar_cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["zstar"]
+include = ["zstar", "zstar.*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+zstar = [
+  "agent_skills/run-zstar-workflows/SKILL.md",
+  "agent_skills/run-zstar-workflows/agents/*.yaml",
+  "agent_skills/run-zstar-workflows/references/*.md",
+  "agent_skills/run-zstar-workflows/scripts/*.py"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

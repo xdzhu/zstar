@@ -1,0 +1,51 @@
+{
+  "mode_numbers": [
+    1,
+    2,
+    3
+  ],
+  "frequencies_cm-1": [
+    1576.082051,
+    3877.585879,
+    3983.822644
+  ],
+  "ir_intensities_km_mol": [
+    70.071816,
+    19.692242,
+    95.88235
+  ],
+  "raman_activities_A4_amu": [
+    5.801056,
+    46.531591,
+    14.035689
+  ],
+  "schema_version": 1,
+  "calculator": "cp2k",
+  "dimensionality": 0,
+  "ir_summary": {
+    "activity_kind": "IR_intensity",
+    "activity_unit": "km/mol",
+    "modes": 3,
+    "normalization": "plot maximum equals one; tabulated activities are unchanged",
+    "files": {
+      "modes": "ir_spectrum/ir_modes.csv",
+      "spectrum": "ir_spectrum/ir_spectrum.dat",
+      "plot": "ir_spectrum/ir_spectrum.png",
+      "plot_pdf": "ir_spectrum/ir_spectrum.pdf",
+      "plot_svg": "ir_spectrum/ir_spectrum.svg"
+    }
+  },
+  "raman_summary": {
+    "activity_kind": "Raman_activity",
+    "activity_unit": "Angstrom^4/amu",
+    "modes": 3,
+    "normalization": "plot maximum equals one; tabulated activities are unchanged",
+    "files": {
+      "modes": "raman_spectrum/raman_modes.csv",
+      "spectrum": "raman_spectrum/raman_spectrum.dat",
+      "plot": "raman_spectrum/raman_spectrum.png",
+      "plot_pdf": "raman_spectrum/raman_spectrum.pdf",
+      "plot_svg": "raman_spectrum/raman_spectrum.svg"
+    }
+  }
+}

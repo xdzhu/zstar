@@ -5,3 +5,9 @@ examples/
 __pycache__/
 *.py[cod]
 *.egg-info/
+.codex-tmp/
+.codex_tmp/
+output/
+dispatch_accept*.stdout
+dispatch_accept*.stderr
+WorkCo-workJinming.Muhigh-kanalysis_*/

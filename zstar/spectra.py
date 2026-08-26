@@ -26,7 +26,13 @@ SPEED_OF_LIGHT = 299792458.0
 BOLTZMANN = 1.380649e-23
 PLANCK = 6.62607015e-34
 BOHR_ANGSTROM = 0.529177210903
+DEBYE_C_M = 3.33564e-30
 _FLOAT_RE = re.compile(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][-+]?\d+)?")
+_PYATB_POLARIZATION_RE = re.compile(
+    rf"direction is in\s+([abc]),\s*P\s*=\s*({_FLOAT_RE.pattern})\s*"
+    rf"\(mod\s*({_FLOAT_RE.pattern})\)\s*C/m\^2",
+    re.IGNORECASE,
+)
 
 
 @dataclass(frozen=True)
@@ -81,6 +87,17 @@ class IRSpectrumResult:
 
 
 @dataclass(frozen=True)
+class MolecularIRSpectrumResult:
+    mode_numbers: np.ndarray
+    frequencies_cm1: np.ndarray
+    dipole_derivatives: np.ndarray
+    activities: np.ndarray
+    normalized_activities: np.ndarray
+    frequency_grid_cm1: np.ndarray
+    spectrum: np.ndarray
+
+
+@dataclass(frozen=True)
 class RamanSpectrumResult:
     mode_numbers: np.ndarray
     frequencies_cm1: np.ndarray
@@ -90,6 +107,17 @@ class RamanSpectrumResult:
     frequency_grid_cm1: np.ndarray
     spectrum: np.ndarray
     tensor_kind: str
+
+
+@dataclass(frozen=True)
+class NativeLineSpectrumResult:
+    mode_numbers: np.ndarray
+    frequencies_cm1: np.ndarray
+    activities: np.ndarray
+    frequency_grid_cm1: np.ndarray
+    spectrum: np.ndarray
+    activity_kind: str
+    activity_unit: str
 
 
 def _complex_component(value) -> complex:
@@ -121,11 +149,14 @@ def load_gamma_modes(path: str | Path = "qpoints.yaml") -> GammaModes:
     if not bands:
         raise ValueError(f"No phonon bands found in {yaml_path}")
 
+    companion = yaml_path.with_name("phonopy.yaml")
+    metadata = None
+    if companion.is_file() and companion.resolve() != yaml_path.resolve():
+        metadata = yaml.safe_load(companion.read_text(encoding="utf-8"))
+
     cell = data.get("primitive_cell") or data.get("unit_cell") or {}
     if not cell.get("points"):
-        companion = yaml_path.with_name("phonopy.yaml")
-        if companion.is_file() and companion.resolve() != yaml_path.resolve():
-            metadata = yaml.safe_load(companion.read_text(encoding="utf-8"))
+        if metadata:
             cell = (
                 metadata.get("primitive_cell")
                 or metadata.get("unit_cell")
@@ -146,6 +177,12 @@ def load_gamma_modes(path: str | Path = "qpoints.yaml") -> GammaModes:
     lattice = np.asarray(cell.get("lattice"), dtype=float)
     if lattice.shape != (3, 3):
         raise ValueError(f"Invalid primitive-cell lattice in {yaml_path}")
+    physical_unit = data.get("physical_unit") or {}
+    if not physical_unit and metadata:
+        physical_unit = metadata.get("physical_unit") or {}
+    length_unit = str(physical_unit.get("length", "angstrom")).lower()
+    if length_unit in {"au", "bohr", "a.u."}:
+        lattice *= BOHR_ANGSTROM
 
     frequencies: list[float] = []
     eigenvectors: list[np.ndarray] = []
@@ -312,6 +349,143 @@ def _lorentzian(grid: np.ndarray, centers: np.ndarray, gamma: float) -> np.ndarr
     return (half_width / math.pi) / (delta * delta + half_width * half_width)
 
 
+def calculate_native_line_spectrum(
+    frequencies_cm1: Sequence[float],
+    activities: Sequence[float],
+    *,
+    mode_numbers: Optional[Sequence[int]] = None,
+    activity_kind: str,
+    activity_unit: str,
+    broadening_cm1: float = 8.0,
+    max_frequency_cm1: Optional[float] = None,
+    points: int = 2001,
+) -> NativeLineSpectrumResult:
+    """Broaden calculator-native IR or Raman activities without re-scaling them."""
+
+    frequencies = np.asarray(frequencies_cm1, dtype=float)
+    values = np.asarray(activities, dtype=float)
+    if frequencies.ndim != 1 or values.shape != frequencies.shape:
+        raise ValueError("frequencies and activities must be one-dimensional and aligned")
+    numbers = (
+        np.asarray(mode_numbers, dtype=int)
+        if mode_numbers is not None
+        else np.arange(1, len(frequencies) + 1, dtype=int)
+    )
+    if numbers.shape != frequencies.shape:
+        raise ValueError("mode_numbers must align with frequencies")
+    keep = frequencies > 0.0
+    frequencies = frequencies[keep]
+    values = np.maximum(values[keep], 0.0)
+    numbers = numbers[keep]
+    if not len(frequencies):
+        raise ValueError("No positive-frequency modes are available")
+    upper = max_frequency_cm1
+    if upper is None:
+        upper = max(100.0, float(np.max(frequencies)) + 5.0 * broadening_cm1)
+    grid = np.linspace(0.0, float(upper), int(points))
+    spectrum = _lorentzian(grid, frequencies, broadening_cm1) @ values
+    return NativeLineSpectrumResult(
+        mode_numbers=numbers,
+        frequencies_cm1=frequencies,
+        activities=values,
+        frequency_grid_cm1=grid,
+        spectrum=spectrum,
+        activity_kind=activity_kind,
+        activity_unit=activity_unit,
+    )
+
+
+def write_native_line_spectrum_outputs(
+    outdir: str | Path,
+    result: NativeLineSpectrumResult,
+    *,
+    stem: str,
+    plot: bool = True,
+) -> dict:
+    """Write calculator-native line activities and a normalized display spectrum."""
+
+    output = Path(outdir)
+    output.mkdir(parents=True, exist_ok=True)
+    modes_path = output / f"{stem}_modes.csv"
+    with modes_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["mode", "frequency_cm-1", result.activity_kind, "unit"])
+        for number, frequency, activity in zip(
+            result.mode_numbers, result.frequencies_cm1, result.activities
+        ):
+            writer.writerow(
+                [int(number), float(frequency), float(activity), result.activity_unit]
+            )
+    spectrum_path = output / f"{stem}_spectrum.dat"
+    np.savetxt(
+        spectrum_path,
+        np.column_stack([result.frequency_grid_cm1, result.spectrum]),
+        header=f"frequency_cm-1 {result.activity_kind}",
+    )
+
+    plot_files: dict[str, str] = {}
+    if plot:
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+
+        with mpl.rc_context(
+            {
+                "font.family": "sans-serif",
+                "font.sans-serif": ["Arial", "DejaVu Sans"],
+                "font.size": 9,
+                "axes.spines.right": True,
+                "axes.spines.top": True,
+                "axes.linewidth": 0.8,
+                "xtick.direction": "in",
+                "ytick.direction": "in",
+                "xtick.top": True,
+                "ytick.right": True,
+                "pdf.fonttype": 42,
+                "svg.fonttype": "none",
+            }
+        ):
+            fig, ax = plt.subplots(figsize=(7.2, 4.5))
+            scale = max(float(np.max(result.spectrum)), np.finfo(float).tiny)
+            normalized = result.spectrum / scale
+            color = "#b14b3c" if stem.lower().startswith("raman") else "#2f6b9a"
+            ax.plot(result.frequency_grid_cm1, normalized, color=color, linewidth=1.5)
+            activity_scale = max(float(np.max(result.activities)), np.finfo(float).tiny)
+            ax.vlines(
+                result.frequencies_cm1,
+                0.0,
+                0.12 * result.activities / activity_scale,
+                color="#30343b",
+                linewidth=0.9,
+            )
+            ax.set(
+                xlabel=r"Wavenumber (cm$^{-1}$)",
+                ylabel=f"Normalized {stem.upper()} intensity",
+                xlim=(result.frequency_grid_cm1[0], result.frequency_grid_cm1[-1]),
+                ylim=(0.0, 1.05),
+            )
+            fig.tight_layout()
+            plot_files = _save_figure_bundle(fig, output, f"{stem}_spectrum")
+            plt.close(fig)
+
+    summary = {
+        "activity_kind": result.activity_kind,
+        "activity_unit": result.activity_unit,
+        "modes": len(result.mode_numbers),
+        "normalization": "plot maximum equals one; tabulated activities are unchanged",
+        "files": {
+            "modes": str(modes_path.resolve()),
+            "spectrum": str(spectrum_path.resolve()),
+            "plot": plot_files.get("plot"),
+            "plot_pdf": plot_files.get("plot_pdf"),
+            "plot_svg": plot_files.get("plot_svg"),
+        },
+    }
+    (output / f"{stem}_summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
+    return summary
+
+
 def calculate_ir_spectrum(
     modes: GammaModes,
     born: BornData,
@@ -401,6 +575,186 @@ def calculate_ir_spectrum(
         response_imag=response.imag,
         dimensionality=dimensionality,
         response_kind=response_kind,
+    )
+
+
+def read_pyatb_polarization(
+    path_or_directory: str | Path,
+) -> tuple[np.ndarray, np.ndarray, Path]:
+    """Read Berry polarization and branch quanta from a PYATB output."""
+
+    root = Path(path_or_directory)
+    candidates = [root] if root.is_file() else [
+        root / "Out" / "Polarization" / "polarization.dat",
+        root / "Polarization" / "polarization.dat",
+        root / "polarization.dat",
+    ]
+    for candidate in candidates:
+        if not candidate.is_file() or candidate.stat().st_size == 0:
+            continue
+        values: dict[str, float] = {}
+        quanta: dict[str, float] = {}
+        for line in candidate.read_text(
+            encoding="utf-8", errors="ignore"
+        ).splitlines():
+            match = _PYATB_POLARIZATION_RE.search(line)
+            if match:
+                axis = match.group(1).lower()
+                values[axis] = float(match.group(2))
+                quanta[axis] = float(match.group(3))
+        if set(values) == {"a", "b", "c"}:
+            return (
+                np.asarray([values[axis] for axis in "abc"], dtype=float),
+                np.asarray([quanta[axis] for axis in "abc"], dtype=float),
+                candidate.resolve(),
+            )
+    raise FileNotFoundError(
+        f"No complete PYATB Polarization/polarization.dat found under {root}"
+    )
+
+
+def _manifest_stage_path(root: Path, entry: dict, sign: str) -> Path:
+    recorded = Path(entry[sign])
+    if recorded.is_dir():
+        return recorded.resolve()
+    fallback = root / f"mode-{int(entry['mode']):04d}" / sign
+    if fallback.is_dir():
+        return fallback.resolve()
+    raise FileNotFoundError(
+        f"Molecular mode {entry['mode']} {sign} directory was not found"
+    )
+
+
+def _stage_polarization(
+    stage: Path,
+    preferred_subdir: Optional[str],
+) -> tuple[np.ndarray, np.ndarray, Path]:
+    names = [preferred_subdir] if preferred_subdir else []
+    names.extend(["pyatb", "pyatb-polar"])
+    errors: list[str] = []
+    for name in dict.fromkeys(item for item in names if item):
+        try:
+            return read_pyatb_polarization(stage / name)
+        except FileNotFoundError as exc:
+            errors.append(str(exc))
+    try:
+        return read_pyatb_polarization(stage)
+    except FileNotFoundError as exc:
+        errors.append(str(exc))
+    raise FileNotFoundError("; ".join(errors))
+
+
+def collect_molecular_dipole_derivatives(
+    displacement_dir: str | Path,
+    *,
+    cell_volume_angstrom3: float,
+    cell_lattice_angstrom: Optional[np.ndarray] = None,
+    polarization_subdir: Optional[str] = None,
+) -> tuple[np.ndarray, np.ndarray, str]:
+    """Collect central-difference molecular dipole derivatives from PYATB P."""
+
+    root = Path(displacement_dir).resolve()
+    manifest_path = root / "raman_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    amplitude = float(manifest["amplitude_A_sqrt_amu"])
+    if amplitude <= 0.0:
+        raise ValueError("Molecular displacement amplitude must be positive")
+    volume_m3 = float(cell_volume_angstrom3) * 1.0e-30
+    if volume_m3 <= 0.0:
+        raise ValueError("Molecular supercell volume must be positive")
+    if cell_lattice_angstrom is None:
+        basis_to_cartesian = np.eye(3)
+    else:
+        lattice = np.asarray(cell_lattice_angstrom, dtype=float)
+        if lattice.shape != (3, 3):
+            raise ValueError("Molecular cell lattice must have shape (3, 3)")
+        lengths = np.linalg.norm(lattice, axis=1)
+        if np.any(lengths <= np.finfo(float).tiny):
+            raise ValueError("Molecular cell lattice vectors must be nonzero")
+        basis_to_cartesian = lattice / lengths[:, None]
+
+    mode_numbers: list[int] = []
+    derivatives: list[np.ndarray] = []
+    for entry in manifest["modes"]:
+        plus_stage = _manifest_stage_path(root, entry, "plus")
+        minus_stage = _manifest_stage_path(root, entry, "minus")
+        plus, plus_quanta, plus_source = _stage_polarization(
+            plus_stage, polarization_subdir
+        )
+        minus, minus_quanta, minus_source = _stage_polarization(
+            minus_stage, polarization_subdir
+        )
+        delta = plus - minus
+        quanta = 0.5 * (np.abs(plus_quanta) + np.abs(minus_quanta))
+        valid = quanta > np.finfo(float).tiny
+        delta[valid] -= np.rint(delta[valid] / quanta[valid]) * quanta[valid]
+        delta_cartesian = delta @ basis_to_cartesian
+        derivative = (
+            delta_cartesian * volume_m3 / (2.0 * amplitude * DEBYE_C_M)
+        )
+        mode_numbers.append(int(entry["mode"]))
+        derivatives.append(derivative)
+        entry["plus_polarization"] = str(plus_source)
+        entry["minus_polarization"] = str(minus_source)
+
+    derivative_array = np.asarray(derivatives, dtype=float)
+    tensor_kind = "molecular dipole derivative (Debye per Angstrom sqrt(amu))"
+    output = {
+        "mode_numbers": mode_numbers,
+        "dipole_derivatives": derivative_array.tolist(),
+        "tensor_kind": tensor_kind,
+        "cell_volume_A3": float(cell_volume_angstrom3),
+        "amplitude_A_sqrt_amu": amplitude,
+        "conversion": "dmu/dQ = V * dP/dQ",
+        "polarization_basis_to_cartesian": basis_to_cartesian.tolist(),
+    }
+    (root / "molecular_ir_derivatives.json").write_text(
+        json.dumps(output, indent=2), encoding="utf-8"
+    )
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    return np.asarray(mode_numbers, dtype=int), derivative_array, tensor_kind
+
+
+def calculate_molecular_ir_spectrum(
+    modes: GammaModes,
+    mode_numbers: Sequence[int],
+    dipole_derivatives: np.ndarray,
+    *,
+    broadening_cm1: float = 10.0,
+    max_frequency_cm1: Optional[float] = None,
+    points: int = 2001,
+) -> MolecularIRSpectrumResult:
+    """Calculate a normalized molecular IR spectrum from d(mu)/dQ."""
+
+    numbers = np.asarray(mode_numbers, dtype=int)
+    derivatives = np.asarray(dipole_derivatives, dtype=float)
+    if derivatives.shape != (len(numbers), 3):
+        raise ValueError(
+            f"Molecular dipole derivatives have invalid shape: {derivatives.shape}"
+        )
+    indices = numbers - 1
+    if np.any(indices < 0) or np.any(indices >= len(modes.frequencies_cm1)):
+        raise IndexError("Molecular IR mode number is outside qpoints.yaml")
+    frequencies = modes.frequencies_cm1[indices]
+    activities = np.einsum("mi,mi->m", derivatives, derivatives)
+    maximum = float(np.max(activities)) if len(activities) else 0.0
+    normalized = activities / maximum if maximum > 0.0 else activities.copy()
+    upper = max_frequency_cm1
+    if upper is None:
+        upper = max(100.0, float(np.max(frequencies)) + 5.0 * broadening_cm1)
+    grid = np.linspace(0.0, float(upper), int(points))
+    spectrum = _lorentzian(grid, frequencies, broadening_cm1) @ activities
+    spectrum_maximum = float(np.max(spectrum)) if len(spectrum) else 0.0
+    if spectrum_maximum > 0.0:
+        spectrum /= spectrum_maximum
+    return MolecularIRSpectrumResult(
+        mode_numbers=numbers,
+        frequencies_cm1=frequencies,
+        dipole_derivatives=derivatives,
+        activities=activities,
+        normalized_activities=normalized,
+        frequency_grid_cm1=grid,
+        spectrum=spectrum,
     )
 
 
@@ -495,10 +849,14 @@ def write_ir_outputs(
             {
                 "font.family": "sans-serif",
                 "font.sans-serif": ["Arial", "DejaVu Sans"],
-                "font.size": 8,
-                "axes.spines.right": False,
-                "axes.spines.top": False,
+                "font.size": 9,
+                "axes.spines.right": True,
+                "axes.spines.top": True,
                 "axes.linewidth": 0.8,
+                "xtick.direction": "in",
+                "ytick.direction": "in",
+                "xtick.top": True,
+                "ytick.right": True,
                 "legend.frameon": False,
                 "pdf.fonttype": 42,
                 "svg.fonttype": "none",
@@ -554,6 +912,123 @@ def write_ir_outputs(
             "spectrum": str(spectrum_path.resolve()),
             "response_real": str(real_path.resolve()),
             "response_imag": str(imag_path.resolve()),
+            "plot": plot_files.get("plot"),
+            "plot_pdf": plot_files.get("plot_pdf"),
+            "plot_svg": plot_files.get("plot_svg"),
+        },
+    }
+    (output / "ir_summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
+    return summary
+
+
+def write_molecular_ir_outputs(
+    outdir: str | Path,
+    result: MolecularIRSpectrumResult,
+    *,
+    plot: bool = True,
+) -> dict:
+    """Write molecular dipole derivatives, normalized spectrum, and plots."""
+
+    output = Path(outdir)
+    output.mkdir(parents=True, exist_ok=True)
+    modes_path = output / "ir_modes.csv"
+    with modes_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(
+            [
+                "mode",
+                "frequency_cm-1",
+                "dmu_x",
+                "dmu_y",
+                "dmu_z",
+                "activity_Debye2_per_A2_amu",
+                "activity_normalized",
+            ]
+        )
+        for number, frequency, derivative, activity, normalized in zip(
+            result.mode_numbers,
+            result.frequencies_cm1,
+            result.dipole_derivatives,
+            result.activities,
+            result.normalized_activities,
+        ):
+            writer.writerow(
+                [
+                    int(number),
+                    float(frequency),
+                    *derivative.tolist(),
+                    float(activity),
+                    float(normalized),
+                ]
+            )
+
+    spectrum_path = output / "ir_spectrum.dat"
+    np.savetxt(
+        spectrum_path,
+        np.column_stack([result.frequency_grid_cm1, result.spectrum]),
+        header="frequency_cm-1 intensity_normalized",
+    )
+    plot_files: dict[str, str] = {}
+    if plot:
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+
+        with mpl.rc_context(
+            {
+                "font.family": "sans-serif",
+                "font.sans-serif": ["Arial", "DejaVu Sans"],
+                "font.size": 9,
+                "axes.spines.right": True,
+                "axes.spines.top": True,
+                "axes.linewidth": 0.8,
+                "xtick.direction": "in",
+                "ytick.direction": "in",
+                "xtick.top": True,
+                "ytick.right": True,
+                "pdf.fonttype": 42,
+                "svg.fonttype": "none",
+            }
+        ):
+            fig, ax = plt.subplots(figsize=(7.2, 4.5))
+            ax.plot(
+                result.frequency_grid_cm1,
+                result.spectrum,
+                color="#b2472f",
+                linewidth=1.7,
+            )
+            ax.vlines(
+                result.frequencies_cm1,
+                -0.075,
+                -0.075 + 0.06 * result.normalized_activities,
+                color="#4b5563",
+                linewidth=0.8,
+            )
+            ax.set(
+                xlabel=r"Wavenumber (cm$^{-1}$)",
+                ylabel="Normalized molecular IR intensity",
+                xlim=(
+                    result.frequency_grid_cm1[0],
+                    result.frequency_grid_cm1[-1],
+                ),
+                ylim=(-0.085, 1.05),
+            )
+            ax.grid(axis="y", alpha=0.18, linewidth=0.6)
+            fig.tight_layout()
+            plot_files = _save_figure_bundle(fig, output, "ir_spectrum")
+            plt.close(fig)
+
+    summary = {
+        "dimensionality": 0,
+        "response_kind": "molecular dipole derivative",
+        "modes": len(result.mode_numbers),
+        "dipole_derivative_unit": "Debye per Angstrom sqrt(amu)",
+        "activity_unit": "Debye^2 per Angstrom^2 amu",
+        "normalization": "maximum activity equals one",
+        "files": {
+            "modes": str(modes_path.resolve()),
+            "spectrum": str(spectrum_path.resolve()),
             "plot": plot_files.get("plot"),
             "plot_pdf": plot_files.get("plot_pdf"),
             "plot_svg": plot_files.get("plot_svg"),
@@ -715,6 +1190,7 @@ def collect_raman_tensors(
     *,
     dimensionality: int = 3,
     cell_height_angstrom: Optional[float] = None,
+    cell_volume_angstrom3: Optional[float] = None,
 ) -> tuple[np.ndarray, np.ndarray, str]:
     """Central-difference PYATB dielectric tensors in ``mode-*/plus|minus``."""
 
@@ -740,16 +1216,26 @@ def collect_raman_tensors(
                     "cell_height_angstrom is required for 2D Raman collection"
                 )
             derivative = derivative * float(cell_height_angstrom)
+        elif dimensionality == 0:
+            if cell_volume_angstrom3 is None:
+                raise ValueError(
+                    "cell_volume_angstrom3 is required for molecular Raman collection"
+                )
+            derivative = (
+                derivative * float(cell_volume_angstrom3) / (4.0 * math.pi)
+            )
+        elif dimensionality != 3:
+            raise ValueError("dimensionality must be 0, 2, or 3")
         mode_numbers.append(int(entry["mode"]))
         tensors.append(0.5 * (derivative + derivative.T))
         entry["plus_dielectric"] = str(plus_source)
         entry["minus_dielectric"] = str(minus_source)
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    kind = (
-        "2D sheet susceptibility derivative"
-        if dimensionality == 2
-        else "dielectric tensor derivative"
-    )
+    kind = {
+        0: "molecular polarizability derivative (Angstrom^3 per Angstrom sqrt(amu))",
+        2: "2D sheet susceptibility derivative",
+        3: "dielectric tensor derivative",
+    }[dimensionality]
     tensor_array = np.asarray(tensors, dtype=float)
     np.save(root / "raman_tensors.npy", tensor_array)
     (root / "raman_tensors.json").write_text(
@@ -758,6 +1244,16 @@ def collect_raman_tensors(
                 "mode_numbers": mode_numbers,
                 "tensors": tensor_array.tolist(),
                 "tensor_kind": kind,
+                "cell_volume_A3": (
+                    float(cell_volume_angstrom3)
+                    if dimensionality == 0
+                    else None
+                ),
+                "conversion": (
+                    "dalpha/dQ = V/(4*pi) * d(epsilon_r)/dQ"
+                    if dimensionality == 0
+                    else None
+                ),
             },
             indent=2,
         ),
@@ -934,10 +1430,14 @@ def write_raman_outputs(
             {
                 "font.family": "sans-serif",
                 "font.sans-serif": ["Arial", "DejaVu Sans"],
-                "font.size": 8,
-                "axes.spines.right": False,
-                "axes.spines.top": False,
+                "font.size": 9,
+                "axes.spines.right": True,
+                "axes.spines.top": True,
                 "axes.linewidth": 0.8,
+                "xtick.direction": "in",
+                "ytick.direction": "in",
+                "xtick.top": True,
+                "ytick.right": True,
                 "legend.frameon": False,
                 "pdf.fonttype": 42,
                 "svg.fonttype": "none",

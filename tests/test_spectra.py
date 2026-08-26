@@ -1,3 +1,4 @@
+import json
 import tempfile
 from pathlib import Path
 import unittest
@@ -8,12 +9,16 @@ import yaml
 from zstar.spectra import (
     BornData,
     calculate_ir_spectrum,
+    calculate_molecular_ir_spectrum,
     calculate_raman_spectrum,
+    collect_molecular_dipole_derivatives,
     collect_raman_tensors,
     load_gamma_modes,
     prepare_raman_displacements,
     read_born_data,
+    read_pyatb_polarization,
     write_ir_outputs,
+    write_molecular_ir_outputs,
     write_raman_outputs,
 )
 
@@ -47,6 +52,19 @@ def write_split_qpoints(path: Path):
     )
 
 
+def write_polarization(path: Path, values, quanta=(100.0, 100.0, 100.0)):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "\n".join(
+            f"The calculated polarization direction is in {axis}, "
+            f"P = {value:.12e} (mod {quantum:.12e}) C/m^2."
+            for axis, value, quantum in zip("abc", values, quanta)
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
 class SpectraTests(unittest.TestCase):
     def test_load_gamma_modes_uses_companion_phonopy_yaml(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -55,6 +73,21 @@ class SpectraTests(unittest.TestCase):
             modes = load_gamma_modes(qpoints)
             self.assertEqual(modes.symbols, ("X",))
             self.assertAlmostEqual(modes.cell_height_angstrom, 20.0)
+
+    def test_load_gamma_modes_converts_companion_bohr_lattice(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            qpoints = Path(tmp) / "qpoints.yaml"
+            write_qpoints(qpoints)
+            (qpoints.parent / "phonopy.yaml").write_text(
+                yaml.safe_dump(
+                    {"physical_unit": {"length": "au"}}, sort_keys=False
+                ),
+                encoding="utf-8",
+            )
+            modes = load_gamma_modes(qpoints)
+            self.assertAlmostEqual(
+                modes.cell_height_angstrom, 20.0 * 0.529177210903
+            )
 
     def test_ir_effective_charge_and_2d_response(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -78,6 +111,94 @@ class SpectraTests(unittest.TestCase):
             )
             self.assertEqual(result.response_kind, "2D sheet polarizability (Angstrom)")
             self.assertTrue(np.all(np.isfinite(result.response_real)))
+
+    def test_read_and_collect_molecular_dipole_derivatives(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "modes"
+            plus = root / "mode-0001" / "plus"
+            minus = root / "mode-0001" / "minus"
+            write_polarization(
+                plus / "pyatb-polar" / "Out" / "Polarization" / "polarization.dat",
+                (0.01, 49.99, 0.03),
+            )
+            write_polarization(
+                minus / "pyatb-polar" / "Out" / "Polarization" / "polarization.dat",
+                (-0.01, -49.99, -0.03),
+            )
+            (root / "raman_manifest.json").write_text(
+                json.dumps(
+                    {
+                        "amplitude_A_sqrt_amu": 0.02,
+                        "modes": [
+                            {
+                                "mode": 1,
+                                "plus": "/stale/location/plus",
+                                "minus": "/stale/location/minus",
+                            }
+                        ],
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+            values, quanta, source = read_pyatb_polarization(
+                plus / "pyatb-polar"
+            )
+            np.testing.assert_allclose(values, [0.01, 49.99, 0.03])
+            np.testing.assert_allclose(quanta, [100.0, 100.0, 100.0])
+            self.assertEqual(source.name, "polarization.dat")
+
+            numbers, derivatives, kind = collect_molecular_dipole_derivatives(
+                root,
+                cell_volume_angstrom3=500.0,
+            )
+            expected_delta = np.asarray([0.02, -0.02, 0.06])
+            expected = expected_delta * 500.0e-30 / (0.04 * 3.33564e-30)
+            np.testing.assert_array_equal(numbers, [1])
+            np.testing.assert_allclose(derivatives[0], expected)
+            self.assertIn("molecular dipole derivative", kind)
+            self.assertTrue((root / "molecular_ir_derivatives.json").is_file())
+
+            lattice = np.asarray(
+                [[2.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 0.0, 3.0]]
+            )
+            _, skew_derivatives, _ = collect_molecular_dipole_derivatives(
+                root,
+                cell_volume_angstrom3=500.0,
+                cell_lattice_angstrom=lattice,
+            )
+            basis_to_cartesian = lattice / np.linalg.norm(
+                lattice, axis=1
+            )[:, None]
+            expected_skew = (
+                expected_delta
+                @ basis_to_cartesian
+                * 500.0e-30
+                / (0.04 * 3.33564e-30)
+            )
+            np.testing.assert_allclose(skew_derivatives[0], expected_skew)
+
+    def test_calculate_molecular_ir_spectrum(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            qpoints = Path(tmp) / "qpoints.yaml"
+            write_qpoints(qpoints)
+            modes = load_gamma_modes(qpoints)
+            result = calculate_molecular_ir_spectrum(
+                modes,
+                [1, 2],
+                np.asarray([[0.0, 0.0, 0.0], [1.0, 2.0, 2.0]]),
+                points=101,
+            )
+            np.testing.assert_allclose(result.activities, [0.0, 9.0])
+            np.testing.assert_allclose(result.normalized_activities, [0.0, 1.0])
+            self.assertAlmostEqual(float(np.max(result.spectrum)), 1.0)
+            summary = write_molecular_ir_outputs(
+                Path(tmp) / "molecular_ir", result, plot=False
+            )
+            self.assertEqual(summary["dimensionality"], 0)
+            self.assertTrue(
+                (Path(tmp) / "molecular_ir" / "ir_modes.csv").is_file()
+            )
 
     def test_reduced_phonopy_born_auto_loads_full_sibling(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -243,6 +364,17 @@ X
             np.testing.assert_array_equal(numbers, [1])
             np.testing.assert_allclose(tensors[0], np.eye(3) * 2.0)
             self.assertEqual(kind, "dielectric tensor derivative")
+
+            numbers, tensors, kind = collect_raman_tensors(
+                root / "raman",
+                dimensionality=0,
+                cell_volume_angstrom3=500.0,
+            )
+            np.testing.assert_array_equal(numbers, [1])
+            np.testing.assert_allclose(
+                tensors[0], np.eye(3) * 1000.0 / (4.0 * np.pi)
+            )
+            self.assertIn("molecular polarizability derivative", kind)
 
 
 if __name__ == "__main__":

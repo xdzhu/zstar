@@ -7,6 +7,7 @@ import csv
 import hashlib
 import json
 from pathlib import Path
+import re
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -46,17 +47,19 @@ def configure_matplotlib() -> None:
         {
             "font.family": "sans-serif",
             "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
-            "font.size": 7.2,
-            "axes.labelsize": 7.5,
-            "axes.titlesize": 8,
+            "font.size": 8.2,
+            "axes.labelsize": 8.5,
+            "axes.titlesize": 9.0,
             "axes.linewidth": 0.7,
             "axes.spines.right": False,
             "axes.spines.top": False,
-            "xtick.labelsize": 6.8,
-            "ytick.labelsize": 6.8,
+            "xtick.labelsize": 7.7,
+            "ytick.labelsize": 7.7,
+            "xtick.direction": "in",
+            "ytick.direction": "in",
             "xtick.major.width": 0.65,
             "ytick.major.width": 0.65,
-            "legend.fontsize": 6.8,
+            "legend.fontsize": 7.5,
             "legend.frameon": False,
             "pdf.fonttype": 42,
             "svg.fonttype": "none",
@@ -68,14 +71,27 @@ def configure_matplotlib() -> None:
 
 def panel_label(ax, label: str) -> None:
     ax.text(
-        -0.20,
-        1.10,
-        label,
+        -0.31,
+        1.12,
+        f"({label})",
         transform=ax.transAxes,
         ha="left",
         va="top",
-        fontsize=9,
-        fontweight="bold",
+        fontsize=10.2,
+        fontweight="normal",
+    )
+
+
+def style_data_axis(ax) -> None:
+    """Use a complete frame with inward ticks for quantitative panels."""
+    for spine in ax.spines.values():
+        spine.set_visible(True)
+    ax.tick_params(
+        axis="both",
+        which="both",
+        direction="in",
+        top=True,
+        right=True,
     )
 
 
@@ -406,12 +422,12 @@ def make_in2se3_polarization(data_root: Path, output: Path) -> dict:
             zorder=3,
         )
         ax_structure.text(
-            x_value + 0.28,
+            x_value + 0.38,
             z_value,
             atom_label,
             ha="left",
             va="center",
-            fontsize=6.6,
+            fontsize=7.5,
             color=COLORS["ink"],
         )
     sorted_atoms = np.argsort(z)
@@ -437,17 +453,22 @@ def make_in2se3_polarization(data_root: Path, output: Path) -> dict:
         color=COLORS["red"],
         ha="right",
         va="center",
-        fontsize=6.5,
+        fontsize=7.4,
     )
     ax_structure.annotate(
-        "Berry phase",
-        xy=(0.45, -4.35),
-        xytext=(-0.75, -4.35),
+        "",
+        xy=(0.48, -4.15),
+        xytext=(-0.38, -4.15),
         arrowprops={"arrowstyle": "->", "color": COLORS["blue"], "lw": 1.2},
+    )
+    ax_structure.text(
+        -0.48,
+        -4.15,
+        "Berry phase",
         color=COLORS["blue"],
-        ha="center",
-        va="bottom",
-        fontsize=6.5,
+        ha="right",
+        va="center",
+        fontsize=7.4,
     )
     ax_structure.set_xlim(-1.05, 1.25)
     ax_structure.set_ylim(-4.45, 4.45)
@@ -456,8 +477,8 @@ def make_in2se3_polarization(data_root: Path, output: Path) -> dict:
     ax_structure.set_title(
         r"$\alpha$-In$_2$Se$_3$ hybrid 2D polarization", loc="left"
     )
-    ax_structure.spines["bottom"].set_visible(False)
-    ax_structure.spines["left"].set_visible(False)
+    for spine in ax_structure.spines.values():
+        spine.set_visible(False)
     ax_structure.set_yticks([])
 
     z_profile = profile["z_angstrom"]
@@ -494,12 +515,12 @@ def make_in2se3_polarization(data_root: Path, output: Path) -> dict:
     ax_density.annotate(
         r"$\Delta u_z=+0.01$ $\AA$",
         xy=(displaced_ions[moved], float(np.max(delta_line[mask])) * 0.78),
-        xytext=(displaced_ions[moved] + 1.0, float(np.max(delta_line[mask])) * 0.93),
+        xytext=(displaced_ions[moved] + 1.0, float(np.max(delta_line[mask])) * 0.86),
         arrowprops={"arrowstyle": "->", "color": COLORS["red"], "lw": 0.9},
         color=COLORS["red"],
         ha="left",
         va="center",
-        fontsize=6.7,
+        fontsize=7.5,
     )
     ax_density.set_xlim(-7, 7)
     ax_density.set_ylabel(r"$\Delta\lambda_e(z)$ ($e$ $\AA^{-1}$)")
@@ -508,7 +529,7 @@ def make_in2se3_polarization(data_root: Path, output: Path) -> dict:
         loc="left",
     )
     ax_density.axhline(0.0, color=COLORS["muted"], linewidth=0.55)
-    ax_density.legend(loc="upper left", ncol=2)
+    ax_density.legend(loc="upper left", ncol=1)
 
     dipole_reference = float(
         profile_summary["diagnostics"]["reference_dipole_e_angstrom"]
@@ -547,7 +568,7 @@ def make_in2se3_polarization(data_root: Path, output: Path) -> dict:
         ha="left",
         va="top",
         color=COLORS["ink"],
-        fontsize=6.8,
+        fontsize=7.6,
     )
     ax_dipole.text(
         0.96,
@@ -557,7 +578,7 @@ def make_in2se3_polarization(data_root: Path, output: Path) -> dict:
         ha="right",
         va="bottom",
         color=COLORS["muted"],
-        fontsize=6.4,
+        fontsize=7.2,
     )
 
     positions = np.arange(len(bec_labels))
@@ -584,6 +605,9 @@ def make_in2se3_polarization(data_root: Path, output: Path) -> dict:
     ax_bec.grid(axis="y", color=COLORS["grid"], linewidth=0.5)
     ax_bec.legend(loc="upper right")
 
+    for axis in (ax_density, ax_dipole, ax_bec):
+        style_data_axis(axis)
+
     for label, axis in zip(
         "abcd", (ax_structure, ax_density, ax_dipole, ax_bec)
     ):
@@ -605,6 +629,274 @@ def make_in2se3_polarization(data_root: Path, output: Path) -> dict:
             root / "profile" / "slab_charge_profile.csv",
             root / "profile" / "slab_dipole_summary.json",
         ],
+    }
+
+
+def read_vacuum_sides(path: Path) -> dict[str, float]:
+    patterns = {
+        "lower_eV": r"^LOWER_VACUUM \(eV\) = ([+\-0-9.eE]+)",
+        "upper_eV": r"^UPPER_VACUUM \(eV\) = ([+\-0-9.eE]+)",
+        "delta_eV": r"^DELTA_UPPER_MINUS_LOWER \(eV\) = ([+\-0-9.eE]+)",
+        "lower_coord_ang": (
+            r"^LOWER_VACUUM \(eV\) = [+\-0-9.eE]+ "
+            r"at z \(Angstrom\) = ([+\-0-9.eE]+)"
+        ),
+        "upper_coord_ang": (
+            r"^UPPER_VACUUM \(eV\) = [+\-0-9.eE]+ "
+            r"at z \(Angstrom\) = ([+\-0-9.eE]+)"
+        ),
+        "lower_std_eV": r"^LOWER_STD \(eV\) = ([+\-0-9.eE]+)",
+        "upper_std_eV": r"^UPPER_STD \(eV\) = ([+\-0-9.eE]+)",
+        "window_ang": (
+            r"^VACUUM_PLATEAU_WIDTH \(Angstrom\) = ([+\-0-9.eE]+)"
+        ),
+    }
+    text = path.read_text(encoding="utf-8")
+    result = {}
+    for key, pattern in patterns.items():
+        match = re.search(pattern, text, flags=re.MULTILINE)
+        if match is None:
+            raise ValueError(f"Missing {key} in {path}")
+        result[key] = float(match.group(1))
+    return result
+
+
+def load_direction_contrast(root: Path, material: str) -> tuple[np.ndarray, np.ndarray, float]:
+    plus = np.loadtxt(root / material / "a_plus_b.dat")
+    minus = np.loadtxt(root / material / "a_minus_b.dat")
+    if plus.shape != minus.shape:
+        raise ValueError(f"Direction-profile shape mismatch for {material}")
+    plus_centered = plus[:, 1] - np.mean(plus[:, 1])
+    minus_centered = minus[:, 1] - np.mean(minus[:, 1])
+    contrast = plus_centered - minus_centered
+    step = float(plus[1, 0] - plus[0, 0])
+    period = float(plus[-1, 0] + step)
+    fractional_coord = plus[:, 0] / period
+    rms = float(np.sqrt(np.mean(contrast**2)))
+    return fractional_coord, contrast, rms
+
+
+def make_potential_examples(data_root: Path, output: Path) -> dict:
+    root = data_root / "potential"
+    materials = {
+        "MoS2": COLORS["muted"],
+        "In2Se3": COLORS["red"],
+        "SnS": COLORS["red"],
+        "SnSe": COLORS["green"],
+        "SnTe": COLORS["blue"],
+    }
+    display = {
+        "MoS2": r"MoS$_2$",
+        "In2Se3": r"$\alpha$-In$_2$Se$_3$",
+        "SnS": "SnS",
+        "SnSe": "SnSe",
+        "SnTe": "SnTe",
+    }
+
+    fig = plt.figure(figsize=(7.2, 5.5), constrained_layout=True)
+    grid = fig.add_gridspec(2, 2, height_ratios=(1.0, 1.04))
+    ax_mos2 = fig.add_subplot(grid[0, 0])
+    ax_in2se3 = fig.add_subplot(grid[0, 1])
+    ax_map = fig.add_subplot(grid[1, 0])
+    ax_direction = fig.add_subplot(grid[1, 1])
+
+    slab_sources = {}
+    for material, axis in (("MoS2", ax_mos2), ("In2Se3", ax_in2se3)):
+        profile_path = root / material / "z_profile.dat"
+        vacuum_path = root / material / "E_vacuum_sides.out"
+        profile = np.loadtxt(profile_path)
+        vacuum = read_vacuum_sides(vacuum_path)
+        z_coord = profile[:, 1]
+        relative_potential = profile[:, 2] - vacuum["lower_eV"]
+        color = materials[material]
+        axis.plot(z_coord, relative_potential, color=color, linewidth=1.15)
+        axis.axhline(0.0, color=COLORS["muted"], linewidth=0.55)
+        for coord, level, shade_color in (
+            (vacuum["lower_coord_ang"], 0.0, COLORS["blue"]),
+            (
+                vacuum["upper_coord_ang"],
+                vacuum["delta_eV"],
+                COLORS["red"],
+            ),
+        ):
+            half_width = 0.5 * vacuum["window_ang"]
+            axis.axvspan(
+                coord - half_width,
+                coord + half_width,
+                color=shade_color,
+                alpha=0.12,
+                linewidth=0,
+            )
+            axis.scatter(
+                [coord],
+                [level],
+                s=21,
+                color=shade_color,
+                edgecolor="white",
+                linewidth=0.55,
+                zorder=4,
+            )
+        axis.set_xlim(float(z_coord[0]), float(z_coord[-1]))
+        axis.set_xlabel(r"$z$ coordinate ($\AA$)")
+        axis.set_ylabel(r"$V(z)-V_{\mathrm{vac}}^{\mathrm{lower}}$ (eV)")
+        axis.grid(axis="y", color=COLORS["grid"], linewidth=0.45)
+        axis.set_title(
+            f"{display[material]} slab-normal potential",
+            loc="left",
+        )
+        delta_text = (
+            rf"$\Delta V_\mathrm{{vac}}={vacuum['delta_eV']:.3f}$ eV"
+            if abs(vacuum["delta_eV"]) >= 0.001
+            else (
+                rf"$\Delta V_\mathrm{{vac}}="
+                rf"{vacuum['delta_eV'] / 1.0e-5:.2f}"
+                rf"\times10^{{-5}}$ eV"
+            )
+        )
+        axis.text(
+            0.04,
+            0.08,
+            delta_text
+            + "\n"
+            + (
+                "nonpolar control"
+                if material == "MoS2"
+                else "opposite surface vacua"
+            ),
+            transform=axis.transAxes,
+            ha="left",
+            va="bottom",
+            color=COLORS["ink"],
+            fontsize=7.6,
+        )
+        slab_sources[material] = (profile_path, vacuum_path, vacuum)
+
+    map_path = root / "SnS" / "xy_map.dat"
+    map_data = np.loadtxt(map_path)
+    nx = int(np.max(map_data[:, 0])) + 1
+    ny = int(np.max(map_data[:, 1])) + 1
+    x_coord = map_data[:, 2].reshape(nx, ny)[:, 0]
+    y_coord = map_data[:, 3].reshape(nx, ny)[0, :]
+    potential_map = map_data[:, 4].reshape(nx, ny).T
+    potential_map -= np.mean(potential_map)
+    limit = float(np.percentile(np.abs(potential_map), 98.0))
+    image = ax_map.pcolormesh(
+        x_coord,
+        y_coord,
+        potential_map,
+        shading="nearest",
+        cmap="RdBu_r",
+        vmin=-limit,
+        vmax=limit,
+        rasterized=True,
+    )
+    ax_map.set_aspect("equal")
+    ax_map.set_xlabel(r"$x$ ($\AA$)")
+    ax_map.set_ylabel(r"$y$ ($\AA$)")
+    ax_map.set_title("SnS in-plane potential texture", loc="left")
+    x_mid = 0.5 * (float(x_coord[0]) + float(x_coord[-1]))
+    y_mid = 0.5 * (float(y_coord[0]) + float(y_coord[-1]))
+    arrow_scale = 0.30 * min(
+        float(x_coord[-1] - x_coord[0]),
+        float(y_coord[-1] - y_coord[0]),
+    )
+    for dy, label, color in (
+        (arrow_scale, r"$a+b$", COLORS["red"]),
+        (-arrow_scale, r"$a-b$", COLORS["blue"]),
+    ):
+        ax_map.annotate(
+            "",
+            xy=(x_mid + arrow_scale, y_mid + dy),
+            xytext=(x_mid, y_mid),
+            arrowprops={"arrowstyle": "-|>", "color": color, "lw": 1.1},
+        )
+        ax_map.text(
+            x_mid + arrow_scale,
+            y_mid + dy,
+            label,
+            color=color,
+            ha="left",
+            va="center",
+            fontsize=7.4,
+        )
+    colorbar_axis = ax_map.inset_axes([0.055, 0.92, 0.38, 0.028])
+    colorbar = fig.colorbar(
+        image,
+        cax=colorbar_axis,
+        orientation="horizontal",
+    )
+    colorbar_axis.xaxis.set_ticks_position("top")
+    colorbar_axis.xaxis.set_label_position("top")
+    colorbar.set_label(r"$V-\langle V\rangle$ (eV)")
+    style_data_axis(colorbar_axis)
+
+    direction_sources = []
+    directional_rms = {}
+    for material in ("SnS", "SnSe", "SnTe"):
+        fractional_coord, contrast, rms = load_direction_contrast(
+            root,
+            material,
+        )
+        directional_rms[material] = rms
+        ax_direction.plot(
+            fractional_coord,
+            contrast,
+            color=materials[material],
+            linewidth=1.15,
+            label=f"{display[material]}  RMS {rms:.3f} eV",
+        )
+        direction_sources.extend(
+            [
+                root / material / "a_plus_b.dat",
+                root / material / "a_minus_b.dat",
+            ]
+        )
+    ax_direction.axhline(0.0, color=COLORS["muted"], linewidth=0.55)
+    ax_direction.set_xlim(0.0, 1.0)
+    ax_direction.set_xlabel("Fractional coordinate along lattice direction")
+    ax_direction.set_ylabel(
+        r"$\widetilde{V}_{a+b}-\widetilde{V}_{a-b}$ (eV)"
+    )
+    ax_direction.set_title("Lattice-direction potential contrast", loc="left")
+    ax_direction.grid(axis="y", color=COLORS["grid"], linewidth=0.45)
+    ax_direction.legend(
+        loc="lower right",
+        bbox_to_anchor=(1.0, 1.08),
+        ncol=3,
+        handlelength=1.6,
+        columnspacing=0.9,
+    )
+
+    for axis in (ax_mos2, ax_in2se3, ax_map, ax_direction):
+        style_data_axis(axis)
+
+    for label, axis in zip(
+        "abcd",
+        (ax_mos2, ax_in2se3, ax_map, ax_direction),
+    ):
+        panel_label(axis, label)
+
+    files = save_figure(fig, output, "potential_examples_2d")
+    plt.close(fig)
+    source_files = [
+        root / "README.md",
+        root / "calculation_metadata.json",
+        slab_sources["MoS2"][0],
+        slab_sources["MoS2"][1],
+        slab_sources["In2Se3"][0],
+        slab_sources["In2Se3"][1],
+        map_path,
+        *direction_sources,
+    ]
+    return {
+        "figure": "potential_examples_2d",
+        "files": files,
+        "vacuum_step_eV": {
+            material: slab_sources[material][2]["delta_eV"]
+            for material in ("MoS2", "In2Se3")
+        },
+        "directional_contrast_rms_eV": directional_rms,
+        "source_files": source_files,
     }
 
 
@@ -633,15 +925,20 @@ def main() -> None:
 
     bto = make_bto_spectroscopy(args.data_root, args.output)
     in2se3 = make_in2se3_polarization(args.data_root, args.output)
+    potential = make_potential_examples(args.data_root, args.output)
     source_paths = sorted(
-        {Path(path) for item in (bto, in2se3) for path in item["source_files"]}
+        {
+            Path(path)
+            for item in (bto, in2se3, potential)
+            for path in item["source_files"]
+        }
     )
     manifest = {
         "schema": 1,
         "backend": "Python/matplotlib",
         "figures": [
             {key: value for key, value in item.items() if key != "source_files"}
-            for item in (bto, in2se3)
+            for item in (bto, in2se3, potential)
         ],
         "source_data": [
             file_record(path, args.data_root) for path in source_paths

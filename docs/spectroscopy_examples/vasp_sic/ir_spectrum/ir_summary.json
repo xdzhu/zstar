@@ -1,0 +1,14 @@
+{
+  "dimensionality": 3,
+  "response_kind": "relative dielectric tensor",
+  "modes": 3,
+  "files": {
+    "modes": "ir_modes.csv",
+    "spectrum": "ir_spectrum.dat",
+    "response_real": "ir_response_real.dat",
+    "response_imag": "ir_response_imag.dat",
+    "plot": "ir_spectrum.png",
+    "plot_pdf": "ir_spectrum.pdf",
+    "plot_svg": "ir_spectrum.svg"
+  }
+}

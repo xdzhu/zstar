@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "calculator": "vasp",
+  "dimensionality": 3,
+  "mode_numbers": [
+    1,
+    2,
+    3
+  ],
+  "frequencies_cm-1": [
+    774.9640611234939,
+    774.9640611234939,
+    774.9640611234939
+  ],
+  "electronic_dielectric": [
+    [
+      6.999902,
+      -0.016102,
+      -0.011399
+    ],
+    [
+      -0.016097,
+      6.997877,
+      0.0002
+    ],
+    [
+      -0.011368,
+      0.000215,
+      6.997729
+    ]
+  ],
+  "born_tensors": [
+    [
+      [
+        2.69098,
+        -0.00076,
+        -0.00052
+      ],
+      [
+        -0.00075,
+        2.69014,
+        0.0001
+      ],
+      [
+        -0.00052,
+        0.0001,
+        2.69002
+      ]
+    ],
+    [
+      [
+        -2.69098,
+        0.00076,
+        0.00052
+      ],
+      [
+        0.00075,
+        -2.69014,
+        -0.0001
+      ],
+      [
+        0.00052,
+        -0.0001,
+        -2.69002
+      ]
+    ]
+  ],
+  "raman_tensors": [
+    [
+      [
+        0.33332499999998433,
+        0.131675,
+        0.09744999999999998
+      ],
+      [
+        0.131675,
+        -0.19967499999999916,
+        0.1992375
+      ],
+      [
+        0.09744999999999998,
+        0.1992375,
+        -0.23604999999999876
+      ]
+    ],
+    [
+      [
+        0.029125000000007617,
+        0.03995000000000001,
+        -0.011512499999999998
+      ],
+      [
+        0.03995000000000001,
+        0.4086250000000069,
+        -0.132475
+      ],
+      [
+        -0.011512499999999998,
+        -0.132475,
+        -0.45312499999998757
+      ]
+    ],
+    [
+      [
+        -0.33622499999999,
+        0.3460875,
+        0.245475
+      ],
+      [
+        0.3460875,
+        0.022649999999990733,
+        -0.10644999999999999
+      ],
+      [
+        0.245475,
+        -0.10644999999999999,
+        0.11612500000000026
+      ]
+    ]
+  ],
+  "raman_sources": [
+    {
+      "mode": 1,
+      "plus": "mode-0001/plus",
+      "minus": "mode-0001/minus"
+    },
+    {
+      "mode": 2,
+      "plus": "mode-0002/plus",
+      "minus": "mode-0002/minus"
+    },
+    {
+      "mode": 3,
+      "plus": "mode-0003/plus",
+      "minus": "mode-0003/minus"
+    }
+  ],
+  "ir_summary": {
+    "dimensionality": 3,
+    "response_kind": "relative dielectric tensor",
+    "modes": 3,
+    "files": {
+      "modes": "ir_spectrum/ir_modes.csv",
+      "spectrum": "ir_spectrum/ir_spectrum.dat",
+      "response_real": "ir_spectrum/ir_response_real.dat",
+      "response_imag": "ir_spectrum/ir_response_imag.dat",
+      "plot": "ir_spectrum/ir_spectrum.png",
+      "plot_pdf": "ir_spectrum/ir_spectrum.pdf",
+      "plot_svg": "ir_spectrum/ir_spectrum.svg"
+    }
+  },
+  "raman_summary": {
+    "tensor_kind": "dielectric tensor derivative",
+    "modes": 3,
+    "files": {
+      "modes": "raman_spectrum/raman_modes.csv",
+      "tensors": "raman_spectrum/raman_tensors.npy",
+      "spectrum": "raman_spectrum/raman_spectrum.dat",
+      "plot": "raman_spectrum/raman_spectrum.png",
+      "plot_pdf": "raman_spectrum/raman_spectrum.pdf",
+      "plot_svg": "raman_spectrum/raman_spectrum.svg"
+    }
+  }
+}

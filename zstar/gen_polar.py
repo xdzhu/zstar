@@ -1,5 +1,6 @@
 import os
 import re
+import os
 import sys
 import glob
 import math
@@ -21,6 +22,49 @@ move_length = 0.01
 ABACUS_DEFAULT_FILES = None
 
 HAMGNN_DEFAULT_FILES = "band_cal.yaml graph_data_gen.yaml poscar2openmx.yaml run_HamGNN.sh"
+
+
+def _abacus_assets_from_stru(f_stru, source_dir=None):
+    """Return existing pseudopotential and orbital files referenced by STRU.
+
+    ABACUS resolves relative asset paths from the calculation directory.  The
+    polarization generator creates many calculation directories, so relative
+    assets have to be copied together with INPUT and STRU.
+    """
+    source = Path(f_stru)
+    base = Path(source_dir).resolve() if source_dir else Path.cwd().resolve()
+    if not source.is_absolute():
+        source = (base / source).resolve()
+    if not source.is_file():
+        return []
+
+    section = None
+    assets = []
+    headers = {
+        "ATOMIC_SPECIES", "NUMERICAL_ORBITAL", "NUMERICAL_DESCRIPTOR",
+        "LATTICE_CONSTANT", "LATTICE_VECTORS", "ATOMIC_POSITIONS",
+    }
+    for raw in source.read_text(encoding="utf-8", errors="ignore").splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line:
+            continue
+        upper = line.upper()
+        if upper in headers:
+            section = upper
+            continue
+        tokens = line.split()
+        candidate = None
+        if section == "ATOMIC_SPECIES" and len(tokens) >= 3:
+            candidate = tokens[2]
+        elif section == "NUMERICAL_ORBITAL" and tokens:
+            candidate = tokens[0]
+        if candidate:
+            path = Path(candidate)
+            if not path.is_absolute():
+                path = (base / path).resolve()
+            if path.is_file() and path not in assets:
+                assets.append(path)
+    return [str(path) for path in assets]
 
 
 # dimension  = 3
@@ -215,14 +259,21 @@ def _copy_input_sets_to_here(input_sets=None, source_dir=None):
     cwd = Path.cwd().resolve()
     base = Path(source_dir).resolve() if source_dir else cwd
 
-    # normalize to flat list of tokens
+    def split_entry(value):
+        stripped = value.strip()
+        if Path(stripped).exists():
+            return [stripped]
+        return shlex.split(stripped, posix=os.name != "nt")
+
+    # Normalize to a flat list while preserving existing paths with spaces or
+    # Windows backslashes.
     tokens = []
     if isinstance(input_sets, str):
-        tokens = shlex.split(input_sets.strip())
+        tokens = split_entry(input_sets)
     elif isinstance(input_sets, (list, tuple, set)):
         for item in input_sets:
             if isinstance(item, str):
-                tokens.extend(shlex.split(item.strip()))
+                tokens.extend(split_entry(item))
             else:
                 tokens.append(str(item))
     else:
@@ -534,31 +585,68 @@ def gen_input_in_folder(
 
 
 
-def print_original_coordinates(element_coordinates, coords):
+def _coordinate_properties(element, atom_index, element_movements, element_magnetisms):
+    movement = [1, 1, 1]
+    if element_movements and element in element_movements:
+        movement = element_movements[element][atom_index]
+    suffix = " m " + " ".join(str(int(value)) for value in movement)
+    if element_magnetisms and element in element_magnetisms:
+        mag = element_magnetisms[element][atom_index]
+        values = mag if isinstance(mag, (list, tuple, np.ndarray)) else [mag]
+        numeric = [float(value) for value in values]
+        if any(abs(value) > 1.0e-12 for value in numeric):
+            suffix += " mag " + " ".join(f"{value:g}" for value in numeric)
+    return suffix
+
+
+def print_original_coordinates(
+    element_coordinates,
+    coords=None,
+    element_movements=None,
+    element_magnetisms=None,
+):
     pick_index_atom = 0
     for element, coordinates_list in element_coordinates.items():
         print(f"\n{element}")
         print("0.0")
         print(len(coordinates_list))
-        for pick_coords in coordinates_list:
+        for atom_index, pick_coords in enumerate(coordinates_list):
             pick_index_atom += 1
             my_string = '  '.join(['{:.12f}'.format(x) for x in pick_coords])
-            print(my_string)
+            print(
+                my_string
+                + _coordinate_properties(
+                    element, atom_index, element_movements, element_magnetisms
+                )
+            )
 
-def print_modified_coordinates(element_coordinates, xxx_coords, index_atom, move_direction):
+def print_modified_coordinates(
+    element_coordinates,
+    xxx_coords,
+    index_atom,
+    move_direction,
+    element_movements=None,
+    element_magnetisms=None,
+):
     pick_index_atom = 0
     for element, coordinates_list in element_coordinates.items():
         print(f"\n{element}")
         print("0.0")
         print(len(coordinates_list))
-        for pick_coords in coordinates_list:
+        for atom_index, pick_coords in enumerate(coordinates_list):
             pick_index_atom += 1
+            properties = _coordinate_properties(
+                element, atom_index, element_movements, element_magnetisms
+            )
             if pick_index_atom == index_atom:
                 my_string = '  '.join(['{:.12f}'.format(x) for x in xxx_coords])
-                print(f"{my_string}     # Modified Atom {index_atom}.{element}.{move_direction}")
+                print(
+                    f"{my_string}{properties}     "
+                    f"# Modified Atom {index_atom}.{element}.{move_direction}"
+                )
             else:
                 my_string = '  '.join(['{:.12f}'.format(x) for x in pick_coords])
-                print(my_string)
+                print(my_string + properties)
 
 
 def stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_mass, element_pp, element_orb, coordinate_type):
@@ -638,7 +726,10 @@ def gen_polar(f_stru="STRU",
     # 常规模式：先复制额外文件（若用户提供）
     if input_mode in ('abacus', 'pyatb'):
         if input_sets is None:
-            input_sets = ABACUS_DEFAULT_FILES
+            input_sets = (
+                ABACUS_DEFAULT_FILES
+                or _abacus_assets_from_stru(f_stru, source_dir)
+            )
     elif input_mode == 'hamgnn':
         if input_sets is None:
             input_sets = HAMGNN_DEFAULT_FILES
@@ -853,7 +944,12 @@ def gen_polar(f_stru="STRU",
                     # 重定向标准输出到文件
                     sys.stdout = file_out
                     stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_mass, element_pp, element_orb, coordinate_type)
-                    print_original_coordinates(element_coordinates, coords)
+                    print_original_coordinates(
+                        element_coordinates,
+                        coords,
+                        element_movements,
+                        element_magnetisms,
+                    )
             finally:
                 # 无论是否出错，都恢复标准输出
                 sys.stdout = original_stdout
@@ -886,7 +982,12 @@ def gen_polar(f_stru="STRU",
                 # 重定向标准输出到文件
                 sys.stdout = file_out
                 stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_mass, element_pp, element_orb, coordinate_type)
-                print_original_coordinates(element_coordinates, coords)
+                print_original_coordinates(
+                    element_coordinates,
+                    coords,
+                    element_movements,
+                    element_magnetisms,
+                )
         finally:
             # 无论是否出错，都恢复标准输出
             sys.stdout = original_stdout
@@ -973,7 +1074,12 @@ def gen_polar(f_stru="STRU",
                         # 重定向标准输出到文件
                         sys.stdout = file_out
                         stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_mass, element_pp, element_orb, coordinate_type)
-                        print_original_coordinates(element_coordinates, coords)
+                        print_original_coordinates(
+                            element_coordinates,
+                            coords,
+                            element_movements,
+                            element_magnetisms,
+                        )
                 finally:
                     # 无论是否出错，都恢复标准输出
                     sys.stdout = original_stdout
@@ -1055,7 +1161,14 @@ def gen_polar(f_stru="STRU",
                             sys.stdout = file_out
                             # 修改 STRU 的函数，创建3个文件夹x,y,z，调用3次函数，请完善这一块代码
                             stru_header_gen(lattice_constant, lattice_vectors, element_symbols, element_mass, element_pp, element_orb, coordinate_type)
-                            print_modified_coordinates(element_coordinates, xxx_coords, index_atom, direction)
+                            print_modified_coordinates(
+                                element_coordinates,
+                                xxx_coords,
+                                index_atom,
+                                direction,
+                                element_movements,
+                                element_magnetisms,
+                            )
 
 
                         # 恢复标准输出

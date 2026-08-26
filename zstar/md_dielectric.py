@@ -11,12 +11,16 @@ from __future__ import annotations
 
 import argparse
 import csv
+from importlib import import_module, metadata
 import json
 import math
+import os
 import re
+import subprocess
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Protocol, Sequence, Tuple, runtime_checkable
 
 import numpy as np
 
@@ -25,6 +29,7 @@ EPS0 = 8.8541878128e-12
 KB = 1.380649e-23
 ANG3_TO_M3 = 1.0e-30
 EANG_TO_CM = 1.602176634e-29
+MD_BEC_PLUGIN_GROUP = "zstar.md_bec_providers"
 
 
 @dataclass
@@ -54,6 +59,128 @@ class MDDielectricResult:
     reference_mode: str
     bec_mode: str
     outdir: Optional[str] = None
+
+
+@runtime_checkable
+class BECProvider(Protocol):
+    name: str
+
+    def provide(self, trajectory: MDTrajectory) -> np.ndarray:
+        """Return BEC tensors with shape (nframe, natom, 3, 3)."""
+
+
+def _validate_provider_output(
+    values: Any,
+    trajectory: MDTrajectory,
+    *,
+    provider_name: str,
+) -> np.ndarray:
+    array = np.asarray(values, dtype=float)
+    expected = (len(trajectory.steps), len(trajectory.atom_ids), 3, 3)
+    if array.shape != expected:
+        raise ValueError(
+            f"BEC provider {provider_name!r} returned shape {array.shape}; expected {expected}"
+        )
+    if not np.all(np.isfinite(array)):
+        raise ValueError(f"BEC provider {provider_name!r} returned non-finite values")
+    return array
+
+
+@dataclass(frozen=True)
+class ExternalCommandBECProvider:
+    command: str
+    name: str = "external-command"
+
+    def provide(self, trajectory: MDTrajectory) -> np.ndarray:
+        """Run one batch predictor using an NPZ request/output contract."""
+
+        with tempfile.TemporaryDirectory(prefix="zstar-md-bec-") as temporary:
+            root = Path(temporary)
+            request = root / "trajectory_request.npz"
+            output = root / "bec_output.npy"
+            payload: dict[str, np.ndarray] = {
+                "steps": trajectory.steps,
+                "positions_angstrom": trajectory.positions,
+                "cells_angstrom": trajectory.cells,
+                "atom_ids": trajectory.atom_ids,
+            }
+            if trajectory.atom_types is not None:
+                payload["atom_types"] = trajectory.atom_types
+            if trajectory.elements is not None:
+                payload["elements"] = np.asarray(trajectory.elements, dtype=str)
+            np.savez_compressed(request, **payload)
+            quote = lambda path: subprocess.list2cmdline([str(path)])
+            command = self.command.format(
+                request=quote(request), output=quote(output)
+            )
+            environment = os.environ.copy()
+            environment.update(
+                ZSTAR_MD_REQUEST=str(request),
+                ZSTAR_MD_OUTPUT=str(output),
+            )
+            subprocess.run(command, shell=True, check=True, env=environment)
+            if not output.is_file():
+                alternatives = [root / "bec_output.npz", root / "bec_output.json"]
+                output = next((path for path in alternatives if path.is_file()), output)
+            if not output.is_file():
+                raise FileNotFoundError(
+                    "External BEC provider did not write ZSTAR_MD_OUTPUT or "
+                    "bec_output.npz/bec_output.json"
+                )
+            if output.suffix == ".npy":
+                values = np.load(output)
+            elif output.suffix == ".npz":
+                with np.load(output) as archive:
+                    if "bec_tensors" not in archive:
+                        raise ValueError("External BEC NPZ output requires key 'bec_tensors'")
+                    values = archive["bec_tensors"]
+            else:
+                data = json.loads(output.read_text(encoding="utf-8"))
+                values = data.get("bec_tensors", data)
+            return _validate_provider_output(
+                values, trajectory, provider_name=self.name
+            )
+
+
+def load_bec_provider(name: str) -> BECProvider:
+    """Load ``module:object`` or a ``zstar.md_bec_providers`` entry point."""
+
+    if ":" in name:
+        module_name, attribute = name.split(":", 1)
+        plugin: Any = getattr(import_module(module_name), attribute)
+    else:
+        entry_points = metadata.entry_points()
+        selected = (
+            entry_points.select(group=MD_BEC_PLUGIN_GROUP, name=name)
+            if hasattr(entry_points, "select")
+            else [
+                item
+                for item in entry_points.get(MD_BEC_PLUGIN_GROUP, ())
+                if item.name == name
+            ]
+        )
+        if not selected:
+            raise KeyError(
+                f"Unknown MD BEC provider {name!r}; use module:object or install "
+                f"an entry point in {MD_BEC_PLUGIN_GROUP}"
+            )
+        plugin = list(selected)[0].load()
+    provider = plugin() if isinstance(plugin, type) else plugin
+    if not isinstance(provider, BECProvider):
+        if callable(provider):
+            callable_provider = provider
+
+            class _CallableProvider:
+                def __init__(self, provider_name: str) -> None:
+                    self.name = provider_name
+
+                def provide(self, trajectory: MDTrajectory) -> np.ndarray:
+                    return callable_provider(trajectory)
+
+            provider = _CallableProvider(name)
+        else:
+            raise TypeError("MD BEC provider must expose name and provide(trajectory)")
+    return provider
 
 
 def parse_type_map(text: Optional[str]) -> Dict[int, str]:
@@ -436,6 +563,8 @@ def compute_md_dielectric(
     bec_dir: Optional[str | Path] = None,
     bec_pattern: str = "frame_{step}.npy",
     fixed_bec: Optional[str | Path] = None,
+    bec_command: Optional[str] = None,
+    bec_provider: Optional[str] = None,
     temperature: float,
     type_map: Optional[Dict[int, str]] = None,
     start_step: Optional[int] = None,
@@ -459,14 +588,34 @@ def compute_md_dielectric(
     if n_frames < 2:
         raise ValueError("At least two MD frames are required")
 
-    bec_tensors, bec_mode, used_bec_steps = load_bec_series(
-        traj.steps,
-        n_atoms,
-        bec_dir=bec_dir,
-        bec_pattern=bec_pattern,
-        fixed_bec=fixed_bec,
-        max_step_gap=max_step_gap,
-    )
+    sources = [
+        bool(bec_dir), bool(fixed_bec), bool(bec_command), bool(bec_provider)
+    ]
+    if sum(sources) != 1:
+        raise ValueError(
+            "Provide exactly one BEC source: bec_dir, fixed_bec, bec_command, or bec_provider"
+        )
+    if bec_command:
+        provider: BECProvider = ExternalCommandBECProvider(bec_command)
+        bec_tensors = provider.provide(traj)
+        bec_mode = provider.name
+        used_bec_steps = [None] * len(traj.steps)
+    elif bec_provider:
+        provider = load_bec_provider(bec_provider)
+        bec_tensors = _validate_provider_output(
+            provider.provide(traj), traj, provider_name=provider.name
+        )
+        bec_mode = f"plugin:{provider.name}"
+        used_bec_steps = [None] * len(traj.steps)
+    else:
+        bec_tensors, bec_mode, used_bec_steps = load_bec_series(
+            traj.steps,
+            n_atoms,
+            bec_dir=bec_dir,
+            bec_pattern=bec_pattern,
+            fixed_bec=fixed_bec,
+            max_step_gap=max_step_gap,
+        )
     mask = build_frame_mask(
         traj.steps,
         start_step=start_step,
@@ -565,6 +714,58 @@ def write_outputs(outdir: Path, result: MDDielectricResult, used_bec_steps: Sequ
         "epsilon_total_trace_over_3": float(np.trace(result.epsilon) / 3.0),
     }
     (outdir / "md_dielectric_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    from .dimensions import dimension_spec
+    from .response_schema import ResponseQuantity, ResponseRecord
+
+    ResponseRecord(
+        backend="md-bec",
+        dimensionality=dimension_spec(3),
+        quantities=(
+            ResponseQuantity(
+                name="static_dielectric_total",
+                values=result.epsilon,
+                unit="1",
+                normalization="cell_volume",
+                axes=("field", "polarization"),
+                source="MD dipole fluctuations plus electronic response",
+            ),
+            ResponseQuantity(
+                name="static_dielectric_ionic",
+                values=result.epsilon_ionic,
+                unit="1",
+                normalization="cell_volume",
+                axes=("field", "polarization"),
+                source="MD dipole fluctuations",
+            ),
+            ResponseQuantity(
+                name="electronic_dielectric",
+                values=result.electronic_dielectric,
+                unit="1",
+                normalization="cell_volume",
+                axes=("field", "polarization"),
+                source=result.electronic_source,
+            ),
+            ResponseQuantity(
+                name="dipole_covariance",
+                values=result.covariance_eA2,
+                unit="e^2*angstrom^2",
+                normalization="selected_frames",
+                axes=("dipole", "dipole"),
+                source="MD trajectory",
+            ),
+        ),
+        provenance={
+            "collector": "zstar.md_dielectric.write_outputs",
+            "bec_provider": result.bec_mode,
+            "n_frames_total": int(len(result.steps)),
+            "n_frames_selected": int(np.sum(result.selected)),
+        },
+        metadata={
+            "temperature_K": result.temperature_K,
+            "volume_A3_avg": result.volume_A3_avg,
+            "reference": result.reference_mode,
+        },
+    ).write(outdir / "zstar_response.json")
     with (outdir / "md_diagnostics.txt").open("w", encoding="utf-8") as handle:
         handle.write("Zstar MD dielectric diagnostics\n")
         handle.write(f"temperature_K = {result.temperature_K:.8g}\n")
@@ -587,6 +788,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     bec = parser.add_mutually_exclusive_group(required=True)
     bec.add_argument("--bec-dir", help="Directory containing per-frame BEC tensors.")
     bec.add_argument("--fixed-bec", help="Fixed BEC tensor file used for all frames.")
+    bec.add_argument(
+        "--bec-command",
+        help="Batch external predictor; reads ZSTAR_MD_REQUEST and writes ZSTAR_MD_OUTPUT.",
+    )
+    bec.add_argument(
+        "--bec-provider",
+        help="Provider entry point name or module:object.",
+    )
     parser.add_argument("--bec-pattern", default="frame_{step}.npy", help="Per-frame BEC filename pattern.")
     parser.add_argument("--structure-glob", default="frame_*.vasp", help="Structure-frame glob.")
     parser.add_argument("--temperature", type=float, required=True, help="MD temperature in K.")
@@ -623,6 +832,8 @@ def main(argv: Optional[Sequence[str]] = None) -> MDDielectricResult:
         bec_dir=args.bec_dir,
         bec_pattern=args.bec_pattern,
         fixed_bec=args.fixed_bec,
+        bec_command=args.bec_command,
+        bec_provider=args.bec_provider,
         temperature=args.temperature,
         type_map=parse_type_map(args.type_map),
         start_step=args.start_step,

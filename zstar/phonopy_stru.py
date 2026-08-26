@@ -10,6 +10,8 @@ from .stru_analyzer import stru_analyzer
 def write_phonopy_compatible_stru(
     source: str | Path,
     destination: str | Path,
+    *,
+    include_magnetism: bool = True,
 ) -> None:
     """Normalize optional ABACUS coordinate fields for Phonopy."""
 
@@ -46,6 +48,19 @@ def write_phonopy_compatible_stru(
     )
     lines.extend(["\nATOMIC_POSITIONS\n", f"{coordinate_type}\n"])
 
+    magnetic_values = [
+        value
+        for symbol in element_symbols
+        for value in element_magnetisms[symbol]
+    ]
+    magnetic_width = 3 if any(isinstance(value, list) for value in magnetic_values) else 1
+    has_magnetism = any(
+        any(abs(float(component)) > 0 for component in value)
+        if isinstance(value, list)
+        else abs(float(value)) > 0
+        for value in magnetic_values
+    )
+
     for symbol in element_symbols:
         lines.extend(
             [f"\n{symbol}\n", "0.0\n", f"{element_atomnumber[symbol]}\n"]
@@ -57,14 +72,18 @@ def write_phonopy_compatible_stru(
         ):
             line = " ".join(f"{value:.12f}" for value in coords)
             line += " m " + " ".join(str(int(value)) for value in movement)
-            if isinstance(magnetism, (int, float)) and abs(float(magnetism)) > 0:
-                line += f" mag {float(magnetism):g}"
-            elif isinstance(magnetism, list) and any(
-                abs(float(value)) > 0 for value in magnetism
-            ):
-                line += " mag " + " ".join(
-                    f"{float(value):g}" for value in magnetism
-                )
+            # Phonopy converts the coordinate rows to a rectangular NumPy
+            # array.  If only magnetic atoms carry a ``mag`` field, mixed
+            # magnetic/non-magnetic structures produce ragged rows and fail
+            # before symmetry analysis.  Once any moment is present, emit the
+            # same-width magnetic field for every atom, including explicit 0s.
+            if include_magnetism and has_magnetism:
+                values = magnetism if isinstance(magnetism, list) else [magnetism]
+                if magnetic_width == 3:
+                    values = list(values[:3]) + [0.0] * (3 - len(values[:3]))
+                else:
+                    values = values[:1]
+                line += " mag " + " ".join(f"{float(value):g}" for value in values)
             lines.append(line + "\n")
 
     Path(destination).write_text("".join(lines), encoding="utf-8")

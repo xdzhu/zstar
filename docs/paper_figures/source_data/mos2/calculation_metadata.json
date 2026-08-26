@@ -1,0 +1,28 @@
+{
+  "system": "monolayer 2H-MoS2",
+  "method": {
+    "calculator": "ABACUS 3.10.0 LTS",
+    "exchange_correlation": "PBE",
+    "basis": "LCAO",
+    "ecutwfc_Ry": 100,
+    "reference_path_gap_eV": 1.60846353,
+    "normal_coordinate_step_A_sqrt_amu": 0.02,
+    "finite_difference": "central",
+    "raman_dimensionality": "2D sheet susceptibility derivative"
+  },
+  "electronic_response": {
+    "program": "PyATB",
+    "version": "1.1.2.dev0+2ad34bc",
+    "interface": "static_dielectric_only",
+    "output": "static_dielectric_function.dat"
+  },
+  "validation": {
+    "completed_raman_stages": 12,
+    "representative_step_check_A_sqrt_amu": 0.01,
+    "mode_6_tensor_relative_difference": 0.0001834738,
+    "mode_8_tensor_relative_difference": 0.0002662771,
+    "legacy_10eV_relative_difference_mode_6": 0.04633316,
+    "legacy_10eV_relative_difference_mode_8": 0.07838961
+  },
+  "provenance": "Compact outputs archived from validation on two dedicated compute nodes; raw DFT folders, pseudopotentials, and orbitals remain outside Git."
+}

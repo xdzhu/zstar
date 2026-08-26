@@ -1,8 +1,12 @@
 # Zstar Potential Examples for 2D Materials
 
-These examples demonstrate `zstar potential` on representative two-dimensional materials. MoS2 is used as a nonpolar reference, In2Se3 as an out-of-plane polar slab, and SnS/SnSe/SnTe as in-plane polar monolayers. No unpublished NbSe2 data are used here.
+These examples demonstrate `zstar potential` on representative two-dimensional materials. MoS2 is used as a nonpolar reference, In2Se3 as an out-of-plane polar slab, and SnS/SnSe/SnTe as in-plane polar monolayers.
 
-The plots were generated on the 235 cluster by running the post-processing on `cu15`, `cu17`, and `cu24` from already converged ABACUS `ElecStaticPot.cube` files.
+The plots were generated from converged ABACUS `ElecStaticPot.cube` files. The compact source profiles and path-free calculation metadata used for the manuscript figure are archived under `docs/paper_figures/source_data/potential/`.
+
+![Representative 2D electrostatic-potential diagnostics](paper_figures/potential_examples_2d.png)
+
+The upper panels provide the decisive slab-normal comparison. Using 0.75 Angstrom local vacuum windows after excluding 6 Angstrom from each surface, MoS2 gives `Delta V_vac = -1.65e-5 eV`, whereas alpha-In2Se3 gives `Delta V_vac = 1.220812 eV`. The local-window rule is important for dipole-corrected polar slabs because averaging an entire half-vacuum can mix a surface plateau with the correction reset.
 
 ## MoS2: Centered Nonpolar 2D Reference
 
@@ -12,7 +16,8 @@ For a clean slab-style z profile, `--center-slab` periodically shifts the potent
 zstar potential --cube OUT.ABACUS/ElecStaticPot.cube \
   --prefix MoS2-ElecStaticPot \
   --axes z --plane xy --plane-average --tile 5 5 \
-  --vacuum-level --center-slab \
+  --vacuum-level --vacuum-sides --vacuum-window 0.75 \
+  --center-slab \
   --outdir potential_examples/MoS2
 ```
 
@@ -22,13 +27,14 @@ zstar potential --cube OUT.ABACUS/ElecStaticPot.cube \
 
 ## In2Se3: Out-Of-Plane Polar 2D Slab
 
-For an out-of-plane polar slab, `--vacuum-sides` estimates the lower and upper vacuum plateaus separately and writes their difference to `E_vacuum_sides.out`. With `--polar-arrow auto`, the z-profile plot marks the inferred potential-step direction. In this example, the upper-minus-lower vacuum step is about `0.362 eV`.
+For an out-of-plane polar slab, `--vacuum-sides` estimates the lower and upper vacuum plateaus separately and writes their difference, local standard deviations, point counts, and averaging width to `E_vacuum_sides.out`. With `--polar-arrow auto`, the z-profile plot marks the inferred potential-step direction. In this example, the upper-minus-lower vacuum step is `1.220812 eV`; the lower and upper plateau standard deviations are `5.14e-6` and `2.78e-6 eV`, respectively.
 
 ```bash
 zstar potential --cube OUT.ABACUS/ElecStaticPot.cube \
   --prefix In2Se3-ElecStaticPot \
   --axes z --plane xy --plane-average --tile 5 5 \
-  --vacuum-level --vacuum-sides --polar-arrow auto \
+  --vacuum-level --vacuum-sides --vacuum-window 0.75 \
+  --polar-arrow auto \
   --outdir potential_examples/In2Se3
 ```
 
@@ -52,6 +58,13 @@ zstar potential --cube OUT.ABACUS/ElecStaticPot.cube \
 ```
 
 To compare the legacy hard-binning curve with interpolated perpendicular slices, repeat `--direction-method` or use `--direction-method all`. The generated `*-compare*.png` overlay shows how much of the apparent saw-tooth structure comes from discretization.
+
+For the manuscript comparison, each direction was mean-centered and the
+contrast
+`V_tilde(a+b) - V_tilde(a-b)` was evaluated. Its RMS value is `0.568 eV` for
+SnS, `0.411 eV` for SnSe, and `0.188 eV` for SnTe. These values quantify the
+directional contrast of the plotted potential only. They are not polarization
+values and do not replace a Berry-phase or real-space dipole calculation.
 
 ### SnS
 

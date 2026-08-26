@@ -1,4 +1,4 @@
-# ZStar 0.1.1 Validation Record
+# ZStar 0.2.0 Validation Record
 
 [简体中文](validation.zh-CN.md)
 
@@ -10,8 +10,8 @@ parameters for every material.
 ## Environments
 
 - Local unit and integration tests: Python 3.10 test environment on Windows.
-- Direct compute-node regression: ABACUS 3.10.0-LTS, Phonopy 2.38.2, and the
-  established PyATB environment on `cu09` and `cu10`.
+- Direct compute-node regression: ABACUS 3.10.0-LTS, Phonopy 2.38.2, and an
+  established PyATB environment on dedicated compute nodes.
 - PyATB compatibility: established interface plus the
   `wheels-cp310plus-2ad34bc.zip` build, detected as
   `1.1.2.dev0+2ad34bc`.
@@ -31,9 +31,11 @@ The source test suite covers:
 - 3D and hybrid 2D BEC assembly, including rejection of tilted slab normals;
 - phonon folder generation and force post-processing;
 - IR mode charges, 2D sheet response, Raman finite differences, and spectra;
-- fixed and frame-resolved BEC input for MD dielectric post-processing.
+- fixed and frame-resolved BEC input for MD dielectric post-processing; and
+- local two-sided slab vacuum plateaus in the presence of a
+  dipole-correction reset.
 
-The release candidate passes all 34 source tests. The ignored local BTO
+The current source tree passes all 37 source tests. The ignored local BTO
 example also completes `zstar deal --dim 3 --method forward --pyatb` and
 reproduces the archived representative charges:
 
@@ -62,6 +64,26 @@ the material calculations themselves continued to use the dedicated direct
 compute nodes. Each generated `.zstar/backend_manifest.json` records the
 backend, resources, launch commands, environment script, serial execution
 model, and resume-state directory.
+
+## Electrostatic-Potential Regression
+
+The revised `zstar pot --vacuum-sides` estimator was rerun on the original
+MoS2 and alpha-In2Se3 `ElecStaticPot.cube` files. After excluding 6 Angstrom
+from each surface, it averages a 0.75 Angstrom local window at each
+surface-adjacent boundary and reports the window standard deviation.
+
+| System | Lower vacuum (eV) | Upper vacuum (eV) | Upper - lower (eV) | Maximum plateau std (eV) |
+| --- | ---: | ---: | ---: | ---: |
+| MoS2 | 2.96659030 | 2.96657379 | -0.00001651 | 5.15e-6 |
+| alpha-In2Se3 | 3.06429908 | 4.28511121 | 1.22081213 | 5.14e-6 |
+
+The earlier In2Se3 value of `0.361722 eV` is rejected: it resulted from
+averaging an entire half of the periodic vacuum, which mixed the upper surface
+plateau with the dipole-correction reset. The local-window result places both
+reported means on visibly flat regions. Mean-centered `a+b` versus `a-b`
+directional contrasts give RMS values of `0.568`, `0.411`, and `0.188 eV` for
+SnS, SnSe, and SnTe, respectively. These are potential-profile diagnostics,
+not polarization magnitudes.
 
 ## Fresh Cross-Dimensional Regression
 
@@ -139,7 +161,7 @@ The same hBN sparse matrices were processed through both interfaces:
 
 The maximum absolute component difference is 0.0044. A legacy 0-0.1 eV
 window returned a spurious identity tensor and is therefore not used. ZStar
-0.1.1 defaults to the validated 0-30 eV compact window when direct-static
+Since 0.1.1, ZStar defaults to the validated 0-30 eV compact window when direct-static
 calculation is unavailable.
 
 ## Infrared and Raman Checks
@@ -167,15 +189,25 @@ dielectric tensor. Intensities from these two conventions should not be
 compared as if they shared one bulk normalization.
 
 The Raman runner was exercised through complete plus/minus electronic
-calculations in both dimensions. The selected hBN mode tests the 2D
-sheet-susceptibility convention. Tetragonal BaTiO3 was extended to all ten
-positive-frequency optical modes, requiring 20 completed electronic-response
-tasks:
+calculations in both dimensions. The selected hBN mode and the complete MoS2
+optical manifold test the 2D sheet-susceptibility convention. Tetragonal
+BaTiO3 was extended to all ten positive-frequency optical modes, requiring 20
+completed electronic-response tasks:
 
 | System | Response convention | Mode (cm-1) | Selected result |
 | --- | --- | ---: | --- |
 | hBN | 2D sheet-susceptibility derivative | 1371.42 | Rxx = 13.865, Ryy = -13.858, depolarization ratio = 0.7500 |
+| MoS2 | 2D sheet-susceptibility derivative | 388.44 A1' | diag(R) = (-1.7774, -1.7774, -8.8043), depolarization ratio = 0.1541 |
 | BaTiO3 | 3D dielectric derivative | 554.70 | diag(R) = (0.8465, 0.8465, 1.0978), depolarization ratio = 0.00484 |
+
+The MoS2 run used PyATB `1.1.2.dev0+2ad34bc` and its direct
+`static_dielectric_only` Kubo kernel, completing 12 positive/negative stages
+for modes 4-9. The degenerate `E''` pair at 270.67 cm-1, the `E'` pair at
+359.65 cm-1, and `A1'` at 388.44 cm-1 have normalized Raman activities 0.1897,
+0.4730, and 1.0000. The IR-active `A2''` mode at 439.78 cm-1 has a residual
+Raman activity of only `1.54e-7`, recovering the D3h selection rules. Halving
+the normal-coordinate step from 0.02 to 0.01 Angstrom sqrt(amu) changes the
+`E'` and `A1'` tensor norms by 0.018% and 0.027%.
 
 The BTO mode classification provides an additional selection-rule check: the
 293.38 cm-1 `B1` mode has zero IR mode charge and finite normalized Raman
@@ -191,6 +223,126 @@ are archived in [docs/paper_figures](paper_figures/README.md):
 
 - [Tetragonal BTO mode, IR, and Raman figure](paper_figures/bto_mode_spectroscopy.png)
 - [Alpha-In2Se3 hybrid 2D polarization/BEC figure](paper_figures/in2se3_hybrid_polarization.png)
+- [Validated molecule, MoS2, and bulk IR/Raman comparison](paper_figures/spectroscopy_validated_dimensions.png)
+- [0D-to-3D spectroscopy roadmap with reserved 1D row](paper_figures/spectroscopy_across_dimensions.png)
+
+## Molecular Spectroscopy
+
+The production `--dim 0` path was validated with methane in a 20 Angstrom
+vacuum cell using ABACUS 3.10.0 LTS, PBE, a 100 Ry cutoff, and central normal
+coordinate differences. No empirical frequency scaling was applied.
+
+| Fundamental | Symmetry | ZStar/ABACUS (cm-1) | NIST (cm-1) | Error | IR | Raman |
+| --- | --- | ---: | ---: | ---: | --- | --- |
+| nu4 bend | T2 | 1287.93 | 1306 | -1.38% | active | active |
+| nu2 bend | E | 1516.62 | 1534 | -1.13% | inactive | active |
+| nu1 symmetric stretch | A1 | 2968.29 | 2917 | +1.76% | inactive | active |
+| nu3 asymmetric stretch | T2 | 3088.05 | 3019 | +2.29% | active | active |
+
+The `A1 + E + 2 T2` degeneracies and all IR/Raman selection rules are
+recovered. The new CLI-generated IR and Raman CSV files are numerically
+identical to the independently audited CH4 conversion scripts. Experimental
+frequencies and assignments are from the
+[NIST Chemistry WebBook](https://webbook.nist.gov/cgi/cbook.cgi?ID=C74828&Mask=887).
+
+The complementary CO2 run completed directly on a dedicated compute node with one MPI rank and
+20 OpenMP threads. Its accepted PBE geometry has a 1.17042 Angstrom bond and a
+maximum residual force of 0.00623 eV/Angstrom; the path-sampled reference gap
+is 8.6179 eV.
+
+| Fundamental | Symmetry | ZStar/ABACUS (cm-1) | NIST (cm-1) | Error | IR | Raman |
+| --- | --- | ---: | ---: | ---: | --- | --- |
+| bend (twofold) | Eu | 635.64 | 667 | -4.70% | active | inactive |
+| symmetric stretch | A1g | 1331.99 | 1333 | -0.08% | inactive | active |
+| asymmetric stretch | A2u | 2381.04 | 2349 | +1.36% | active | inactive |
+
+The forbidden Raman ratios are below `2.5e-15`, and the forbidden IR activity
+is zero to output precision. The calculation therefore passes the
+centrosymmetric mutual-exclusion benchmark as well as the frequency check.
+The compact source data and reproducible figure are archived in
+[docs/paper_figures](paper_figures/README.md).
+
+![Combined CH4 and CO2 molecular validation](paper_figures/molecular_validation_overview.png)
+
+## CP2K BEC Backend
+
+The CP2K backend was exercised directly on a dedicated compute node with the official static
+CP2K 2025.2 executable. Its SHA256 is
+`f80da1a05fd424a073bf20ed013a277e6af603659dc2c3ff4840b156f0293e8e`.
+The unmodified CP2K `h2o_apt_fdiff.inp` regression first reproduced checksum
+`0.0034319918`, exactly matching the distributed reference.
+
+A tighter six-atom periodic H2O input then compared ZStar's displacement-dipole
+derivative against CP2K's native finite-field force derivative. Both routes
+used the same LDA/SZV-GTH model, 400 Ry-equivalent GPW cutoff, `EPS_SCF=1e-9`,
+a 0.005 Angstrom atomic displacement, and a `1e-4` a.u. electric-field step.
+ZStar completed one reference plus 36 displaced stages serially and reused the
+reference wavefunction throughout.
+
+| H2O comparison | Result |
+| --- | ---: |
+| Compared tensor components | 54 |
+| Maximum absolute difference | 0.000837 e |
+| RMS difference | 0.000179 e |
+| ZStar maximum acoustic-sum component | 0.002852 e |
+| Native maximum acoustic-sum component | 0.002857 e |
+
+CP2K writes native APT rows as field directions and columns as force
+directions. ZStar transposes the raw matrix before comparing it with the
+package convention, whose rows are displacement/force and columns are
+polarization/field. Failing to make this conversion produces a spurious
+0.10 e error in the non-diagonal H2O components.
+
+Rock-salt MgO supplied a complementary periodic-solid diagnostic using PBE,
+TZVP basis sets, a 500 Ry-equivalent cutoff, `EPS_SCF=1e-8`, and a 0.005
+Angstrom displacement. The ZStar representative tensors were cubic to output
+precision:
+
+| Site | ZStar diagonal BEC (e) | CP2K native diagonal BEC (e) |
+| --- | ---: | ---: |
+| Mg | +1.90239 | +1.89558 |
+| O | -1.90315 | -1.80470 |
+
+The selected Mg+O ZStar sum was only `0.000763 e` per diagonal component. By
+contrast, the complete eight-atom CP2K native APT had a maximum acoustic-sum
+component of `0.36351 e`; the O discrepancy reached `0.09845 e`, while Mg
+agreed within `0.00681 e`. Scans from `1e-4` to `1e-3` a.u. did not remove the
+native residual. This MgO result is therefore retained as a detected CP2K
+2025.2 APT inconsistency for this input, not used as an acceptance reference.
+It also demonstrates why ZStar reports sum-rule diagnostics instead of
+blindly accepting an internal backend tensor.
+
+The implementation and commands are documented in the
+[CP2K BEC guide](cp2k_bec.md). CP2K's official documentation describes the
+[distributed executables](https://manual.cp2k.org/trunk/getting-started/distributions.html)
+and [periodic electric field](https://manual.cp2k.org/trunk/CP2K_INPUT/FORCE_EVAL/DFT/PERIODIC_EFIELD.html);
+native finite-difference APT was introduced in the
+[CP2K 2025.2 release](https://github.com/cp2k/cp2k/releases/tag/v2025.2).
+
+## Quantum ESPRESSO Backend
+
+The calculator-neutral DFPT route was exercised with the site-provided Quantum
+ESPRESSO 6.2.1 module on two dedicated compute nodes. An isolated CO2 input completed the
+full `pw.x -> ph.x -> dynmat.x` chain and produced common-schema dielectric,
+BEC, mode-frequency, and IR-activity records. It was an unrelaxed interface
+test and is therefore not used as a frequency benchmark.
+
+A zincblende SiC bulk closure used PBE, a `6 x 6 x 6` k mesh, and 20 MPI ranks.
+All three resumable stages completed:
+
+| SiC QE closure | Parsed result |
+| --- | ---: |
+| Reference HO-LU gap | 1.3553 eV |
+| Electronic dielectric tensor | 7.5667 I |
+| Optical frequencies | 785.39 cm-1 (threefold) |
+| IR activity | 20.7189 per optical mode |
+| Raw diagonal BEC, Si / C | +2.6570 / -2.8403 e |
+
+The `0.1833 e` acoustic residual is retained and reported. These inexpensive
+settings validate old-QE restart compatibility, insulation gating, stage
+recovery, parser orientation, schema export, and spectrum generation; they are
+not presented as a converged SiC response benchmark. See the
+[calculator-independent guide](calculator_independent_backends.md).
 
 ## Reproduction Boundaries
 

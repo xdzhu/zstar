@@ -11,10 +11,29 @@ from zstar.workflow import (
     prepare_pyatb_assets,
     reuse_reference_charge,
     run_raman_workflow,
+    scf_is_complete,
 )
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_scf_completion_requires_exit_and_density_convergence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            stage = Path(tmp)
+            output = stage / "OUT.TEST"
+            output.mkdir()
+            log = output / "running_scf.log"
+
+            log.write_text("Total  Time  : 0 h 1 mins 0 secs\n", encoding="utf-8")
+            self.assertFalse(scf_is_complete(stage))
+
+            log.write_text(
+                "charge density convergence is achieved\n"
+                + ("matrix output\n" * 3000)
+                + "Total  Time  : 0 h 1 mins 0 secs\n",
+                encoding="utf-8",
+            )
+            self.assertTrue(scf_is_complete(stage))
+
     def _make_tree(self, root: Path):
         for relative in (
             "0.no-move",
@@ -199,6 +218,8 @@ class WorkflowTests(unittest.TestCase):
             states = run_raman_workflow(
                 raman,
                 reference_dir=root / "0.no-move",
+                dimensionality=0,
+                molecular_ir=True,
                 dry_run=True,
             )
             self.assertEqual(
@@ -213,6 +234,8 @@ class WorkflowTests(unittest.TestCase):
             self.assertIn("pyatb_input --band --output pyatb-band", log_text)
             self.assertEqual(log_text.count("pyatb_input --band"), 1)
             self.assertNotIn("--kmode", log_text)
+            self.assertEqual(log_text.count("--polar"), 2)
+            self.assertEqual(log_text.count("--output pyatb-polar"), 2)
 
     def test_born_gap_gate_runs_only_for_reference(self):
         with tempfile.TemporaryDirectory() as tmp:

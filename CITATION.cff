@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use ZStar, please cite the software release and the associated software article."
+title: "ZStar: Auditable workflows for polarization, Born effective charges, and dielectric spectroscopy"
+type: software
+version: 0.2.0
+date-released: 2026-08-26
+license: GPL-3.0-only
+repository-code: "https://github.com/xdzhu/zstar"
+url: "https://pypi.org/project/zstar/"
+authors:
+  - family-names: Zhu
+    given-names: Xudong
+    email: zhu@iai.ustc.edu.cn
+  - family-names: Li
+    given-names: Junhong
+  - family-names: Jin
+    given-names: Gan
+  - family-names: Guan
+    given-names: Zheng
+  - family-names: He
+    given-names: Lixin
+preferred-citation:
+  type: article
+  title: "ZStar: An Auditable Workflow for Polarization, Born Effective Charges, and Dielectric Spectroscopy in Bulk and Two-Dimensional Materials"
+  authors:
+    - family-names: Zhu
+      given-names: Xudong
+    - family-names: Li
+      given-names: Junhong
+    - family-names: Jin
+      given-names: Gan
+    - family-names: Guan
+      given-names: Zheng
+    - family-names: He
+      given-names: Lixin
+  journal: "Computer Physics Communications"
+  year: 2026

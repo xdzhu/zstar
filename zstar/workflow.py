@@ -142,11 +142,21 @@ def _find_scf_log(stage_dir: Path) -> Optional[Path]:
 
 def _contains_completion_marker(path: Path) -> bool:
     try:
-        tail = path.read_text(encoding="utf-8", errors="ignore")[-20000:]
+        with path.open("rb") as handle:
+            handle.seek(max(0, path.stat().st_size - 20000))
+            tail = handle.read().decode("utf-8", errors="ignore")
+            normalized_tail = " ".join(tail.lower().split())
+            if "total time" not in normalized_tail:
+                return False
+
+            handle.seek(0)
+            for raw_line in handle:
+                normalized_line = b" ".join(raw_line.lower().split())
+                if b"charge density convergence is achieved" in normalized_line:
+                    return True
     except OSError:
         return False
-    normalized = " ".join(tail.lower().split())
-    return "total time" in normalized or "total time :" in normalized
+    return False
 
 
 def scf_is_complete(stage_dir: str | Path) -> bool:
@@ -154,8 +164,10 @@ def scf_is_complete(stage_dir: str | Path) -> bool:
     return bool(log and log.stat().st_size > 0 and _contains_completion_marker(log))
 
 
-def polarization_is_complete(stage_dir: str | Path) -> bool:
-    path = Path(stage_dir) / "pyatb" / "Out" / "Polarization" / "polarization.dat"
+def polarization_is_complete(
+    stage_dir: str | Path, subdir: str = "pyatb"
+) -> bool:
+    path = Path(stage_dir) / subdir / "Out" / "Polarization" / "polarization.dat"
     return path.is_file() and path.stat().st_size > 0
 
 
@@ -302,6 +314,7 @@ def _pyatb_input_command(
     mp_density: float,
     legacy_omega_max: float,
     polarization: bool = True,
+    output: Optional[str] = None,
 ) -> str:
     parts = [shlex.quote(executable)]
     if polarization:
@@ -311,6 +324,8 @@ def _pyatb_input_command(
         parts.extend(
             ["--optical", "--orange", "0.0", f"{legacy_omega_max:g}"]
         )
+    if output:
+        parts.extend(["--output", shlex.quote(output)])
     return " ".join(parts)
 
 
@@ -666,6 +681,7 @@ def run_raman_workflow(
     check_insulating: bool = True,
     gap_mode: str = "path",
     dimensionality: int = 3,
+    molecular_ir: bool = False,
     min_gap_eV: float = 0.01,
     legacy_omega_max: float = DEFAULT_LEGACY_OMEGA_MAX_EV,
     legacy_domega: float = DEFAULT_LEGACY_DOMEGA_EV,
@@ -673,7 +689,7 @@ def run_raman_workflow(
     dry_run: bool = False,
     stop_after: Optional[int] = None,
 ) -> list[StageState]:
-    """Run Raman +/- structures serially and calculate static dielectric tensors."""
+    """Run Raman +/- structures serially and calculate response tensors."""
 
     root = Path(raman_dir).resolve()
     reference = Path(reference_dir).resolve()
@@ -778,11 +794,9 @@ def run_raman_workflow(
                 state.band = "not-requested"
 
             if dielectric_is_complete(stage.path):
-                state.pyatb = "completed"
-                state.dielectric = "completed"
                 store.event(
                     stage.name,
-                    "pyatb-skip",
+                    "pyatb-optical-skip",
                     reason="static dielectric output found",
                 )
             else:
@@ -825,8 +839,52 @@ def run_raman_workflow(
                     raise RuntimeError(
                         "PYATB did not produce a static dielectric output"
                     )
-                state.pyatb = "dry-run" if dry_run else "completed"
-                state.dielectric = "dry-run" if dry_run else "completed"
+            state.dielectric = "dry-run" if dry_run else "completed"
+
+            if molecular_ir and not polarization_is_complete(
+                stage.path, "pyatb-polar"
+            ):
+                polar_dir = stage.path / "pyatb-polar"
+                polar_input = polar_dir / "Input"
+                if not polar_input.is_file():
+                    _run_shell(
+                        _pyatb_input_command(
+                            pyatb_input,
+                            reference=False,
+                            mp_density=mp_density,
+                            legacy_omega_max=legacy_omega_max,
+                            polarization=True,
+                            output="pyatb-polar",
+                        ),
+                        cwd=stage.path,
+                        env=env,
+                        log_path=log_path,
+                        dry_run=dry_run,
+                    )
+                if not dry_run:
+                    prepare_pyatb_assets(stage.path, polar_dir)
+                state.pyatb = "running"
+                store.save(state)
+                _run_shell(
+                    pyatb_command,
+                    cwd=polar_dir,
+                    env=env,
+                    log_path=log_path,
+                    dry_run=dry_run,
+                )
+                if not dry_run and not polarization_is_complete(
+                    stage.path, "pyatb-polar"
+                ):
+                    raise RuntimeError(
+                        "PYATB did not produce molecular Polarization/polarization.dat"
+                    )
+            elif molecular_ir:
+                store.event(
+                    stage.name,
+                    "pyatb-polarization-skip",
+                    reason="molecular polarization output found",
+                )
+            state.pyatb = "dry-run" if dry_run else "completed"
 
             state.status = "dry-run" if dry_run else "completed"
             state.finished_at = _utc_now()

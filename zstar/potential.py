@@ -90,6 +90,11 @@ class VacuumSides:
     delta_upper_minus_lower_eV: float
     lower_coord_ang: float
     upper_coord_ang: float
+    lower_std_eV: float
+    upper_std_eV: float
+    lower_points: int
+    upper_points: int
+    plateau_width_ang: float
     side_after_start_eV: float
     side_before_end_eV: float
     gap_start_ang: float
@@ -673,14 +678,28 @@ def _periodic_interval_mask(coord: np.ndarray, start: float, end: float, length:
     return shifted <= width
 
 
-def _region_mean(profile: AxisProfile, start: float, end: float) -> Optional[Tuple[float, float]]:
-    mask = _periodic_interval_mask(profile.coord_ang, start, end, profile.cell_length_ang)
+def _region_stats(
+    profile: AxisProfile,
+    start: float,
+    end: float,
+) -> Optional[Tuple[float, float, float, int]]:
+    mask = _periodic_interval_mask(
+        profile.coord_ang,
+        start,
+        end,
+        profile.cell_length_ang,
+    )
     indices = np.where(mask)[0]
     if indices.size == 0:
         return None
     values = profile.values_ev[indices]
     coord = float(np.mod(0.5 * (start + end), profile.cell_length_ang))
-    return float(np.mean(values)), coord
+    return (
+        float(np.mean(values)),
+        coord,
+        float(np.std(values)),
+        int(indices.size),
+    )
 
 
 def estimate_vacuum_level(
@@ -725,9 +744,12 @@ def estimate_vacuum_sides(
     atom_coord_ang: np.ndarray,
     *,
     exclude_distance: float = 6.0,
+    plateau_width: float = 0.75,
 ) -> Optional[VacuumSides]:
     if profile.axis != "z" or atom_coord_ang.size == 0:
         return None
+    if plateau_width <= 0.0:
+        raise ValueError("Vacuum plateau width must be positive.")
     length = profile.cell_length_ang
     gap = _largest_periodic_gap(atom_coord_ang, length)
     if gap is None:
@@ -736,20 +758,35 @@ def estimate_vacuum_sides(
     if gap_len <= 2.0 * exclude_distance:
         return None
 
-    mid = gap_start + 0.5 * gap_len
-    side_after = _region_mean(profile, gap_start + exclude_distance, mid)
-    side_before = _region_mean(profile, mid, gap_end - exclude_distance)
+    available = gap_len - 2.0 * exclude_distance
+    local_width = min(float(plateau_width), 0.25 * available)
+    after_start = gap_start + exclude_distance
+    before_end = gap_end - exclude_distance
+    side_after = _region_stats(
+        profile,
+        after_start,
+        after_start + local_width,
+    )
+    side_before = _region_stats(
+        profile,
+        before_end - local_width,
+        before_end,
+    )
     if side_after is None or side_before is None:
         return None
 
-    after_e, after_coord = side_after
-    before_e, before_coord = side_before
+    after_e, after_coord, after_std, after_points = side_after
+    before_e, before_coord, before_std, before_points = side_before
     if before_coord <= after_coord:
         lower_e, lower_coord = before_e, before_coord
         upper_e, upper_coord = after_e, after_coord
+        lower_std, upper_std = before_std, after_std
+        lower_points, upper_points = before_points, after_points
     else:
         lower_e, lower_coord = after_e, after_coord
         upper_e, upper_coord = before_e, before_coord
+        lower_std, upper_std = after_std, before_std
+        lower_points, upper_points = after_points, before_points
 
     return VacuumSides(
         axis=profile.axis,
@@ -758,6 +795,11 @@ def estimate_vacuum_sides(
         delta_upper_minus_lower_eV=upper_e - lower_e,
         lower_coord_ang=lower_coord,
         upper_coord_ang=upper_coord,
+        lower_std_eV=lower_std,
+        upper_std_eV=upper_std,
+        lower_points=lower_points,
+        upper_points=upper_points,
+        plateau_width_ang=local_width,
         side_after_start_eV=after_e,
         side_before_end_eV=before_e,
         gap_start_ang=float(np.mod(gap_start, length)),
@@ -1176,6 +1218,7 @@ def analyze_potential(
     vacuum_level: bool = False,
     vacuum_sides: bool = False,
     vacuum_exclude: float = 6.0,
+    vacuum_window: float = 0.75,
     center_slab_axis: Optional[str] = None,
     polar_arrow: str = "none",
     plot: bool = True,
@@ -1222,7 +1265,12 @@ def analyze_potential(
         vac_sides = None
         atom_coord = _atom_axis_coordinates(field, axis)
         if vacuum_sides and axis == "z":
-            vac_sides = estimate_vacuum_sides(profile, atom_coord, exclude_distance=vacuum_exclude)
+            vac_sides = estimate_vacuum_sides(
+                profile,
+                atom_coord,
+                exclude_distance=vacuum_exclude,
+                plateau_width=vacuum_window,
+            )
         png_path = None
         if plot:
             png_path = output_dir / f"{prefix}-vs-{axis_upper}.png"
@@ -1252,6 +1300,9 @@ def analyze_potential(
                     f"LOWER_VACUUM (eV) = {vac_sides.lower_eV:.11f} at {axis} (Angstrom) = {vac_sides.lower_coord_ang:.6f}",
                     f"UPPER_VACUUM (eV) = {vac_sides.upper_eV:.11f} at {axis} (Angstrom) = {vac_sides.upper_coord_ang:.6f}",
                     f"DELTA_UPPER_MINUS_LOWER (eV) = {vac_sides.delta_upper_minus_lower_eV:.11f}",
+                    f"LOWER_STD (eV) = {vac_sides.lower_std_eV:.11e} from {vac_sides.lower_points} points",
+                    f"UPPER_STD (eV) = {vac_sides.upper_std_eV:.11e} from {vac_sides.upper_points} points",
+                    f"VACUUM_PLATEAU_WIDTH (Angstrom) = {vac_sides.plateau_width_ang:.6f}",
                     f"SIDE_AFTER_GAP_START (eV) = {vac_sides.side_after_start_eV:.11f}",
                     f"SIDE_BEFORE_GAP_END (eV) = {vac_sides.side_before_end_eV:.11f}",
                     f"VACUUM_GAP_START (Angstrom) = {vac_sides.gap_start_ang:.6f}",
@@ -1267,6 +1318,11 @@ def analyze_potential(
                 "delta_upper_minus_lower_eV": vac_sides.delta_upper_minus_lower_eV,
                 "lower_coord_ang": vac_sides.lower_coord_ang,
                 "upper_coord_ang": vac_sides.upper_coord_ang,
+                "lower_std_eV": vac_sides.lower_std_eV,
+                "upper_std_eV": vac_sides.upper_std_eV,
+                "lower_points": vac_sides.lower_points,
+                "upper_points": vac_sides.upper_points,
+                "plateau_width_ang": vac_sides.plateau_width_ang,
             }
         summary["axis_profiles"][axis] = axis_info
 
@@ -1407,6 +1463,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
                         help="Estimate lower/upper z-vacuum levels and their potential step.")
     parser.add_argument("--vacuum-exclude", type=float, default=6.0,
                         help="Distance in Angstrom excluded from both sides of the vacuum gap.")
+    parser.add_argument("--vacuum-window", type=float, default=0.75,
+                        help="Local averaging width in Angstrom for each side-vacuum plateau.")
     parser.add_argument("--center-slab", nargs="?", const="z", choices=list(AXES), default=None,
                         help="Periodically shift the slab so its atomic center lies at the cell center.")
     parser.add_argument("--polar-arrow", choices=["none", "auto", "+x", "-x", "+y", "-y", "+z", "-z"],
@@ -1444,6 +1502,7 @@ def main(argv: Optional[Sequence[str]] = None) -> Dict[str, object]:
         vacuum_level=args.vacuum_level,
         vacuum_sides=args.vacuum_sides,
         vacuum_exclude=args.vacuum_exclude,
+        vacuum_window=args.vacuum_window,
         center_slab_axis=args.center_slab,
         polar_arrow=args.polar_arrow,
         plot=not args.no_plot,

@@ -30,7 +30,7 @@ See the accompanying LICENSE file for details.
 
 # NOTE:
 # Keep this version in sync with the version declared in pyproject.toml.
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 # ---------------------------------------------------------------------------
 # Public API surface
@@ -47,8 +47,14 @@ __version__ = "0.1.1"
 __all__ = [
     "__version__",
     "calc_kappa",
+    "agent_skill",
+    "bec_database",
+    "cp2k_bec",
     "deal_polar",
+    "density_adapters",
+    "dimensions",
     "gen_polar",
+    "interoperability",
     "get_wyckoff",
     "group_modesDB",
     "md_dielectric",
@@ -57,11 +63,18 @@ __all__ = [
     "polarization_2d",
     "potential",
     "pyatb_compat",
+    "qnep_dataset",
+    "qe_backend",
     "read_irrep",
+    "response_schema",
     "spectra",
+    "spectroscopy_analysis",
+    "spectroscopy_backends",
     "stru_analyzer",
     "verify_born_symmetry",
+    "vasp_bec",
     "workflow",
+    "backends",
 ]
 
 

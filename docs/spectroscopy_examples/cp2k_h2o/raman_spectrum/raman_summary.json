@@ -1,0 +1,13 @@
+{
+  "activity_kind": "Raman_activity",
+  "activity_unit": "Angstrom^4/amu",
+  "modes": 3,
+  "normalization": "plot maximum equals one; tabulated activities are unchanged",
+  "files": {
+    "modes": "raman_modes.csv",
+    "spectrum": "raman_spectrum.dat",
+    "plot": "raman_spectrum.png",
+    "plot_pdf": "raman_spectrum.pdf",
+    "plot_svg": "raman_spectrum.svg"
+  }
+}

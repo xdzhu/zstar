@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "quantity": "ABACUS electrostatic potential post-processed by zstar pot",
+  "potential_unit": "eV",
+  "coordinate_unit": "Angstrom",
+  "plot_reference": "Each slab-normal profile is shifted by its lower-side vacuum value; absolute potential zeros are not compared across calculations.",
+  "vacuum_diagnostic": {
+    "surface_exclusion_angstrom": 6.0,
+    "local_plateau_width_angstrom": 0.75,
+    "validation_date": "2026-07-26"
+  },
+  "calculations": {
+    "MoS2": {
+      "role": "nonpolar slab control",
+      "abacus_version": "3.8.0",
+      "basis_type": "lcao",
+      "ecutwfc_ry": 100,
+      "kspacing": [0.1, 0.1, 1.0],
+      "scf_threshold_ry": 1e-07,
+      "smearing_method": "gauss",
+      "smearing_sigma_ry": 0.01,
+      "dipole_correction": true
+    },
+    "In2Se3": {
+      "role": "out-of-plane polar slab",
+      "abacus_version": "3.8.3",
+      "basis_type": "lcao",
+      "ecutwfc_ry": 100,
+      "kspacing": [0.1, 0.1, 1.0],
+      "scf_threshold_ry": 1e-06,
+      "smearing_method": "gauss",
+      "smearing_sigma_ry": 0.005,
+      "spin_orbit_coupling": true,
+      "vdw_method": "d3_0",
+      "dipole_correction": true
+    },
+    "SnS": {
+      "role": "in-plane directional-potential example",
+      "abacus_version": "3.6.5",
+      "basis_type": "lcao",
+      "ecutwfc_ry": 100,
+      "kspacing": [0.05, 0.05, 1.0],
+      "scf_threshold_ry": 1.2e-06,
+      "smearing_method": "gauss",
+      "smearing_sigma_ry": 0.001,
+      "spin_orbit_coupling": true,
+      "vdw_method": "d3_0"
+    },
+    "SnSe": {
+      "role": "in-plane directional-potential example",
+      "abacus_version": "3.6.5",
+      "basis_type": "lcao",
+      "ecutwfc_ry": 100,
+      "kspacing": [0.05, 0.05, 1.0],
+      "scf_threshold_ry": 1e-06,
+      "smearing_method": "gauss",
+      "smearing_sigma_ry": 0.001,
+      "spin_orbit_coupling": true,
+      "vdw_method": "d3_0"
+    },
+    "SnTe": {
+      "role": "in-plane directional-potential example",
+      "abacus_version": "3.6.5",
+      "basis_type": "lcao",
+      "ecutwfc_ry": 100,
+      "kspacing": [0.05, 0.05, 1.0],
+      "scf_threshold_ry": 1e-06,
+      "smearing_method": "gauss",
+      "smearing_sigma_ry": 0.001,
+      "spin_orbit_coupling": true,
+      "vdw_method": "d3_0"
+    }
+  },
+  "directional_profiles": {
+    "directions": ["a+b", "a-b"],
+    "bins": 160,
+    "interpolation": "linear",
+    "samples": [72, 72],
+    "periodic_gaussian_smoothing_sigma_angstrom": 0.15,
+    "interpretation": "The mean-centered difference is a directional potential diagnostic, not a polarization magnitude."
+  }
+}

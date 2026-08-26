@@ -1,9 +1,10 @@
 # ZStar 的 GitHub 与 PyPI 更新流程
 
-本文档用于以后自行发布 ZStar。默认工作目录为：
+本文档用于以后自行发布 ZStar。先设置仓库根目录：
 
 ```powershell
-D:\Work\Code\zstar
+$RepoRoot = "C:\path\to\zstar"
+Set-Location $RepoRoot
 ```
 
 ## 基本约定
@@ -37,7 +38,7 @@ D:\Work\Code\zstar
 
 ```powershell
 conda activate zstar-test
-Set-Location D:\Work\Code\zstar
+Set-Location $RepoRoot
 
 git status --short
 git diff --check
@@ -58,6 +59,8 @@ python -m unittest discover -v
 python -m zstar.cli --version
 python -m zstar.cli --help
 python -m zstar.cli workflow run --help
+python -m zstar.cli agent-skill path
+python -m zstar.cli agent-skill preflight --root . --lane bec --dim bulk
 ```
 
 需要外部程序的例子应在忽略的 `examples/` 中验证。至少确认：
@@ -116,7 +119,7 @@ PyPI 不会为安装包中的 `docs/logo.png` 提供可直接嵌入项目页面�
 不要删除源码目录。只清理已确认位于项目根目录下的构建产物：
 
 ```powershell
-Set-Location D:\Work\Code\zstar
+Set-Location $RepoRoot
 Remove-Item -Recurse -Force -LiteralPath .\dist -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force -LiteralPath .\build -ErrorAction SilentlyContinue
 Get-ChildItem -Directory -Filter *.egg-info | Remove-Item -Recurse -Force
@@ -141,6 +144,8 @@ python -m zipfile -l dist\zstar-X.Y.Z-py3-none-any.whl
 确认：
 
 - 包中有 `zstar/` 模块和必要文档。
+- 包中有 `zstar/agent_skills/run-zstar-workflows/`，且不含
+  `__pycache__` 或 `*.pyc`。
 - 包中没有 `examples/`、`dist/`、远端计算输出或凭据。
 - `README_PYPI.md` 渲染检查通过。
 
@@ -152,6 +157,9 @@ tmp\release-smoke\Scripts\python -m pip install --upgrade pip
 tmp\release-smoke\Scripts\python -m pip install dist\zstar-X.Y.Z-py3-none-any.whl
 tmp\release-smoke\Scripts\zstar --version
 tmp\release-smoke\Scripts\zstar --help
+tmp\release-smoke\Scripts\zstar agent-skill install --dest tmp\release-smoke-skill
+$codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME '.codex' }
+python (Join-Path $codexHome 'skills\.system\skill-creator\scripts\quick_validate.py') tmp\release-smoke-skill\run-zstar-workflows
 ```
 
 ## 7. 提交并推送 GitHub

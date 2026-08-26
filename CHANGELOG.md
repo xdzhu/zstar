@@ -1,3 +1,54 @@
+## 0.2.0 - 2026-08-26
+
+- Add the versioned `zstar-response` 1.0 schema, calculator backend registry,
+  ABACUS/VASP/CP2K/Phonopy importers, and explicit `dim=0/1/2/3` normalization.
+- Add a resumable Quantum ESPRESSO `pw.x -> ph.x -> dynmat.x` backend with an
+  insulating-gap gate, native BEC/dielectric/IR collection, and scheduler scripts.
+- Add shared VASP/QE/CP2K cube adapters for open-direction dipoles, polarized
+  Raman geometries, dielectric-derived optical constants, dimensional NAC
+  guards, and external-command/plugin BEC providers for `zstar md`.
+- Add the standards-compliant `run-zstar-workflows` agent skill, packaged in
+  both wheels and source distributions, with CLI installation and JSON
+  preflight checks for BEC, phonon, spectroscopy, dielectric, MD, CP2K, and
+  database workflows.
+- Add `zstar db init/collect` for provenance-aware Born-charge and High-K
+  database collection with full-cell tensor scope, acoustic diagnostics, and
+  strict separation of 3D, 2D, and molecular responses.
+- Add a reproducible collaboration-bundle builder with validated bulk, 2D,
+  and molecular examples, batch templates, checksums, and offline smoke tests.
+- Add a CP2K finite-displacement BEC backend with periodic-dipole branch
+  unwrapping, serial restart reuse, resumable state, CP2K 2025.2+ native APT
+  comparison, bilingual documentation, and direct-node numerical validation.
+- Add a VASP BEC backend with native `LEPSILON` and `LCALCEPS` routes,
+  insulating-gap gating, resumable shell/Slurm/Torque execution, normalized
+  tensor comparison, finite-field safeguards, and VASP 6.3.2 SiC validation.
+- Add unified `zstar spectra` workflows for VASP mode-displaced dielectric
+  responses and CP2K native vibrational IR/Raman intensities, with resumable
+  execution, bilingual guides, plots, and explicit 2D physical guards.
+- Correct two-sided slab vacuum analysis by averaging local surface-adjacent
+  plateau windows instead of entire half-vacuum regions that may contain a
+  dipole-correction reset.
+- Report plateau standard deviations, point counts, and averaging width; add
+  `--vacuum-window` to both `zstar pot` entry points.
+- Add reproducible MoS2, alpha-In2Se3, SnS, SnSe, and SnTe potential examples
+  and a publication-ready CPC manuscript figure.
+- Extend Agent Skill preflight to represent 1D records while explicitly
+  blocking unimplemented end-to-end 1D BEC and Coulomb-cutoff phonon claims.
+- Restrict pytest discovery to the maintained `tests/` tree so ignored delivery
+  and verification workspaces cannot cause duplicate-module collection errors.
+
+## 0.1.2 - 2026-07-31
+
+- Add a production `--dim 0` workflow for isolated-molecule IR and Raman
+  spectra in periodic vacuum supercells.
+- Convert branch-wrapped Berry polarization to molecular dipole derivatives
+  and dilute-cell dielectric derivatives to molecular polarizability
+  derivatives, including non-orthogonal lattice directions.
+- Add resumable paired PYATB optical/polarization response calculations and
+  regression tests for molecular central differences and output files.
+- Add bilingual molecular spectroscopy guides and reproducible CH4/CO2
+  benchmark examples for frequencies, degeneracies, and selection rules.
+
 ## 0.1.1 - 2026-07-23
 
 - Add `zstar polar2d` for a reproducible reference/displaced cube-pair charge

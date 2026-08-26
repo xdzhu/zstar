@@ -286,6 +286,31 @@ def _numeric_rows(path: Path) -> list[list[float]]:
     return rows
 
 
+def _has_fractional_spin_occupancy(source: Path) -> bool:
+    """Detect fractional spin electron counts in the nearby ABACUS SCF log."""
+
+    roots = [source.parent, *list(source.parents)[:5]]
+    seen = set()
+    for root in roots:
+        for log in root.glob("OUT.*/running_scf.log"):
+            resolved = log.resolve()
+            if resolved in seen:
+                continue
+            seen.add(resolved)
+            try:
+                text = log.read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            values = re.findall(
+                rf"nelec\s+for\s+spin\s+(?:up|down)\s*=\s*({_FLOAT_RE.pattern})",
+                text,
+                re.IGNORECASE,
+            )
+            if any(abs(float(value) - round(float(value))) > 1.0e-5 for value in values):
+                return True
+    return False
+
+
 def read_static_dielectric(
     path_or_directory: str | Path,
 ) -> Tuple[np.ndarray, Path]:
@@ -355,15 +380,130 @@ def read_band_gap(
         )
     text = source.read_text(encoding="utf-8", errors="ignore")
 
-    def extract(label: str) -> Optional[float]:
+    total_band_match = re.search(r"^For total band:\s*$", text, re.IGNORECASE | re.MULTILINE)
+    # Spin-polarized PYATB reports spin-up, spin-down, and then the physically
+    # relevant combined gap.  Searching the full file returns the first
+    # (spin-up) block and can incorrectly pass a half-metal or nearly closed
+    # spin-down channel through the insulation gate.
+    gap_text = text[total_band_match.end() :] if total_band_match else text
+
+    def extract(label: str, source_text: str = gap_text) -> Optional[float]:
         match = re.search(
-            rf"{re.escape(label)}\s*({_FLOAT_RE.pattern})", text, re.IGNORECASE
+            rf"{re.escape(label)}\s*({_FLOAT_RE.pattern})", source_text, re.IGNORECASE
         )
         return float(match.group(1)) if match else None
 
     gap = extract("Band gap (eV):")
     vbm = extract("Eigenvalue of VBM (eV):")
     cbm = extract("Eigenvalue of CBM (eV):")
+    fermi = extract("Fermi Energy (eV):", text)
+
+    # For nspin=1, the ABACUS/PYATB bridge records the exact number of
+    # occupied bands in get_Energy.out.  Prefer that integer occupation over
+    # classifying eigenvalues by their sign relative to E_F.  At a degenerate
+    # valence-band maximum, the highest occupied eigenvalue can lie a few
+    # 1e-8 eV above the printed Fermi energy, causing PYATB to split one
+    # occupied manifold and report a false zero gap.
+    band_file = source.with_name("band.dat")
+    energy_logs = [source.parent / "get_Energy.out"]
+    energy_logs.extend(parent / "get_Energy.out" for parent in source.parents)
+    energy_log = next(
+        (
+            path
+            for path in energy_logs
+            if path.is_file() and path.stat().st_size > 0
+        ),
+        None,
+    )
+    if energy_log is not None and band_file.is_file() and band_file.stat().st_size > 0:
+        energy_text = energy_log.read_text(encoding="utf-8", errors="ignore")
+        occupied_match = re.search(
+            r"Occupied\s+bands\s*=\s*(\d+)", energy_text, re.IGNORECASE
+        )
+        if occupied_match:
+            occupied_count = int(occupied_match.group(1))
+            band_data = np.loadtxt(band_file)
+            if (
+                band_data.ndim == 2
+                and occupied_count >= 1
+                and occupied_count < band_data.shape[1]
+            ):
+                occupied_index = occupied_count - 1
+                vbm = float(np.max(band_data[:, occupied_index]))
+                cbm = float(np.min(band_data[:, occupied_index + 1]))
+                gap = max(float(cbm - vbm), 0.0)
+                source = band_file
+
+    # Some PYATB releases determine the reported gap by looking for the
+    # closest path eigenvalues on either side of the SCF Fermi energy.  When
+    # the SCF k mesh misses the exact path VBM by a few meV, that procedure can
+    # label two points of the *same occupied band* as VBM and CBM and report a
+    # spurious millielectronvolt gap.  PYATB uses zero-based band indices in
+    # band_info.dat.  In that case, first check whether that band actually
+    # crosses E_F (a metal); otherwise recover the physical manifold gap from
+    # max(E_nk) and min(E_(n+1)k).  Spin-polarized PYATB writes band_up.dat and
+    # band_dn.dat instead of band.dat, so all available channels are checked.
+    vbm_index_match = re.search(
+        r"VBM\s+1\s+\(band index[^)]*\):\s*(\d+)", gap_text, re.IGNORECASE
+    )
+    cbm_index_match = re.search(
+        r"CBM\s+1\s+\(band index[^)]*\):\s*(\d+)", gap_text, re.IGNORECASE
+    )
+    if (
+        source.name != "band.dat"
+        and
+        vbm_index_match
+        and cbm_index_match
+        and vbm_index_match.group(1) == cbm_index_match.group(1)
+    ):
+        occupied_index = int(vbm_index_match.group(1))
+        band_files = [source.with_name("band.dat")]
+        if not band_files[0].is_file():
+            band_files = [
+                source.with_name(name) for name in ("band_up.dat", "band_dn.dat")
+            ]
+        channel_edges = []
+        existing_band_files = [
+            path for path in band_files if path.is_file() and path.stat().st_size > 0
+        ]
+        crossing_source = (
+            existing_band_files[0]
+            if existing_band_files and _has_fractional_spin_occupancy(source)
+            else None
+        )
+        for band_file in band_files:
+            if crossing_source is not None:
+                break
+            if not band_file.is_file() or band_file.stat().st_size == 0:
+                continue
+            band_data = np.loadtxt(band_file)
+            if band_data.ndim != 2 or occupied_index + 1 >= band_data.shape[1]:
+                continue
+            occupied = np.asarray(band_data[:, occupied_index], dtype=float)
+            if (
+                fermi is not None
+                and float(np.min(occupied)) < float(fermi) - float(threshold_eV)
+                and float(np.max(occupied)) > float(fermi) + float(threshold_eV)
+            ):
+                crossing_source = band_file
+                break
+            channel_edges.append(
+                (
+                    float(np.max(occupied)),
+                    float(np.min(band_data[:, occupied_index + 1])),
+                    band_file,
+                )
+            )
+        if crossing_source is not None:
+            gap = 0.0
+            vbm = fermi
+            cbm = fermi
+            source = crossing_source
+        elif channel_edges:
+            vbm = max(edge[0] for edge in channel_edges)
+            cbm = min(edge[1] for edge in channel_edges)
+            gap = max(float(cbm - vbm), 0.0)
+            source = channel_edges[0][2]
     if gap is None:
         # PYATB omits VBM/CBM data when no insulating separation is found.
         gap = 0.0

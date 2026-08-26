@@ -172,7 +172,7 @@ def stru_analyzer(f_stru: str, latname: Optional[str] = None):
         )
         return pattern.search('\n' + apos_text)
 
-    def _parse_coord_line(raw: str):
+    def _parse_coord_line(raw: str, default_mag: float = 0.0):
         # 去掉行内注释，并拆分
         raw = re.split(r'#|//', raw, maxsplit=1)[0].strip()
         if not raw:
@@ -189,7 +189,7 @@ def stru_analyzer(f_stru: str, latname: Optional[str] = None):
         # x y z m 1 1 1 mag 0.5
         # x y z m 1 1 1 mag 0.1 0.2 0.3
         movement = [1, 1, 1]  # 缺省 1 1 1（你的旧代码意义为“允许移动”；下面与旧逻辑对齐：movement 列表原样返回）
-        mag: List[float] | float | List[int] = [0, 0, 0]
+        mag: List[float] | float | List[int] = float(default_mag)
 
         tail = parts[3:]
 
@@ -227,12 +227,13 @@ def stru_analyzer(f_stru: str, latname: Optional[str] = None):
             # 允许元素没有出现在坐标段（极少见），保持空
             continue
         count = int(m.group(2))
+        default_mag = float(m.group(1))
         element_atomnumber[el] = count
 
         body = m.group(3).strip().split('\n')
         parsed = []
         for ln in body:
-            rec = _parse_coord_line(ln)
+            rec = _parse_coord_line(ln, default_mag=default_mag)
             if rec is None:
                 continue
             parsed.append(rec)

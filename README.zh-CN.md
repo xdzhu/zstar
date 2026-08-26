@@ -24,7 +24,10 @@
 
 ## 项目简介
 
-ZStar 是连接 ABACUS、PyATB 与 Phonopy 的 Python 工作流工具。其核心任务是从原子有限位移和 Berry 相位极化出发，构造满足晶体对称性与声学求和规则的 Born 有效电荷（BEC）张量，并进一步完成声子、红外（IR）、介电、拉曼与分子动力学（MD）介电分析。
+ZStar 是连接 ABACUS/PyATB、VASP、CP2K、Quantum ESPRESSO 与 Phonopy
+的 Python 响应性质工作流工具。其核心任务是把不同计算器的原子响应数据整理为
+满足晶体对称性与声学求和规则的 Born 有效电荷（BEC）张量，并进一步完成声子、
+红外（IR）、介电、拉曼与分子动力学（MD）介电分析。
 
 ZStar 不会隐藏中间步骤。结构、输入文件、绝缘性门控、极化值、电荷密度、张量重构报告、光谱和任务状态都会保留下来，便于检查、复现与断点续算。
 
@@ -39,10 +42,18 @@ ZStar 不会隐藏中间步骤。结构、输入文件、绝缘性门控、极�
 - 参考 SCF 完成后只执行一次绝缘性检查。
 - 生成 shell、Slurm 和 Torque/PBS 驱动脚本。
 - 自动兼容旧版 PyATB 与支持静态直算的新版本 PyATB。
+- CP2K Berry 相位 BEC 的串行断点续算后端及原生 APT 对照。
 - 三维与二维混合极化/BEC 处理。
 - 声子生成、后处理、模式分类、红外谱、拉曼谱和介电响应。
 - 使用固定或逐帧 BEC 的 MD 偶极涨落介电计算。
 - 面向薄膜和极性材料的静电势辅助分析。
+- 随软件打包的规范化 Agent Skill 和 JSON 工作区预检查。
+- 版本化的计算器无关响应规范和后端插件注册机制。
+- 面向分子和三维 bulk 的 Quantum ESPRESSO 原生 DFPT BEC/IR 收集流程。
+
+计算器无关接口、`dim=0/1/2/3` 物理约定、QE 工作流、电荷密度适配器、
+Phonopy 数据交换、偏振 Raman、光学常数及 MD 外部 BEC provider 详见
+[计算器无关中文手册](docs/calculator_independent_backends.zh-CN.md)。
 
 ## 物理处理范围
 
@@ -100,6 +111,9 @@ pip install .
 - ABACUS：SCF、电荷密度、力与稀疏矩阵。
 - PyATB：Berry 相位极化、能带检查和电子介电响应。
 - Phonopy：位移结构生成与声子后处理。
+- CP2K：可选的 CP2K 有限位移 BEC 后端。
+- VASP：原生三维 BEC 和模式位移介电响应工作流。
+- Quantum ESPRESSO：可选的原生 DFPT BEC、介电和 IR 路线。
 
 检查安装：
 
@@ -107,6 +121,20 @@ pip install .
 zstar --version
 zstar --help
 ```
+
+## Agent Skill
+
+安装 ZStar 后，可直接安装随软件提供的 `$run-zstar-workflows` 技能：
+
+```bash
+zstar agent-skill install
+zstar agent-skill preflight --root . --lane bec --dim bulk
+```
+
+安装后新建智能体会话。升级 ZStar 后使用 `--force` 刷新技能；其他兼容框架可用
+`--dest /path/to/skills` 指定技能父目录。该 Skill 固化了维度约定、参考态优先执行、
+断点续算、调度系统权限边界和基于产物的完成判据。详见
+[docs/agent_skill.zh-CN.md](docs/agent_skill.zh-CN.md)。
 
 ## Born 有效电荷工作流
 
@@ -229,6 +257,40 @@ zstar deal --dim 2 --method forward --pyatb
 | `born_symmetry_report.json` | 对称重构与残差报告。 |
 | `zstar_2d_bec.json` | 二维混合 BEC 的逐原子积分诊断。 |
 
+## CP2K BEC 后端
+
+对于三维、绝缘、Gamma 点 CP2K 输入，ZStar 可以从周期 Berry 相位偶极直接构造
+BEC 张量：
+
+```bash
+zstar cp2k-bec prepare --input input.inp --root cp2k_bec \
+  --method central --displacement 0.005
+zstar cp2k-bec run --root cp2k_bec --cp2k-command cp2k.ssmp \
+  --omp-threads 20 --data-dir /path/to/cp2k/data
+zstar cp2k-bec collect --root cp2k_bec
+```
+
+参考波函数会被所有位移任务复用，中断后从 `.zstar/cp2k_bec_state.json` 恢复。
+对于 CP2K 2025.2 及以上版本，还可以用 `cp2k-bec native` 和
+`cp2k-bec compare` 生成并比较原生 `APT_FD` 张量。张量约定、输入限制、收敛检查
+和直连计算节点验证见[完整中文文档](docs/cp2k_bec.zh-CN.md)。
+
+## VASP BEC 后端
+
+ZStar 也可直接驱动 VASP 的原生 BEC 功能：`dfpt` 对应 `LEPSILON` 线性响应，
+`finite-field` 对应 `LCALCEPS`/PEAD 有限场：
+
+```bash
+zstar vasp-bec prepare --input-dir vasp_input --root vasp_bec --method dfpt
+zstar vasp-bec run --root vasp_bec --vasp-command "mpirun -np 20 vasp_std"
+zstar vasp-bec collect --root vasp_bec
+```
+
+工作流会先完成参考 SCF 并检查带隙，确认绝缘后才进入响应阶段；已完成阶段可以
+断点续算。收集器统一输出 JSON、ZStar 张量和 Phonopy 兼容的 `BORN` 文件。
+有限场保护、集群脚本、张量约定及 VASP 6.3.2 SiC 实机验证见
+[完整中文文档](docs/vasp_bec_zh.md)。
+
 ## 声子与介电响应
 
 ### 1. 生成声子位移任务
@@ -344,6 +406,64 @@ zstar raman spectrum --raman-dir raman --qpoints qpoints.yaml --dim 3
 
 二维体系使用 `--dim 2`。程序会利用声子数据中的超胞高度，将依赖真空的介电导数转换为片层极化率导数。
 
+## 分子 IR 与 Raman
+
+完整的物理约定、工作流、输出文件与 benchmark 请见
+[分子 IR 与 Raman 光谱](docs/molecular_spectroscopy.zh-CN.md)。
+
+孤立分子使用足够大的周期真空超胞表示。首先沿正频分子振动模式生成 Raman 与 IR
+共用的简正坐标正负位移：
+
+```bash
+zstar raman prepare --stru STRU --qpoints qpoints.yaml \
+  --acoustic-cutoff 100 --amplitude 0.02 --outdir raman \
+  --copy INPUT-scf --copy KPT
+```
+
+以下命令以可断点续算的串行工作流同时生成两种谱：
+
+```bash
+zstar raman run --raman-dir raman --reference 0.no-move \
+  --qpoints qpoints.yaml --dim 0 \
+  --abacus-command "mpirun -np 1 abacus" \
+  --pyatb-command "mpirun -np 1 pyatb" \
+  --spectrum-outdir raman_spectrum --ir-outdir ir_spectrum
+```
+
+每个已完成的位移 SCF 只增加两个很轻的 PYATB 后处理阶段。静态介电响应按照
+`dalpha/dQ = V/(4*pi) * d(epsilon_r)/dQ` 转换为分子极化率导数；完成极化分支回绕
+后的 Berry 极化按照 `dmu/dQ = V * dP/dQ` 转换为分子偶极矩导数。简正坐标步长
+`Q` 的单位为 `angstrom * sqrt(amu)`。
+
+已有位移结果也可以独立后处理：
+
+```bash
+zstar ir --dim 0 --qpoints qpoints.yaml \
+  --displacements raman --outdir ir_spectrum
+zstar raman spectrum --dim 0 --qpoints qpoints.yaml \
+  --raman-dir raman --outdir raman_spectrum
+```
+
+分子谱默认归一化，用于模式归属和工作流验证，不宣称为气相积分截面。定量强度计算
+需要分别检查真空尺寸、基组、位移幅度和电子响应网格的收敛性。
+
+### VASP 与 CP2K 计算器
+
+计算器无关谱学层也支持 VASP 和 CP2K：
+
+```bash
+zstar spectra prepare --calculator vasp --input-dir vasp_input \
+  --modes-xml phonon/vasprun.xml --root vasp_spectra --dim 3
+zstar spectra run --root vasp_spectra --command "mpirun -np 20 vasp_std"
+zstar spectra collect --root vasp_spectra
+
+zstar spectra prepare --calculator cp2k --input h2o.inp \
+  --root cp2k_spectra --dim 0
+```
+
+VASP 对原生介电响应做模式中心差分；CP2K 使用原生振动偶极和
+`LINRES/POLAR` 活动度。详见[计算器谱学文档](docs/calculator_spectroscopy.zh-CN.md)。
+
 ## 代表性验证图
 
 紧凑源数据、绘图脚本、矢量图片和完整性清单均归档在
@@ -419,11 +539,16 @@ ZStar 会探测实际使用的 PyATB 可执行文件：
 ```bash
 zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
   --axes z --plane xy --plane-average --tile 5 5 \
-  --vacuum-level --vacuum-sides --polar-arrow auto \
+  --vacuum-level --vacuum-sides --vacuum-window 0.75 \
+  --polar-arrow auto \
   --outdir potential
 ```
 
-它可以输出轴向平均势、平面周期拼接图、方向平均曲线，以及单侧或双侧真空能级诊断。MoS2、In2Se3、SnS、SnSe 和 SnTe 的渲染示例见 [docs/potential_examples.md](docs/potential_examples.md)。
+它可以输出轴向平均势、平面周期拼接图、方向平均曲线，以及单侧或双侧真空能级诊断。局部平台窗口可避免把 dipole correction 的真空复位段混入极性薄膜表面平台。代表性结果中，MoS2 的 `Delta V_vac = -1.65e-5 eV`，alpha-In2Se3 的 `Delta V_vac = 1.220812 eV`。
+
+![二维材料静电势代表性结果](docs/paper_figures/potential_examples_2d.png)
+
+完整命令、适用边界和 SnS/SnSe/SnTe 方向对比见[中文示例文档](docs/potential_examples.zh-CN.md)。
 
 ## 命令总览
 
@@ -439,9 +564,13 @@ zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
 | `zstar calc` / `freq` | 计算静态或频率相关介电响应。 |
 | `zstar ir` | 计算模式有效电荷与红外谱。 |
 | `zstar raman` | 生成、运行、收集并绘制拉曼谱。 |
+| `zstar spectra` | 统一执行 VASP 或 CP2K 的 IR/Raman 工作流。 |
 | `zstar md` | 将 MD 轨迹与固定或逐帧 BEC 结合。 |
+| `zstar cp2k-bec` | 生成、串行执行、续算、汇总并验证 CP2K BEC。 |
+| `zstar db init/collect` | 建立候选清单并汇总可审计的 BEC/High-K 数据库。 |
 | `zstar potential` / `pot` | 分析静电势 cube 文件。 |
 | `zstar wyckoff` / `vasp` | 查看 Wyckoff 位置或转换 `STRU`。 |
+| `zstar agent-skill` | 安装 Agent Skill 或输出 JSON 工作区预检查。 |
 
 ## 仓库与发布约定
 
@@ -455,6 +584,8 @@ zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
 ## 引用与许可证
 
 如果 ZStar 支持了您的论文工作，请引用 ZStar 软件论文或对应仓库版本，同时引用实际使用的电子结构与晶格动力学程序。
+
+本版本的机器可读引用信息见 [CITATION.cff](CITATION.cff)。
 
 ZStar 使用 GNU General Public License v3.0。
 

@@ -6,8 +6,10 @@ from pathlib import Path
 import subprocess
 from typing import Optional
 
+import numpy as np
 import yaml
 
+from .interoperability import validate_nac_model
 from .phonopy_stru import write_phonopy_compatible_stru
 
 
@@ -66,6 +68,9 @@ def run_eigen_irrep(
     symm_tol: float = 1e-3,
     nac: bool = False,
     dim: Optional[str] = None,
+    physical_dim: int = 3,
+    nac_model: str = "gonze",
+    q_direction: Optional[tuple[float, float, float]] = None,
 ) -> dict:
     """Collect forces and write Gamma eigenvectors plus irreducible modes."""
 
@@ -76,6 +81,23 @@ def run_eigen_irrep(
         if symm_tol is not None
         else (tolerance_auto if tolerance_auto is not None else 1.0e-3)
     )
+    nac_method = None
+    direction_args: list[str] = []
+    if nac:
+        nac_method = validate_nac_model(physical_dim, nac_model)
+        if physical_dim in {1, 2}:
+            raise NotImplementedError(
+                f"dim={physical_dim} {nac_method} NAC requires a calculator/force-constant "
+                "backend with a true low-dimensional Coulomb cutoff; Phonopy bulk NAC "
+                "will not be substituted"
+            )
+        if q_direction is not None:
+            direction = np.asarray(q_direction, dtype=float)
+            if direction.shape != (3,) or not np.all(np.isfinite(direction)):
+                raise ValueError("q_direction must be a finite Cartesian three-vector")
+            if np.linalg.norm(direction) <= 0.0:
+                raise ValueError("q_direction must not be zero")
+            direction_args = ["--q-direction", *(f"{value:.12g}" for value in direction)]
     structure = Path(f_stru)
     if not structure.is_file():
         raise FileNotFoundError(f"Structure file not found: {structure}")
@@ -91,7 +113,19 @@ def run_eigen_irrep(
     )
 
     normalized = structure.with_name(f".{structure.name}.zstar-phonopy")
+    normalized_irrep = structure.with_name(
+        f".{structure.name}.zstar-phonopy-irrep"
+    )
     write_phonopy_compatible_stru(structure, normalized)
+    # Phonopy 2.38 rejects PRIMITIVE_AXES=auto when MAGMOM is present.  The
+    # force constants and Gamma eigenvectors still come from the magnetic
+    # calculation; only the symmetry-label analysis uses a geometry-identical
+    # temporary view without magnetic moments.
+    write_phonopy_compatible_stru(
+        structure,
+        normalized_irrep,
+        include_magnetism=False,
+    )
     try:
         common = [
             f"--dim={dimension}",
@@ -104,14 +138,15 @@ def run_eigen_irrep(
         ]
         qpoint_command = ["phonopy", *common, "--eigenvectors"]
         if nac:
-            qpoint_command.extend(["--nac", "--nac_method=GONZE"])
+            method = "GONZE" if nac_method == "bulk" else str(nac_method).upper()
+            qpoint_command.extend(["--nac", f"--nac_method={method}", *direction_args])
         _run_phonopy(qpoint_command, stage="Gamma eigenvector calculation")
 
         irrep_command = [
             "phonopy",
             f"--dim={dimension}",
             "-c",
-            str(normalized),
+            str(normalized_irrep),
             f"--tolerance={tolerance:g}",
             "--abacus",
             "--pa=auto",
@@ -119,13 +154,15 @@ def run_eigen_irrep(
             "--irreps=0 0 0 1e-3",
         ]
         if nac:
-            irrep_command.extend(["--nac", "--nac_method=GONZE"])
+            method = "GONZE" if nac_method == "bulk" else str(nac_method).upper()
+            irrep_command.extend(["--nac", f"--nac_method={method}", *direction_args])
         _run_phonopy(
             irrep_command,
             stage="irreducible-representation calculation",
         )
     finally:
         normalized.unlink(missing_ok=True)
+        normalized_irrep.unlink(missing_ok=True)
 
     outputs = {
         "dimension": dimension,
@@ -135,6 +172,9 @@ def run_eigen_irrep(
         "qpoints": str(Path("qpoints.yaml").resolve()),
         "irreps": str(Path("irreps.yaml").resolve()),
         "nac": bool(nac),
+        "physical_dimensionality": int(physical_dim),
+        "nac_model": nac_method,
+        "q_direction": None if q_direction is None else list(q_direction),
     }
     print(f"Collected {len(force_logs)} force calculations.")
     return outputs

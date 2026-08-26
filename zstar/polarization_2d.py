@@ -112,6 +112,9 @@ def find_charge_cube(directory: str | Path) -> Path:
         "OUT.*/*CHG*.cube",
         "SPIN*_CHG*.cube",
         "*CHG*.cube",
+        "*charge*density*.cube",
+        "*ELECTRON_DENSITY*.cube",
+        "*.cube",
     )
     for pattern in patterns:
         candidates.extend(root.glob(pattern))
@@ -122,6 +125,7 @@ def find_charge_cube(directory: str | Path) -> Path:
             if path.is_file()
             and path.stat().st_size > 0
             and "elecstaticpot" not in path.name.lower()
+            and "potential" not in path.name.lower()
         }
     )
     if not unique:
@@ -133,10 +137,28 @@ def _periodic_unwrap(values: np.ndarray, center: float, period: float) -> np.nda
     return center + (values - center) - np.round((values - center) / period) * period
 
 
+def _cube_sidecar_charges(path: Path, natoms: int) -> np.ndarray | None:
+    sidecar = path.with_suffix(path.suffix + ".zstar.json")
+    if not sidecar.is_file():
+        return None
+    data = json.loads(sidecar.read_text(encoding="utf-8"))
+    if data.get("schema") != "zstar-cube":
+        raise ValueError(f"Invalid ZStar cube sidecar schema: {sidecar}")
+    if data.get("density_sign", "positive_electron_density") != "positive_electron_density":
+        raise ValueError(f"Unsupported cube density sign in {sidecar}")
+    charges = np.asarray(data.get("ionic_valence_charges", ()), dtype=float)
+    if charges.shape != (natoms,) or np.any(charges <= 0.0):
+        raise ValueError(
+            f"Cube sidecar ionic charges must have shape {(natoms,)}: {sidecar}"
+        )
+    return charges
+
+
 def _read_cube_profile_data(
     cube_path: str | Path,
     *,
     neutrality_tolerance: float,
+    ionic_valence_charges: Optional[Sequence[float]] = None,
 ) -> _CubeProfileData:
     if (
         not math.isfinite(float(neutrality_tolerance))
@@ -180,6 +202,16 @@ def _read_cube_profile_data(
         charges.append(float(fields[1]))
         positions.append([float(value) for value in fields[2:5]])
     ionic_charges = np.asarray(charges, dtype=float)
+    sidecar_charges = _cube_sidecar_charges(path, natoms)
+    if ionic_valence_charges is not None:
+        supplied = np.asarray(ionic_valence_charges, dtype=float)
+        if supplied.shape != (natoms,) or np.any(supplied <= 0.0):
+            raise ValueError(
+                f"ionic_valence_charges must have shape {(natoms,)} and be positive"
+            )
+        ionic_charges = supplied
+    elif sidecar_charges is not None:
+        ionic_charges = sidecar_charges
     ionic_total = float(np.sum(ionic_charges))
     if ionic_total <= 0.0:
         raise ValueError("Cube header does not contain positive ionic valence charges")
@@ -232,11 +264,14 @@ def integrate_slab_dipole(
     cube_path: str | Path,
     *,
     neutrality_tolerance: float = 0.05,
+    ionic_valence_charges: Optional[Sequence[float]] = None,
 ) -> SlabDipole:
-    """Integrate the total out-of-plane dipole of a neutral periodic slab."""
+    """Integrate a neutral slab dipole from any standard electron-density cube."""
 
     cube = _read_cube_profile_data(
-        cube_path, neutrality_tolerance=neutrality_tolerance
+        cube_path,
+        neutrality_tolerance=neutrality_tolerance,
+        ionic_valence_charges=ionic_valence_charges,
     )
     charges = cube.charges
     ionic_total = float(np.sum(charges))
@@ -285,14 +320,19 @@ def compare_slab_charge_profiles(
     *,
     displacement_angstrom: Optional[float] = None,
     neutrality_tolerance: float = 0.05,
+    ionic_valence_charges: Optional[Sequence[float]] = None,
 ) -> SlabChargeDifference:
     """Resolve a slab dipole change into planar electronic and ionic terms."""
 
     reference = _read_cube_profile_data(
-        reference_cube, neutrality_tolerance=neutrality_tolerance
+        reference_cube,
+        neutrality_tolerance=neutrality_tolerance,
+        ionic_valence_charges=ionic_valence_charges,
     )
     displaced = _read_cube_profile_data(
-        displaced_cube, neutrality_tolerance=neutrality_tolerance
+        displaced_cube,
+        neutrality_tolerance=neutrality_tolerance,
+        ionic_valence_charges=ionic_valence_charges,
     )
     if reference.dimensions != displaced.dimensions:
         raise ValueError("Reference and displaced cube grids have different dimensions")
@@ -391,10 +431,14 @@ def compare_slab_charge_profiles(
     cumulative_charge = cumulative_electron_charge + cumulative_ionic_charge
     cumulative_dipole = cumulative_electron_dipole + cumulative_ionic_dipole
     direct_reference = integrate_slab_dipole(
-        reference.path, neutrality_tolerance=neutrality_tolerance
+        reference.path,
+        neutrality_tolerance=neutrality_tolerance,
+        ionic_valence_charges=ionic_valence_charges,
     )
     direct_displaced = integrate_slab_dipole(
-        displaced.path, neutrality_tolerance=neutrality_tolerance
+        displaced.path,
+        neutrality_tolerance=neutrality_tolerance,
+        ionic_valence_charges=ionic_valence_charges,
     )
     direct_delta_bohr = (
         direct_displaced.dipole_e_bohr - direct_reference.dipole_e_bohr

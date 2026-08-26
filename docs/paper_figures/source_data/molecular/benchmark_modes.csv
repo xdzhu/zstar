@@ -1,0 +1,8 @@
+molecule,mode,symmetry,degeneracy,calculated_cm-1,nist_cm-1,ir_allowed,raman_allowed
+CH4,nu4 bend,T2,3,1287.9275526571118,1306,1,1
+CH4,nu2 bend,E,2,1516.617741557728,1534,0,1
+CH4,nu1 symmetric stretch,A1,1,2968.2881185089723,2917,0,1
+CH4,nu3 asymmetric stretch,T2,3,3088.0465147825703,3019,1,1
+CO2,bend,Eu,2,635.6443682249005,667,1,0
+CO2,symmetric stretch,A1g,1,1331.9904838800182,1333,0,1
+CO2,asymmetric stretch,A2u,1,2381.0432088888642,2349,1,0

@@ -24,7 +24,12 @@
 
 ## Overview
 
-ZStar is a Python workflow toolkit that connects ABACUS, PyATB, and Phonopy calculations to physically auditable polarization and dielectric-response results. Its main task is to turn finite atomic displacements and Berry-phase polarization into symmetry-consistent Born effective charge (BEC) tensors, then use those tensors for phonon, infrared (IR), dielectric, Raman, and molecular-dynamics (MD) analysis.
+ZStar is a Python workflow toolkit that connects ABACUS/PyATB, VASP, CP2K,
+Quantum ESPRESSO, and Phonopy calculations to physically auditable polarization
+and dielectric-response results. Its main task is to turn atomic response data
+into symmetry-consistent Born effective charge (BEC) tensors, then use those
+tensors for phonon, infrared (IR), dielectric, Raman, and molecular-dynamics
+(MD) analysis.
 
 The toolkit keeps every stage visible: structures, solver inputs, band-gap gates, polarization values, charge-density data, tensor reconstruction reports, spectra, and progress records remain available for inspection and restart.
 
@@ -39,10 +44,19 @@ The numerical checks used for the current release are summarized in [docs/valida
 - One-time insulating-state validation after the reference SCF.
 - Shell, Slurm, and Torque driver generation.
 - Automatic compatibility with legacy and direct-static-response PyATB versions.
+- A serial, resumable CP2K backend for Berry-phase BEC tensors and native APT checks.
 - Three-dimensional and hybrid two-dimensional polarization/BEC analysis.
 - Phonon generation, post-processing, mode classification, IR spectra, Raman spectra, and dielectric response.
 - MD dipole-fluctuation dielectric analysis using fixed or frame-dependent BEC tensors.
 - Auxiliary electrostatic-potential analysis for slabs and polar materials.
+- A packaged, standards-compliant Agent Skill with JSON workspace preflight.
+- A versioned calculator-neutral response schema and backend plugin registry.
+- Native Quantum ESPRESSO DFPT collection for molecular and bulk BEC/IR data.
+
+The calculator-independent interface, physical `dim=0/1/2/3` contract, QE
+workflow, density adapters, Phonopy interchange, polarized Raman, optical
+constants, and external MD BEC providers are documented in the
+[calculator-independent guide](docs/calculator_independent_backends.md).
 
 ## Physical Scope
 
@@ -100,6 +114,9 @@ External programs are required only for the corresponding workflows:
 - ABACUS for SCF, charge density, force, and sparse-matrix calculations.
 - PyATB for Berry-phase polarization, band checks, and electronic dielectric response.
 - Phonopy for displacement generation and phonon post-processing.
+- CP2K for the optional CP2K finite-displacement BEC backend.
+- VASP for native bulk BEC and mode-displaced dielectric-response workflows.
+- Quantum ESPRESSO for the optional native DFPT BEC, dielectric, and IR route.
 
 Verify the command:
 
@@ -107,6 +124,22 @@ Verify the command:
 zstar --version
 zstar --help
 ```
+
+## Agent Skill
+
+Install the bundled, standards-compliant `$run-zstar-workflows` skill after
+installing ZStar:
+
+```bash
+zstar agent-skill install
+zstar agent-skill preflight --root . --lane bec --dim bulk
+```
+
+Open a new agent session after installation. Use `--force` to refresh the skill
+after upgrading ZStar, or `--dest /path/to/skills` for a custom compatible skill
+directory. The skill encodes dimensional conventions, reference-first execution,
+restart behavior, scheduler authorization boundaries, and artifact-based
+completion checks. See [docs/agent_skill.md](docs/agent_skill.md).
 
 ## Born Charge Workflow
 
@@ -230,6 +263,42 @@ Key outputs:
 | `born_symmetry_report.json` | Machine-readable reconstruction and residual report. |
 | `zstar_2d_bec.json` | Per-atom diagnostics for hybrid 2D BEC calculations. |
 
+## CP2K BEC Backend
+
+For a three-dimensional, insulating Gamma-point CP2K input, ZStar can build BEC
+tensors directly from periodic Berry-phase dipoles:
+
+```bash
+zstar cp2k-bec prepare --input input.inp --root cp2k_bec \
+  --method central --displacement 0.005
+zstar cp2k-bec run --root cp2k_bec --cp2k-command cp2k.ssmp \
+  --omp-threads 20 --data-dir /path/to/cp2k/data
+zstar cp2k-bec collect --root cp2k_bec
+```
+
+The reference wavefunction is reused by every displacement, and interrupted
+runs resume from `.zstar/cp2k_bec_state.json`. CP2K 2025.2+ native `APT_FD`
+results can be generated and compared through `cp2k-bec native` and
+`cp2k-bec compare`. See the [complete CP2K guide](docs/cp2k_bec.md) for tensor
+conventions, input restrictions, convergence checks, and direct-node validation.
+
+## VASP BEC Backend
+
+ZStar can also drive VASP's native BEC implementations. Use `dfpt` for
+`LEPSILON` linear response or `finite-field` for `LCALCEPS`/PEAD:
+
+```bash
+zstar vasp-bec prepare --input-dir vasp_input --root vasp_bec --method dfpt
+zstar vasp-bec run --root vasp_bec --vasp-command "mpirun -np 20 vasp_std"
+zstar vasp-bec collect --root vasp_bec
+```
+
+The reference SCF is checked for a finite band gap before the response stage,
+and completed stages are resumable. The collector writes normalized JSON,
+ZStar tensors, and a Phonopy-compatible `BORN` file. The
+[complete VASP guide](docs/vasp_bec.md) documents finite-field safeguards,
+cluster scripts, tensor conventions, and the VASP 6.3.2 SiC validation.
+
 ## Phonons and Dielectric Response
 
 ### 1. Generate phonon calculations
@@ -345,6 +414,69 @@ zstar raman spectrum --raman-dir raman --qpoints qpoints.yaml --dim 3
 
 For 2D, `--dim 2` converts the vacuum-dependent dielectric derivative to a sheet-susceptibility derivative using the cell height stored in the phonon data.
 
+## Molecular IR and Raman
+
+For the complete physical convention, workflow, outputs, and benchmark, see
+[Molecular IR and Raman spectroscopy](docs/molecular_spectroscopy.md).
+
+An isolated molecule is represented in a sufficiently large periodic cell.
+Prepare its positive-frequency vibrational modes with the same central
+normal-coordinate displacements used for Raman calculations:
+
+```bash
+zstar raman prepare --stru STRU --qpoints qpoints.yaml \
+  --acoustic-cutoff 100 --amplitude 0.02 --outdir raman \
+  --copy INPUT-scf --copy KPT
+```
+
+The complete resumable calculation produces both spectra:
+
+```bash
+zstar raman run --raman-dir raman --reference 0.no-move \
+  --qpoints qpoints.yaml --dim 0 \
+  --abacus-command "mpirun -np 1 abacus" \
+  --pyatb-command "mpirun -np 1 pyatb" \
+  --spectrum-outdir raman_spectrum --ir-outdir ir_spectrum
+```
+
+Each displaced SCF is evaluated with two lightweight PYATB stages. The static
+dielectric response is converted to a molecular polarizability derivative,
+`dalpha/dQ = V/(4*pi) * d(epsilon_r)/dQ`. Branch-wrapped Berry polarization is
+converted to a molecular dipole derivative, `dmu/dQ = V * dP/dQ`. The
+normal-coordinate step `Q` is in `angstrom * sqrt(amu)`.
+
+Existing polarization results can be post-processed independently:
+
+```bash
+zstar ir --dim 0 --qpoints qpoints.yaml \
+  --displacements raman --outdir ir_spectrum
+zstar raman spectrum --dim 0 --qpoints qpoints.yaml \
+  --raman-dir raman --outdir raman_spectrum
+```
+
+Molecular spectra are normalized for mode assignment and workflow validation.
+They are not reported as gas-phase integrated cross sections. Use a converged
+vacuum size, basis, displacement amplitude, and electronic-response grid for
+quantitative intensity work.
+
+### VASP and CP2K calculators
+
+The calculator-neutral spectroscopy layer also supports VASP and CP2K:
+
+```bash
+zstar spectra prepare --calculator vasp --input-dir vasp_input \
+  --modes-xml phonon/vasprun.xml --root vasp_spectra --dim 3
+zstar spectra run --root vasp_spectra --command "mpirun -np 20 vasp_std"
+zstar spectra collect --root vasp_spectra
+
+zstar spectra prepare --calculator cp2k --input h2o.inp \
+  --root cp2k_spectra --dim 0
+```
+
+VASP uses central differences of native dielectric responses; CP2K uses native
+vibrational dipole and `LINRES/POLAR` intensities. See the
+[calculator spectroscopy guide](docs/calculator_spectroscopy.md).
+
 ## Representative Validation Figures
 
 The compact source data, plotting script, vector files, and integrity manifest
@@ -421,11 +553,16 @@ The selected mode and detected version are saved in `zstar_pyatb_compat.json`.
 ```bash
 zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
   --axes z --plane xy --plane-average --tile 5 5 \
-  --vacuum-level --vacuum-sides --polar-arrow auto \
+  --vacuum-level --vacuum-sides --vacuum-window 0.75 \
+  --polar-arrow auto \
   --outdir potential
 ```
 
-It can generate axis profiles, tiled planar maps, directional averages, and one- or two-sided vacuum-level diagnostics. Rendered examples for MoS2, In2Se3, SnS, SnSe, and SnTe are collected in [docs/potential_examples.md](docs/potential_examples.md).
+It can generate axis profiles, tiled planar maps, directional averages, and one- or two-sided vacuum-level diagnostics. Local side windows avoid mixing a dipole-correction reset into a polar-slab surface plateau. In the representative tests, MoS2 has `Delta V_vac = -1.65e-5 eV`, while alpha-In2Se3 has `Delta V_vac = 1.220812 eV`.
+
+![Representative 2D electrostatic-potential diagnostics](docs/paper_figures/potential_examples_2d.png)
+
+Commands, interpretation limits, and the SnS/SnSe/SnTe directional examples are collected in [docs/potential_examples.md](docs/potential_examples.md).
 
 ## Command Map
 
@@ -441,9 +578,13 @@ It can generate axis profiles, tiled planar maps, directional averages, and one-
 | `zstar calc` / `freq` | Calculate static or frequency-dependent dielectric response. |
 | `zstar ir` | Calculate mode charges and IR spectra. |
 | `zstar raman` | Prepare, run, collect, and plot Raman finite differences. |
+| `zstar spectra` | Run unified VASP or CP2K IR/Raman workflows. |
 | `zstar md` | Combine an MD trajectory with fixed or frame-dependent BECs. |
+| `zstar cp2k-bec` | Prepare, run, resume, collect, and validate CP2K BEC calculations. |
+| `zstar db init/collect` | Create manifests and collect an auditable BEC/High-K database. |
 | `zstar potential` / `pot` | Analyze electrostatic-potential cube files. |
 | `zstar wyckoff` / `vasp` | Inspect Wyckoff positions or convert `STRU`. |
+| `zstar agent-skill` | Install the Agent Skill or emit a JSON workspace preflight. |
 
 ## Repository and Release Policy
 
@@ -457,6 +598,8 @@ The relative logo works for authenticated viewers of a private GitHub repository
 ## Citation and License
 
 If ZStar supports published work, please cite the ZStar software article or repository release together with the underlying electronic-structure and lattice-dynamics programs used in the calculation.
+
+Machine-readable citation metadata for this release are provided in [CITATION.cff](CITATION.cff).
 
 ZStar is distributed under the GNU General Public License v3.0.
 

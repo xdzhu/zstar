@@ -95,6 +95,12 @@ def zstar_cli(argv=None) -> None:
                           help='Use ABACUS for NSCF Berry phase.')
     gen_calc.add_argument('--pyatb', action='store_true',
                           help='Use PyATB for NSCF Berry phase [Recommended].')
+    gen_calc.add_argument('--cp2k', action='store_true',
+                          help='Use a CP2K input template for Berry-phase BEC.')
+    parser_gen.add_argument('--cp2k-root', default='cp2k_bec',
+                            help='Output root for --cp2k (default: cp2k_bec).')
+    parser_gen.add_argument('--displacement', type=float, default=0.01,
+                            help='CP2K atomic displacement in Angstrom.')
 
     # ---------------- deal ----------------
     parser_deal = subparsers.add_parser(
@@ -114,6 +120,9 @@ def zstar_cli(argv=None) -> None:
                            help='Use ABACUS for NSCF Berry phase.')
     deal_calc.add_argument('--pyatb', action='store_true',
                            help='Use PyATB for NSCF Berry phase [Recommended].')
+    deal_calc.add_argument('--cp2k', action='store_true',
+                           help='Collect a generated CP2K Berry-phase BEC workflow.')
+    parser_deal.add_argument('--cp2k-root', default='cp2k_bec')
 
     # ---------------- bornsym ----------------
     parser_borns = subparsers.add_parser(
@@ -164,6 +173,9 @@ def zstar_cli(argv=None) -> None:
                             help='Use ABACUS for NSCF Berry phase.')
     polar_calc.add_argument('--pyatb', action='store_true',
                             help='Use PyATB for NSCF Berry phase [Recommended].')
+    polar_calc.add_argument('--cp2k', action='store_true',
+                            help='Collect a generated CP2K Berry-phase BEC workflow.')
+    parser_polar.add_argument('--cp2k-root', default='cp2k_bec')
 
     # ---------------- 2D polarization profile ----------------
     parser_polar2d = subparsers.add_parser(
@@ -206,9 +218,428 @@ def zstar_cli(argv=None) -> None:
     parser_postph.add_argument('--dim', help='Dim of phonopy', default=None)
     parser_postph.add_argument('--nac', action='store_true',
                                help='Whether to use NAC correction, default is False')
+    parser_postph.add_argument(
+        '--physical-dim', type=int, choices=[0, 1, 2, 3], default=3
+    )
+    parser_postph.add_argument(
+        '--nac-model',
+        choices=['bulk', 'gonze', 'wang', '1d-cutoff', '2d-cutoff'],
+        default='gonze',
+    )
+    parser_postph.add_argument(
+        '--q-direction', type=float, nargs=3, default=None,
+        metavar=('QX', 'QY', 'QZ'),
+    )
     parser_postph.add_argument('--symmprec', '--tol', type=float,
                                help='Symmetry precision of STRU, default is 1e-3',
                                default=1e-3)
+
+    # ---------------- CP2K BEC backend ----------------
+    parser_cp2k = subparsers.add_parser(
+        'cp2k-bec', help='Prepare, run, and validate CP2K Born-charge workflows.'
+    )
+    cp2k_actions = parser_cp2k.add_subparsers(dest='cp2k_action', required=True)
+
+    parser_cp2k_prepare = cp2k_actions.add_parser(
+        'prepare', help='Generate reference and finite-displacement CP2K inputs.'
+    )
+    parser_cp2k_prepare.add_argument('--input', required=True)
+    parser_cp2k_prepare.add_argument('--root', default='cp2k_bec')
+    parser_cp2k_prepare.add_argument(
+        '--method', choices=['forward', 'central'], default='central'
+    )
+    parser_cp2k_prepare.add_argument('--displacement', type=float, default=0.01)
+    parser_cp2k_prepare.add_argument(
+        '--atoms', default='all', help='One-based indices, e.g. 1,3-5, or all.'
+    )
+    parser_cp2k_prepare.add_argument('--force', action='store_true')
+
+    parser_cp2k_run = cp2k_actions.add_parser(
+        'run', help='Run CP2K displacement stages serially with restart support.'
+    )
+    parser_cp2k_run.add_argument('--root', default='cp2k_bec')
+    parser_cp2k_run.add_argument('--cp2k-command', default='cp2k.psmp')
+    parser_cp2k_run.add_argument('--omp-threads', type=int, default=1)
+    parser_cp2k_run.add_argument('--data-dir', default=None)
+    parser_cp2k_run.add_argument('--dry-run', action='store_true')
+    parser_cp2k_run.add_argument('--stop-after', type=int, default=None)
+
+    parser_cp2k_status = cp2k_actions.add_parser('status')
+    parser_cp2k_status.add_argument('--root', default='cp2k_bec')
+
+    parser_cp2k_collect = cp2k_actions.add_parser(
+        'collect', help='Construct BEC tensors from CP2K periodic dipoles.'
+    )
+    parser_cp2k_collect.add_argument('--root', default='cp2k_bec')
+    parser_cp2k_collect.add_argument('--output', default='Z-BORN-all.out')
+    parser_cp2k_collect.add_argument('--json-output', default='cp2k_bec.json')
+    parser_cp2k_collect.add_argument('--response-output', default='zstar_response.json')
+
+    parser_cp2k_native = cp2k_actions.add_parser(
+        'native', help='Run the CP2K 2025.2+ native finite-field APT reference.'
+    )
+    parser_cp2k_native.add_argument('--input', required=True)
+    parser_cp2k_native.add_argument('--root', default='cp2k_native_apt')
+    parser_cp2k_native.add_argument('--field-strength', type=float, default=3.0e-4)
+    parser_cp2k_native.add_argument('--cp2k-command', default='cp2k.ssmp')
+    parser_cp2k_native.add_argument('--omp-threads', type=int, default=1)
+    parser_cp2k_native.add_argument('--data-dir', default=None)
+    parser_cp2k_native.add_argument('--prepare-only', action='store_true')
+    parser_cp2k_native.add_argument('--force', action='store_true')
+
+    parser_cp2k_compare = cp2k_actions.add_parser(
+        'compare', help='Compare ZStar dipole derivatives with CP2K native APT.'
+    )
+    parser_cp2k_compare.add_argument('--zstar-json', required=True)
+    parser_cp2k_compare.add_argument('--native-apt', required=True)
+    parser_cp2k_compare.add_argument('--output', default='cp2k_bec_comparison.json')
+
+    # ---------------- VASP BEC backend ----------------
+    parser_vasp_bec = subparsers.add_parser(
+        'vasp-bec', help='Prepare, run, and collect VASP Born-charge workflows.'
+    )
+    vasp_bec_actions = parser_vasp_bec.add_subparsers(
+        dest='vasp_bec_action', required=True
+    )
+    parser_vasp_bec_prepare = vasp_bec_actions.add_parser(
+        'prepare', help='Prepare reference SCF and linear-response VASP stages.'
+    )
+    parser_vasp_bec_prepare.add_argument('--input-dir', default='.')
+    parser_vasp_bec_prepare.add_argument('--root', default='vasp_bec')
+    parser_vasp_bec_prepare.add_argument(
+        '--method', choices=['dfpt', 'finite-field'], default='dfpt'
+    )
+    parser_vasp_bec_prepare.add_argument(
+        '--field-strength', type=float, default=0.001,
+        help='EFIELD_PEAD component in eV/Angstrom for finite-field mode.'
+    )
+    parser_vasp_bec_prepare.add_argument('--force', action='store_true')
+    parser_vasp_bec_run = vasp_bec_actions.add_parser(
+        'run', help='Run reference and response serially with an insulation gate.'
+    )
+    parser_vasp_bec_run.add_argument('--root', default='vasp_bec')
+    parser_vasp_bec_run.add_argument('--vasp-command', default='vasp_std')
+    parser_vasp_bec_run.add_argument('--min-gap', type=float, default=0.01)
+    parser_vasp_bec_run.add_argument('--dry-run', action='store_true')
+    parser_vasp_bec_status = vasp_bec_actions.add_parser('status')
+    parser_vasp_bec_status.add_argument('--root', default='vasp_bec')
+    parser_vasp_bec_collect = vasp_bec_actions.add_parser(
+        'collect', help='Normalize OUTCAR BEC tensors and write ZStar/Phonopy files.'
+    )
+    parser_vasp_bec_collect.add_argument('--root', default='vasp_bec')
+    parser_vasp_bec_collect.add_argument('--output', default='Z-BORN-all.out')
+    parser_vasp_bec_collect.add_argument('--born-output', default='BORN')
+    parser_vasp_bec_collect.add_argument('--json-output', default='vasp_bec.json')
+    parser_vasp_bec_collect.add_argument('--response-output', default='zstar_response.json')
+    parser_vasp_bec_script = vasp_bec_actions.add_parser(
+        'script', help='Generate a shell, Slurm, or Torque serial driver.'
+    )
+    parser_vasp_bec_script.add_argument('--root', default='vasp_bec')
+    parser_vasp_bec_script.add_argument(
+        '--backend', choices=['shell', 'slurm', 'torque'], default='shell'
+    )
+    parser_vasp_bec_script.add_argument('--output', default=None)
+    parser_vasp_bec_script.add_argument('--job-name', default='zstar-vasp-bec')
+    parser_vasp_bec_script.add_argument('--nodes', type=int, default=1)
+    parser_vasp_bec_script.add_argument('--tasks', type=int, default=1)
+    parser_vasp_bec_script.add_argument('--cpus-per-task', type=int, default=1)
+    parser_vasp_bec_script.add_argument('--walltime', default='24:00:00')
+    parser_vasp_bec_script.add_argument('--queue', default=None)
+    parser_vasp_bec_script.add_argument('--account', default=None)
+    parser_vasp_bec_script.add_argument('--env-script', default=None)
+    parser_vasp_bec_script.add_argument('--vasp-command', default=None)
+    parser_vasp_bec_script.add_argument('--min-gap', type=float, default=0.01)
+    parser_vasp_bec_compare = vasp_bec_actions.add_parser(
+        'compare', help='Compare two normalized vasp_bec.json results.'
+    )
+    parser_vasp_bec_compare.add_argument('--first', required=True)
+    parser_vasp_bec_compare.add_argument('--second', required=True)
+    parser_vasp_bec_compare.add_argument('--output', default='vasp_bec_comparison.json')
+
+    # ---------------- Quantum ESPRESSO response backend ----------------
+    parser_qe = subparsers.add_parser(
+        'qe', help='Prepare, run, and collect Quantum ESPRESSO responses.'
+    )
+    qe_actions = parser_qe.add_subparsers(dest='qe_action', required=True)
+    parser_qe_prepare = qe_actions.add_parser('prepare')
+    parser_qe_prepare.add_argument('--input', required=True)
+    parser_qe_prepare.add_argument('--root', default='qe_response')
+    parser_qe_prepare.add_argument('--dim', type=int, choices=[0, 3], default=3)
+    parser_qe_prepare.add_argument('--periodic-axes', default=None)
+    parser_qe_prepare.add_argument('--tr2-ph', type=float, default=1.0e-14)
+    parser_qe_prepare.add_argument('--no-raman', action='store_true')
+    parser_qe_prepare.add_argument('--force', action='store_true')
+    parser_qe_run = qe_actions.add_parser('run')
+    parser_qe_run.add_argument('--root', default='qe_response')
+    parser_qe_run.add_argument('--pw-command', default='pw.x')
+    parser_qe_run.add_argument('--ph-command', default='ph.x')
+    parser_qe_run.add_argument('--dynmat-command', default='dynmat.x')
+    parser_qe_run.add_argument('--min-gap', type=float, default=0.01)
+    parser_qe_run.add_argument('--omp-threads', type=int, default=1)
+    parser_qe_run.add_argument('--dry-run', action='store_true')
+    parser_qe_status = qe_actions.add_parser('status')
+    parser_qe_status.add_argument('--root', default='qe_response')
+    parser_qe_collect = qe_actions.add_parser('collect')
+    parser_qe_collect.add_argument('--root', default='qe_response')
+    parser_qe_collect.add_argument('--broadening', type=float, default=8.0)
+    parser_qe_collect.add_argument('--points', type=int, default=2001)
+    parser_qe_collect.add_argument('--no-plot', action='store_true')
+    parser_qe_script = qe_actions.add_parser('script')
+    parser_qe_script.add_argument('--root', default='qe_response')
+    parser_qe_script.add_argument(
+        '--backend', choices=['shell', 'slurm', 'torque'], default='shell'
+    )
+    parser_qe_script.add_argument('--output', default=None)
+    parser_qe_script.add_argument('--job-name', default='zstar-qe-response')
+    parser_qe_script.add_argument('--nodes', type=int, default=1)
+    parser_qe_script.add_argument('--tasks', type=int, default=1)
+    parser_qe_script.add_argument('--cpus-per-task', type=int, default=1)
+    parser_qe_script.add_argument('--walltime', default='24:00:00')
+    parser_qe_script.add_argument('--queue', default=None)
+    parser_qe_script.add_argument('--account', default=None)
+    parser_qe_script.add_argument('--env-script', default=None)
+
+    # ---------------- calculator-native IR/Raman ----------------
+    parser_spectra_backend = subparsers.add_parser(
+        'spectra', help='Run calculator-native VASP or CP2K IR/Raman workflows.'
+    )
+    spectra_actions = parser_spectra_backend.add_subparsers(
+        dest='spectra_action', required=True
+    )
+    parser_spectra_prepare = spectra_actions.add_parser(
+        'prepare', help='Prepare a VASP or CP2K spectroscopy workflow.'
+    )
+    parser_spectra_prepare.add_argument(
+        '--calculator', choices=['vasp', 'cp2k'], required=True
+    )
+    parser_spectra_prepare.add_argument('--root', default='calculator_spectra')
+    parser_spectra_prepare.add_argument('--dim', type=int, choices=[0, 2, 3], default=3)
+    parser_spectra_prepare.add_argument('--input-dir', default='.')
+    parser_spectra_prepare.add_argument('--modes-xml', default=None)
+    parser_spectra_prepare.add_argument('--input', default=None)
+    parser_spectra_prepare.add_argument('--modes', default=None)
+    parser_spectra_prepare.add_argument('--acoustic-cutoff', type=float, default=5.0)
+    parser_spectra_prepare.add_argument('--amplitude', type=float, default=0.02)
+    parser_spectra_prepare.add_argument(
+        '--method', choices=['dfpt', 'finite-field'], default='dfpt'
+    )
+    parser_spectra_prepare.add_argument('--field-strength', type=float, default=0.001)
+    parser_spectra_prepare.add_argument('--cp2k-dx', type=float, default=0.01)
+    parser_spectra_prepare.add_argument('--force', action='store_true')
+    parser_spectra_run = spectra_actions.add_parser(
+        'run', help='Run all prepared response stages serially and resumably.'
+    )
+    parser_spectra_run.add_argument('--root', default='calculator_spectra')
+    parser_spectra_run.add_argument(
+        '--command', dest='calculator_command', default=None,
+        help='Calculator launch command (vasp_std or cp2k ... -o output.log).'
+    )
+    parser_spectra_run.add_argument('--min-gap', type=float, default=0.01)
+    parser_spectra_run.add_argument('--omp-threads', type=int, default=1)
+    parser_spectra_run.add_argument('--cp2k-data-dir', default=None)
+    parser_spectra_run.add_argument('--dry-run', action='store_true')
+    parser_spectra_run.add_argument('--stop-after', type=int, default=None)
+    parser_spectra_status = spectra_actions.add_parser('status')
+    parser_spectra_status.add_argument('--root', default='calculator_spectra')
+    parser_spectra_script = spectra_actions.add_parser(
+        'script', help='Generate a shell, Slurm, or Torque serial driver.'
+    )
+    parser_spectra_script.add_argument('--root', default='calculator_spectra')
+    parser_spectra_script.add_argument(
+        '--backend', choices=['shell', 'slurm', 'torque'], default='shell'
+    )
+    parser_spectra_script.add_argument('--output', default=None)
+    parser_spectra_script.add_argument('--job-name', default='zstar-spectra')
+    parser_spectra_script.add_argument('--nodes', type=int, default=1)
+    parser_spectra_script.add_argument('--tasks', type=int, default=1)
+    parser_spectra_script.add_argument('--cpus-per-task', type=int, default=1)
+    parser_spectra_script.add_argument('--walltime', default='24:00:00')
+    parser_spectra_script.add_argument('--queue', default=None)
+    parser_spectra_script.add_argument('--account', default=None)
+    parser_spectra_script.add_argument('--env-script', default=None)
+    parser_spectra_script.add_argument('--command', dest='calculator_command', default=None)
+    parser_spectra_script.add_argument('--min-gap', type=float, default=0.01)
+    parser_spectra_collect = spectra_actions.add_parser(
+        'collect', help='Collect both IR and Raman spectra and render plots.'
+    )
+    parser_spectra_collect.add_argument('--root', default='calculator_spectra')
+    parser_spectra_collect.add_argument('--temperature', type=float, default=300.0)
+    parser_spectra_collect.add_argument('--laser-nm', type=float, default=532.0)
+    parser_spectra_collect.add_argument('--broadening', type=float, default=8.0)
+    parser_spectra_collect.add_argument('--points', type=int, default=2001)
+    parser_spectra_collect.add_argument('--no-plot', action='store_true')
+
+    # ---------------- qNEP data bridge ----------------
+    parser_qnep = subparsers.add_parser(
+        'qnep', help='Prepare and audit GPUMD qNEP datasets with BEC labels.'
+    )
+    qnep_actions = parser_qnep.add_subparsers(dest='qnep_action', required=True)
+    parser_qnep_augment = qnep_actions.add_parser(
+        'augment', help='Append bec:R:9 labels to selected extxyz frames.'
+    )
+    parser_qnep_augment.add_argument('--input', required=True)
+    parser_qnep_augment.add_argument('--output', default='train_qnep.xyz')
+    qnep_source = parser_qnep_augment.add_mutually_exclusive_group(required=True)
+    qnep_source.add_argument('--bec', help='BEC source for one frame.')
+    qnep_source.add_argument('--map', dest='bec_map', help='CSV with frame,bec columns.')
+    parser_qnep_augment.add_argument('--frame', type=int, default=0)
+    parser_qnep_augment.add_argument('--audit-output', default=None)
+    parser_qnep_check = qnep_actions.add_parser(
+        'check', help='Validate qNEP extxyz structure and BEC columns.'
+    )
+    parser_qnep_check.add_argument('--input', required=True)
+    parser_qnep_check.add_argument('--audit-output', default=None)
+    parser_qnep_init = qnep_actions.add_parser(
+        'init', help='Write a minimal qNEP nep.in from a labeled dataset.'
+    )
+    parser_qnep_init.add_argument('--input', required=True)
+    parser_qnep_init.add_argument('--output', default='nep.in')
+    parser_qnep_init.add_argument('--charge-mode', type=int, choices=[1, 2], default=2)
+    parser_qnep_init.add_argument('--lambda-z', type=float, default=0.5)
+
+    # ---------------- Born-charge database ----------------
+    parser_db = subparsers.add_parser(
+        'db', help='Collect ZStar workspaces into a High-K/BEC database.'
+    )
+    db_actions = parser_db.add_subparsers(dest='db_action', required=True)
+    parser_db_init = db_actions.add_parser(
+        'init', help='Write a candidate-manifest CSV template.'
+    )
+    parser_db_init.add_argument('--manifest', default='candidates.csv')
+    parser_db_collect = db_actions.add_parser(
+        'collect', help='Collect manifest workspaces into CSV and JSONL tables.'
+    )
+    parser_db_collect.add_argument('--manifest', default='candidates.csv')
+    parser_db_collect.add_argument('--output', default='database')
+
+    # ---------------- Agent Skill ----------------
+    parser_agent_skill = subparsers.add_parser(
+        'agent-skill',
+        help='Install or inspect the packaged run-zstar-workflows Agent Skill.'
+    )
+    agent_skill_actions = parser_agent_skill.add_subparsers(
+        dest='agent_skill_action', required=True
+    )
+    parser_agent_skill_install = agent_skill_actions.add_parser(
+        'install', help='Install the packaged skill into an agent skills directory.'
+    )
+    parser_agent_skill_install.add_argument(
+        '--dest', default=None,
+        help='Parent skills directory; defaults to $CODEX_HOME/skills or ~/.codex/skills.'
+    )
+    parser_agent_skill_install.add_argument('--force', action='store_true')
+    agent_skill_actions.add_parser('path', help='Print the packaged skill directory.')
+    parser_agent_skill_preflight = agent_skill_actions.add_parser(
+        'preflight', help='Emit a non-mutating JSON readiness report.'
+    )
+    parser_agent_skill_preflight.add_argument('--root', default='.')
+    parser_agent_skill_preflight.add_argument(
+        '--lane',
+        choices=['bec', 'phonon', 'ir', 'raman', 'dielectric', 'md', 'cp2k', 'database'],
+        default='bec',
+    )
+    parser_agent_skill_preflight.add_argument(
+        '--dim', dest='dimensionality',
+        choices=['molecule', '1d', '2d', 'bulk'], default='bulk'
+    )
+
+    # ---------------- calculator-neutral backend and response contracts ----------------
+    parser_backend = subparsers.add_parser(
+        'backend', help='Inspect calculator backend capabilities.'
+    )
+    backend_actions = parser_backend.add_subparsers(
+        dest='backend_action', required=True
+    )
+    parser_backend_list = backend_actions.add_parser(
+        'list', help='List implemented ZStar backend capabilities.'
+    )
+    parser_backend_list.add_argument('--json', action='store_true')
+    parser_backend_list.add_argument(
+        '--discover', action='store_true',
+        help='Load third-party plugins registered under zstar.backends.'
+    )
+
+    parser_response = subparsers.add_parser(
+        'response', help='Validate or convert calculator-neutral response records.'
+    )
+    response_actions = parser_response.add_subparsers(
+        dest='response_action', required=True
+    )
+    parser_response_validate = response_actions.add_parser(
+        'validate', help='Validate a zstar-response JSON document.'
+    )
+    parser_response_validate.add_argument('--input', required=True)
+    parser_response_import = response_actions.add_parser(
+        'import-bec', help='Convert an existing ZStar VASP/CP2K BEC JSON result.'
+    )
+    parser_response_import.add_argument('--input', required=True)
+    parser_response_import.add_argument('--output', default='zstar_response.json')
+    parser_response_import.add_argument(
+        '--dim', type=int, choices=[0, 1, 2, 3], default=3
+    )
+    parser_response_import.add_argument(
+        '--periodic-axes', default=None,
+        help='Periodic axes, for example z, xy, or "x z".'
+    )
+    parser_response_abacus = response_actions.add_parser(
+        'import-abacus', help='Normalize ABACUS/PYATB Z-BORN and optional BORN files.'
+    )
+    parser_response_abacus.add_argument('--zborn', required=True)
+    parser_response_abacus.add_argument('--born', default=None)
+    parser_response_abacus.add_argument('--output', default='zstar_response.json')
+    parser_response_abacus.add_argument(
+        '--dim', type=int, choices=[0, 1, 2, 3], default=3
+    )
+    parser_response_abacus.add_argument('--periodic-axes', default=None)
+    parser_response_phonopy = response_actions.add_parser(
+        'import-phonopy', help='Import Phonopy Gamma modes and optional BORN data.'
+    )
+    parser_response_phonopy.add_argument('--qpoints', default='qpoints.yaml')
+    parser_response_phonopy.add_argument('--born', default=None)
+    parser_response_phonopy.add_argument('--output', default='zstar_response.json')
+    parser_response_phonopy.add_argument(
+        '--dim', type=int, choices=[0, 1, 2, 3], default=3
+    )
+    parser_response_phonopy.add_argument('--periodic-axes', default=None)
+    parser_response_intrinsic = response_actions.add_parser(
+        'intrinsic', help='Add vacuum-independent 0D/1D/2D polarizability.'
+    )
+    parser_response_intrinsic.add_argument('--input', required=True)
+    parser_response_intrinsic.add_argument('--output', default='zstar_response_intrinsic.json')
+    parser_response_intrinsic.add_argument(
+        '--lattice', type=float, nargs=9, required=True,
+        metavar=('a1x', 'a1y', 'a1z', 'a2x', 'a2y', 'a2z', 'a3x', 'a3y', 'a3z'),
+    )
+    parser_response_intrinsic.add_argument(
+        '--convention', choices=['gaussian', 'si-reduced'], default='gaussian'
+    )
+
+    parser_density = subparsers.add_parser(
+        'density', help='Export calculator densities to the ZStar cube contract.'
+    )
+    density_actions = parser_density.add_subparsers(
+        dest='density_action', required=True
+    )
+    parser_density_vasp = density_actions.add_parser('vasp-cube')
+    parser_density_vasp.add_argument('--chgcar', required=True)
+    parser_density_vasp.add_argument('--output', default='charge-density.cube')
+    parser_density_vasp.add_argument('--potcar', default=None)
+    parser_density_qe = density_actions.add_parser('qe-input')
+    parser_density_qe.add_argument('--prefix', required=True)
+    parser_density_qe.add_argument('--outdir', default='./tmp')
+    parser_density_qe.add_argument('--cube', default='charge-density.cube')
+    parser_density_qe.add_argument('--output', default='pp.in')
+    parser_density_qe_sidecar = density_actions.add_parser('qe-sidecar')
+    parser_density_qe_sidecar.add_argument('--cube', required=True)
+    parser_density_qe_sidecar.add_argument('--pw-input', required=True)
+    parser_density_qe_sidecar.add_argument('--pseudo-dir', required=True)
+    parser_density_cp2k = density_actions.add_parser('cp2k-block')
+    parser_density_cp2k.add_argument('--stride', type=int, nargs=3, default=(1, 1, 1))
+    parser_density_cp2k.add_argument('--output', default='cp2k_density_cube.inc')
+    parser_density_sidecar = density_actions.add_parser('sidecar')
+    parser_density_sidecar.add_argument('--cube', required=True)
+    parser_density_sidecar.add_argument('--backend', required=True)
+    parser_density_sidecar.add_argument('--charges', type=float, nargs='+', required=True)
 
     # ---------------- serial workflow ----------------
     parser_workflow = subparsers.add_parser(
@@ -360,7 +791,17 @@ def zstar_cli(argv=None) -> None:
         '--dielectric', default=None,
         help='Optional BORN or PYATB optical output used for epsilon infinity.'
     )
-    parser_ir.add_argument('--dim', type=int, choices=[2, 3], default=3)
+    parser_ir.add_argument('--dim', type=int, choices=[0, 2, 3], default=3)
+    parser_ir.add_argument(
+        '--displacements', '--dipole-dir', default=None,
+        help='For --dim 0, Raman-style +/- mode directory containing '
+             'raman_manifest.json and PYATB polarizations.'
+    )
+    parser_ir.add_argument(
+        '--polarization-subdir', default=None,
+        help='Preferred PYATB polarization folder in each +/- stage '
+             '(auto-detects pyatb and pyatb-polar by default).'
+    )
     parser_ir.add_argument(
         '--thickness', type=float, default=None,
         help='2D effective thickness in Angstrom; omit for sheet polarizability.'
@@ -407,7 +848,7 @@ def zstar_cli(argv=None) -> None:
     parser_raman_run.add_argument('--raman-dir', default='raman')
     parser_raman_run.add_argument('--reference', default='0.no-move')
     parser_raman_run.add_argument('--qpoints', default='qpoints.yaml')
-    parser_raman_run.add_argument('--dim', type=int, choices=[2, 3], default=3)
+    parser_raman_run.add_argument('--dim', type=int, choices=[0, 2, 3], default=3)
     parser_raman_run.add_argument(
         '--abacus-command', default='mpirun -np 1 abacus'
     )
@@ -439,8 +880,20 @@ def zstar_cli(argv=None) -> None:
     parser_raman_run.add_argument(
         '--spectrum-outdir', default='raman_spectrum'
     )
+    parser_raman_run.add_argument(
+        '--ir-outdir', default='ir_spectrum',
+        help='Molecular IR output directory used with --dim 0.'
+    )
     parser_raman_run.add_argument('--no-spectrum', action='store_true')
     parser_raman_run.add_argument('--no-plot', action='store_true')
+    parser_raman_run.add_argument(
+        '--incident-polarization', type=float, nargs=3, default=None,
+        metavar=('EX', 'EY', 'EZ'),
+    )
+    parser_raman_run.add_argument(
+        '--scattered-polarization', type=float, nargs=3, default=None,
+        metavar=('EX', 'EY', 'EZ'),
+    )
 
     parser_raman_status = raman_actions.add_parser(
         'status', help='Inspect Raman +/- stage progress.'
@@ -453,7 +906,7 @@ def zstar_cli(argv=None) -> None:
     parser_raman_collect.add_argument('--raman-dir', default='raman')
     parser_raman_collect.add_argument('--qpoints', default='qpoints.yaml')
     parser_raman_collect.add_argument(
-        '--dim', type=int, choices=[2, 3], default=3
+        '--dim', type=int, choices=[0, 2, 3], default=3
     )
 
     parser_raman_spectrum = raman_actions.add_parser(
@@ -466,7 +919,7 @@ def zstar_cli(argv=None) -> None:
     raman_tensor_source.add_argument('--tensors', default=None)
     raman_tensor_source.add_argument('--raman-dir', default=None)
     parser_raman_spectrum.add_argument(
-        '--dim', type=int, choices=[2, 3], default=3
+        '--dim', type=int, choices=[0, 2, 3], default=3
     )
     parser_raman_spectrum.add_argument('--temperature', type=float, default=300.0)
     parser_raman_spectrum.add_argument('--laser-nm', type=float, default=532.0)
@@ -475,6 +928,25 @@ def zstar_cli(argv=None) -> None:
     parser_raman_spectrum.add_argument('--points', type=int, default=2001)
     parser_raman_spectrum.add_argument('--outdir', default='raman_spectrum')
     parser_raman_spectrum.add_argument('--no-plot', action='store_true')
+    parser_raman_spectrum.add_argument(
+        '--incident-polarization', type=float, nargs=3, default=None,
+        metavar=('EX', 'EY', 'EZ'),
+    )
+    parser_raman_spectrum.add_argument(
+        '--scattered-polarization', type=float, nargs=3, default=None,
+        metavar=('EX', 'EY', 'EZ'),
+    )
+
+    parser_optics = subparsers.add_parser(
+        'optics', help='Derive directional bulk optical constants from epsilon(omega).'
+    )
+    parser_optics.add_argument('--real', required=True)
+    parser_optics.add_argument('--imag', required=True)
+    parser_optics.add_argument(
+        '--polarization', type=float, nargs=3, default=(1.0, 0.0, 0.0),
+        metavar=('EX', 'EY', 'EZ'),
+    )
+    parser_optics.add_argument('--output', default='optical_constants.dat')
 
     parser_vasp = subparsers.add_parser(
         'vasp', help='Convert ABACUS structure format STRU to VASP format POSCAR.'
@@ -559,6 +1031,14 @@ def zstar_cli(argv=None) -> None:
                         help='Directory containing per-frame BEC tensors.')
     md_bec.add_argument('--fixed-bec',
                         help='Fixed BEC tensor file used for all frames.')
+    md_bec.add_argument(
+        '--bec-command',
+        help='Batch predictor using ZSTAR_MD_REQUEST and ZSTAR_MD_OUTPUT NPZ/NPY contract.'
+    )
+    md_bec.add_argument(
+        '--bec-provider',
+        help='BEC provider entry-point name or module:object.'
+    )
     parser_md.add_argument('--bec-pattern', default='frame_{step}.npy',
                            help='Per-frame BEC filename pattern.')
     parser_md.add_argument('--structure-glob', default='frame_*.vasp',
@@ -660,6 +1140,8 @@ def zstar_cli(argv=None) -> None:
                                   help='Estimate lower/upper z-vacuum levels and their potential step.')
     parser_potential.add_argument('--vacuum-exclude', type=float, default=6.0,
                                   help='Distance in Angstrom excluded from both sides of the vacuum gap.')
+    parser_potential.add_argument('--vacuum-window', type=float, default=0.75,
+                                  help='Local averaging width in Angstrom for each side-vacuum plateau.')
     parser_potential.add_argument('--center-slab', nargs='?', const='z',
                                   choices=['x', 'y', 'z'], default=None,
                                   help='Periodically shift the slab so its atomic center lies at the cell center.')
@@ -742,6 +1224,527 @@ def zstar_cli(argv=None) -> None:
             print(f"Out-of-plane effective charge: {result.effective_charge_e:.8g} e")
         print(f"[OUT] {os.path.abspath(args.outdir)}")
 
+    elif args.command == 'cp2k-bec':
+        import json
+        from pathlib import Path
+        from .cp2k_bec import (
+            collect_cp2k_bec,
+            compare_cp2k_bec,
+            cp2k_bec_status,
+            format_cp2k_status,
+            prepare_cp2k_bec,
+            prepare_native_apt,
+            run_cp2k_bec,
+            run_native_apt,
+        )
+
+        if args.cp2k_action == 'prepare':
+            root = prepare_cp2k_bec(
+                args.input,
+                args.root,
+                method=args.method,
+                displacement_angstrom=args.displacement,
+                atoms=args.atoms,
+                force=args.force,
+            )
+            print(f"[OUT] {root}")
+        elif args.cp2k_action == 'run':
+            extra_env = {'CP2K_DATA_DIR': args.data_dir} if args.data_dir else None
+            states = run_cp2k_bec(
+                args.root,
+                cp2k_command=args.cp2k_command,
+                omp_threads=args.omp_threads,
+                dry_run=args.dry_run,
+                stop_after=args.stop_after,
+                extra_env=extra_env,
+            )
+            print(format_cp2k_status(states))
+        elif args.cp2k_action == 'status':
+            print(format_cp2k_status(cp2k_bec_status(args.root)))
+        elif args.cp2k_action == 'collect':
+            result = collect_cp2k_bec(
+                args.root,
+                output=args.output,
+                json_output=args.json_output,
+                response_output=args.response_output,
+            )
+            print(f"[OUT] {result['output']}")
+            print(f"[OUT] {result['json_output']}")
+            print(f"[OUT] {result['response_output']}")
+            sum_label = (
+                "Acoustic-sum residual" if result["sum_scope"] == "all_atoms"
+                else "Selected-atom tensor sum"
+            )
+            print(
+                f"{sum_label} (e):\n"
+                + "\n".join(
+                    " ".join(f"{value: .6e}" for value in row)
+                    for row in result['acoustic_sum_tensor']
+                )
+            )
+        elif args.cp2k_action == 'native':
+            root = prepare_native_apt(
+                args.input,
+                args.root,
+                field_strength=args.field_strength,
+                force=args.force,
+            )
+            print(f"[OUT] {root / 'input.inp'}")
+            if not args.prepare_only:
+                extra_env = {'CP2K_DATA_DIR': args.data_dir} if args.data_dir else None
+                apt = run_native_apt(
+                    root,
+                    cp2k_command=args.cp2k_command,
+                    omp_threads=args.omp_threads,
+                    extra_env=extra_env,
+                )
+                print(f"[OUT] {apt}")
+        elif args.cp2k_action == 'compare':
+            result = compare_cp2k_bec(args.zstar_json, args.native_apt)
+            output = Path(args.output).resolve()
+            output.write_text(json.dumps(result, indent=2), encoding='utf-8')
+            print(f"max |Delta Z*| = {result['max_abs']:.6e} e")
+            print(f"RMS Delta Z* = {result['rms']:.6e} e")
+            print(f"[OUT] {output}")
+
+    elif args.command == 'vasp-bec':
+        from .vasp_bec import (
+            collect_vasp_bec,
+            compare_vasp_bec,
+            format_vasp_status,
+            generate_vasp_backend_script,
+            prepare_vasp_bec,
+            run_vasp_bec,
+            vasp_bec_status,
+        )
+
+        if args.vasp_bec_action == 'prepare':
+            root = prepare_vasp_bec(
+                args.input_dir,
+                args.root,
+                method=args.method,
+                field_strength=args.field_strength,
+                force=args.force,
+            )
+            print(f"[OUT] {root}")
+        elif args.vasp_bec_action == 'run':
+            states = run_vasp_bec(
+                args.root,
+                vasp_command=args.vasp_command,
+                min_gap_eV=args.min_gap,
+                dry_run=args.dry_run,
+            )
+            print(format_vasp_status(states))
+        elif args.vasp_bec_action == 'status':
+            print(format_vasp_status(vasp_bec_status(args.root)))
+        elif args.vasp_bec_action == 'collect':
+            result = collect_vasp_bec(
+                args.root,
+                output=args.output,
+                born_output=args.born_output,
+                json_output=args.json_output,
+                response_output=args.response_output,
+            )
+            print(f"[OUT] {result['output']}")
+            print(f"[OUT] {result['born_output']}")
+            print(f"[OUT] {result['json_output']}")
+            print(f"[OUT] {result['response_output']}")
+            print(
+                "Acoustic-sum residual (e):\n"
+                + "\n".join(
+                    " ".join(f"{value: .6e}" for value in row)
+                    for row in result['acoustic_sum_tensor']
+                )
+            )
+        elif args.vasp_bec_action == 'script':
+            output = generate_vasp_backend_script(
+                args.root,
+                backend=args.backend,
+                output=args.output,
+                job_name=args.job_name,
+                nodes=args.nodes,
+                tasks=args.tasks,
+                cpus_per_task=args.cpus_per_task,
+                walltime=args.walltime,
+                queue=args.queue,
+                account=args.account,
+                env_script=args.env_script,
+                vasp_command=args.vasp_command,
+                min_gap_eV=args.min_gap,
+            )
+            print(f"[OUT] {output}")
+        elif args.vasp_bec_action == 'compare':
+            import json
+            from pathlib import Path
+
+            result = compare_vasp_bec(args.first, args.second)
+            output = Path(args.output).resolve()
+            output.write_text(json.dumps(result, indent=2), encoding='utf-8')
+            print(f"max |Delta Z*| = {result['bec_max_abs_e']:.6e} e")
+            print(f"RMS Delta Z* = {result['bec_rms_e']:.6e} e")
+            print(f"max |Delta epsilon_inf| = {result['epsilon_max_abs']:.6e}")
+            print(f"[OUT] {output}")
+
+    elif args.command == 'qe':
+        from .qe_backend import (
+            collect_qe_response,
+            format_qe_status,
+            generate_qe_backend_script,
+            prepare_qe_response,
+            qe_response_status,
+            run_qe_response,
+        )
+
+        if args.qe_action == 'prepare':
+            root = prepare_qe_response(
+                args.input,
+                args.root,
+                dimensionality=args.dim,
+                periodic_axes=args.periodic_axes,
+                tr2_ph=args.tr2_ph,
+                raman=not args.no_raman,
+                force=args.force,
+            )
+            print(f"[OUT] {root}")
+        elif args.qe_action == 'run':
+            states = run_qe_response(
+                args.root,
+                pw_command=args.pw_command,
+                ph_command=args.ph_command,
+                dynmat_command=args.dynmat_command,
+                min_gap_eV=args.min_gap,
+                omp_threads=args.omp_threads,
+                dry_run=args.dry_run,
+            )
+            print(format_qe_status(states))
+            if any(state.status not in {'completed', 'dry-run'} for state in states):
+                raise SystemExit(1)
+        elif args.qe_action == 'status':
+            print(format_qe_status(qe_response_status(args.root)))
+        elif args.qe_action == 'collect':
+            result = collect_qe_response(
+                args.root,
+                broadening_cm1=args.broadening,
+                points=args.points,
+                plot=not args.no_plot,
+            )
+            print(f"[OUT] {result['response_output']}")
+        elif args.qe_action == 'script':
+            output = generate_qe_backend_script(
+                args.root,
+                backend=args.backend,
+                output=args.output,
+                job_name=args.job_name,
+                nodes=args.nodes,
+                tasks=args.tasks,
+                cpus_per_task=args.cpus_per_task,
+                walltime=args.walltime,
+                queue=args.queue,
+                account=args.account,
+                env_script=args.env_script,
+            )
+            print(f"[OUT] {output}")
+
+    elif args.command == 'spectra':
+        from .spectroscopy_backends import (
+            calculator_spectra_status,
+            collect_calculator_spectra,
+            format_calculator_spectra_status,
+            generate_calculator_spectra_script,
+            prepare_cp2k_spectra,
+            prepare_vasp_spectra,
+            run_calculator_spectra,
+        )
+
+        if args.spectra_action == 'prepare':
+            if args.calculator == 'vasp':
+                if not args.modes_xml:
+                    parser_spectra_prepare.error(
+                        '--modes-xml is required for --calculator vasp'
+                    )
+                root = prepare_vasp_spectra(
+                    args.input_dir,
+                    args.modes_xml,
+                    args.root,
+                    amplitude=args.amplitude,
+                    mode_numbers=_parse_modes(args.modes),
+                    acoustic_cutoff_cm1=args.acoustic_cutoff,
+                    method=args.method,
+                    field_strength=args.field_strength,
+                    dimensionality=args.dim,
+                    force=args.force,
+                )
+            else:
+                if not args.input:
+                    parser_spectra_prepare.error(
+                        '--input is required for --calculator cp2k'
+                    )
+                root = prepare_cp2k_spectra(
+                    args.input,
+                    args.root,
+                    displacement_bohr=args.cp2k_dx,
+                    dimensionality=args.dim,
+                    force=args.force,
+                )
+            print(f"[OUT] {root}")
+        elif args.spectra_action == 'run':
+            extra_env = (
+                {'CP2K_DATA_DIR': args.cp2k_data_dir}
+                if args.cp2k_data_dir
+                else None
+            )
+            states = run_calculator_spectra(
+                args.root,
+                command=args.calculator_command,
+                min_gap_eV=args.min_gap,
+                omp_threads=args.omp_threads,
+                extra_env=extra_env,
+                dry_run=args.dry_run,
+                stop_after=args.stop_after,
+            )
+            print(format_calculator_spectra_status(states))
+        elif args.spectra_action == 'status':
+            print(
+                format_calculator_spectra_status(
+                    calculator_spectra_status(args.root)
+                )
+            )
+        elif args.spectra_action == 'script':
+            output = generate_calculator_spectra_script(
+                args.root,
+                backend=args.backend,
+                output=args.output,
+                job_name=args.job_name,
+                nodes=args.nodes,
+                tasks=args.tasks,
+                cpus_per_task=args.cpus_per_task,
+                walltime=args.walltime,
+                queue=args.queue,
+                account=args.account,
+                env_script=args.env_script,
+                calculator_command=args.calculator_command,
+                min_gap_eV=args.min_gap,
+            )
+            print(f"[OUT] {output}")
+        elif args.spectra_action == 'collect':
+            result = collect_calculator_spectra(
+                args.root,
+                broadening_cm1=args.broadening,
+                laser_nm=args.laser_nm,
+                temperature_K=args.temperature,
+                points=args.points,
+                plot=not args.no_plot,
+            )
+            print(
+                f"Collected {len(result['frequencies_cm-1'])} "
+                f"{result['calculator'].upper()} modes."
+            )
+            print(f"[OUT] {os.path.abspath(args.root)}")
+
+    elif args.command == 'qnep':
+        from .qnep_dataset import (
+            augment_qnep_dataset,
+            check_qnep_dataset,
+            write_qnep_input,
+        )
+
+        if args.qnep_action == 'augment':
+            summary = augment_qnep_dataset(
+                args.input,
+                args.output,
+                bec=args.bec,
+                frame=args.frame,
+                bec_map=args.bec_map,
+                audit_output=args.audit_output,
+            )
+            print(
+                f"Validated {summary['frames']} frames; "
+                f"BEC labels added to {summary['labeled_frames']}."
+            )
+            print(f"[OUT] {summary['output']}")
+            print(f"[OUT] {summary['audit_output']}")
+        elif args.qnep_action == 'check':
+            summary = check_qnep_dataset(
+                args.input, audit_output=args.audit_output
+            )
+            print(
+                f"Valid qNEP extxyz: frames={summary['frames']}, "
+                f"labeled={summary['labeled_frames']}, "
+                f"elements={','.join(summary['elements'])}"
+            )
+            if summary.get('audit_output'):
+                print(f"[OUT] {summary['audit_output']}")
+        elif args.qnep_action == 'init':
+            output = write_qnep_input(
+                args.input,
+                args.output,
+                charge_mode=args.charge_mode,
+                lambda_z=args.lambda_z,
+            )
+            print(f"[OUT] {output}")
+
+    elif args.command == 'db':
+        from .bec_database import collect_database, write_manifest_template
+
+        if args.db_action == 'init':
+            output = write_manifest_template(args.manifest)
+            print(f"[OUT] {output}")
+        elif args.db_action == 'collect':
+            summary = collect_database(args.manifest, args.output)
+            print(
+                "Collected "
+                f"{summary['materials']} materials, {summary['atom_tensors']} atom tensors; "
+                f"complete={summary['complete']}, incomplete={summary['incomplete']}, "
+                f"rejected_metal={summary['rejected_metal']}."
+            )
+            print(f"[OUT] {os.path.abspath(args.output)}")
+
+    elif args.command == 'agent-skill':
+        from .agent_skill import (
+            install_agent_skill,
+            packaged_skill_path,
+            write_preflight_json,
+        )
+
+        if args.agent_skill_action == 'install':
+            destination = install_agent_skill(args.dest, force=args.force)
+            print(f"Installed run-zstar-workflows to {destination}")
+            print("Restart or open a new agent session to refresh skill discovery.")
+        elif args.agent_skill_action == 'path':
+            print(packaged_skill_path())
+        elif args.agent_skill_action == 'preflight':
+            print(
+                write_preflight_json(
+                    args.root,
+                    lane=args.lane,
+                    dimensionality=args.dimensionality,
+                )
+            )
+
+    elif args.command == 'backend':
+        import json
+
+        from .backends import backend_capability_table, builtin_registry
+
+        registry = builtin_registry()
+        discovered = registry.discover() if args.discover else []
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        'plugin_group': 'zstar.backends',
+                        'discovered': discovered,
+                        'backends': [backend.spec.to_dict() for backend in registry.list()],
+                    },
+                    indent=2,
+                )
+            )
+        else:
+            print(backend_capability_table(registry))
+            if discovered:
+                print(f"Discovered plugins: {', '.join(discovered)}")
+
+    elif args.command == 'response':
+        import json
+        from pathlib import Path
+
+        from .response_schema import (
+            response_record_from_abacus_files,
+            response_record_from_bec_result,
+            validate_response_document,
+        )
+
+        if args.response_action == 'validate':
+            print(json.dumps(validate_response_document(args.input), indent=2))
+        elif args.response_action == 'import-bec':
+            source = Path(args.input).resolve()
+            data = json.loads(source.read_text(encoding='utf-8'))
+            record = response_record_from_bec_result(
+                data,
+                dimensionality=args.dim,
+                periodic_axes=args.periodic_axes,
+                provenance={'source_file': str(source)},
+            )
+            output = record.write(args.output)
+            print(f"[OUT] {output}")
+        elif args.response_action == 'import-abacus':
+            record = response_record_from_abacus_files(
+                args.zborn,
+                born_path=args.born,
+                dimensionality=args.dim,
+                periodic_axes=args.periodic_axes,
+            )
+            output = record.write(args.output)
+            print(f"[OUT] {output}")
+        elif args.response_action == 'import-phonopy':
+            from .interoperability import response_record_from_phonopy
+
+            record = response_record_from_phonopy(
+                args.qpoints,
+                born_path=args.born,
+                dimensionality=args.dim,
+                periodic_axes=args.periodic_axes,
+            )
+            output = record.write(args.output)
+            print(f"[OUT] {output}")
+        elif args.response_action == 'intrinsic':
+            import numpy as np
+
+            from .interoperability import add_intrinsic_response
+            from .response_schema import ResponseRecord
+
+            record = ResponseRecord.read(args.input)
+            normalized = add_intrinsic_response(
+                record,
+                np.asarray(args.lattice, dtype=float).reshape(3, 3),
+                convention=args.convention,
+            )
+            output = normalized.write(args.output)
+            print(f"[OUT] {output}")
+
+    elif args.command == 'density':
+        from pathlib import Path
+
+        from .density_adapters import (
+            cp2k_density_cube_block,
+            qe_pp_cube_input,
+            vasp_chgcar_to_cube,
+            write_cube_sidecar,
+            write_qe_cube_sidecar,
+        )
+
+        if args.density_action == 'vasp-cube':
+            output = vasp_chgcar_to_cube(
+                args.chgcar, args.output, potcar_path=args.potcar
+            )
+        elif args.density_action == 'qe-input':
+            output = Path(args.output).resolve()
+            output.write_text(
+                qe_pp_cube_input(
+                    prefix=args.prefix,
+                    outdir=args.outdir,
+                    output_cube=args.cube,
+                ),
+                encoding='utf-8',
+                newline='\n',
+            )
+        elif args.density_action == 'qe-sidecar':
+            output = write_qe_cube_sidecar(
+                args.cube, args.pw_input, pseudo_dir=args.pseudo_dir
+            )
+        elif args.density_action == 'cp2k-block':
+            output = Path(args.output).resolve()
+            output.write_text(
+                cp2k_density_cube_block(stride=tuple(args.stride)),
+                encoding='utf-8',
+                newline='\n',
+            )
+        elif args.density_action == 'sidecar':
+            output = write_cube_sidecar(
+                args.cube, args.charges, backend=args.backend
+            )
+        print(f"[OUT] {output}")
+
     elif args.command == 'workflow':
         from .workflow import (
             format_status_table,
@@ -802,32 +1805,58 @@ def zstar_cli(argv=None) -> None:
 
     elif args.command == 'ir':
         from .spectra import (
+            calculate_molecular_ir_spectrum,
             calculate_ir_spectrum,
+            collect_molecular_dipole_derivatives,
             load_gamma_modes,
             read_born_data,
             write_ir_outputs,
+            write_molecular_ir_outputs,
         )
 
         modes = load_gamma_modes(args.qpoints)
-        born = read_born_data(
-            args.born,
-            natoms=len(modes.masses_amu),
-            dielectric_path=args.dielectric,
-        )
-        result = calculate_ir_spectrum(
-            modes,
-            born,
-            dimensionality=args.dim,
-            mode_numbers=_parse_modes(args.modes),
-            acoustic_cutoff_cm1=args.acoustic_cutoff,
-            broadening_cm1=args.broadening,
-            max_frequency_cm1=args.max_frequency,
-            points=args.points,
-            thickness_angstrom=args.thickness,
-        )
-        summary = write_ir_outputs(
-            args.outdir, result, plot=not args.no_plot
-        )
+        if args.dim == 0:
+            if not args.displacements:
+                parser_ir.error(
+                    "--dim 0 requires --displacements/--dipole-dir"
+                )
+            mode_numbers, derivatives, _ = collect_molecular_dipole_derivatives(
+                args.displacements,
+                cell_volume_angstrom3=modes.volume_angstrom3,
+                cell_lattice_angstrom=modes.lattice_angstrom,
+                polarization_subdir=args.polarization_subdir,
+            )
+            result = calculate_molecular_ir_spectrum(
+                modes,
+                mode_numbers,
+                derivatives,
+                broadening_cm1=args.broadening,
+                max_frequency_cm1=args.max_frequency,
+                points=args.points,
+            )
+            summary = write_molecular_ir_outputs(
+                args.outdir, result, plot=not args.no_plot
+            )
+        else:
+            born = read_born_data(
+                args.born,
+                natoms=len(modes.masses_amu),
+                dielectric_path=args.dielectric,
+            )
+            result = calculate_ir_spectrum(
+                modes,
+                born,
+                dimensionality=args.dim,
+                mode_numbers=_parse_modes(args.modes),
+                acoustic_cutoff_cm1=args.acoustic_cutoff,
+                broadening_cm1=args.broadening,
+                max_frequency_cm1=args.max_frequency,
+                points=args.points,
+                thickness_angstrom=args.thickness,
+            )
+            summary = write_ir_outputs(
+                args.outdir, result, plot=not args.no_plot
+            )
         print(
             f"Calculated {summary['modes']} IR modes; "
             f"response: {summary['response_kind']}"
@@ -835,14 +1864,28 @@ def zstar_cli(argv=None) -> None:
         print(f"[OUT] {os.path.abspath(args.outdir)}")
 
     elif args.command == 'raman':
+        import numpy as np
+
         from .spectra import (
+            calculate_molecular_ir_spectrum,
             calculate_raman_spectrum,
+            collect_molecular_dipole_derivatives,
             collect_raman_tensors,
             load_gamma_modes,
             load_raman_tensors,
             prepare_raman_displacements,
             write_raman_outputs,
+            write_molecular_ir_outputs,
+            write_native_line_spectrum_outputs,
         )
+        from .spectroscopy_analysis import calculate_polarized_raman_spectrum
+
+        incident_polarization = getattr(args, 'incident_polarization', None)
+        scattered_polarization = getattr(args, 'scattered_polarization', None)
+        if bool(incident_polarization) != bool(scattered_polarization):
+            parser_raman.error(
+                '--incident-polarization and --scattered-polarization are required together'
+            )
 
         if args.raman_action == 'status':
             from .workflow import format_status_table, raman_workflow_status
@@ -877,6 +1920,7 @@ def zstar_cli(argv=None) -> None:
                 check_insulating=not args.no_insulation_check,
                 gap_mode=args.gap_mode,
                 dimensionality=args.dim,
+                molecular_ir=args.dim == 0,
                 min_gap_eV=args.min_gap,
                 legacy_omega_max=args.legacy_omega_max,
                 legacy_domega=args.legacy_domega,
@@ -891,6 +1935,7 @@ def zstar_cli(argv=None) -> None:
                 args.raman_dir,
                 dimensionality=args.dim,
                 cell_height_angstrom=modes.cell_height_angstrom,
+                cell_volume_angstrom3=modes.volume_angstrom3,
             )
             print(f"Collected {len(mode_numbers)} {tensor_kind} tensors.")
             if not args.no_spectrum:
@@ -912,11 +1957,59 @@ def zstar_cli(argv=None) -> None:
                 )
                 print(f"Calculated {summary['modes']} Raman modes.")
                 print(f"[OUT] {os.path.abspath(args.spectrum_outdir)}")
+                if args.incident_polarization:
+                    polarized = calculate_polarized_raman_spectrum(
+                        modes.frequencies_cm1[np.asarray(mode_numbers) - 1],
+                        tensors,
+                        mode_numbers=mode_numbers,
+                        incident_polarization=args.incident_polarization,
+                        scattered_polarization=args.scattered_polarization,
+                        temperature_K=args.temperature,
+                        laser_nm=args.laser_nm,
+                        broadening_cm1=args.broadening,
+                        max_frequency_cm1=args.max_frequency,
+                        points=args.points,
+                    )
+                    polarized_dir = os.path.join(
+                        args.spectrum_outdir, 'polarized'
+                    )
+                    write_native_line_spectrum_outputs(
+                        polarized_dir,
+                        polarized,
+                        stem='raman_polarized',
+                        plot=not args.no_plot,
+                    )
+                    print(f"[OUT] {os.path.abspath(polarized_dir)}")
+                if args.dim == 0:
+                    ir_numbers, derivatives, _ = (
+                        collect_molecular_dipole_derivatives(
+                            args.raman_dir,
+                            cell_volume_angstrom3=modes.volume_angstrom3,
+                            cell_lattice_angstrom=modes.lattice_angstrom,
+                            polarization_subdir="pyatb-polar",
+                        )
+                    )
+                    ir_result = calculate_molecular_ir_spectrum(
+                        modes,
+                        ir_numbers,
+                        derivatives,
+                        broadening_cm1=args.broadening,
+                        max_frequency_cm1=args.max_frequency,
+                        points=args.points,
+                    )
+                    ir_summary = write_molecular_ir_outputs(
+                        args.ir_outdir,
+                        ir_result,
+                        plot=not args.no_plot,
+                    )
+                    print(f"Calculated {ir_summary['modes']} molecular IR modes.")
+                    print(f"[OUT] {os.path.abspath(args.ir_outdir)}")
         elif args.raman_action == 'collect':
             mode_numbers, tensors, tensor_kind = collect_raman_tensors(
                 args.raman_dir,
                 dimensionality=args.dim,
                 cell_height_angstrom=modes.cell_height_angstrom,
+                cell_volume_angstrom3=modes.volume_angstrom3,
             )
             print(
                 f"Collected {len(mode_numbers)} {tensor_kind} tensors "
@@ -929,6 +2022,7 @@ def zstar_cli(argv=None) -> None:
                     args.raman_dir,
                     dimensionality=args.dim,
                     cell_height_angstrom=modes.cell_height_angstrom,
+                    cell_volume_angstrom3=modes.volume_angstrom3,
                 )
             else:
                 mode_numbers, tensors, tensor_kind = load_raman_tensors(
@@ -950,6 +2044,41 @@ def zstar_cli(argv=None) -> None:
             )
             print(f"Calculated {summary['modes']} Raman modes.")
             print(f"[OUT] {os.path.abspath(args.outdir)}")
+            if args.incident_polarization:
+                polarized = calculate_polarized_raman_spectrum(
+                    modes.frequencies_cm1[np.asarray(mode_numbers) - 1],
+                    tensors,
+                    mode_numbers=mode_numbers,
+                    incident_polarization=args.incident_polarization,
+                    scattered_polarization=args.scattered_polarization,
+                    temperature_K=args.temperature,
+                    laser_nm=args.laser_nm,
+                    broadening_cm1=args.broadening,
+                    max_frequency_cm1=args.max_frequency,
+                    points=args.points,
+                )
+                polarized_dir = os.path.join(args.outdir, 'polarized')
+                write_native_line_spectrum_outputs(
+                    polarized_dir,
+                    polarized,
+                    stem='raman_polarized',
+                    plot=not args.no_plot,
+                )
+                print(f"[OUT] {os.path.abspath(polarized_dir)}")
+
+    elif args.command == 'optics':
+        from .spectroscopy_analysis import (
+            optical_constants_from_dielectric,
+            read_dielectric_response,
+            write_optical_constants,
+        )
+
+        frequency, dielectric = read_dielectric_response(args.real, args.imag)
+        result = optical_constants_from_dielectric(
+            frequency, dielectric, polarization=args.polarization
+        )
+        output = write_optical_constants(args.output, result)
+        print(f"[OUT] {output}")
 
     elif args.command == 'irrep':
         from .read_irrep import main as run_read_irrep_cli
@@ -1022,6 +2151,8 @@ def zstar_cli(argv=None) -> None:
             bec_dir=args.bec_dir,
             bec_pattern=args.bec_pattern,
             fixed_bec=args.fixed_bec,
+            bec_command=args.bec_command,
+            bec_provider=args.bec_provider,
             temperature=args.temperature,
             type_map=parse_type_map(args.type_map),
             start_step=args.start_step,
@@ -1069,6 +2200,7 @@ def zstar_cli(argv=None) -> None:
             vacuum_level=args.vacuum_level,
             vacuum_sides=args.vacuum_sides,
             vacuum_exclude=args.vacuum_exclude,
+            vacuum_window=args.vacuum_window,
             center_slab_axis=args.center_slab,
             polar_arrow=args.polar_arrow,
             plot=not args.no_plot,
@@ -1086,6 +2218,22 @@ def zstar_cli(argv=None) -> None:
             print(f"[DIRECTION {direction}] {target}")
 
     elif args.command == 'gen':
+        if getattr(args, 'cp2k', False):
+            if not args.input:
+                parser.error('zstar gen --cp2k requires --input CP2K_INPUT')
+            from .cp2k_bec import prepare_cp2k_bec
+
+            root = prepare_cp2k_bec(
+                args.input,
+                args.cp2k_root,
+                method=args.method,
+                displacement_angstrom=args.displacement,
+                atoms=args.atom or 'all',
+                force=args.force,
+            )
+            print(f"[OUT] {root}")
+            return
+
         from .gen_polar import gen_polar as run_gen
 
         # Full x/y/z displacements are required for the hybrid 2D BEC tensor.
@@ -1148,10 +2296,21 @@ def zstar_cli(argv=None) -> None:
             f_stru=args.stru,
             symm_tol=args.symmprec,
             nac=args.nac,
-            dim=args.dim
+            dim=args.dim,
+            physical_dim=args.physical_dim,
+            nac_model=args.nac_model,
+            q_direction=None if args.q_direction is None else tuple(args.q_direction),
         )
 
     elif args.command in ('rpolar', 'deal', 'born', 'polar'):
+        if getattr(args, 'cp2k', False):
+            from .cp2k_bec import collect_cp2k_bec
+
+            result = collect_cp2k_bec(args.cp2k_root)
+            print(f"[OUT] {result['output']}")
+            print(f"[OUT] {result['json_output']}")
+            return
+
         from .deal_polar import main as run_deal_polar
 
         calc_flag = 'abacus' if getattr(args, 'abacus', False) else 'pyatb'
