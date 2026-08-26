@@ -75,8 +75,10 @@ differ by only `-1.65e-5 eV`, with polar alpha-In2Se3, whose opposite-surface
 vacuum levels differ by `1.220812 eV`. The revised side-vacuum estimator uses
 0.75 Angstrom local windows adjacent to the two surface exclusion boundaries,
 so a dipole-correction reset elsewhere in the vacuum is not averaged into a
-surface plateau. The lower panels show the SnS in-plane potential texture and
-the mean-centered `a+b` versus `a-b` contrast for SnS, SnSe, and SnTe. This
+surface plateau. The lower panels show a plotting-only 3x3 tiling of the SnS
+in-plane potential texture, with the central primitive cell outlined by a
+dashed box, and the mean-centered `a+b` versus `a-b` contrast for SnS, SnSe,
+and SnTe. This
 last quantity is an inspection diagnostic, not a polarization magnitude.
 
 ### CO2 molecular IR/Raman benchmark

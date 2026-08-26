@@ -12,6 +12,8 @@ import re
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.patches import Rectangle
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 import yaml
 
@@ -780,10 +782,23 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
     potential_map = map_data[:, 4].reshape(nx, ny).T
     potential_map -= np.mean(potential_map)
     limit = float(np.percentile(np.abs(potential_map), 98.0))
+    tile_count = 3
+    tile_offset = tile_count // 2
+    dx = float(np.mean(np.diff(x_coord)))
+    dy = float(np.mean(np.diff(y_coord)))
+    x_period = dx * nx
+    y_period = dy * ny
+    x_tiled = x_coord[0] + (
+        np.arange(tile_count * nx) - tile_offset * nx
+    ) * dx
+    y_tiled = y_coord[0] + (
+        np.arange(tile_count * ny) - tile_offset * ny
+    ) * dy
+    tiled_map = np.tile(potential_map, (tile_count, tile_count))
     image = ax_map.pcolormesh(
-        x_coord,
-        y_coord,
-        potential_map,
+        x_tiled,
+        y_tiled,
+        tiled_map,
         shading="nearest",
         cmap="RdBu_r",
         vmin=-limit,
@@ -793,7 +808,20 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
     ax_map.set_aspect("equal")
     ax_map.set_xlabel(r"$x$ ($\AA$)")
     ax_map.set_ylabel(r"$y$ ($\AA$)")
-    ax_map.set_title("SnS in-plane potential texture", loc="left")
+    ax_map.set_title("SnS in-plane potential texture (3x3 tiled)", loc="left")
+    ax_map.set_xlim(x_tiled[0] - 0.5 * dx, x_tiled[-1] + 0.5 * dx)
+    ax_map.set_ylim(y_tiled[0] - 0.5 * dy, y_tiled[-1] + 0.5 * dy)
+    central_cell = Rectangle(
+        (x_coord[0] - 0.5 * dx, y_coord[0] - 0.5 * dy),
+        x_period,
+        y_period,
+        fill=False,
+        edgecolor=COLORS["ink"],
+        linewidth=1.0,
+        linestyle=(0, (4, 2.5)),
+        zorder=5,
+    )
+    ax_map.add_patch(central_cell)
     x_mid = 0.5 * (float(x_coord[0]) + float(x_coord[-1]))
     y_mid = 0.5 * (float(y_coord[0]) + float(y_coord[-1]))
     arrow_scale = 0.30 * min(
@@ -819,16 +847,26 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
             va="center",
             fontsize=7.4,
         )
-    colorbar_axis = ax_map.inset_axes([0.055, 0.92, 0.38, 0.028])
+    colorbar_axis = make_axes_locatable(ax_map).append_axes(
+        "right",
+        size="4.5%",
+        pad=0.045,
+    )
     colorbar = fig.colorbar(
         image,
         cax=colorbar_axis,
-        orientation="horizontal",
+        orientation="vertical",
     )
-    colorbar_axis.xaxis.set_ticks_position("top")
-    colorbar_axis.xaxis.set_label_position("top")
     colorbar.set_label(r"$V-\langle V\rangle$ (eV)")
-    style_data_axis(colorbar_axis)
+    colorbar_axis.tick_params(
+        axis="y",
+        which="both",
+        direction="in",
+        left=False,
+        right=True,
+        labelleft=False,
+        labelright=True,
+    )
 
     direction_sources = []
     directional_rms = {}
@@ -843,7 +881,7 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
             contrast,
             color=materials[material],
             linewidth=1.15,
-            label=f"{display[material]}  RMS {rms:.3f} eV",
+            label=display[material],
         )
         direction_sources.extend(
             [
