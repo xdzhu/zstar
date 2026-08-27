@@ -162,9 +162,16 @@ def zstar_cli(argv=None) -> None:
         help='Physical dimensionality: 0 for a molecule, 1 for a z-periodic wire, 2 for a slab, or 3 for bulk.'
     )
     parser_gen.add_argument('--method', type=str, help='Type of finite difference method, by forward or central, with pricesion of first and seconde order.', default='forward')
-    parser_gen.add_argument('--xc', type=str,
-                            help='dft_functional in abacus INPUT, default is pbe, you can change to pbesol',
-                            default='pbe')
+    parser_gen.add_argument(
+        '--xc',
+        type=str,
+        default=None,
+        help=(
+            'Override dft_functional in the ABACUS INPUT. When -i/--input is '
+            'provided, the file value is preserved by default; otherwise PBE '
+            'is used.'
+        ),
+    )
     parser_gen.add_argument('--vdw', type=str, help='vdw in INPUT', default=None)
     parser_gen.add_argument('--init', type=bool,
                             help='init_chg in INPUT, set False to use atomic',
@@ -2338,6 +2345,10 @@ def zstar_cli(argv=None) -> None:
         else:
             method_fd = "forward"
 
+        xc = args.xc
+        if xc is None and args.input is None:
+            xc = 'pbe'
+
         run_gen(
             f_stru=args.stru,
             symm_tol=args.symmprec,
@@ -2345,7 +2356,7 @@ def zstar_cli(argv=None) -> None:
             atom_input=args.atom,
             move_input=move_input,
             scf_input=args.input,
-            xc=args.xc,
+            xc=xc,
             dimension=args.dim,
             vdw=args.vdw,
             init_chg_bool=args.init,

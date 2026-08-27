@@ -79,9 +79,10 @@ Raman active but has zero IR mode charge.
 
 The figure shows the dimensional split used for a slab: in-plane BEC rows come
 from Berry-phase polarization, whereas the open-direction row comes from the
-total dipole of charge-density cubes. A +0.01 Angstrom In(1) displacement gives
-`delta p_z = 0.003633148 e Angstrom` and a raw
-`Z*_zz = 0.363314836 e`; the site-resolved panel uses the final
+total dipole of charge-density cubes. The retained PBEsol calculation uses a
+cell-relaxed monolayer. A +0.01 Angstrom In(1) displacement gives
+`delta p_z = 0.003494009 e Angstrom` and a raw
+`Z*_zz = 0.349400861 e`; the site-resolved panel uses the final
 symmetry-reconstructed and acoustic-sum-corrected tensors.
 
 ### Representative 2D electrostatic-potential diagnostics

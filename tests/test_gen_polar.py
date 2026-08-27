@@ -4,7 +4,9 @@ from pathlib import Path
 import unittest
 from contextlib import redirect_stdout
 from io import StringIO
+from unittest.mock import patch
 
+from zstar.cli import zstar_cli
 from zstar.gen_polar import (
     _abacus_assets_from_stru,
     _copy_input_sets_to_here,
@@ -17,6 +19,26 @@ from zstar.stru_analyzer import stru_analyzer
 
 
 class GenPolarTests(unittest.TestCase):
+    def test_cli_preserves_input_functional_without_explicit_xc(self):
+        with patch("zstar.gen_polar.gen_polar") as run_gen:
+            zstar_cli(["gen", "-i", "INPUT.seed", "--stru", "STRU"])
+        self.assertIsNone(run_gen.call_args.kwargs["xc"])
+
+    def test_cli_explicit_xc_overrides_input_functional(self):
+        with patch("zstar.gen_polar.gen_polar") as run_gen:
+            zstar_cli(
+                [
+                    "gen", "-i", "INPUT.seed", "--stru", "STRU",
+                    "--xc", "pbesol",
+                ]
+            )
+        self.assertEqual(run_gen.call_args.kwargs["xc"], "pbesol")
+
+    def test_cli_defaults_generated_input_to_pbe(self):
+        with patch("zstar.gen_polar.gen_polar") as run_gen:
+            zstar_cli(["gen", "--stru", "STRU"])
+        self.assertEqual(run_gen.call_args.kwargs["xc"], "pbe")
+
     def test_dim1_generation_requests_high_precision_charge_cube(self):
         with tempfile.TemporaryDirectory() as tmp:
             previous = Path.cwd()

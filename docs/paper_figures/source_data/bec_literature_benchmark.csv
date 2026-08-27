@@ -35,16 +35,16 @@ Bulk,HfO2,Fan2022,VASP,PBEsol,tetragonal,O_z,-2.500,10.1038/s41535-022-00436-8,d
 2D,hBN,SioGiustino2022,Quantum ESPRESSO,PBE,monolayer,B_parallel,2.702,10.1103/PhysRevB.105.115414,direct
 2D,hBN,Hu2018,Quantum ESPRESSO,PZ-LDA,monolayer,B_parallel,2.697,10.1088/1674-1056/27/8/086301,direct
 2D,hBN,Hu2018,Quantum ESPRESSO,PZ-LDA,monolayer,B_z,0.281,10.1088/1674-1056/27/8/086301,direct
-2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBE,monolayer,Se1_parallel,-2.521,,target
-2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBE,monolayer,In1_parallel,2.752,,target
-2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBE,monolayer,Se_c_parallel,-1.697,,target
-2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBE,monolayer,In2_parallel,3.990,,target
-2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBE,monolayer,Se2_parallel,-2.524,,target
-2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBE,monolayer,Se1_z,-0.178,,target
-2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBE,monolayer,In1_z,0.397,,target
-2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBE,monolayer,Se_c_z,-0.348,,target
-2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBE,monolayer,In2_z,0.361,,target
-2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBE,monolayer,Se2_z,-0.230,,target
+2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBEsol,monolayer,Se1_parallel,-2.426,,target
+2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBEsol,monolayer,In1_parallel,2.639,,target
+2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBEsol,monolayer,Se_c_parallel,-1.648,,target
+2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBEsol,monolayer,In2_parallel,3.864,,target
+2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBEsol,monolayer,Se2_parallel,-2.428,,target
+2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBEsol,monolayer,Se1_z,-0.219,,target
+2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBEsol,monolayer,In1_z,0.381,,target
+2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBEsol,monolayer,Se_c_z,-0.341,,target
+2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBEsol,monolayer,In2_z,0.348,,target
+2D,alpha-In2Se3,ZStar,ABACUS+PYATB,PBEsol,monolayer,Se2_z,-0.169,,target
 2D,alpha-In2Se3,Soleimani2020,VASP,PBEsol,monolayer,Se1_parallel,-2.505,10.1039/D0NR04096G,direct
 2D,alpha-In2Se3,Soleimani2020,VASP,PBEsol,monolayer,In1_parallel,2.737,10.1039/D0NR04096G,direct
 2D,alpha-In2Se3,Soleimani2020,VASP,PBEsol,monolayer,Se_c_parallel,-1.697,10.1039/D0NR04096G,direct
@@ -55,16 +55,6 @@ Bulk,HfO2,Fan2022,VASP,PBEsol,tetragonal,O_z,-2.500,10.1038/s41535-022-00436-8,d
 2D,alpha-In2Se3,Soleimani2020,VASP,PBEsol,monolayer,Se_c_z,-0.250,10.1039/D0NR04096G,direct
 2D,alpha-In2Se3,Soleimani2020,VASP,PBEsol,monolayer,In2_z,0.255,10.1039/D0NR04096G,direct
 2D,alpha-In2Se3,Soleimani2020,VASP,PBEsol,monolayer,Se2_z,-0.128,10.1039/D0NR04096G,direct
-2D,alpha-In2Se3,Wu2015,VASP,HSE06+D2,bilayer,Se1_parallel,-2.540,10.1021/acs.nanolett.5b03575,context
-2D,alpha-In2Se3,Wu2015,VASP,HSE06+D2,bilayer,In1_parallel,2.810,10.1021/acs.nanolett.5b03575,context
-2D,alpha-In2Se3,Wu2015,VASP,HSE06+D2,bilayer,Se_c_parallel,-1.810,10.1021/acs.nanolett.5b03575,context
-2D,alpha-In2Se3,Wu2015,VASP,HSE06+D2,bilayer,In2_parallel,4.040,10.1021/acs.nanolett.5b03575,context
-2D,alpha-In2Se3,Wu2015,VASP,HSE06+D2,bilayer,Se2_parallel,-2.500,10.1021/acs.nanolett.5b03575,context
-2D,alpha-In2Se3,Wu2015,VASP,HSE06+D2,bilayer,Se1_z,-0.250,10.1021/acs.nanolett.5b03575,context
-2D,alpha-In2Se3,Wu2015,VASP,HSE06+D2,bilayer,In1_z,0.570,10.1021/acs.nanolett.5b03575,context
-2D,alpha-In2Se3,Wu2015,VASP,HSE06+D2,bilayer,Se_c_z,-0.460,10.1021/acs.nanolett.5b03575,context
-2D,alpha-In2Se3,Wu2015,VASP,HSE06+D2,bilayer,In2_z,0.450,10.1021/acs.nanolett.5b03575,context
-2D,alpha-In2Se3,Wu2015,VASP,HSE06+D2,bilayer,Se2_z,-0.300,10.1021/acs.nanolett.5b03575,context
 Molecular,H2O,ZStar,ABACUS+PYATB,PBE,isolated molecule,O,-0.480524,,target
 Molecular,H2O,ZStar,ABACUS+PYATB,PBE,isolated molecule,H,0.240262,,target
 Molecular,H2O,Ferreira1990_exp,experiment,experimental gas phase,isolated molecule,O,-0.472,10.1021/j100370a086,direct

@@ -73,10 +73,12 @@ def configure_matplotlib() -> None:
     )
 
 
-def panel_label(ax, label: str) -> None:
+def panel_label(
+    ax, label: str, *, x: float = -0.31, y: float = 1.12
+) -> None:
     ax.text(
-        -0.31,
-        1.12,
+        x,
+        y,
         f"({label})",
         transform=ax.transAxes,
         ha="left",
@@ -110,6 +112,9 @@ def save_figure(fig, output: Path, stem: str) -> dict[str, str]:
     fig.savefig(paths["png"], dpi=400, bbox_inches="tight")
     fig.savefig(paths["pdf"], bbox_inches="tight")
     fig.savefig(paths["svg"], bbox_inches="tight")
+    svg_lines = paths["svg"].read_text(encoding="utf-8").splitlines()
+    with paths["svg"].open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write("\n".join(line.rstrip() for line in svg_lines) + "\n")
     fig.savefig(
         paths["tiff"],
         dpi=600,
@@ -615,7 +620,7 @@ def make_in2se3_polarization(data_root: Path, output: Path) -> dict:
     for label, axis in zip(
         "abcd", (ax_structure, ax_density, ax_dipole, ax_bec)
     ):
-        panel_label(axis, label)
+        panel_label(axis, label, x=-0.37, y=1.16)
 
     files = save_figure(fig, output, "in2se3_hybrid_polarization")
     plt.close(fig)
@@ -1214,9 +1219,8 @@ def make_bec_validation(data_root: Path, output: Path) -> dict:
             r"In(low)$_z$", r"In(high)$_z$", r"Se(c)$_z$",
         ],
         sources=[
-            ("ZStar", "ZStar, 1L PBE"),
+            ("ZStar", "ZStar, 1L PBEsol"),
             ("Soleimani2020", "Soleimani, 1L PBEsol"),
-            ("Wu2015", "Wu, 2L HSE06"),
         ],
         title=r"2D: $\alpha$-In$_2$Se$_3$",
         ylabel=r"Born effective charge ($e$)",

@@ -21,8 +21,8 @@
         "svg": "in2se3_hybrid_polarization.svg",
         "tiff": "in2se3_hybrid_polarization.tiff"
       },
-      "dipole_change_e_angstrom": 0.003633148357495363,
-      "effective_charge_e": 0.36331483574953627
+      "dipole_change_e_angstrom": 0.0034940086116847765,
+      "effective_charge_e": 0.34940086116847763
     },
     {
       "figure": "bec_validation_across_dimensions",
@@ -115,8 +115,8 @@
   "source_data": [
     {
       "path": "bec_literature_benchmark.csv",
-      "size": 7659,
-      "sha256": "7dda0658ba2612e37da7da7235f72755304dab8185d7eb534112b3fcd6446721"
+      "size": 6706,
+      "sha256": "35e1f14e9e08a50ace1e3a792fc0c5d47444c68b8363be1b30c0704ffd68cb6c"
     },
     {
       "path": "bto/ir/ir_modes.csv",
@@ -165,13 +165,13 @@
     },
     {
       "path": "in2se3/profile/slab_charge_profile.csv",
-      "size": 58763,
-      "sha256": "eefe9402c571dba2e25326c6d76159b2a8e9890d6243cf63089e95dc91158d95"
+      "size": 58758,
+      "sha256": "a7afead2505ee93f7f667133613168ee10eb38fa5dfc0018b07759ca8bf2f412"
     },
     {
       "path": "in2se3/profile/slab_dipole_summary.json",
-      "size": 1244,
-      "sha256": "d4dd9ca454f6e12020ff0a2ce0dad227859c0fdbc486a6878faafdec451ea6c3"
+      "size": 1211,
+      "sha256": "7fac63e6cd18b17d64798e4f235f490ad7ce56603aac391ea8d98ab52b57d5fe"
     },
     {
       "path": "in2se3/qpoints.yaml",
@@ -180,8 +180,8 @@
     },
     {
       "path": "in2se3/Z-BORN-symm.out",
-      "size": 605,
-      "sha256": "1251f1bf5ee0f1c5006f8e0a357ea3042291b364de1bc2832fc175848f414cec"
+      "size": 821,
+      "sha256": "ab8858e9f363e8a3251bfdd8d63babb8360f5af5bea9714584d1fd660b1d8438"
     },
     {
       "path": "potential/calculation_metadata.json",
