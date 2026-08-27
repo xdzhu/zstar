@@ -231,9 +231,9 @@ def _ds_get(ds, name):
 # ===================== 美观的并排表格 =====================
 
 def _format_two_mats_side_by_side(Z_left, Z_right, title_left="Z_left", title_right="Z_right",
-                                  w=9, prec=3) -> List[str]:
+                                  w=BORN_OUTPUT_WIDTH, prec=BORN_OUTPUT_PRECISION) -> List[str]:
     """
-    把两个 3x3 矩阵并排打印成表格（3位小数，紧凑好看，屏幕与报告共用）
+    把两个 3x3 矩阵并排打印成表格，屏幕与报告共用。
     w: 每个数值字段宽度；prec: 小数位
     """
     assert Z_left.shape == (3, 3) and Z_right.shape == (3, 3)
@@ -393,7 +393,7 @@ def run_symcheck(stru: str = "STRU",
                 err_max = float(np.max(np.abs(diff)))
                 err_rms = float(np.sqrt(np.mean(diff ** 2)))
 
-                # 屏幕输出：并排表格（3位小数）
+                # 屏幕输出：并排高精度表格
                 print(
                     f"  -> Atom {ridx} -> Atom {j} via {len(hits)} mapping op(s) "
                     f"(representative #{k})"
@@ -403,13 +403,15 @@ def run_symcheck(stru: str = "STRU",
                 print(f"     t_frac = {np.array2string(tf, precision=6)}")
                 print("     R_cart =")
                 print("     " + np.array2string(Rc, precision=6, floatmode='maxprec').replace("\n", "\n     "))
-                print(f"     ||Z_pred - Z_ref||_max = {err_max:.3e},  rms = {err_rms:.3e}")
-                table_lines = _format_two_mats_side_by_side(Z_pred, Z_ref, title_left="Z_pred", title_right="Z_ref", w=9, prec=3)
+                print(f"     ||Z_pred - Z_ref||_max = {err_max:.8e},  rms = {err_rms:.8e}")
+                table_lines = _format_two_mats_side_by_side(
+                    Z_pred, Z_ref, title_left="Z_pred", title_right="Z_ref"
+                )
                 for ln in table_lines:
                     print("     " + ln)
                 print("-" * 80)
 
-                # 报告（同样 3 位小数，保持一致风格）
+                # 报告使用相同的高精度格式
                 lines.append(
                     f"  -> Atom {ridx} -> Atom {j} via {len(hits)} mapping op(s) "
                     f"(representative #{k})\n"
@@ -417,7 +419,7 @@ def run_symcheck(stru: str = "STRU",
                 lines.append(f"     R_frac =\n{np.array2string(Rf, formatter={'int':lambda x:f'{x:2d}'})}\n")
                 lines.append(f"     t_frac = {np.array2string(tf, precision=6)}\n")
                 lines.append(f"     R_cart =\n{np.array2string(Rc, precision=6, floatmode='maxprec')}\n")
-                lines.append(f"     ||Z_pred - Z_ref||_max = {err_max:.3e},  rms = {err_rms:.3e}\n")
+                lines.append(f"     ||Z_pred - Z_ref||_max = {err_max:.8e},  rms = {err_rms:.8e}\n")
                 for ln in table_lines:
                     lines.append("     " + ln + "\n")
 
@@ -483,7 +485,7 @@ def run_symcheck(stru: str = "STRU",
     Z_corr = {j: (Z_symm_mean[j] + C) for j in all_indices}
 
     print("[symm] Acoustic sum rule correction (added to each atom):")
-    print(np.array2string(C, precision=6))
+    print(np.array2string(C, precision=BORN_OUTPUT_PRECISION))
 
     # 写出 Z-BORN-symm.out（格式与 Z-BORN-all.out 类似，*标记 reduced 原子）
     def _fmt_row(

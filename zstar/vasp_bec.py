@@ -17,6 +17,8 @@ import numpy as np
 
 _NUMBER = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
 _INCAR_KEY = re.compile(r"^\s*([A-Za-z][A-Za-z0-9_]*)\s*=")
+BEC_OUTPUT_PRECISION = 8
+BEC_OUTPUT_WIDTH = 14
 
 
 def _utc_now() -> str:
@@ -604,11 +606,15 @@ def collect_vasp_bec(
     if not output_path.is_absolute():
         output_path = root_path / output_path
     header = f"{'No. Atom': <8} " + " ".join(
-        f"{name:>11}" for name in ("xx", "xy", "xz", "yx", "yy", "yz", "zx", "zy", "zz")
+        f"{name:>{BEC_OUTPUT_WIDTH}}"
+        for name in ("xx", "xy", "xz", "yx", "yy", "yz", "zx", "zy", "zz")
     ) + "\n"
     rows = [header]
     for index, (label, tensor) in enumerate(zip(labels, tensors), start=1):
-        values = " ".join(f"{value: 11.6f}" for value in tensor.reshape(9))
+        values = " ".join(
+            f"{value: {BEC_OUTPUT_WIDTH}.{BEC_OUTPUT_PRECISION}f}"
+            for value in tensor.reshape(9)
+        )
         rows.append(f" {index:>4} {label:<3} {values}\n")
     output_path.write_text("".join(rows), encoding="utf-8", newline="\n")
 

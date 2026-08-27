@@ -662,16 +662,16 @@ def display_results(label, data):
     print(f"\n{label}:")
     if isinstance(data, np.ndarray):
         for row in data:
-            print(' '.join([f"{value: .3f}" for value in row]))
+            print(' '.join([f"{value: .8f}" for value in row]))
     else:
         for key, value in data.items():
             print(f"{key}: {value}")
 
-def format_matrix(Z, xx_len=10):
+def format_matrix(Z, xx_len=BORN_OUTPUT_WIDTH):
     formatted_rows = []
     for row in Z:
         formatted_row = ' '.join(
-            [f"{float(element): >{xx_len}.3f}" for element in row if isinstance(element, (float, int)) or element.replace('.', '', 1).isdigit()]
+            [f"{float(element): >{xx_len}.{BORN_OUTPUT_PRECISION}f}" for element in row if isinstance(element, (float, int)) or element.replace('.', '', 1).isdigit()]
         )
         formatted_rows.append(formatted_row)
     return formatted_rows

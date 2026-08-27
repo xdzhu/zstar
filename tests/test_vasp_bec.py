@@ -151,6 +151,10 @@ class VaspBecTests(unittest.TestCase):
             )
             result = collect_vasp_bec(root)
             self.assertTrue((root / "Z-BORN-all.out").is_file())
+            self.assertIn(
+                "2.00000000",
+                (root / "Z-BORN-all.out").read_text(encoding="utf-8"),
+            )
             self.assertTrue((root / "BORN").is_file())
             self.assertTrue((root / "vasp_bec.json").is_file())
             self.assertTrue((root / "zstar_response.json").is_file())

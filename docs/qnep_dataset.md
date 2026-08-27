@@ -46,6 +46,12 @@ The generated audit JSON records every labeled frame, BEC source, atom count,
 tensor conversion, and acoustic-sum residual. Atom labels and order are checked
 when the BEC source contains species metadata.
 
+BEC labels are written with ten digits after the decimal point. Canonical
+`Z-BORN-*.out` files use eight digits, while JSON response records retain the
+available floating-point precision. These are storage guarantees, not claims
+of physical accuracy; convergence with respect to SCF thresholds, displacement
+size, basis, and sampling remains mandatory.
+
 ## Tensor convention and scientific limits
 
 GPUMD stores the nine `bec:R:9` components in row-major order with electric

@@ -140,6 +140,10 @@ class Cp2kBecTests(unittest.TestCase):
             actual = np.asarray(result["atoms"][0]["tensor"])
             self.assertTrue(np.allclose(actual, expected, atol=1e-9))
             self.assertTrue((root / "Z-BORN-all.out").is_file())
+            self.assertIn(
+                "2.10000000",
+                (root / "Z-BORN-all.out").read_text(encoding="utf-8"),
+            )
             self.assertTrue((root / "zstar_response.json").is_file())
             response = json.loads((root / "zstar_response.json").read_text())
             self.assertEqual(response["schema"], "zstar-response")

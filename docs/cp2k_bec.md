@@ -122,6 +122,11 @@ The collector writes:
 | `Z-BORN-all.out` | One flattened 3 x 3 APT/BEC tensor per selected atom. |
 | `cp2k_bec.json` | Settings, dipoles, branch shifts, tensors, and sum residual. |
 
+The text tensor file retains eight digits after the decimal point, and the JSON
+record retains the available floating-point precision. This prevents an extra
+formatting loss; physical accuracy still depends on converged dipoles and a
+validated finite-difference step.
+
 The existing entry points can also select this backend with `zstar gen --cp2k`,
 `zstar deal --cp2k`, and `zstar polar --cp2k`. The dedicated `cp2k-bec`
 subcommands are preferred because their intent and status operations are

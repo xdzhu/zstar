@@ -38,7 +38,11 @@ class QnepDatasetTests(unittest.TestCase):
             self.assertIn(":bec:R:9", lines[1])
             self.assertEqual(
                 lines[2].split()[-9:],
-                ["1", "4", "7", "2", "5", "8", "3", "6", "9"],
+                [
+                    "1.0000000000", "4.0000000000", "7.0000000000",
+                    "2.0000000000", "5.0000000000", "8.0000000000",
+                    "3.0000000000", "6.0000000000", "9.0000000000",
+                ],
             )
             self.assertEqual(summary["labeled_frames"], 1)
             self.assertTrue(Path(summary["audit_output"]).is_file())

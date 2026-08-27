@@ -16,6 +16,7 @@ from .bec_database import read_born, read_zborn
 
 _PROPERTIES_RE = re.compile(r"(?i)(\bproperties\s*=\s*)(\"[^\"]*\"|\S+)")
 _KEY_RE_TEMPLATE = r"(?i)(?:^|\s){key}\s*="
+QNEP_BEC_OUTPUT_PRECISION = 10
 
 
 @dataclass(frozen=True)
@@ -244,7 +245,11 @@ def augment_qnep_dataset(
                 new_properties = f'"{new_properties}"'
             output_header = output_header[:match.start(2)] + new_properties + output_header[match.end(2):]
             output_atoms = [
-                f"{line} " + " ".join(f"{value:.10g}" for value in tensor.reshape(9))
+                f"{line} "
+                + " ".join(
+                    f"{value:.{QNEP_BEC_OUTPUT_PRECISION}f}"
+                    for value in tensor.reshape(9)
+                )
                 for line, tensor in zip(current.atoms, qnep)
             ]
             acoustic = np.sum(data.tensors, axis=0)

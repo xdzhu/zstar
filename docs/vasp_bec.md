@@ -53,6 +53,10 @@ Generated outputs are:
 - `BORN`: dielectric tensor plus BEC tensors in Phonopy format.
 - `vasp_bec.json`: backend, tensor-convention, atom-order, and sum-rule metadata.
 
+The text tensor files retain eight digits after the decimal point; JSON keeps
+the available floating-point precision. This avoids additional formatting
+loss but does not exceed the numerical precision present in the VASP output.
+
 VASP prints `Z*` with electric-field/polarization direction as the first index
 and force/displacement direction as the second. ZStar transposes each tensor to
 its canonical convention, whose rows are displacement/force and columns are
