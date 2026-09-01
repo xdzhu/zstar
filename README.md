@@ -28,8 +28,7 @@ ZStar is a Python workflow toolkit that connects ABACUS/PyATB, VASP, CP2K,
 Quantum ESPRESSO, and Phonopy calculations to physically auditable polarization
 and dielectric-response results. Its main task is to turn atomic response data
 into symmetry-consistent Born effective charge (BEC) tensors, then use those
-tensors for phonon, infrared (IR), dielectric, Raman, and molecular-dynamics
-(MD) analysis.
+tensors for phonon, infrared (IR), dielectric, and Raman analysis.
 
 The toolkit keeps every stage visible: structures, solver inputs, band-gap gates, polarization values, charge-density data, tensor reconstruction reports, spectra, and progress records remain available for inspection and restart.
 
@@ -47,7 +46,6 @@ The numerical checks used for the current release are summarized in [docs/valida
 - A serial, resumable CP2K backend for Berry-phase BEC tensors and native APT checks.
 - Three-dimensional, hybrid two-dimensional, and hybrid one-dimensional polarization/BEC analysis.
 - Phonon generation, post-processing, mode classification, IR spectra, Raman spectra, and dielectric response.
-- MD dipole-fluctuation dielectric analysis using fixed or frame-dependent BEC tensors.
 - Auxiliary electrostatic-potential analysis for slabs and polar materials.
 - A packaged, standards-compliant Agent Skill with JSON workspace preflight.
 - A versioned calculator-neutral response schema and backend plugin registry.
@@ -55,7 +53,7 @@ The numerical checks used for the current release are summarized in [docs/valida
 
 The calculator-independent interface, physical `dim=0/1/2/3` contract, QE
 workflow, density adapters, Phonopy interchange, polarized Raman, optical
-constants, and external MD BEC providers are documented in the
+constants, and dimensional response normalization are documented in the
 [calculator-independent guide](docs/calculator_independent_backends.md).
 
 ## Physical Scope
@@ -394,9 +392,11 @@ Frequency-dependent response:
 
 ```bash
 zstar freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
-  --dielectric BORN --dim 3 --plot
+  --dielectric BORN --dim 3
 ```
 
+The command writes the zero-frequency tensor, real and imaginary response data,
+and PNG/PDF/SVG plots by default. Use `--no-plot` for data-only processing.
 Modes below 5 cm-1 are excluded by default; change this with `--acoustic-cutoff`.
 
 For 2D, omit `--thickness` to obtain a vacuum-independent sheet polarizability in angstroms:
@@ -407,6 +407,9 @@ zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
 ```
 
 Provide `--thickness ANGSTROM` only when an effective 3D dielectric tensor is desired.
+The complete convention, bulk and two-dimensional examples, and output
+contract are documented in the
+[dielectric-response guide](docs/dielectric_response.md).
 
 ## Infrared Spectrum
 
@@ -532,13 +535,15 @@ The compact source data, plotting script, vector files, and integrity manifest
 are archived in [docs/paper_figures](docs/paper_figures/README.md).
 
 <p align="center">
-  <img src="docs/paper_figures/spectroscopy_across_dimensions.png" alt="Validated IR and Raman spectra for a molecule, nanowire, slab, and bulk crystal" width="820">
+  <img src="docs/paper_figures/spectroscopy_across_dimensions.png" alt="Validated IR and Raman spectra for a bulk crystal, two-dimensional slab, and molecule" width="820">
 </p>
 
-The four-row comparison contains completed `0D, Molecule`, `1D, Nanowire`,
-`2D, Slab`, and `3D, Bulk` calculations. The GaAs row retains all 68
-positive-frequency IR modes and a disclosed ten-mode Raman subset covering
-all four `mm2` irreducible representations.
+The three-row comparison follows the manuscript order: tetragonal HfO2
+(`3D, Bulk`), monolayer MoS2 (`2D, Slab`), and CH4 (`0D, Molecule`). The
+PBEsol HfO2 row contains all 15 stable optical modes and 30 completed Raman
+response stages. The refreshed ABACUS/PBE-D3(BJ) MoS2 row combines all six
+optical modes with production BEC-derived IR intensities and 12 completed
+central-difference Raman response stages.
 
 <p align="center">
   <img src="docs/paper_figures/bto_mode_spectroscopy.png" alt="Tetragonal BaTiO3 mode-resolved IR and Raman spectra" width="820">
@@ -555,44 +560,15 @@ completed Raman finite-difference response tasks. The `B1` mode at
 The In2Se3 validation displays the Berry-phase/cube-integral split and the
 actual planar charge redistribution for an out-of-plane In displacement.
 
-## MD + BEC Dielectric Response
+<p align="center">
+  <img src="docs/paper_figures/dielectric_response_examples.png" alt="Static and frequency-dependent dielectric response for tetragonal HfO2 and monolayer MoS2" width="820">
+</p>
 
-`zstar md` does not prescribe how frame-dependent BECs are generated. They may come from:
-
-- ZStar finite differences on selected snapshots.
-- One fixed tensor set applied to every frame.
-- An external charge/BEC model such as QNEP or another user workflow.
-
-ZStar matches those tensors to the trajectory, reconstructs periodic displacements, builds the ionic dipole series, and evaluates its fluctuation susceptibility.
-
-Fixed BEC tensors:
-
-```bash
-zstar md --dump dump.lammpstrj \
-  --fixed-bec Z-BORN-symm.out \
-  --electronic-dielectric BORN \
-  --temperature 300 --type-map "1:Hf,2:Zr,3:O" \
-  --outdir md_fixed
-```
-
-Frame-dependent tensors:
-
-```bash
-zstar md --dump dump.lammpstrj \
-  --bec-dir bec_frames --bec-pattern "frame_{step}.npy" \
-  --electronic-dielectric BORN \
-  --temperature 300 --type-map "1:Hf,2:Zr,3:O" \
-  --start-step 200000 --stride-step 100 \
-  --outdir md_dynamic
-```
-
-The total static tensor is
-
-```text
-epsilon_total = epsilon_infinity + chi_ionic
-```
-
-Outputs separate `chi_ionic.dat`, `epsilon_ionic.dat`, `epsilon_electronic.dat`, and `epsilon_total.dat`. If `--electronic-dielectric` is omitted, the identity tensor is used and the output is explicitly identified as `I + chi_ionic`.
+The HfO2 panels show the total bulk response including the electronic
+background: the PBEsol/TZDP 9-au closure gives
+`epsilon(0) = diag(75.761034, 75.761034, 18.045191)`. The MoS2 panels show the
+intrinsic lattice sheet polarizability; they are not a vacuum-dependent
+supercell dielectric constant.
 
 ## PyATB Compatibility
 
@@ -637,7 +613,6 @@ Commands, interpretation limits, and the SnS/SnSe/SnTe directional examples are 
 | `zstar ir` | Calculate mode charges and IR spectra. |
 | `zstar raman` | Prepare, run, collect, and plot Raman finite differences. |
 | `zstar spectra` | Run unified VASP or CP2K IR/Raman workflows. |
-| `zstar md` | Combine an MD trajectory with fixed or frame-dependent BECs. |
 | `zstar cp2k-bec` | Prepare, run, resume, collect, and validate CP2K BEC calculations. |
 | `zstar db init/collect` | Create manifests and collect an auditable BEC/High-K database. |
 | `zstar potential` / `pot` | Analyze electrostatic-potential cube files. |

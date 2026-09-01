@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "mode_numbers": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18
+  ],
+  "source_chains": [
+    "raman_low",
+    "raman_high"
+  ],
+  "response_stages": 30,
+  "tensor_kind": "dielectric tensor derivative",
+  "spectrum_summary": {
+    "tensor_kind": "dielectric tensor derivative",
+    "modes": 15,
+    "files": {
+      "modes": "raman_modes.csv",
+      "tensors": "raman_tensors.npy",
+      "spectrum": "raman_spectrum.dat",
+      "plot": "raman_spectrum.png",
+      "plot_pdf": "raman_spectrum.pdf",
+      "plot_svg": "raman_spectrum.svg"
+    }
+  }
+}

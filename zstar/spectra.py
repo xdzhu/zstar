@@ -102,6 +102,7 @@ class IRSpectrumResult:
     response_kind: str
     response_unit: str
     response_convention: str
+    electronic_response_included: bool
 
 
 @dataclass(frozen=True)
@@ -363,6 +364,46 @@ def _selected_mode_indices(
     return np.flatnonzero(frequencies_cm1 > float(acoustic_cutoff_cm1))
 
 
+def validate_frequencies_stable(
+    frequencies_cm1: Sequence[float] | np.ndarray,
+    *,
+    imaginary_tolerance_cm1: float = 20.0,
+    allow_imaginary: bool = False,
+) -> np.ndarray:
+    """Reject substantive imaginary frequencies unless explicitly allowed."""
+
+    frequencies = np.asarray(frequencies_cm1, dtype=float)
+    unstable = np.flatnonzero(
+        frequencies < -abs(float(imaginary_tolerance_cm1))
+    )
+    if len(unstable) and not allow_imaginary:
+        details = ", ".join(
+            f"{index + 1}:{frequencies[index]:.2f} cm-1" for index in unstable
+        )
+        raise ValueError(
+            "Substantive imaginary Gamma modes were found "
+            f"({details}). Relax the structure or verify the force constants. "
+            "Set allow_imaginary=True (CLI: --allow-imaginary) only when "
+            "intentionally analyzing selected stable modes of an unstable phase."
+        )
+    return unstable + 1
+
+
+def validate_gamma_stability(
+    modes: GammaModes,
+    *,
+    imaginary_tolerance_cm1: float = 20.0,
+    allow_imaginary: bool = False,
+) -> np.ndarray:
+    """Reject structures with substantive imaginary Gamma modes by default."""
+
+    return validate_frequencies_stable(
+        modes.frequencies_cm1,
+        imaginary_tolerance_cm1=imaginary_tolerance_cm1,
+        allow_imaginary=allow_imaginary,
+    )
+
+
 def _lorentzian(grid: np.ndarray, centers: np.ndarray, gamma: float) -> np.ndarray:
     half_width = max(float(gamma), 1.0e-12) / 2.0
     delta = grid[:, None] - centers[None, :]
@@ -518,6 +559,8 @@ def calculate_ir_spectrum(
     points: int = 2001,
     thickness_angstrom: Optional[float] = None,
     periodic_axis: int = 2,
+    imaginary_tolerance_cm1: float = 20.0,
+    allow_imaginary: bool = False,
 ) -> IRSpectrumResult:
     """Calculate IR oscillator strengths and dimensional dielectric response."""
 
@@ -525,6 +568,11 @@ def calculate_ir_spectrum(
         raise ValueError("dimensionality must be 1, 2, or 3")
     if dimensionality == 1 and thickness_angstrom is not None:
         raise ValueError("thickness_angstrom applies only to dimensionality=2")
+    validate_gamma_stability(
+        modes,
+        imaginary_tolerance_cm1=imaginary_tolerance_cm1,
+        allow_imaginary=allow_imaginary,
+    )
     effective_all = mode_effective_charges(modes, born.tensors)
     frequencies_all = modes.frequencies_cm1
     indices = _selected_mode_indices(
@@ -562,9 +610,13 @@ def calculate_ir_spectrum(
         )
         if born.electronic_dielectric is None:
             response += np.eye(3)[None, :, :]
+            response_kind = (
+                "relative dielectric tensor "
+                "(identity plus lattice contribution)"
+            )
         else:
             response += born.electronic_dielectric[None, :, :]
-        response_kind = "relative dielectric tensor"
+            response_kind = "total relative dielectric tensor"
         response_unit = "1"
         response_convention = "relative permittivity"
     elif dimensionality == 2:
@@ -584,14 +636,22 @@ def calculate_ir_spectrum(
                 np.eye(3)[None, :, :]
                 + response / (float(thickness_angstrom) * 1.0e-10)
             )
-            response_kind = "effective relative dielectric tensor"
+            response_kind = (
+                "effective total relative dielectric tensor"
+                if born.electronic_dielectric is not None
+                else "effective lattice relative dielectric tensor"
+            )
             response_unit = "1"
             response_convention = (
                 "epsilon_effective = I + (alpha_2D/epsilon_0)/thickness"
             )
         else:
             response *= 1.0e10
-            response_kind = "2D sheet polarizability (Angstrom)"
+            response_kind = (
+                "total 2D sheet polarizability (Angstrom)"
+                if born.electronic_dielectric is not None
+                else "lattice 2D sheet polarizability (Angstrom)"
+            )
             response_unit = "angstrom"
             response_convention = (
                 "SI-reduced; alpha_2D/epsilon_0 = "
@@ -612,7 +672,11 @@ def calculate_ir_spectrum(
                 * (born.electronic_dielectric - np.eye(3))
             )[None, :, :]
         response *= 1.0e20
-        response_kind = "1D line polarizability (Angstrom^2; SI-reduced)"
+        response_kind = (
+            "total 1D line polarizability (Angstrom^2; SI-reduced)"
+            if born.electronic_dielectric is not None
+            else "lattice 1D line polarizability (Angstrom^2; SI-reduced)"
+        )
         response_unit = "angstrom^2"
         response_convention = (
             "SI-reduced; alpha_1D/epsilon_0 = "
@@ -632,6 +696,7 @@ def calculate_ir_spectrum(
         response_kind=response_kind,
         response_unit=response_unit,
         response_convention=response_convention,
+        electronic_response_included=born.electronic_dielectric is not None,
     )
 
 
@@ -818,9 +883,16 @@ def calculate_molecular_ir_spectrum(
     broadening_cm1: float = 10.0,
     max_frequency_cm1: Optional[float] = None,
     points: int = 2001,
+    imaginary_tolerance_cm1: float = 20.0,
+    allow_imaginary: bool = False,
 ) -> MolecularIRSpectrumResult:
     """Calculate a normalized molecular IR spectrum from d(mu)/dQ."""
 
+    validate_gamma_stability(
+        modes,
+        imaginary_tolerance_cm1=imaginary_tolerance_cm1,
+        allow_imaginary=allow_imaginary,
+    )
     numbers = np.asarray(mode_numbers, dtype=int)
     derivatives = np.asarray(dipole_derivatives, dtype=float)
     if derivatives.shape != (len(numbers), 3):
@@ -874,6 +946,19 @@ def _save_figure_bundle(fig, output: Path, stem: str) -> dict[str, str]:
     fig.savefig(paths["plot_pdf"], bbox_inches="tight")
     fig.savefig(paths["plot_svg"], bbox_inches="tight")
     return {key: str(path.resolve()) for key, path in paths.items()}
+
+
+def _response_plot_labels(result: IRSpectrumResult) -> tuple[str, str]:
+    if result.dimensionality == 3 or result.response_unit == "1":
+        symbol = r"\epsilon"
+        unit = ""
+    elif result.dimensionality == 2:
+        symbol = r"\alpha_{\mathrm{2D}}/\epsilon_0"
+        unit = r"\ (\mathrm{\AA})"
+    else:
+        symbol = r"\alpha_{\mathrm{1D}}/\epsilon_0"
+        unit = r"\ (\mathrm{\AA}^2)"
+    return rf"$\mathrm{{Re}}\,{symbol}{unit}$", rf"$\mathrm{{Im}}\,{symbol}{unit}$"
 
 
 def write_ir_outputs(
@@ -935,7 +1020,19 @@ def write_ir_outputs(
         imag_path, result.frequency_grid_cm1, result.response_imag
     )
 
+    static_path = output / "static_response.json"
+    static_record = {
+        "frequency_cm-1": float(result.frequency_grid_cm1[0]),
+        "tensor": result.response_real[0].tolist(),
+        "response_kind": result.response_kind,
+        "response_unit": result.response_unit,
+        "response_convention": result.response_convention,
+        "electronic_response_included": result.electronic_response_included,
+    }
+    static_path.write_text(json.dumps(static_record, indent=2), encoding="utf-8")
+
     plot_files: dict[str, str] = {}
+    response_plot_files: dict[str, str] = {}
     if plot:
         import matplotlib as mpl
         import matplotlib.pyplot as plt
@@ -998,20 +1095,68 @@ def write_ir_outputs(
             plot_files = _save_figure_bundle(fig, output, "ir_spectrum")
             plt.close(fig)
 
+            fig, axes = plt.subplots(
+                2,
+                1,
+                figsize=(7.2, 5.6),
+                sharex=True,
+                layout="constrained",
+            )
+            diagonal = np.arange(3)
+            labels = (r"$xx$", r"$yy$", r"$zz$")
+            real_label, imag_label = _response_plot_labels(result)
+            for component, label, color in zip(diagonal, labels, colors):
+                axes[0].plot(
+                    result.frequency_grid_cm1,
+                    result.response_real[:, component, component],
+                    color=color,
+                    linewidth=1.35,
+                    label=label,
+                )
+                axes[1].plot(
+                    result.frequency_grid_cm1,
+                    result.response_imag[:, component, component],
+                    color=color,
+                    linewidth=1.35,
+                    label=label,
+                )
+            for axis in axes:
+                axis.axhline(0.0, color="#6b7280", linewidth=0.6, zorder=0)
+                axis.set_xlim(
+                    result.frequency_grid_cm1[0],
+                    result.frequency_grid_cm1[-1],
+                )
+                axis.grid(axis="y", alpha=0.16, linewidth=0.55)
+            axes[0].set_ylabel(real_label)
+            axes[1].set_ylabel(imag_label)
+            axes[1].set_xlabel(r"Wavenumber (cm$^{-1}$)")
+            axes[0].legend(ncol=3, loc="best")
+            fig.align_ylabels(axes)
+            response_plot_files = _save_figure_bundle(
+                fig, output, "dielectric_response"
+            )
+            plt.close(fig)
+
     summary = {
         "dimensionality": result.dimensionality,
         "response_kind": result.response_kind,
         "response_unit": result.response_unit,
         "response_convention": result.response_convention,
+        "electronic_response_included": result.electronic_response_included,
+        "static_response": static_record["tensor"],
         "modes": len(result.mode_numbers),
         "files": {
             "modes": str(modes_path.resolve()),
             "spectrum": str(spectrum_path.resolve()),
             "response_real": str(real_path.resolve()),
             "response_imag": str(imag_path.resolve()),
+            "static_response": str(static_path.resolve()),
             "plot": plot_files.get("plot"),
             "plot_pdf": plot_files.get("plot_pdf"),
             "plot_svg": plot_files.get("plot_svg"),
+            "response_plot": response_plot_files.get("plot"),
+            "response_plot_pdf": response_plot_files.get("plot_pdf"),
+            "response_plot_svg": response_plot_files.get("plot_svg"),
         },
     }
     (output / "ir_summary.json").write_text(
@@ -1223,6 +1368,8 @@ def prepare_raman_displacements(
     mode_numbers: Optional[Sequence[int]] = None,
     acoustic_cutoff_cm1: float = 5.0,
     copy_files: Optional[Sequence[str | Path]] = None,
+    imaginary_tolerance_cm1: float = 20.0,
+    allow_imaginary: bool = False,
 ) -> dict:
     """Write central-difference structures displaced along Gamma modes.
 
@@ -1233,6 +1380,11 @@ def prepare_raman_displacements(
     source = Path(stru_path).resolve()
     output = Path(outdir).resolve()
     output.mkdir(parents=True, exist_ok=True)
+    validate_gamma_stability(
+        modes,
+        imaginary_tolerance_cm1=imaginary_tolerance_cm1,
+        allow_imaginary=allow_imaginary,
+    )
     indices = _selected_mode_indices(
         modes.frequencies_cm1, mode_numbers, acoustic_cutoff_cm1
     )
@@ -1415,9 +1567,16 @@ def calculate_raman_spectrum(
     broadening_cm1: float = 8.0,
     max_frequency_cm1: Optional[float] = None,
     points: int = 2001,
+    imaginary_tolerance_cm1: float = 20.0,
+    allow_imaginary: bool = False,
 ) -> RamanSpectrumResult:
     """Calculate powder-averaged, non-resonant Placzek Raman intensities."""
 
+    validate_gamma_stability(
+        modes,
+        imaginary_tolerance_cm1=imaginary_tolerance_cm1,
+        allow_imaginary=allow_imaginary,
+    )
     numbers = np.asarray(mode_numbers, dtype=int)
     raman = np.asarray(tensors, dtype=float)
     if raman.shape != (len(numbers), 3, 3):

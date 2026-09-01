@@ -1,4 +1,4 @@
-"""Plot cross-dimensional ZStar IR/Raman validation from archived source data."""
+"""Plot ZStar IR/Raman validation for bulk, slab, and molecular systems."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 
 import matplotlib as mpl
+import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -18,9 +19,9 @@ COLORS = {
     "ink": "#202124",
     "muted": "#68717a",
     "grid": "#d9dde1",
-    "ir": "#2f6b9a",
-    "ir_light": "#a9c5d8",
-    "raman": "#b2472f",
+    "ir": "#c43d32",
+    "raman": "#2f6b9a",
+    "reference": "#aeb4ba",
     "bond": "#9aa0a6",
     "cell": "#68717a",
     "H": "#f4f4f4",
@@ -55,14 +56,14 @@ def configure_matplotlib() -> None:
         {
             "font.family": "sans-serif",
             "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
-            "font.size": 9.0,
-            "axes.labelsize": 9.1,
-            "axes.titlesize": 10.3,
+            "font.size": 9.5,
+            "axes.labelsize": 9.6,
+            "axes.titlesize": 10.8,
             "axes.linewidth": 0.8,
             "axes.spines.right": True,
             "axes.spines.top": True,
-            "xtick.labelsize": 8.2,
-            "ytick.labelsize": 8.2,
+            "xtick.labelsize": 8.7,
+            "ytick.labelsize": 8.7,
             "xtick.direction": "in",
             "ytick.direction": "in",
             "xtick.major.width": 0.65,
@@ -245,9 +246,164 @@ def mode_frequency(path: Path, mode: int) -> float:
     raise ValueError(f"Mode {mode} is absent from {path}")
 
 
+def resolve_annotations(path: Path, records: list[tuple]) -> list[tuple]:
+    """Replace mode indices with frequencies while retaining optional placement."""
+
+    return [(mode_frequency(path, int(record[0])), *record[1:]) for record in records]
+
+
 def normalize(values: np.ndarray) -> np.ndarray:
     peak = np.max(values)
     return values / peak if peak > 0 else values
+
+
+def load_reference_peaks(path: Path, system: str, channel: str) -> np.ndarray:
+    peaks: list[tuple[float, float]] = []
+    with path.open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            if row["system"] == system and row["channel"] == channel:
+                peaks.append((float(row["frequency_cm-1"]), float(row["relative_weight"])))
+    if not peaks:
+        raise ValueError(f"No literature peaks for {system}/{channel}: {path}")
+    return np.asarray(peaks, dtype=float)
+
+
+def crop_white_margin(image: np.ndarray) -> np.ndarray:
+    rgb = image[..., :3]
+    content = (rgb < 0.985).any(axis=2)
+    if image.shape[2] == 4:
+        content &= image[..., 3] > 0.02
+    rows, columns = content.nonzero()
+    if not len(rows):
+        return image
+    pad = max(4, int(0.015 * max(image.shape[:2])))
+    return image[
+        max(0, int(rows.min()) - pad) : min(image.shape[0], int(rows.max()) + pad + 1),
+        max(0, int(columns.min()) - pad) : min(image.shape[1], int(columns.max()) + pad + 1),
+    ]
+
+
+def add_fitted_image(
+    ax,
+    image: np.ndarray,
+    bounds: tuple[float, float, float, float],
+) -> tuple[float, float, float, float]:
+    """Fit an image inside axes-fraction bounds without anisotropic scaling."""
+
+    left, bottom, width, height = bounds
+    axes_box = ax.get_window_extent()
+    available_width = width * axes_box.width
+    available_height = height * axes_box.height
+    image_aspect = image.shape[1] / image.shape[0]
+    available_aspect = available_width / available_height
+
+    if image_aspect >= available_aspect:
+        fitted_width = width
+        fitted_height = available_width / image_aspect / axes_box.height
+    else:
+        fitted_height = height
+        fitted_width = available_height * image_aspect / axes_box.width
+
+    fitted_left = left + 0.5 * (width - fitted_width)
+    fitted_bottom = bottom + 0.5 * (height - fitted_height)
+    image_ax = ax.inset_axes(
+        (fitted_left, fitted_bottom, fitted_width, fitted_height),
+        transform=ax.transAxes,
+        zorder=0,
+    )
+    image_ax.imshow(image, aspect="equal", interpolation="lanczos")
+    image_ax.set_axis_off()
+    return fitted_left, fitted_bottom, fitted_width, fitted_height
+
+
+def draw_structure_image(
+    ax,
+    row_text: str,
+    image_path: Path,
+    image_bounds: tuple[float, float, float, float],
+) -> None:
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    image = crop_white_margin(mpimg.imread(image_path))
+    fitted_left, fitted_bottom, _, fitted_height = add_fitted_image(ax, image, image_bounds)
+    # Author-approved layout: keep the two-line system label directly above the structure.
+    ax.text(
+        fitted_left,
+        min(fitted_bottom + fitted_height + 0.035, 0.82),
+        row_text,
+        transform=ax.transAxes,
+        ha="left",
+        va="bottom",
+        fontsize=9.7,
+        fontweight="bold",
+        linespacing=1.35,
+        zorder=10,
+    )
+    ax.set_axis_off()
+
+
+def draw_axis_triad(ax, out_of_plane_a: bool) -> None:
+    """Draw a compact crystallographic axis marker in axes coordinates."""
+
+    origin = np.array((0.14, 0.13))
+    endpoints = {
+        "b": (origin + np.array((0.24, 0.00)), "#19b92f"),
+        "c": (origin + np.array((0.00, 0.24)), "#1f43d5"),
+    }
+    if not out_of_plane_a:
+        endpoints["a"] = (origin + np.array((-0.14, -0.13)), "#e11b22")
+    for label, (endpoint, color) in endpoints.items():
+        ax.annotate(
+            "",
+            xy=endpoint,
+            xytext=origin,
+            xycoords=ax.transAxes,
+            arrowprops={"arrowstyle": "-|>", "color": color, "lw": 1.8, "mutation_scale": 12},
+            zorder=12,
+        )
+        offset = {"a": (-0.02, -0.02), "b": (0.025, -0.01), "c": (0.00, 0.025)}[label]
+        ax.text(
+            endpoint[0] + offset[0],
+            endpoint[1] + offset[1],
+            label,
+            transform=ax.transAxes,
+            ha="center",
+            va="center",
+            fontsize=9.4,
+            color=COLORS["ink"],
+            zorder=13,
+        )
+    ax.scatter(
+        [origin[0]],
+        [origin[1]],
+        transform=ax.transAxes,
+        s=46,
+        facecolor="white",
+        edgecolor="black",
+        linewidth=1.0,
+        zorder=13,
+    )
+    if out_of_plane_a:
+        ax.scatter(
+            [origin[0]],
+            [origin[1]],
+            transform=ax.transAxes,
+            s=12,
+            facecolor="#e11b22",
+            edgecolor="none",
+            zorder=14,
+        )
+        ax.text(
+            origin[0] - 0.045,
+            origin[1] - 0.10,
+            "a",
+            transform=ax.transAxes,
+            ha="center",
+            va="center",
+            fontsize=9.4,
+            color=COLORS["ink"],
+            zorder=13,
+        )
 
 
 def draw_spectrum(
@@ -255,43 +411,71 @@ def draw_spectrum(
     data: np.ndarray,
     kind: str,
     xlim: tuple[float, float],
-    annotations: list[tuple[float, str]],
-    directional: bool = False,
-    show_legend: bool = False,
+    annotations: list[tuple],
+    reference_peaks: np.ndarray,
+    reference_label: str,
+    reference_broadening: float,
 ) -> None:
     frequency = data[:, 0]
     color = COLORS[kind]
-    if kind == "ir" and directional and data.shape[1] >= 5:
-        scale = max(float(np.max(data[:, 4])), np.finfo(float).tiny)
-        in_plane = (data[:, 1] + data[:, 2]) / scale
-        out_of_plane = data[:, 3] / scale
-        total = data[:, 4] / scale
-        ax.plot(frequency, in_plane, color=color, linewidth=0.9, alpha=0.80, label=r"$xy$")
-        ax.plot(frequency, out_of_plane, color=COLORS["ir_light"], linewidth=0.9, label=r"$z$")
-        ax.plot(frequency, total, color=COLORS["ink"], linewidth=0.75, alpha=0.70, label="total")
-        if show_legend:
-            ax.legend(loc="upper left", ncol=3, fontsize=6.7, handlelength=1.2, columnspacing=0.65)
-        intensity = total
-    else:
-        intensity = normalize(data[:, -1])
-        ax.fill_between(frequency, intensity, color=color, alpha=0.16, linewidth=0)
-        ax.plot(frequency, intensity, color=color, linewidth=1.05)
+    reference_frequency = np.linspace(xlim[0], xlim[1], max(1800, len(frequency)))
+    reference_intensity = np.zeros_like(reference_frequency)
+    for peak, weight in reference_peaks:
+        reference_intensity += weight * np.exp(
+            -0.5 * ((reference_frequency - peak) / reference_broadening) ** 2
+        )
+    reference_intensity = normalize(reference_intensity)
+    reference_line, = ax.plot(
+        reference_frequency,
+        reference_intensity,
+        color=COLORS["reference"],
+        linewidth=1.25,
+        alpha=0.95,
+        zorder=2,
+        label=reference_label,
+    )
+    intensity = normalize(data[:, -1])
+    ax.fill_between(frequency, intensity, color=color, alpha=0.12, linewidth=0, zorder=3)
+    zstar_line, = ax.plot(
+        frequency,
+        intensity,
+        color=color,
+        linewidth=1.3,
+        zorder=4,
+        label="ZStar",
+    )
 
-    for peak, label in annotations:
+    last_peak = -np.inf
+    collision_level = 0
+    collision_window = 0.11 * (xlim[1] - xlim[0])
+    for annotation in sorted(annotations):
+        peak, label, *placement = annotation
+        if peak - last_peak < collision_window:
+            collision_level += 1
+        else:
+            collision_level = 0
         index = int(np.argmin(np.abs(frequency - peak)))
         y_value = float(intensity[index])
+        y_axes = float(placement[0]) if placement else 0.86 - 0.14 * (collision_level % 2)
+        x_shift = float(placement[1]) if len(placement) > 1 else 0.0
+        label_x = peak + x_shift * (xlim[1] - xlim[0])
         ax.annotate(
             label,
             xy=(peak, y_value),
-            xytext=(0, 5),
-            textcoords="offset points",
+            xycoords="data",
+            xytext=(label_x, y_axes),
+            textcoords=("data", "axes fraction"),
             ha="center",
-            va="bottom",
-            fontsize=7.7,
+            va="center",
+            fontsize=8.3,
             color=COLORS["ink"],
+            arrowprops={"arrowstyle": "-", "color": COLORS["muted"], "lw": 0.45},
+            bbox={"boxstyle": "square,pad=0.08", "facecolor": "white", "edgecolor": "none", "alpha": 0.88},
+            zorder=6,
         )
+        last_peak = peak
     ax.set_xlim(*xlim)
-    ax.set_ylim(0, 1.17)
+    ax.set_ylim(0, 1.22)
     ax.set_yticks([0, 0.5, 1.0])
     ax.grid(axis="y", color=COLORS["grid"], linewidth=0.45)
     ax.set_xlabel(r"Frequency (cm$^{-1}$)")
@@ -304,17 +488,29 @@ def draw_spectrum(
         top=True,
         right=True,
     )
+    ax.legend(
+        handles=(zstar_line, reference_line),
+        loc="lower center",
+        bbox_to_anchor=(0.5, 1.12),
+        ncol=2,
+        frameon=False,
+        handlelength=1.8,
+        handletextpad=0.45,
+        columnspacing=1.15,
+        borderaxespad=0.0,
+        fontsize=8.2,
+    )
 
 
 def panel_label(ax, label: str) -> None:
     ax.text(
-        -0.18,
-        1.10,
+        0.00,
+        1.29,
         f"({label})",
         transform=ax.transAxes,
         ha="left",
         va="top",
-        fontsize=10.5,
+        fontsize=11.0,
         fontweight="normal",
     )
 
@@ -350,7 +546,7 @@ def update_figure_manifest(
         "files": {key: path.name for key, path in products.items()},
         "layout": metadata["layout"],
         "completed_systems": metadata["display_systems"],
-        "placeholder": False,
+        "placeholder": metadata.get("placeholder", False),
     }
     manifest["figures"] = [
         item
@@ -379,10 +575,11 @@ def build_figure(
     data_root: Path,
     output: Path,
 ) -> dict[str, object]:
-    systems = [
+    available_systems = [
         {
             "name": "CH4",
             "row": "CH$_4$\n0D, Molecule",
+            "image": data_root / "structure_images" / "CH4_molecule.png",
             "stru": data_root / "molecular" / "ch4" / "STRU",
             "ir": data_root / "molecular" / "ch4" / "ir_spectrum.dat",
             "ir_modes": data_root / "molecular" / "ch4" / "ir_modes.csv",
@@ -392,13 +589,24 @@ def build_figure(
             "view": (40, 24),
             "ir_xlim": (1050, 3250),
             "raman_xlim": (1050, 3250),
-            "ir_labels": [(7, r"$\nu_4$"), (15, r"$\nu_3$")],
-            "raman_labels": [(10, r"$\nu_2$"), (12, r"$\nu_1$"), (15, r"$\nu_3$")],
-            "directional": False,
+            "ir_labels": [
+                (7, r"$\nu_4(F_2)$", 0.66, 0.080),
+                (15, r"$\nu_3(F_2)$", 0.78, -0.105),
+            ],
+            "raman_labels": [
+                (10, r"$\nu_2(E)$", 0.43, 0.075),
+                (12, r"$\nu_1(A_1)$", 0.78, -0.120),
+                (15, r"$\nu_3(F_2)$", 0.91, -0.030),
+            ],
+            "reference_label": "Ref. [56]",
+            "reference_broadening": {"ir": 16.0, "raman": 16.0},
+            "out_of_plane_a": False,
+            "image_bounds": (0.22, 0.24, 0.76, 0.52),
         },
         {
             "name": "GaAsNW",
             "row": "GaAs nanowire\n1D, Nanowire",
+            "image": data_root / "structure_images" / "GaAs_nanowire.png",
             "stru": data_root / "gaas_nanowire" / "STRU",
             "ir": data_root / "gaas_nanowire" / "ir" / "ir_spectrum.dat",
             "ir_modes": data_root / "gaas_nanowire" / "ir" / "ir_modes.csv",
@@ -408,13 +616,26 @@ def build_figure(
             "view": (34, 14),
             "ir_xlim": (20, 660),
             "raman_xlim": (20, 660),
-            "ir_labels": [(19, r"$A_1$"), (43, r"$A_1$"), (55, r"$A_1$")],
-            "raman_labels": [(17, r"$A_1$"), (24, r"$A_2$"), (40, r"$A_2$"), (55, r"$A_1$")],
-            "directional": True,
+            "ir_labels": [
+                (19, r"$A_1$", 0.43, -0.060),
+                (43, r"$A_1$", 0.87, -0.080),
+                (55, r"$A_1$", 0.54, 0.055),
+            ],
+            "raman_labels": [
+                (17, r"$A_1$", 0.86, -0.055),
+                (21, r"$B_1$", 0.58, -0.005),
+                (24, r"$A_2$", 0.70, 0.035),
+                (29, r"$B_2$", 0.82, 0.070),
+            ],
+            "reference_label": "Ref. [25]",
+            "reference_broadening": {"ir": 7.0, "raman": 7.0},
+            "out_of_plane_a": True,
+            "image_bounds": (0.28, 0.20, 0.69, 0.58),
         },
         {
             "name": "MoS2",
             "row": "MoS$_2$\n2D, Slab",
+            "image": data_root / "structure_images" / "MoS2_monolayer.png",
             "stru": data_root / "mos2" / "STRU",
             "ir": data_root / "mos2" / "ir" / "ir_spectrum.dat",
             "ir_modes": data_root / "mos2" / "ir" / "ir_modes.csv",
@@ -422,51 +643,78 @@ def build_figure(
             "raman_modes": data_root / "mos2" / "raman" / "raman_modes.csv",
             "repeats": (4, 4, 1),
             "view": (8, 16),
-            "ir_xlim": (245, 455),
-            "raman_xlim": (245, 455),
-            "ir_labels": [(6, r"$E'$"), (9, r"$A_2''$")],
-            "raman_labels": [(4, r"$E''$"), (6, r"$E'$"), (8, r"$A_1'$" )],
-            "directional": True,
+            "ir_xlim": (245, 480),
+            "raman_xlim": (245, 480),
+            "ir_labels": [
+                (6, r"$E'$", 0.86, -0.070),
+                (9, r"$A_2''$", 0.24, -0.100),
+            ],
+            "raman_labels": [
+                (4, r"$E''$", 0.49, 0.060),
+                (6, r"$E'$", 0.82, -0.085),
+                (8, r"$A_1'$", 0.91, 0.085),
+            ],
+            "reference_label": "Ref. [57]",
+            "reference_broadening": {"ir": 5.0, "raman": 5.0},
+            "out_of_plane_a": True,
+            "image_bounds": (0.22, 0.31, 0.76, 0.38),
         },
         {
-            "name": "BaTiO3",
-            "row": "BaTiO$_3$\n3D, Bulk",
-            "stru": data_root / "bto" / "STRU",
-            "ir": data_root / "bto" / "ir" / "ir_spectrum.dat",
-            "ir_modes": data_root / "bto" / "ir" / "ir_modes.csv",
-            "raman": data_root / "bto" / "raman" / "raman_spectrum.dat",
-            "raman_modes": data_root / "bto" / "raman" / "raman_modes.csv",
+            "name": "HfO2",
+            "row": "HfO$_2$\n3D, Bulk",
+            "image": data_root / "structure_images" / "HfO2_tetragonal.png",
+            "stru": data_root / "hfo2" / "STRU",
+            "ir": data_root / "hfo2" / "ir" / "ir_spectrum.dat",
+            "ir_modes": data_root / "hfo2" / "ir" / "ir_modes.csv",
+            "raman": data_root / "hfo2" / "raman" / "raman_spectrum.dat",
+            "raman_modes": data_root / "hfo2" / "raman" / "raman_modes.csv",
             "repeats": (2, 2, 2),
-            "view": (38, 22),
-            "ir_xlim": (145, 585),
-            "raman_xlim": (145, 585),
-            "ir_labels": [(6, r"$A_1$"), (12, r"$A_1$"), (15, r"$A_1$")],
-            "raman_labels": [(9, r"$B_1$"), (12, r"$A_1$"), (15, r"$A_1$")],
-            "directional": True,
+            "view": (28, 18),
+            "ir_xlim": (70, 730),
+            "raman_xlim": (70, 730),
+            "ir_labels": [
+                (6, r"$E_u$", 0.58, 0.070),
+                (10, r"$A_{2u}$", 0.82, -0.040),
+                (13, r"$E_u$", 0.62, -0.075),
+            ],
+            "raman_labels": [
+                (4, r"$E_g$", 0.36, 0.055),
+                (9, r"$A_{1g}$", 0.86, 0.020),
+                (11, r"$E_g$", 0.43, -0.055),
+                (15, r"$B_{1g}$", 0.52, -0.060),
+                (17, r"$E_g$", 0.82, -0.035),
+            ],
+            "reference_label": "Ref. [47]",
+            "reference_broadening": {"ir": 8.0, "raman": 8.0},
+            "out_of_plane_a": False,
+            "image_bounds": (0.29, 0.20, 0.68, 0.58),
         },
     ]
 
+    systems_by_name = {system["name"]: system for system in available_systems}
+    systems = [systems_by_name[name] for name in ("HfO2", "MoS2", "CH4")]
+
+    reference_path = data_root / "spectroscopy_literature_peaks.csv"
     row_count = len(systems)
     fig, axes = plt.subplots(
         row_count,
         3,
-        figsize=(7.6, 9.2),
-        gridspec_kw={"width_ratios": (0.94, 1.14, 1.14), "hspace": 0.50, "wspace": 0.38},
+        figsize=(8.0, 7.15),
+        gridspec_kw={"width_ratios": (1.04, 1.14, 1.14), "hspace": 0.88, "wspace": 0.38},
     )
-    column_titles = ["Structure", "Infrared spectrum", "Raman spectrum"]
-    for column, title in enumerate(column_titles):
-        axes[0, column].set_title(title, fontweight="bold", pad=11)
+    fig.subplots_adjust(left=0.13, right=0.985, top=0.95, bottom=0.07)
+    fig.canvas.draw()
 
     panel = ord("a")
     source_files: list[Path] = []
     for row, system in enumerate(systems):
-        draw_structure(
+        draw_structure_image(
             axes[row, 0],
-            system["stru"],
-            system["name"],
-            system["repeats"],
-            *system["view"],
+            system["row"],
+            system["image"],
+            system["image_bounds"],
         )
+        draw_axis_triad(axes[row, 0], system["out_of_plane_a"])
         ir_data = load_spectrum(system["ir"])
         raman_data = load_spectrum(system["raman"])
         draw_spectrum(
@@ -474,46 +722,51 @@ def build_figure(
             ir_data,
             "ir",
             system["ir_xlim"],
-            [(mode_frequency(system["ir_modes"], mode), label) for mode, label in system["ir_labels"]],
-            directional=system["directional"],
-            show_legend=system["name"] == "GaAsNW",
+            resolve_annotations(system["ir_modes"], system["ir_labels"]),
+            load_reference_peaks(reference_path, system["name"], "ir"),
+            system["reference_label"],
+            system["reference_broadening"]["ir"],
         )
         draw_spectrum(
             axes[row, 2],
             raman_data,
             "raman",
             system["raman_xlim"],
-            [(mode_frequency(system["raman_modes"], mode), label) for mode, label in system["raman_labels"]],
+            resolve_annotations(system["raman_modes"], system["raman_labels"]),
+            load_reference_peaks(reference_path, system["name"], "raman"),
+            system["reference_label"],
+            system["reference_broadening"]["raman"],
         )
-        axes[row, 1].set_ylabel("Normalized intensity")
-        axes[row, 0].text(
-            -0.30,
-            0.5,
-            system["row"],
-            transform=axes[row, 0].transAxes,
-            ha="right",
-            va="center",
-            fontsize=9.2,
-            fontweight="bold",
-            linespacing=1.35,
-        )
+        axes[row, 1].set_ylabel("Normalized IR intensity")
+        axes[row, 2].set_ylabel("Normalized Raman intensity")
         for column in range(3):
             panel_label(axes[row, column], chr(panel))
             panel += 1
         source_files.extend(
-            (system["stru"], system["ir_modes"], system["ir"], system["raman_modes"], system["raman"])
+            (
+                system["image"],
+                system["stru"],
+                system["ir_modes"],
+                system["ir"],
+                system["raman_modes"],
+                system["raman"],
+            )
         )
 
-    fig.text(
-        0.995,
-        0.008,
-        "Each spectrum is normalized independently.",
-        ha="right",
-        va="bottom",
-        fontsize=7.8,
-        color=COLORS["muted"],
+    source_files.append(reference_path)
+    source_files.extend(
+        path
+        for path in (
+            data_root / "hfo2" / "provenance.json",
+            data_root / "hfo2" / "qpoints.yaml",
+            data_root / "hfo2" / "phonopy.yaml",
+            data_root / "hfo2" / "irreps.yaml",
+            data_root / "hfo2" / "Z-BORN-symm.out",
+            data_root / "hfo2" / "raman" / "raman_tensors.npy",
+            data_root / "hfo2" / "raman" / "merge_provenance.json",
+        )
+        if path.is_file()
     )
-    fig.subplots_adjust(left=0.15, right=0.985, top=0.94, bottom=0.07)
 
     output.mkdir(parents=True, exist_ok=True)
     stem = "spectroscopy_across_dimensions"
@@ -521,23 +774,34 @@ def build_figure(
         "png": output / f"{stem}.png",
         "pdf": output / f"{stem}.pdf",
         "svg": output / f"{stem}.svg",
+        "powerpoint_svg": output / f"{stem}_powerpoint.svg",
         "tiff": output / f"{stem}.tiff",
     }
     fig.savefig(products["png"], dpi=400, bbox_inches="tight")
     fig.savefig(products["pdf"], bbox_inches="tight")
     fig.savefig(products["svg"], bbox_inches="tight")
+    svg_text = products["svg"].read_text(encoding="utf-8")
+    products["svg"].write_text(
+        "\n".join(line.rstrip() for line in svg_text.splitlines()) + "\n",
+        encoding="utf-8",
+    )
+    with mpl.rc_context({"svg.fonttype": "path"}):
+        fig.savefig(products["powerpoint_svg"], bbox_inches="tight")
     fig.savefig(products["tiff"], dpi=600, bbox_inches="tight", pil_kwargs={"compression": "tiff_lzw"})
     plt.close(fig)
 
     metadata = {
         "figure": stem,
         "backend": f"Python/matplotlib {mpl.__version__}",
-        "core_conclusion": "ZStar produces mode-resolved IR and Raman spectra for molecules, 1D nanowires, 2D slabs, and 3D bulk crystals under dimension-appropriate response conventions.",
-        "normalization": "Each IR or Raman panel is independently normalized to its own maximum; intensities are not compared across rows or response types.",
+        "core_conclusion": "ZStar reproduces mode-resolved IR and Raman selection rules and reference frequencies for representative bulk, slab, and molecular systems.",
+        "normalization": "ZStar spectra are normalized independently in every panel; intensities are not compared across rows or response types.",
+        "placeholder": False,
+        "image_scaling": "Aspect-preserving uniform scaling, centered at the largest size that fits each structure panel.",
+        "structure_label_layout": "Two-line system labels are left-aligned directly above each fitted structure image; panel letters remain separate at the upper-left of the panel.",
+        "reference_overlay": "Light-gray continuous envelopes are reconstructed from published or archived mode frequencies using the documented relative weights and Gaussian broadening; they are normalized independently and are not absolute-intensity traces.",
         "systems": [system["name"] for system in systems],
         "display_systems": [system["row"].split("\n", 1)[0] for system in systems],
         "layout": f"{row_count} rows by 3 columns",
-        "one_dimensional_raman_scope": "The GaAs row uses the disclosed ten-mode Raman validation subset; its IR panel contains all 68 positive-frequency modes.",
         "source_data": {
             str(path.relative_to(data_root)).replace("\\", "/"): {"bytes": path.stat().st_size, "sha256": sha256(path)}
             for path in source_files

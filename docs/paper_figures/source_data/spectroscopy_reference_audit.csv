@@ -1,0 +1,46 @@
+system,channel,mode,irrep,zstar_frequency_cm-1,reference_frequency_cm-1,signed_error_cm-1,absolute_error_cm-1,signed_error_percent,citation_key,doi,comparison_scope
+CH4,ir,7,F2,1287.927553,1306.000000,-18.072447,18.072447,-1.3838,Shimanouchi1972,10.6028/NBS.NSRDS.39,NIST evaluated gas-phase fundamentals; experiment includes anharmonicity
+CH4,ir,15,F2,3088.046515,3019.000000,69.046515,69.046515,2.2871,Shimanouchi1972,10.6028/NBS.NSRDS.39,NIST evaluated gas-phase fundamentals; experiment includes anharmonicity
+CH4,raman,7,F2,1287.927553,1306.000000,-18.072447,18.072447,-1.3838,Shimanouchi1972,10.6028/NBS.NSRDS.39,NIST evaluated gas-phase fundamentals; experiment includes anharmonicity
+CH4,raman,10,E,1516.617742,1534.000000,-17.382258,17.382258,-1.1331,Shimanouchi1972,10.6028/NBS.NSRDS.39,NIST evaluated gas-phase fundamentals; experiment includes anharmonicity
+CH4,raman,12,A1,2968.288119,2917.000000,51.288119,51.288119,1.7582,Shimanouchi1972,10.6028/NBS.NSRDS.39,NIST evaluated gas-phase fundamentals; experiment includes anharmonicity
+CH4,raman,15,F2,3088.046515,3019.000000,69.046515,69.046515,2.2871,Shimanouchi1972,10.6028/NBS.NSRDS.39,NIST evaluated gas-phase fundamentals; experiment includes anharmonicity
+GaAsNW,ir,19,A1,155.800964,151.652957,4.148007,4.148007,2.7352,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,31,A1,250.098289,239.927292,10.170997,10.170997,4.2392,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,34,A1,257.856648,244.756088,13.100560,13.100560,5.3525,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,35,B2,263.033944,252.679001,10.354943,10.354943,4.0981,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,36,B1,265.208198,252.739442,12.468756,12.468756,4.9334,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,41,B2,480.581586,495.828365,-15.246779,15.246779,-3.0750,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,42,B1,482.795309,496.105329,-13.310020,13.310020,-2.6829,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,43,A1,502.503141,496.139840,6.363301,6.363301,1.2826,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,47,B2,514.175363,519.223441,-5.048078,5.048078,-0.9722,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,48,B1,514.623239,520.481642,-5.858403,5.858403,-1.1256,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,53,B1,553.840015,549.002176,4.837839,4.837839,0.8812,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,54,B2,554.482568,549.080806,5.401762,5.401762,0.9838,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,55,A1,587.450092,576.228663,11.221429,11.221429,1.9474,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,57,B2,625.442024,615.726838,9.715186,9.715186,1.5778,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,ir,58,B1,625.913343,615.833012,10.080331,10.080331,1.6369,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,raman,17,A1,143.413357,137.789315,5.624042,5.624042,4.0816,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,raman,21,B1,166.245960,159.765049,6.480911,6.480911,4.0565,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,raman,24,A2,199.158864,189.558041,9.600823,9.600823,5.0648,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,raman,29,B2,246.076490,235.130488,10.946002,10.946002,4.6553,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,raman,37,B1,429.609985,445.567179,-15.957194,15.957194,-3.5813,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,raman,39,A1,462.016102,476.746769,-14.730667,14.730667,-3.0898,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,raman,40,A2,462.683116,476.972115,-14.288999,14.288999,-2.9958,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,raman,41,B2,480.581586,495.828365,-15.246779,15.246779,-3.0750,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,raman,55,A1,587.450092,576.228663,11.221429,11.221429,1.9474,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+GaAsNW,raman,57,B2,625.442024,615.726838,9.715186,9.715186,1.5778,Rivano2023,10.1038/s41524-023-01140-2,same 24-atom nanowire; independent QE/PBE 1D-DFPT calculation
+MoS2,ir,6,E',369.146597,381.800000,-12.653403,12.653403,-3.3141,Ulian2023MoS2,10.1107/S1600576723002571,same monolayer phase; VASP/PBE-D3 versus ABACUS/PBE-D3(BJ)
+MoS2,ir,9,A2'',442.952053,467.700000,-24.747947,24.747947,-5.2914,Ulian2023MoS2,10.1107/S1600576723002571,same monolayer phase; VASP/PBE-D3 versus ABACUS/PBE-D3(BJ)
+MoS2,raman,4,E'',270.628018,281.900000,-11.271982,11.271982,-3.9986,Ulian2023MoS2,10.1107/S1600576723002571,same monolayer phase; VASP/PBE-D3 versus ABACUS/PBE-D3(BJ)
+MoS2,raman,6,E',369.146597,381.800000,-12.653403,12.653403,-3.3141,Ulian2023MoS2,10.1107/S1600576723002571,same monolayer phase; VASP/PBE-D3 versus ABACUS/PBE-D3(BJ)
+MoS2,raman,8,A1',401.499140,402.300000,-0.800860,0.800860,-0.1991,Ulian2023MoS2,10.1107/S1600576723002571,same monolayer phase; VASP/PBE-D3 versus ABACUS/PBE-D3(BJ)
+HfO2,ir,4,Eu,96.132338,129.000000,-32.867662,32.867662,-25.4788,Fan2022HfO2,10.1038/s41535-022-00436-8,same tetragonal P42/nmc phase and PBEsol functional; ABACUS/PYATB versus VASP lattice dynamics
+HfO2,ir,10,A2u,313.277613,321.000000,-7.722387,7.722387,-2.4057,Fan2022HfO2,10.1038/s41535-022-00436-8,same tetragonal P42/nmc phase and PBEsol functional; ABACUS/PYATB versus VASP lattice dynamics
+HfO2,ir,13,Eu,456.728006,460.000000,-3.271994,3.271994,-0.7113,Fan2022HfO2,10.1038/s41535-022-00436-8,same tetragonal P42/nmc phase and PBEsol functional; ABACUS/PYATB versus VASP lattice dynamics
+HfO2,raman,6,Eg,105.181650,108.000000,-2.818350,2.818350,-2.6096,Fan2022HfO2,10.1038/s41535-022-00436-8,same tetragonal P42/nmc phase and PBEsol functional; ABACUS/PYATB versus VASP lattice dynamics
+HfO2,raman,8,B1g,228.144156,242.000000,-13.855844,13.855844,-5.7256,Fan2022HfO2,10.1038/s41535-022-00436-8,same tetragonal P42/nmc phase and PBEsol functional; ABACUS/PYATB versus VASP lattice dynamics
+HfO2,raman,9,A1g,286.158279,276.000000,10.158279,10.158279,3.6805,Fan2022HfO2,10.1038/s41535-022-00436-8,same tetragonal P42/nmc phase and PBEsol functional; ABACUS/PYATB versus VASP lattice dynamics
+HfO2,raman,11,Eg,455.506984,470.000000,-14.493016,14.493016,-3.0836,Fan2022HfO2,10.1038/s41535-022-00436-8,same tetragonal P42/nmc phase and PBEsol functional; ABACUS/PYATB versus VASP lattice dynamics
+HfO2,raman,15,B1g,597.124600,606.000000,-8.875400,8.875400,-1.4646,Fan2022HfO2,10.1038/s41535-022-00436-8,same tetragonal P42/nmc phase and PBEsol functional; ABACUS/PYATB versus VASP lattice dynamics
+HfO2,raman,17,Eg,670.453308,677.000000,-6.546692,6.546692,-0.9670,Fan2022HfO2,10.1038/s41535-022-00436-8,same tetragonal P42/nmc phase and PBEsol functional; ABACUS/PYATB versus VASP lattice dynamics

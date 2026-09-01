@@ -286,17 +286,18 @@ def configure_polarization_input(
 ) -> dict:
     """Make PYATB Berry loops valid for a low-dimensional calculation.
 
-    Current PYATB releases evaluate all three Cartesian Berry loops even when
-    only one direction is physically periodic. A 1D ``1 x 1 x N`` grid thus
-    fails before the useful periodic-axis result is written. ZStar pads the
-    two nonperiodic directions to the minimum valid loop length and consumes
-    only the periodic-axis Berry phase; transverse dipoles remain cube based.
+    Current PYATB releases evaluate all three Cartesian Berry loops for both
+    1D and 2D inputs. A low-dimensional grid containing a singleton direction
+    therefore fails before the physically useful Berry phases are written.
+    ZStar pads singleton directions to the minimum valid loop length and only
+    consumes Berry phases along periodic axes; nonperiodic dipoles remain
+    cube based.
     """
 
     path = Path(input_path)
     text = path.read_text(encoding="utf-8")
     dimension = int(dimensionality)
-    if dimension != 1:
+    if dimension not in (1, 2):
         return {
             "input": str(path.resolve()),
             "dimensionality": dimension,
@@ -309,7 +310,10 @@ def configure_polarization_input(
 
     match = _POLARIZATION_BLOCK_RE.search(text)
     if match is None:
-        raise ValueError("Cannot configure 1D polarization: POLARIZATION block missing")
+        raise ValueError(
+            "Cannot configure low-dimensional polarization: "
+            "POLARIZATION block missing"
+        )
 
     block = match.group(0)
     original_grid = []
@@ -318,7 +322,9 @@ def configure_polarization_input(
         key = f"nk{axis + 1}"
         value = _extract_scalar(block, key)
         if value is None:
-            raise ValueError(f"Cannot configure 1D polarization: {key} is missing")
+            raise ValueError(
+                f"Cannot configure low-dimensional polarization: {key} is missing"
+            )
         original_grid.append(value)
         padded = max(value, minimum_loop_points)
         padded_grid.append(padded)
@@ -328,15 +334,18 @@ def configure_polarization_input(
     path.write_text(output, encoding="utf-8")
     report = {
         "input": str(path.resolve()),
-        "dimensionality": 1,
-        "periodic_axis": int(periodic_axis),
+        "dimensionality": dimension,
         "original_grid": original_grid,
         "effective_grid": padded_grid,
         "modified": original_grid != padded_grid,
         "reason": "PYATB evaluates Berry loops along all three axes",
         "consumed_response": "periodic-axis Berry polarization only",
-        "transverse_response": "neutral charge-density cube dipole",
+        "nonperiodic_response": "neutral charge-density cube dipole",
     }
+    if dimension == 1:
+        report["periodic_axis"] = int(periodic_axis)
+    else:
+        report["periodic_axes"] = [0, 1]
     (path.parent / "zstar_pyatb_polarization_compat.json").write_text(
         json.dumps(report, indent=2), encoding="utf-8"
     )

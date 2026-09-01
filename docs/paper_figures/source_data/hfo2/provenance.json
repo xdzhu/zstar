@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "system": "tetragonal HfO2",
+  "space_group": "P42/nmc",
+  "dimension": 3,
+  "calculator": "ABACUS 3.10.0 LTS",
+  "exchange_correlation": "PBEsol",
+  "basis": "ONCV pseudopotentials and TZDP 9-au numerical atomic orbitals from ABACUS-orbitals/TZDP_9au",
+  "pseudopotentials": ["Hf.upf", "O.upf"],
+  "orbitals": [
+    "Hf_gga_9au_100Ry_6s3p3d2f1g.orb",
+    "O_gga_9au_100Ry_2s2p1d.orb"
+  ],
+  "ecutwfc_Ry": 100,
+  "scf_threshold": 1e-8,
+  "k_mesh": [
+    10,
+    10,
+    7
+  ],
+  "phonon_supercell": [
+    1,
+    1,
+    1
+  ],
+  "relaxed_lattice_A": [3.5565187370, 3.5565187370, 5.1348671129],
+  "oxygen_internal_coordinate": 0.2973821282,
+  "archive_stru_sha256": "7431541871b84a8c4ee298e3d04a5fd7f082b46db4aef24929f3aa3fc3190343",
+  "path_band_gap_eV": 4.71031261,
+  "bec_method": "central finite difference",
+  "bec_displacement_A": 0.01,
+  "bec_response_stages": 12,
+  "electronic_dielectric_diagonal": [5.16160400, 5.16160400, 4.78027200],
+  "static_total_dielectric_diagonal": [75.76103417, 75.76103417, 18.04519133],
+  "static_lattice_dielectric_diagonal": [70.59943017, 70.59943017, 13.26491933],
+  "force_displacement_stages": 4,
+  "raman_response_stages": 30,
+  "raman_normal_coordinate_amplitude_A_sqrt_amu": 0.02,
+  "electronic_response": "PyATB 1.1.2.dev0+2ad34bc direct-static dielectric kernel",
+  "temperature_K": 300,
+  "laser_wavelength_nm": 532,
+  "broadening_cm-1": 8,
+  "notes": [
+    "One P42/nmc structure and one electronic setup are used for force constants, BEC contraction, and Raman tensors.",
+    "The largest acoustic residual is 0.357 cm-1 and no substantive imaginary mode is present.",
+    "All 15 optical modes are retained; the analytic Gamma calculation reports the TO manifold without a non-analytic LO-TO correction.",
+    "The strongest Raman line is A1g at 286.16 cm-1; the largest normalized residual among Eu, A2u, and B2u modes is 5.86e-9.",
+    "Raw ABACUS, matrix, and cube outputs are intentionally excluded from the compact publication archive."
+  ]
+}

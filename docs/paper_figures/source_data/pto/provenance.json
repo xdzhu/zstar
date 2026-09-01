@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "system": "tetragonal PbTiO3",
+  "space_group": "P4mm",
+  "dimension": 3,
+  "calculator": "ABACUS 3.10.0 LTS",
+  "exchange_correlation": "PBEsol",
+  "basis": "Dojo-NC-FR pseudopotentials and 10 au numerical atomic orbitals",
+  "ecutwfc_Ry": 100,
+  "k_mesh": [
+    9,
+    9,
+    8
+  ],
+  "phonon_supercell": [
+    1,
+    1,
+    1
+  ],
+  "force_displacement_stages": 8,
+  "raman_response_stages": 24,
+  "raman_normal_coordinate_amplitude_A_sqrt_amu": 0.02,
+  "electronic_response": "PyATB 1.1.2.dev0+2ad34bc direct-static dielectric kernel",
+  "temperature_K": 300,
+  "laser_wavelength_nm": 532,
+  "broadening_cm-1": 8,
+  "notes": [
+    "The same relaxed P4mm structure is used for force constants, BEC contraction, and Raman tensors.",
+    "The three acoustic frequencies are within 0.2 cm-1 of zero and no substantive imaginary mode is present.",
+    "Raw ABACUS, matrix, and cube outputs are intentionally excluded from the compact publication archive."
+  ]
+}

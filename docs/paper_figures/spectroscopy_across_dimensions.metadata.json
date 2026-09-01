@@ -1,23 +1,76 @@
 {
   "figure": "spectroscopy_across_dimensions",
   "backend": "Python/matplotlib 3.10.9",
-  "core_conclusion": "ZStar produces mode-resolved IR and Raman spectra for molecules, 1D nanowires, 2D slabs, and 3D bulk crystals under dimension-appropriate response conventions.",
-  "normalization": "Each IR or Raman panel is independently normalized to its own maximum; intensities are not compared across rows or response types.",
+  "core_conclusion": "ZStar reproduces mode-resolved IR and Raman selection rules and reference frequencies for representative bulk, slab, and molecular systems.",
+  "normalization": "ZStar spectra are normalized independently in every panel; intensities are not compared across rows or response types.",
+  "placeholder": false,
+  "image_scaling": "Aspect-preserving uniform scaling, centered at the largest size that fits each structure panel.",
+  "structure_label_layout": "Two-line system labels are left-aligned directly above each fitted structure image; panel letters remain separate at the upper-left of the panel.",
+  "reference_overlay": "Light-gray continuous envelopes are reconstructed from published or archived mode frequencies using the documented relative weights and Gaussian broadening; they are normalized independently and are not absolute-intensity traces.",
   "systems": [
-    "CH4",
-    "GaAsNW",
+    "HfO2",
     "MoS2",
-    "BaTiO3"
+    "CH4"
   ],
   "display_systems": [
-    "CH$_4$",
-    "GaAs nanowire",
+    "HfO$_2$",
     "MoS$_2$",
-    "BaTiO$_3$"
+    "CH$_4$"
   ],
-  "layout": "4 rows by 3 columns",
-  "one_dimensional_raman_scope": "The GaAs row uses the disclosed ten-mode Raman validation subset; its IR panel contains all 68 positive-frequency modes.",
+  "layout": "3 rows by 3 columns",
   "source_data": {
+    "structure_images/HfO2_tetragonal.png": {
+      "bytes": 449861,
+      "sha256": "a01fef0248b459d41882aa38493fc8fc2bc1ad0c2c7502759b550ddadd44f49d"
+    },
+    "hfo2/STRU": {
+      "bytes": 912,
+      "sha256": "7431541871b84a8c4ee298e3d04a5fd7f082b46db4aef24929f3aa3fc3190343"
+    },
+    "hfo2/ir/ir_modes.csv": {
+      "bytes": 1564,
+      "sha256": "3c0b9e5848894791f889fc649b11a961bba97a358470601e5a556cab3a81ca83"
+    },
+    "hfo2/ir/ir_spectrum.dat": {
+      "bytes": 625194,
+      "sha256": "d33c01dade46ccfbd6459692e520e4d9886391a34c8632648e265fbd0cabc604"
+    },
+    "hfo2/raman/raman_modes.csv": {
+      "bytes": 2912,
+      "sha256": "0230fed876cfc4eda815d377b1d9c7b578831b7d26dedee06ee505079b2b1afa"
+    },
+    "hfo2/raman/raman_spectrum.dat": {
+      "bytes": 250088,
+      "sha256": "4de237e40795b153dbfd20d08b48726d56fc86115a4eb62c5ef0e56338a38d2c"
+    },
+    "structure_images/MoS2_monolayer.png": {
+      "bytes": 130384,
+      "sha256": "03afc00aaca07641a88266e9e128d0df738238a8c74c5d5731ea1da265dddec9"
+    },
+    "mos2/STRU": {
+      "bytes": 499,
+      "sha256": "8ffcbed823b884d0c825f760251952b5796ae8bfbfe8fe374f0fa1073188484f"
+    },
+    "mos2/ir/ir_modes.csv": {
+      "bytes": 624,
+      "sha256": "6b57a49313b3476dc363638010bcd172768b74d84309597615ce76997d579721"
+    },
+    "mos2/ir/ir_spectrum.dat": {
+      "bytes": 250194,
+      "sha256": "aecf5b4fda804375d1be4387626bbea24a5ebf76574cba20631d90f4a2dd33ec"
+    },
+    "mos2/raman/raman_modes.csv": {
+      "bytes": 1383,
+      "sha256": "b8ae8777ea209b8aa1cf1873ae60aa9aa52b13305983ee0781c5c879636fe527"
+    },
+    "mos2/raman/raman_spectrum.dat": {
+      "bytes": 200088,
+      "sha256": "36908dea511f79838f10565ae38a1d3c8be2f9e40ef62ab8f36df847e523c874"
+    },
+    "structure_images/CH4_molecule.png": {
+      "bytes": 216411,
+      "sha256": "965ef14cab91d43df5d4f55d8af01726208fa86b952d8e8728551e6a64ed04b9"
+    },
     "molecular/ch4/STRU": {
       "bytes": 753,
       "sha256": "c5dd84a835cfac86f5f641d582ab102442d7ef3e532506137f948198afe0c8f3"
@@ -38,71 +91,44 @@
       "bytes": 100088,
       "sha256": "efe98b16e022c9547966e3e300b6df04b49fbafd8ae820e92314ecbbf5a1b03e"
     },
-    "gaas_nanowire/STRU": {
-      "bytes": 1793,
-      "sha256": "8341aacd89a2caa7c026a3a2e7abbed6e529ac02959a521175885f195e0be536"
+    "spectroscopy_literature_peaks.csv": {
+      "bytes": 8421,
+      "sha256": "f1c23de8eb08ece534e0285e05c08790cdabe59eec8aace9059f9b8f3f7c9bcb"
     },
-    "gaas_nanowire/ir/ir_modes.csv": {
-      "bytes": 12159,
-      "sha256": "ecc7eb882393ed2c9dfb240b2b19e77cc09ed42abcfeea0481cd275d4bc51b68"
+    "hfo2/provenance.json": {
+      "bytes": 2017,
+      "sha256": "443f7a29bf2490419fa0823f1c42901b87e48c449aec80f5d5b32a38abe698f7"
     },
-    "gaas_nanowire/ir/ir_spectrum.dat": {
-      "bytes": 250194,
-      "sha256": "789b8a3ee7e3751e544b7900f43a35faaf6cdc835a7bf42e63f7a028a74507ef"
+    "hfo2/qpoints.yaml": {
+      "bytes": 18799,
+      "sha256": "c92be6e3a024cbcb0b768c9d986f075a1a8ae52fac45c18027895b974513ffb3"
     },
-    "gaas_nanowire/raman/raman_modes.csv": {
-      "bytes": 2235,
-      "sha256": "864654b6ae4928b26329d7b4ac08a26c4bec65e019b7779f3e66c2d53770d512"
+    "hfo2/phonopy.yaml": {
+      "bytes": 4276,
+      "sha256": "f559ee9ca8f300f873db5f0807ef52dca7c369749d25fbcdd612447f1f99e568"
     },
-    "gaas_nanowire/raman/raman_spectrum.dat": {
-      "bytes": 100088,
-      "sha256": "90231191e6d25dce0d7ea0fb31c2f75a0f855efe39ae8329101bdc00da6a69cc"
+    "hfo2/irreps.yaml": {
+      "bytes": 5445,
+      "sha256": "5b5bd0d611b9c877e0614fdfc7ab81638555700df59922459eb017245e0cfc57"
     },
-    "mos2/STRU": {
-      "bytes": 703,
-      "sha256": "aaf15b8d6c15beaad26342ff3cc1e049268dbdbcecb356f700842c67aa8d604a"
+    "hfo2/Z-BORN-symm.out": {
+      "bytes": 958,
+      "sha256": "4b4d8cd41bb04ccf0416343d6c48cf42b1a8107de72c6ee51d5a3cedd2764101"
     },
-    "mos2/ir/ir_modes.csv": {
-      "bytes": 1122,
-      "sha256": "032b8a9a77f69c5483fd0c0850c51a4cf98dbc0643019d91d6b753db213a075b"
+    "hfo2/raman/raman_tensors.npy": {
+      "bytes": 1208,
+      "sha256": "37c5e2d0d332ccf57676a2311ee9f1a9bf936d9b1463810e447bd64891b6d6fb"
     },
-    "mos2/ir/ir_spectrum.dat": {
-      "bytes": 250194,
-      "sha256": "b9eba9444f1caf1e304a7bd6368a320dd5cb423206562444ecbb0312f73072c8"
-    },
-    "mos2/raman/raman_modes.csv": {
-      "bytes": 1437,
-      "sha256": "ee74304df7b5b39d105009aeb28ebb0952461d41fc6d297983f68e85a08c9ff2"
-    },
-    "mos2/raman/raman_spectrum.dat": {
-      "bytes": 100088,
-      "sha256": "aa36cc83449aaa236ecd505a30f7d5fb0670ecb4516e90ca0f5a3a881049b53e"
-    },
-    "bto/STRU": {
-      "bytes": 946,
-      "sha256": "9c6a384a825f12bddfbf7f577b33b8f0e7be4adf1b32f81a71b7311860735bb7"
-    },
-    "bto/ir/ir_modes.csv": {
-      "bytes": 1244,
-      "sha256": "334caf175ee42128216511381216dd14f4b9d273216aec0d494cb34483646d83"
-    },
-    "bto/ir/ir_spectrum.dat": {
-      "bytes": 250194,
-      "sha256": "3321027ade30d9179e2957491a21c63d7076da8e70835a68444caee85d66a33d"
-    },
-    "bto/raman/raman_modes.csv": {
-      "bytes": 2106,
-      "sha256": "18956b48b718a3a70e161c5e2504ad7cec53d0bbdd8ba80f92be3f6d695fa2e7"
-    },
-    "bto/raman/raman_spectrum.dat": {
-      "bytes": 100088,
-      "sha256": "d05b47b048a229e96f24286e0352f4e6bd78ff035b3da7d9ca578d2250e08187"
+    "hfo2/raman/merge_provenance.json": {
+      "bytes": 635,
+      "sha256": "a91887c92b0c9dd30006275eb217d2c242761d7bc2e52222507722ad643eff70"
     }
   },
   "outputs": {
     "png": "spectroscopy_across_dimensions.png",
     "pdf": "spectroscopy_across_dimensions.pdf",
     "svg": "spectroscopy_across_dimensions.svg",
+    "powerpoint_svg": "spectroscopy_across_dimensions_powerpoint.svg",
     "tiff": "spectroscopy_across_dimensions.tiff"
   }
 }

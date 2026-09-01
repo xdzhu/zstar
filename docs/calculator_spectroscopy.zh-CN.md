@@ -29,7 +29,9 @@ zstar spectra collect --root vasp_spectra
 参考响应提供 IR 所需的 BEC 和冻结离子电子介电张量；Raman 张量则由每个模式
 正负位移的介电张量中心差分得到。默认简正坐标步长为
 `0.02 Angstrom sqrt(amu)`。任何位移响应开始前，程序都会先检查参考
-`vasprun.xml` 的带隙。
+`vasprun.xml` 的带隙，并拒绝低于 -20 cm-1 的 Gamma 点模式。可用
+`--imaginary-tolerance` 修改阈值；只有确实研究不稳定相时才应使用
+`--allow-imaginary`。
 
 VASP DFPT 不支持的泛函可使用 `--method finite-field`。此时仍须遵守
 [VASP BEC 文档](vasp_bec_zh.md)中的 PEAD 占据、场强和收敛限制。`POTCAR` 只在
@@ -43,6 +45,11 @@ VASP DFPT 不支持的泛函可使用 `--method finite-field`。此时仍须遵�
 774.964 cm-1 的三重简并模；按 ZStar 相对强度约定，其 IR 总活动度分别为
 0.8599、0.8601 和 0.8611，归一化 Raman 活动度分别为 0.6622、0.7989 和
 1.0000。参考 BEC 的主方向分量约为 Si +2.691、C -2.691。
+
+Serrano 等对 3C-SiC 报道的 LDA-DFPT 横向光学频率为 793.1 cm-1，同时给出
+793(2) cm-1 的 IXS 与 796(1) cm-1 的 Raman 测量。本工作 PBE 结果低 2.29%，
+适合作为稳定 Bulk 闭环验证，而不应解释为跨泛函的严格一致
+（[doi:10.1063/1.1484241](https://doi.org/10.1063/1.1484241)）。
 
 这个轻量算例验证了模式传递、绝缘门控、串行续算、BEC 解析和介电张量中心
 差分；它不等同于晶格、k 网格或位移步长的完整收敛研究。
@@ -80,7 +87,8 @@ shell|slurm|torque`，生成一个能够续算全部阶段并在成功后汇总�
 
 CP2K 活动度保持原生单位：IR 为 `km/mol`，Raman 为 `Angstrom^4/amu`。ZStar
 只对未改动的离散活动度做展宽并绘图。CP2K 同样支持 `--dim 3`，周期晶体保留
-完整 Gamma 点模式并使用 Berry 相位偶极算符。
+完整 Gamma 点模式并使用 Berry 相位偶极算符；收集结果时执行与其他计算器相同
+的 -20 cm-1 稳定性门控。
 
 ### H2O 实机验证
 

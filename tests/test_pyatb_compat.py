@@ -62,6 +62,20 @@ class PyATBCompatTests(unittest.TestCase):
             self.assertFalse(report["modified"])
             self.assertEqual(path.read_text(encoding="utf-8"), BASE_INPUT)
 
+    def test_two_dimensional_polarization_pads_out_of_plane_loop(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "Input"
+            path.write_text(BASE_INPUT, encoding="utf-8")
+
+            report = configure_polarization_input(path, dimensionality=2)
+
+            text = path.read_text(encoding="utf-8")
+            self.assertRegex(text, r"nk1\s+5")
+            self.assertRegex(text, r"nk2\s+6")
+            self.assertRegex(text, r"nk3\s+2")
+            self.assertEqual(report["effective_grid"], [5, 6, 2])
+            self.assertEqual(report["periodic_axes"], [0, 1])
+
     def test_detects_adjacent_pip_target_installation(self):
         with tempfile.TemporaryDirectory() as tmp:
             target = Path(tmp)

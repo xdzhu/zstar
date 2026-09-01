@@ -32,7 +32,10 @@ The reference response supplies BECs and the ion-clamped dielectric tensor for
 IR. For Raman, ZStar differentiates the dielectric tensor along each normal
 coordinate using the generated central pair. The normal-coordinate amplitude
 defaults to `0.02 Angstrom sqrt(amu)`. The reference `vasprun.xml` is checked
-for a finite band gap before any displaced response is run.
+for a finite band gap before any displaced response is run. ZStar also rejects
+Gamma modes below -20 cm-1 before preparing the response tree. Change the
+tolerance with `--imaginary-tolerance`; use `--allow-imaginary` only when an
+unstable phase is intentional.
 
 Use `--method finite-field` for functionals unsupported by VASP DFPT. The same
 PEAD occupation, field-size, and convergence restrictions documented in the
@@ -49,6 +52,12 @@ three optical modes form a 774.964 cm-1 triplet. Their total IR activities are
 normalized Raman activities are 0.6622, 0.7989, and 1.0000. The reference BECs
 are approximately +2.691 for Si and -2.691 for C along each principal
 direction.
+
+Serrano et al. report a 793.1 cm-1 LDA-DFPT transverse optical frequency for
+3C-SiC, together with 793(2) cm-1 IXS and 796(1) cm-1 Raman measurements. The
+present PBE value is 2.29% lower, consistent with a stable bulk closure rather
+than an exact cross-functional match
+([doi:10.1063/1.1484241](https://doi.org/10.1063/1.1484241)).
 
 This compact run validates mode transfer, the insulating gate, serial restart,
 BEC parsing, and central dielectric differentiation. It is not a lattice,
@@ -91,7 +100,8 @@ difference step must all be converged before quantitative comparison.
 CP2K activities are retained in their native units: IR in `km/mol` and Raman
 in `Angstrom^4/amu`. ZStar broadens those unmodified line activities for
 display. CP2K can also be used with `--dim 3`; periodic calculations keep the
-full Gamma-point modes and use the Berry-phase dipole operator.
+full Gamma-point modes and use the Berry-phase dipole operator. Collection
+applies the same -20 cm-1 stability gate as the other calculators.
 
 ### H2O validation
 

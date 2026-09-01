@@ -33,11 +33,10 @@ The source test suite covers:
 - phonon folder generation and force post-processing;
 - IR mode charges, 1D line response, 2D sheet response, Raman finite
   differences, and spectra;
-- fixed and frame-resolved BEC input for MD dielectric post-processing; and
 - local two-sided slab vacuum plateaus in the presence of a
   dipole-correction reset.
 
-The current source tree passes all 130 source tests. The ignored local BTO
+The current source tree passes all 150 source tests. The ignored local BTO
 example also completes `zstar deal --dim 3 --method forward --pyatb` and
 reproduces the archived representative charges:
 
@@ -97,12 +96,12 @@ gate passed and reused the reference charge density.
 
 | System | Dimension | Path gap (eV) | Displaced stages |
 | --- | ---: | ---: | ---: |
-| MoS2 | 2D | 1.6085 | 6 |
+| MoS2 (PBE+D3(BJ)) | 2D | 1.8200 | 6 |
 | hBN | 2D | 4.6729 | 6 |
 | In2Se3 | 2D | 0.8130 | 15 |
 | BaTiO3 | 3D | 1.6822 | 12 |
 | PbTiO3 | 3D | 1.6929 | 12 |
-| HfO2 | 3D | 4.8051 | 6 |
+| HfO2 (PBEsol/TZDP 9-au) | 3D | 4.7103 | 12 |
 
 A separate cubic BaTiO3 seed gave a path gap of 0.0003 eV and was rejected
 before any displacement stage. This is retained as a negative workflow test,
@@ -118,9 +117,9 @@ rule corrected.
 
 | System | Site | Zxx | Zyy | Zzz |
 | --- | --- | ---: | ---: | ---: |
-| MoS2 | Mo | -0.710 | -0.716 | -0.003 |
-|  | S(1) | 0.358 | 0.354 | 0.001 |
-|  | S(2) | 0.352 | 0.361 | 0.001 |
+| MoS2 | Mo | -0.805859 | -0.805859 | 0.002733 |
+|  | S(1) | 0.402930 | 0.402930 | -0.001367 |
+|  | S(2) | 0.402930 | 0.402930 | -0.001367 |
 | hBN | N | -2.702 | -2.702 | -0.343 |
 |  | B | 2.702 | 2.702 | 0.343 |
 | In2Se3 | In(1) | 3.991 | 3.988 | 0.361 |
@@ -148,12 +147,13 @@ required interchange of Cartesian axes.
 |  | Ti | 6.102 | 6.102 | 5.125 |
 |  | O(1) | -5.094 | -2.628 | -2.118 |
 |  | O(2) | -2.076 | -2.076 | -4.299 |
-| HfO2 | Hf | 5.426 | 5.426 | 4.861 |
-|  | O | -2.130 | -3.296 | -2.431 |
+| HfO2 | Hf | 5.393731 | 5.393731 | 4.828420 |
+|  | O | -2.115440 | -3.278290 | -2.414210 |
 
 The corresponding legacy-PyATB electronic dielectric diagonals, evaluated
 with the validated 0-30 eV window, are `(6.465, 6.465, 5.921)` for BaTiO3,
-`(7.380, 7.380, 7.215)` for PbTiO3, and `(4.855, 4.855, 4.477)` for HfO2.
+`(7.380, 7.380, 7.215)` for PbTiO3. The refreshed HfO2 direct-static result
+is `(5.161604, 5.161604, 4.780272)`.
 
 ## PyATB Static-Response Compatibility
 
@@ -205,17 +205,19 @@ response. The strongest tested pair occurs at 156.06 and 156.24 cm-1, with
 in-plane mode-charge magnitudes of 0.4951 and 0.4946. A predominantly
 out-of-plane entry at 254.65 cm-1 has `Zmode_z = -0.0598`.
 
-The same IR command completed for all seven validation systems:
+Earlier pre-gate IR runs produced the following records. The BTO row is now
+retained only as an unstable-phase regression because its eigensystem also
+contains two imaginary modes at -167.01 cm-1:
 
 | System | Reported optical modes | Strongest mode (cm-1) | Mode-charge norm |
 | --- | ---: | ---: | ---: |
 | GaAs nanowire | 68 | 502.50 | 1.6890 |
-| MoS2 | 6 | 359.65 | 0.1153 |
+| MoS2 (PBE+D3(BJ)) | 6 | 369.15 | 0.1300 |
 | hBN | 3 | 1371.42 | 1.0937 |
 | In2Se3 | 12 | 156.06 | 0.4951 |
-| BaTiO3 | 10 | 342.94 | 1.1848 |
-| PbTiO3 | 12 | 208.74 | 1.4485 |
-| HfO2 | 15 | 322.57 | 1.3199 |
+| BaTiO3 (unstable diagnostic) | 10 positive; 2 imaginary | 342.94 | 1.1848 |
+| PbTiO3 (stable P4mm/PBEsol closure) | 12 | 205.72 | 1.4313 |
+| HfO2 (stable P42/nmc/PBEsol/TZDP 9-au closure) | 15 | 313.28 | 1.3109 |
 
 The 2D cases write sheet polarizability, whereas the 3D cases write a relative
 dielectric tensor. Intensities from these two conventions should not be
@@ -224,40 +226,71 @@ compared as if they shared one bulk normalization.
 The Raman runner was exercised through complete plus/minus electronic
 calculations for 1D, 2D, and 3D periodic systems. The selected GaAs modes test
 the line-polarizability derivative, the selected hBN mode and complete MoS2
-optical manifold test the sheet convention, and tetragonal BaTiO3 was extended
-to all ten positive-frequency optical modes:
+optical manifold test the sheet convention, and a complete tetragonal HfO2
+manifold tests the ABACUS/PyATB bulk path. The 3C-SiC result remains a separate
+VASP-backend closure:
 
 | System | Response convention | Mode (cm-1) | Selected result |
 | --- | --- | ---: | --- |
 | GaAs nanowire | 1D line-polarizability derivative | 143.41 A1 | diag(R) = (0.4352, 0.4302, 0.5185), normalized activity = 1.0000 |
 | hBN | 2D sheet-susceptibility derivative | 1371.42 | Rxx = 13.865, Ryy = -13.858, depolarization ratio = 0.7500 |
-| MoS2 | 2D sheet-susceptibility derivative | 388.44 A1' | diag(R) = (-1.7774, -1.7774, -8.8043), depolarization ratio = 0.1541 |
-| BaTiO3 | 3D dielectric derivative | 554.70 | diag(R) = (0.8465, 0.8465, 1.0978), depolarization ratio = 0.00484 |
+| MoS2 | 2D sheet-susceptibility derivative | 401.50 A1' | diag(R) = (-2.1420, -2.1420, -8.7720), depolarization ratio = 0.1283 |
+| HfO2 | 3D dielectric derivative | 286.16 A1g | diag(R) = (-0.012325, -0.012325, -0.400100), normalized activity = 1.0000 |
+| 3C-SiC | 3D dielectric derivative | 774.96 T2 (threefold) | normalized Raman activities = 0.6622, 0.7989, 1.0000 |
 
-The MoS2 run used PyATB `1.1.2.dev0+2ad34bc` and its direct
-`static_dielectric_only` Kubo kernel, completing 12 positive/negative stages
-for modes 4-9. The degenerate `E''` pair at 270.67 cm-1, the `E'` pair at
-359.65 cm-1, and `A1'` at 388.44 cm-1 have normalized Raman activities 0.1897,
-0.4730, and 1.0000. The IR-active `A2''` mode at 439.78 cm-1 has a residual
-Raman activity of only `1.54e-7`, recovering the D3h selection rules. Halving
-the normal-coordinate step from 0.02 to 0.01 Angstrom sqrt(amu) changes the
-`E'` and `A1'` tensor norms by 0.018% and 0.027%.
+The refreshed MoS2 closure used ABACUS/PBE+D3(BJ), `scf_thr = 1e-8`, a
+`33 x 33 x 1` primitive-cell mesh, and PyATB `1.1.2.dev0+2ad34bc` with its
+direct `static_dielectric_only` kernel. The six optical modes required 12
+positive/negative Raman stages. The degenerate `E''` pair at 270.63 cm-1,
+the `E'` pair at 369.15 cm-1, and `A1'` at 401.50 cm-1 have normalized Raman
+activities 0.1840, 0.3860, and 1.0000. The IR-active `A2''` mode at
+442.95 cm-1 has a residual Raman activity of only `3.02e-14`, recovering the
+D3h selection rules.
 
-The BTO mode classification provides an additional selection-rule check: the
-293.38 cm-1 `B1` mode has zero IR mode charge and finite normalized Raman
-activity (0.0299), while the 342.94 cm-1 `A1` mode has the largest mode-charge
-magnitude (1.1848). The 554.70 cm-1 `A1` mode is the strongest calculated
-Raman line. These calculations test data transfer, degeneracy handling,
-normalization, central differences, tensor collection, and spectrum
-generation. They are workflow regressions, not claims of fully converged
-experimental peak positions or absolute intensities.
+The fresh HfO2 closure uses one P42/nmc structure, PBEsol, the ONCV
+pseudopotentials and TZDP 9-au numerical atomic orbitals from the
+`ABACUS-orbitals/TZDP_9au` set, a 100 Ry cutoff, and a `10 x 10 x 7` k mesh.
+Four symmetry-reduced force-displacement stages
+produce no substantive imaginary mode: the largest acoustic residual is
+0.357 cm-1 and the 15 optical branches span 96.13--670.45 cm-1. The complete
+Raman run evaluates every optical mode through 30 positive/negative response
+stages using PyATB `1.1.2.dev0+2ad34bc` and its direct-static kernel. The
+Raman-active `A1g`, `B1g`, and `Eg` modes remain finite, while the largest
+normalized residual among `Eu`, `A2u`, and silent `B2u` modes is `5.86e-9`.
+Fan et al. provide the phase- and functional-matched VASP/PBEsol reference
+([doi:10.1038/s41535-022-00436-8](https://doi.org/10.1038/s41535-022-00436-8)).
+The selected ZStar/Fan peak-position MAEs are 14.62 cm-1 for IR and 9.46 cm-1
+for Raman; the low-frequency Eu difference is retained in the audit rather
+than filtered.
+
+## Static and Frequency-Dependent Dielectric Response
+
+The same PBEsol/TZDP 9-au HfO2 closure gives
+`epsilon_infinity = diag(5.161604, 5.161604, 4.780272)` and
+`epsilon(0) = diag(75.761034, 75.761034, 18.045191)`. Independent `zstar calc`
+and `zstar freq` invocations agree exactly for the zero-frequency tensor. The
+MoS2 lattice-only two-dimensional result is the vacuum-independent sheet
+response `diag(0.710457, 0.710457, 5.68e-6) Angstrom`. Both retained frequency
+curves use 8 cm-1 Lorentzian damping and preserve real and imaginary tensor
+components separately.
+
+The PBE VASP 3C-SiC triplet at 774.964 cm-1 is 2.29% below the 793.1 cm-1
+LDA-DFPT value reported by Serrano et al. alongside their 793(2) cm-1 IXS and
+796(1) cm-1 Raman measurements
+([doi:10.1063/1.1484241](https://doi.org/10.1063/1.1484241)). The old BTO
+classification remains useful as a selection-rule regression, but its two
+-167.01 cm-1 modes make it unsuitable as a physical spectrum benchmark. ZStar
+now rejects any Gamma eigensystem below -20 cm-1 by default in the ABACUS,
+VASP, and CP2K spectroscopy paths. `--allow-imaginary` is an explicit opt-in
+for intentionally studying the stable branches of an unstable phase.
 
 The manuscript-ready figures, plotting code, compact source data, and hashes
 are archived in [docs/paper_figures](paper_figures/README.md):
 
-- [Tetragonal BTO mode, IR, and Raman figure](paper_figures/bto_mode_spectroscopy.png)
+- [Tetragonal BTO diagnostic mode figure](paper_figures/bto_mode_spectroscopy.png)
 - [Alpha-In2Se3 hybrid 2D polarization/BEC figure](paper_figures/in2se3_hybrid_polarization.png)
-- [Validated Molecule--Nanowire--Slab--Bulk IR/Raman comparison](paper_figures/spectroscopy_across_dimensions.png)
+- [Validated Bulk--Slab--Molecule IR/Raman comparison](paper_figures/spectroscopy_across_dimensions.png)
+- [Bulk and two-dimensional dielectric response](paper_figures/dielectric_response_examples.png)
 
 ## Molecular Spectroscopy
 

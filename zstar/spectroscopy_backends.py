@@ -31,6 +31,8 @@ from .spectra import (
     calculate_native_line_spectrum,
     calculate_raman_spectrum,
     mode_effective_charges,
+    validate_frequencies_stable,
+    validate_gamma_stability,
     write_ir_outputs,
     write_molecular_ir_outputs,
     write_native_line_spectrum_outputs,
@@ -153,6 +155,8 @@ def prepare_vasp_spectra(
     amplitude: float = 0.02,
     mode_numbers: Sequence[int] | None = None,
     acoustic_cutoff_cm1: float = 5.0,
+    imaginary_tolerance_cm1: float = 20.0,
+    allow_imaginary: bool = False,
     method: str = "dfpt",
     field_strength: float = 0.001,
     dimensionality: int = 3,
@@ -181,6 +185,11 @@ def prepare_vasp_spectra(
         raise FileNotFoundError(f"Missing VASP input files: {', '.join(missing)}")
     modes_source = Path(modes_xml).resolve()
     modes = load_vasp_gamma_modes(modes_source)
+    validate_gamma_stability(
+        modes,
+        imaginary_tolerance_cm1=imaginary_tolerance_cm1,
+        allow_imaginary=allow_imaginary,
+    )
     indices = _mode_indices(modes.frequencies_cm1, mode_numbers, acoustic_cutoff_cm1)
     if not len(indices):
         raise ValueError("No optical modes selected")
@@ -262,6 +271,8 @@ def prepare_vasp_spectra(
             field_strength if method_key == "finite-field" else None
         ),
         "amplitude_A_sqrt_amu": amplitude,
+        "imaginary_tolerance_cm-1": float(imaginary_tolerance_cm1),
+        "allow_imaginary": bool(allow_imaginary),
         "modes": entries,
         "stages": stages,
     }
@@ -582,6 +593,8 @@ def _collect_vasp_spectra(
     temperature_K: float,
     points: int,
     plot: bool,
+    imaginary_tolerance_cm1: float,
+    allow_imaginary: bool,
 ) -> dict:
     modes = load_vasp_gamma_modes(manifest["modes_source"])
     epsilon, tensors = parse_vasp_outcar(root / "reference" / "OUTCAR")
@@ -597,6 +610,8 @@ def _collect_vasp_spectra(
             broadening_cm1=broadening_cm1,
             points=points,
             periodic_axis=2,
+            imaginary_tolerance_cm1=imaginary_tolerance_cm1,
+            allow_imaginary=allow_imaginary,
         )
         ir_summary = write_ir_outputs(root / "ir_spectrum", ir, plot=plot)
     else:
@@ -608,6 +623,8 @@ def _collect_vasp_spectra(
             derivatives,
             broadening_cm1=broadening_cm1,
             points=points,
+            imaginary_tolerance_cm1=imaginary_tolerance_cm1,
+            allow_imaginary=allow_imaginary,
         )
         ir_summary = write_molecular_ir_outputs(root / "ir_spectrum", ir, plot=plot)
 
@@ -638,6 +655,8 @@ def _collect_vasp_spectra(
         laser_nm=laser_nm,
         broadening_cm1=broadening_cm1,
         points=points,
+        imaginary_tolerance_cm1=imaginary_tolerance_cm1,
+        allow_imaginary=allow_imaginary,
     )
     raman_summary = write_raman_outputs(root / "raman_spectrum", raman, plot=plot)
     result = {
@@ -751,6 +770,8 @@ def prepare_cp2k_spectra(
     *,
     displacement_bohr: float = 0.01,
     dimensionality: int = 0,
+    imaginary_tolerance_cm1: float = 20.0,
+    allow_imaginary: bool = False,
     force: bool = False,
 ) -> Path:
     """Prepare CP2K native vibrational analysis with IR and Raman intensities."""
@@ -805,6 +826,8 @@ def prepare_cp2k_spectra(
         "source_input": str(source),
         "dimensionality": dimensionality,
         "displacement_bohr": displacement_bohr,
+        "imaginary_tolerance_cm-1": float(imaginary_tolerance_cm1),
+        "allow_imaginary": bool(allow_imaginary),
         "stages": [{"name": "calculation", "path": "calculation"}],
     }
     (target / "spectra_manifest.json").write_text(
@@ -856,8 +879,15 @@ def _collect_cp2k_spectra(
     broadening_cm1: float,
     points: int,
     plot: bool,
+    imaginary_tolerance_cm1: float,
+    allow_imaginary: bool,
 ) -> dict:
     parsed = parse_cp2k_native_spectra(root / "calculation" / "output.log")
+    validate_frequencies_stable(
+        parsed["frequencies_cm-1"],
+        imaginary_tolerance_cm1=imaginary_tolerance_cm1,
+        allow_imaginary=allow_imaginary,
+    )
     common = {
         "mode_numbers": parsed["mode_numbers"],
         "broadening_cm1": broadening_cm1,
@@ -904,8 +934,16 @@ def collect_calculator_spectra(
     temperature_K: float = 300.0,
     points: int = 2001,
     plot: bool = True,
+    imaginary_tolerance_cm1: float | None = None,
+    allow_imaginary: bool | None = None,
 ) -> dict:
     root_path, manifest = _load_manifest(root)
+    if imaginary_tolerance_cm1 is None:
+        imaginary_tolerance_cm1 = float(
+            manifest.get("imaginary_tolerance_cm-1", 20.0)
+        )
+    if allow_imaginary is None:
+        allow_imaginary = bool(manifest.get("allow_imaginary", False))
     if manifest["calculator"] == "vasp":
         return _collect_vasp_spectra(
             root_path,
@@ -915,6 +953,8 @@ def collect_calculator_spectra(
             temperature_K=temperature_K,
             points=points,
             plot=plot,
+            imaginary_tolerance_cm1=imaginary_tolerance_cm1,
+            allow_imaginary=allow_imaginary,
         )
     if manifest["calculator"] == "cp2k":
         return _collect_cp2k_spectra(
@@ -923,5 +963,7 @@ def collect_calculator_spectra(
             broadening_cm1=broadening_cm1,
             points=points,
             plot=plot,
+            imaginary_tolerance_cm1=imaginary_tolerance_cm1,
+            allow_imaginary=allow_imaginary,
         )
     raise ValueError(f"Unsupported calculator: {manifest['calculator']}")

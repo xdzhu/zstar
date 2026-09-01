@@ -517,6 +517,8 @@ def zstar_cli(argv=None) -> None:
     parser_spectra_prepare.add_argument('--input', default=None)
     parser_spectra_prepare.add_argument('--modes', default=None)
     parser_spectra_prepare.add_argument('--acoustic-cutoff', type=float, default=5.0)
+    parser_spectra_prepare.add_argument('--imaginary-tolerance', type=float, default=20.0)
+    parser_spectra_prepare.add_argument('--allow-imaginary', action='store_true')
     parser_spectra_prepare.add_argument('--amplitude', type=float, default=0.02)
     parser_spectra_prepare.add_argument(
         '--method', choices=['dfpt', 'finite-field'], default='dfpt'
@@ -565,6 +567,10 @@ def zstar_cli(argv=None) -> None:
     parser_spectra_collect.add_argument('--laser-nm', type=float, default=532.0)
     parser_spectra_collect.add_argument('--broadening', type=float, default=8.0)
     parser_spectra_collect.add_argument('--points', type=int, default=2001)
+    parser_spectra_collect.add_argument('--imaginary-tolerance', type=float, default=None)
+    parser_spectra_collect.add_argument(
+        '--allow-imaginary', action='store_true', default=None
+    )
     parser_spectra_collect.add_argument('--no-plot', action='store_true')
 
     # ---------------- qNEP data bridge ----------------
@@ -912,6 +918,11 @@ def zstar_cli(argv=None) -> None:
         help='One-based mode list, e.g. 4,5,8-10. Default: all optical modes.'
     )
     parser_ir.add_argument('--acoustic-cutoff', type=float, default=5.0)
+    parser_ir.add_argument('--imaginary-tolerance', type=float, default=20.0)
+    parser_ir.add_argument(
+        '--allow-imaginary', action='store_true',
+        help='Allow selected stable modes even when substantive imaginary Gamma modes exist.'
+    )
     parser_ir.add_argument('--broadening', type=float, default=10.0)
     parser_ir.add_argument('--max-frequency', type=float, default=None)
     parser_ir.add_argument('--points', type=int, default=2001)
@@ -937,6 +948,8 @@ def zstar_cli(argv=None) -> None:
     )
     parser_raman_prepare.add_argument('--modes', default=None)
     parser_raman_prepare.add_argument('--acoustic-cutoff', type=float, default=5.0)
+    parser_raman_prepare.add_argument('--imaginary-tolerance', type=float, default=20.0)
+    parser_raman_prepare.add_argument('--allow-imaginary', action='store_true')
     parser_raman_prepare.add_argument(
         '--copy', action='append', default=None,
         help='Additional calculation input copied into every +/- directory.'
@@ -990,6 +1003,8 @@ def zstar_cli(argv=None) -> None:
     )
     parser_raman_run.add_argument('--no-spectrum', action='store_true')
     parser_raman_run.add_argument('--no-plot', action='store_true')
+    parser_raman_run.add_argument('--imaginary-tolerance', type=float, default=20.0)
+    parser_raman_run.add_argument('--allow-imaginary', action='store_true')
     parser_raman_run.add_argument(
         '--incident-polarization', type=float, nargs=3, default=None,
         metavar=('EX', 'EY', 'EZ'),
@@ -1038,6 +1053,8 @@ def zstar_cli(argv=None) -> None:
     parser_raman_spectrum.add_argument('--points', type=int, default=2001)
     parser_raman_spectrum.add_argument('--outdir', default='raman_spectrum')
     parser_raman_spectrum.add_argument('--no-plot', action='store_true')
+    parser_raman_spectrum.add_argument('--imaginary-tolerance', type=float, default=20.0)
+    parser_raman_spectrum.add_argument('--allow-imaginary', action='store_true')
     parser_raman_spectrum.add_argument(
         '--incident-polarization', type=float, nargs=3, default=None,
         metavar=('EX', 'EY', 'EZ'),
@@ -1094,6 +1111,8 @@ def zstar_cli(argv=None) -> None:
     )
     parser_calc.add_argument('--thickness', type=float, default=None)
     parser_calc.add_argument('--acoustic-cutoff', type=float, default=5.0)
+    parser_calc.add_argument('--imaginary-tolerance', type=float, default=20.0)
+    parser_calc.add_argument('--allow-imaginary', action='store_true')
     parser_calc.add_argument('--broadening', type=float, default=10.0)
     parser_calc.add_argument('--max-frequency', type=float, default=None)
     parser_calc.add_argument('--points', type=int, default=2001)
@@ -1109,9 +1128,12 @@ def zstar_cli(argv=None) -> None:
     parser_freq.add_argument('--ir-choose',
                              help="Set choose only infrared modes or all modes.",
                              choices=['ir', 'all'], default='ir')
-    parser_freq.add_argument('--plot', action='store_true',
-                             help="Whether to plot the dielectric constant VS the frequency.",
-                             default=True)
+    parser_freq.add_argument(
+        '--plot',
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Write IR and dielectric-response plots (default: enabled).",
+    )
     # new flags for updated pipeline
     parser_freq.add_argument('--mode', default='db',
                              choices=['db', 'default', 'smodes'],
@@ -1130,6 +1152,8 @@ def zstar_cli(argv=None) -> None:
     )
     parser_freq.add_argument('--thickness', type=float, default=None)
     parser_freq.add_argument('--acoustic-cutoff', type=float, default=5.0)
+    parser_freq.add_argument('--imaginary-tolerance', type=float, default=20.0)
+    parser_freq.add_argument('--allow-imaginary', action='store_true')
     parser_freq.add_argument('--broadening', type=float, default=10.0)
     parser_freq.add_argument('--max-frequency', type=float, default=None)
     parser_freq.add_argument('--points', type=int, default=2001)
@@ -1543,6 +1567,8 @@ def zstar_cli(argv=None) -> None:
                     amplitude=args.amplitude,
                     mode_numbers=_parse_modes(args.modes),
                     acoustic_cutoff_cm1=args.acoustic_cutoff,
+                    imaginary_tolerance_cm1=args.imaginary_tolerance,
+                    allow_imaginary=args.allow_imaginary,
                     method=args.method,
                     field_strength=args.field_strength,
                     dimensionality=args.dim,
@@ -1558,6 +1584,8 @@ def zstar_cli(argv=None) -> None:
                     args.root,
                     displacement_bohr=args.cp2k_dx,
                     dimensionality=args.dim,
+                    imaginary_tolerance_cm1=args.imaginary_tolerance,
+                    allow_imaginary=args.allow_imaginary,
                     force=args.force,
                 )
             print(f"[OUT] {root}")
@@ -1608,6 +1636,8 @@ def zstar_cli(argv=None) -> None:
                 temperature_K=args.temperature,
                 points=args.points,
                 plot=not args.no_plot,
+                imaginary_tolerance_cm1=args.imaginary_tolerance,
+                allow_imaginary=args.allow_imaginary,
             )
             print(
                 f"Collected {len(result['frequencies_cm-1'])} "
@@ -1907,6 +1937,8 @@ def zstar_cli(argv=None) -> None:
                 broadening_cm1=args.broadening,
                 max_frequency_cm1=args.max_frequency,
                 points=args.points,
+                imaginary_tolerance_cm1=args.imaginary_tolerance,
+                allow_imaginary=args.allow_imaginary,
             )
             summary = write_molecular_ir_outputs(
                 args.outdir, result, plot=not args.no_plot
@@ -1928,6 +1960,8 @@ def zstar_cli(argv=None) -> None:
                 points=args.points,
                 thickness_angstrom=args.thickness,
                 periodic_axis='xyz'.index(args.periodic_axis),
+                imaginary_tolerance_cm1=args.imaginary_tolerance,
+                allow_imaginary=args.allow_imaginary,
             )
             summary = write_ir_outputs(
                 args.outdir, result, plot=not args.no_plot
@@ -1978,6 +2012,8 @@ def zstar_cli(argv=None) -> None:
                 mode_numbers=_parse_modes(args.modes),
                 acoustic_cutoff_cm1=args.acoustic_cutoff,
                 copy_files=args.copy,
+                imaginary_tolerance_cm1=args.imaginary_tolerance,
+                allow_imaginary=args.allow_imaginary,
             )
             print(f"Generated {len(manifest['modes'])} Raman mode pairs.")
             print(f"[OUT] {os.path.abspath(args.outdir)}")
@@ -2027,6 +2063,8 @@ def zstar_cli(argv=None) -> None:
                     broadening_cm1=args.broadening,
                     max_frequency_cm1=args.max_frequency,
                     points=args.points,
+                    imaginary_tolerance_cm1=args.imaginary_tolerance,
+                    allow_imaginary=args.allow_imaginary,
                 )
                 summary = write_raman_outputs(
                     args.spectrum_outdir,
@@ -2074,6 +2112,8 @@ def zstar_cli(argv=None) -> None:
                         broadening_cm1=args.broadening,
                         max_frequency_cm1=args.max_frequency,
                         points=args.points,
+                        imaginary_tolerance_cm1=args.imaginary_tolerance,
+                        allow_imaginary=args.allow_imaginary,
                     )
                     ir_summary = write_molecular_ir_outputs(
                         args.ir_outdir,
@@ -2122,6 +2162,8 @@ def zstar_cli(argv=None) -> None:
                 broadening_cm1=args.broadening,
                 max_frequency_cm1=args.max_frequency,
                 points=args.points,
+                imaginary_tolerance_cm1=args.imaginary_tolerance,
+                allow_imaginary=args.allow_imaginary,
             )
             summary = write_raman_outputs(
                 args.outdir, result, plot=not args.no_plot
@@ -2193,6 +2235,8 @@ def zstar_cli(argv=None) -> None:
             points=args.points,
             thickness_angstrom=args.thickness,
             periodic_axis='xyz'.index(args.periodic_axis),
+            imaginary_tolerance_cm1=args.imaginary_tolerance,
+            allow_imaginary=args.allow_imaginary,
         )
         write_ir_outputs(args.outdir, result, plot=args.plot)
         print(f"Static {result.response_kind}:")
@@ -2223,8 +2267,13 @@ def zstar_cli(argv=None) -> None:
             points=args.points,
             thickness_angstrom=args.thickness,
             periodic_axis='xyz'.index(args.periodic_axis),
+            imaginary_tolerance_cm1=args.imaginary_tolerance,
+            allow_imaginary=args.allow_imaginary,
         )
-        write_ir_outputs(args.outdir, result, plot=True)
+        write_ir_outputs(args.outdir, result, plot=args.plot)
+        print(f"Static {result.response_kind}:")
+        for row in result.response_real[0]:
+            print("  " + " ".join(f"{value:14.8e}" for value in row))
         print(f"[OUT] {os.path.abspath(args.outdir)}")
 
     elif args.command == 'md':

@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "backend": "Python/matplotlib 3.10.9",
+  "placeholder": false,
+  "image_source": "Author-supplied VESTA screenshots of the archived calculation structures.",
+  "image_scaling": "Aspect-preserving uniform scaling, centered at the largest size that fits each structure panel.",
+  "structure_images": [
+    "BaTiO3_cubic.png",
+    "CH4_molecule.png",
+    "H2O_molecule.png",
+    "HfO2_tetragonal.png",
+    "alpha-In2Se3_monolayer.png",
+    "hBN_monolayer.png"
+  ],
+  "figures": {
+    "bec_bulk_structures": {
+      "pdf": "bec_bulk_structures.pdf",
+      "png": "bec_bulk_structures.png",
+      "svg": "bec_bulk_structures.svg",
+      "powerpoint_svg": "bec_bulk_structures_powerpoint.svg"
+    },
+    "bec_2d_structures": {
+      "pdf": "bec_2d_structures.pdf",
+      "png": "bec_2d_structures.png",
+      "svg": "bec_2d_structures.svg",
+      "powerpoint_svg": "bec_2d_structures_powerpoint.svg"
+    },
+    "bec_molecular_structures": {
+      "pdf": "bec_molecular_structures.pdf",
+      "png": "bec_molecular_structures.png",
+      "svg": "bec_molecular_structures.svg",
+      "powerpoint_svg": "bec_molecular_structures_powerpoint.svg"
+    }
+  },
+  "source_data": {
+    "BaTiO3_cubic.png": {
+      "bytes": 495566,
+      "sha256": "f41a2bcb0724a42bf19aae7ba5db38c3297990a7d7128f32411a6cde50ea3838"
+    },
+    "CH4_molecule.png": {
+      "bytes": 216411,
+      "sha256": "965ef14cab91d43df5d4f55d8af01726208fa86b952d8e8728551e6a64ed04b9"
+    },
+    "H2O_molecule.png": {
+      "bytes": 89275,
+      "sha256": "a34cc8c0a46ea00c047039894ee22bf6246f62e552c4f470a538aa8b14d29caf"
+    },
+    "HfO2_tetragonal.png": {
+      "bytes": 449861,
+      "sha256": "a01fef0248b459d41882aa38493fc8fc2bc1ad0c2c7502759b550ddadd44f49d"
+    },
+    "alpha-In2Se3_monolayer.png": {
+      "bytes": 224841,
+      "sha256": "e94026b4909b44f1bafd4e21dd2a5170aec214faf4d1c320ed35224e988fa97d"
+    },
+    "hBN_monolayer.png": {
+      "bytes": 318662,
+      "sha256": "3676256123f2854a973c576c5538cb64e4c96222167cdcf34e5dd433595114ec"
+    }
+  },
+  "outputs": {
+    "bec_bulk_structures.pdf": {
+      "bytes": 133402,
+      "sha256": "e26d029f040c35a3d894c38ec7380067accb6ce508c6e1019a5a2bd52253797b"
+    },
+    "bec_bulk_structures.png": {
+      "bytes": 1021423,
+      "sha256": "de6378fcc93ebcad81c56d0a040b61ba598fc410747606b5f52589a28d36c4f8"
+    },
+    "bec_bulk_structures.svg": {
+      "bytes": 153454,
+      "sha256": "e5f8a6845438caf557cbae1e9cacc40f83479c4aa1df404d9a1c0c918c3920a6"
+    },
+    "bec_bulk_structures_powerpoint.svg": {
+      "bytes": 167732,
+      "sha256": "590a3a7af3540c16e343fe3e44922c8489e96f8a9aad7d279b40d3e3a88fb935"
+    },
+    "bec_2d_structures.pdf": {
+      "bytes": 102509,
+      "sha256": "7abf4abd482108717cc27c97484c353018f3fc61d4d254b9dfff989a87e89996"
+    },
+    "bec_2d_structures.png": {
+      "bytes": 653325,
+      "sha256": "420f0377ecfde7eaf3ff372d23a1f0ec164641fafe314d92f678a1665dcd8d0f"
+    },
+    "bec_2d_structures.svg": {
+      "bytes": 99567,
+      "sha256": "1b6305d316823ab37d52671c158b8e72dc7b1e5fdbb6316e7d256a05f4fff0db"
+    },
+    "bec_2d_structures_powerpoint.svg": {
+      "bytes": 118975,
+      "sha256": "3e7d3ef062fa7da29455c5dbc007d28c9faa7626e74f01797fe512a55d79d284"
+    },
+    "bec_molecular_structures.pdf": {
+      "bytes": 88627,
+      "sha256": "b98f9fb681ca3ae543185c45c0efeb99bf5130d768519b5f82919d25c6334a74"
+    },
+    "bec_molecular_structures.png": {
+      "bytes": 603156,
+      "sha256": "07f939b32074a9ac6c69f4e0c28732abc9680a50db875b77184013d9b67c04d2"
+    },
+    "bec_molecular_structures.svg": {
+      "bytes": 87672,
+      "sha256": "7887eb7e661b733cc6705ddd9e46215b95a5a43412ddadb23f7d2f393a570ee6"
+    },
+    "bec_molecular_structures_powerpoint.svg": {
+      "bytes": 95323,
+      "sha256": "3ee233b08040be1df8dfa3a1cbc2e53dc9896e489d96e9695049c6ef869766fd"
+    }
+  }
+}

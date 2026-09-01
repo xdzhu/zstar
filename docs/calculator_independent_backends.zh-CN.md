@@ -1,7 +1,7 @@
 # 计算器无关的响应性质工作流
 
-ZStar 始终围绕极化、Born 有效电荷（BEC）、介电响应、Gamma 点声子、IR/Raman
-光谱和 BEC 辅助的 MD 介电分析展开。不同计算器只负责生成统一响应记录，ZStar
+ZStar 始终围绕极化、Born 有效电荷（BEC）、静态与频率相关介电响应、
+Gamma 点声子和 IR/Raman 光谱展开。不同计算器只负责生成统一响应记录，ZStar
 不会扩展成通用电子结构任务平台。
 
 ## 物理维度
@@ -118,22 +118,9 @@ zstar optics --real epsilon_real.dat --imag epsilon_imag.dat \
   --polarization 1 0 0 --output optical_constants.dat
 ```
 
-## MD 外部 BEC 模型
-
-`zstar md` 保留固定和逐帧 BEC 文件，并增加两种可选 provider：
-
-```bash
-zstar md ... --bec-command "qnep_predict {request} {output}"
-zstar md ... --bec-provider my_package.provider:predict_bec
-```
-
-外部命令通过 `ZSTAR_MD_REQUEST` 获得 NPZ 请求，并向 `ZSTAR_MD_OUTPUT` 写出
-NumPy 数组；Python provider 也可以注册到 `zstar.md_bec_providers`。两种方式
-都必须返回有限的 `(nframe, natom, 3, 3)` 数组，来源信息会写入结果溯源。
-
 ## 验证边界
 
-本地测试覆盖响应规范、适配器、低维归一化、谱学、光学量、provider 契约和断点
+本地测试覆盖响应规范、适配器、低维归一化、谱学、光学量和断点
 续算。QE 6.2.1 已在两个专用计算节点上分别完成 CO2 分子和闪锌矿 SiC bulk 的真实
 闭环。SiC 冒烟计算得到 1.3553 eV 带隙、`epsilon_infinity=7.5667 I`、
 785.39 cm^-1 三重简并光学模及其 IR 活性。该低成本参数用于验证执行和解析，不应

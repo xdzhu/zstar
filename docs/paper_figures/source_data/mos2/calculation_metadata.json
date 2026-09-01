@@ -2,10 +2,14 @@
   "system": "monolayer 2H-MoS2",
   "method": {
     "calculator": "ABACUS 3.10.0 LTS",
-    "exchange_correlation": "PBE",
+    "exchange_correlation": "PBE+D3(BJ)",
     "basis": "LCAO",
     "ecutwfc_Ry": 100,
-    "reference_path_gap_eV": 1.60846353,
+    "k_mesh": [33, 33, 1],
+    "scf_threshold": 1e-8,
+    "reference_path_gap_eV": 1.819952,
+    "phonon_supercell": [3, 3, 1],
+    "phonon_k_mesh": [11, 11, 1],
     "normal_coordinate_step_A_sqrt_amu": 0.02,
     "finite_difference": "central",
     "raman_dimensionality": "2D sheet susceptibility derivative"
@@ -17,12 +21,10 @@
     "output": "static_dielectric_function.dat"
   },
   "validation": {
+    "completed_bec_stages": 7,
     "completed_raman_stages": 12,
-    "representative_step_check_A_sqrt_amu": 0.01,
-    "mode_6_tensor_relative_difference": 0.0001834738,
-    "mode_8_tensor_relative_difference": 0.0002662771,
-    "legacy_10eV_relative_difference_mode_6": 0.04633316,
-    "legacy_10eV_relative_difference_mode_8": 0.07838961
+    "raman_forbidden_A2pp_activity_normalized": 3.022142860689492e-14,
+    "born_acoustic_sum_residual_e": 0.0
   },
-  "provenance": "Compact outputs archived from validation on two dedicated compute nodes; raw DFT folders, pseudopotentials, and orbitals remain outside Git."
+  "provenance": "Compact outputs archived from the ABACUS PBE+D3(BJ) validation; raw DFT folders, pseudopotentials, and orbitals remain outside Git."
 }

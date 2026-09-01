@@ -1,8 +1,8 @@
 # Calculator-independent response workflows
 
 ZStar keeps its scientific scope narrow: polarization, Born effective charges
-(BECs), dielectric response, Gamma-point phonons, IR/Raman spectra, and
-BEC-assisted MD dielectric analysis. Calculator adapters produce common
+(BECs), static and frequency-dependent dielectric response, Gamma-point
+phonons, and IR/Raman spectra. Calculator adapters produce common
 response records; they do not turn ZStar into a general workflow engine.
 
 ## Physical dimensionality
@@ -132,26 +132,10 @@ zstar optics --real epsilon_real.dat --imag epsilon_imag.dat \
   --polarization 1 0 0 --output optical_constants.dat
 ```
 
-## External BEC models for MD
-
-`zstar md` retains fixed and frame-resolved BEC files and adds two optional
-providers:
-
-```bash
-zstar md ... --bec-command "qnep_predict {request} {output}"
-zstar md ... --bec-provider my_package.provider:predict_bec
-```
-
-The command provider receives an NPZ request through `ZSTAR_MD_REQUEST` and
-must write a NumPy array to `ZSTAR_MD_OUTPUT`. A Python provider may also be
-registered through `zstar.md_bec_providers`. In both cases ZStar requires a
-finite array with shape `(nframe, natom, 3, 3)` and records the provider in the
-output provenance.
-
 ## Validation boundary
 
 The local test suite covers schemas, adapters, normalization, spectra, optical
-quantities, provider contracts, and restart logic. Real QE 6.2.1 runs on two
+quantities, and restart logic. Real QE 6.2.1 runs on two
 dedicated compute nodes closed both molecular CO2 and bulk zincblende SiC workflows. The SiC
 smoke calculation gave a 1.3553 eV gap, `epsilon_infinity=7.5667 I`, a triply
 degenerate 785.39 cm^-1 optical mode, and parsed IR activity. These inexpensive

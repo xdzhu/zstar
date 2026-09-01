@@ -29,28 +29,72 @@ it is a direct comparison or contextual evidence.
 
 ![Validated IR/Raman spectroscopy across dimensionalities](spectroscopy_across_dimensions.png)
 
-The manuscript uses the twelve-panel `spectroscopy_across_dimensions` figure.
-Its completed rows are CH4 (`0D, Molecule`), a hydrogen-passivated GaAs
-nanowire (`1D, Nanowire`), 2H-MoS2 (`2D, Slab`), and tetragonal BaTiO3
-(`3D, Bulk`). Each row contains a structure rendered directly from its
-archived ABACUS `STRU`, followed by calculated IR and Raman spectra. The GaAs,
-MoS2, and BaTiO3 IR panels retain directional and total components. Different
-panels are normalized independently because molecular, line, sheet, and bulk
-response conventions do not share an absolute intensity scale.
+The manuscript uses the nine-panel `spectroscopy_across_dimensions` figure.
+Its completed rows follow the validation order: tetragonal P42/nmc HfO2
+(`3D, Bulk`), 2H-MoS2 (`2D, Slab`), and CH4 (`0D, Molecule`). Each row contains
+an author-supplied VESTA view of the retained calculation structure, followed
+by calculated IR and Raman spectra. Every spectral panel shows total response
+only; IR is red and Raman is blue. Different panels are normalized
+independently because molecular, sheet, and bulk response conventions do not
+share an absolute intensity scale. The completed GaAs nanowire calculation is
+retained as a machine-readable one-dimensional coverage test but is not used
+in this main figure.
 
-The GaAs row contains all 68 positive-frequency IR modes and the disclosed
-ten-mode Raman validation subset. The subset covers all four irreducible
-representations of the `mm2` point group and required 20 completed
-positive/negative electronic-response stages. Its strongest selected Raman
-line is the `A1` mode at 143.41 cm-1.
+The light-gray curves are Gaussian-broadened reference envelopes. Unit-weight
+published modes are used when a source does not provide comparable intensity
+data; they therefore validate frequency rather than absolute intensity. The
+HfO2 row retains digitized relative bar heights from the VASP/PBEsol
+lattice-dynamics analysis of Fan et al.
+([doi:10.1038/s41535-022-00436-8](https://doi.org/10.1038/s41535-022-00436-8)).
+All three tetragonal IR and six Raman entries visible in that source figure are
+included before broadening.
 
-The MoS2 row includes all six optical modes. Its Raman tensors were obtained
-from 12 completed central-difference response stages with the PyATB
-`static_dielectric_only` kernel. The `E''`, `E'`, and `A1'` families are Raman
-active at 270.67, 359.65, and 388.44 cm-1, whereas the `A2''` Raman activity is
-only `1.54e-7` of the strongest line. Repeating the representative `E'` and
-`A1'` modes with half the normal-coordinate step changed their tensor norms by
-only 0.018% and 0.027%, respectively.
+The refreshed MoS2 row uses ABACUS/PBE-D3(BJ), `scf_thr = 1e-8`, a 33x33x1
+primitive-cell k mesh for electronic response, and the retained 3x3x1 phonon
+supercell. Its direct-path band gap is 1.819952 eV. Seven symmetry-reduced BEC
+stages give `Zxx = Zyy = -0.80585922` and `Zzz = 0.00273336` for Mo, with the
+two symmetry-equivalent S atoms carrying the compensating tensor. Contracting
+these BECs with all six optical modes makes the E' pair at 369.15 cm-1 the
+dominant IR feature. Twelve completed central-difference response stages with
+the PyATB `static_dielectric_only` kernel give Raman-active E'', E', and A1'
+families at 270.63, 369.15, and 401.50 cm-1, respectively. A1' is the strongest
+Raman line, while the A2'' normalized Raman activity is `3.02e-14`, recovering
+the expected selection rule to numerical precision.
+
+The HfO2 row uses one PBEsol P42/nmc structure and the ONCV pseudopotentials
+and TZDP 9-au numerical atomic orbitals distributed together in the
+`ABACUS-orbitals/TZDP_9au` set. Four symmetry-reduced force
+displacements give a stable Gamma eigensystem with optical branches from
+96.13 to 670.45 cm-1. The complete Raman calculation covers all 15 optical
+modes with 30 positive/negative direct-static electronic-response stages.
+The gerade A1g, B1g, and Eg branches are Raman active, whereas Eu and A2u are
+infrared active and B2u is silent. The strongest Raman line is A1g at
+286.16 cm-1; the largest normalized Raman residual among Eu, A2u, and B2u is
+`5.86e-9`. The Fan-reference frequency MAEs are 14.62 cm-1 for three IR modes
+and 9.46 cm-1 for six Raman modes, providing a centrosymmetric bulk closure without
+the soft-mode ambiguity of the archived BTO case.
+
+### Static and frequency-dependent dielectric response
+
+![Bulk and two-dimensional dielectric response](dielectric_response_examples.png)
+
+The four-panel `dielectric_response_examples` figure uses the same retained
+BEC tensors and Gamma-point modes as the spectroscopy figure. The tetragonal
+HfO2 row includes the direct-static electronic background
+`diag(5.161604, 5.161604, 4.780272)` and gives the total zero-frequency
+permittivity `diag(75.761034, 75.761034, 18.045191)`. The monolayer MoS2 row
+is deliberately lattice-only because no electronic sheet tensor is included
+in the compact archive; its vacuum-independent static sheet response is
+`diag(0.710457, 0.710457, 5.68e-6) Angstrom`.
+
+Both data sets use 8 cm-1 Lorentzian damping. Run
+
+```bash
+python docs/paper_figures/plot_dielectric_response.py
+```
+
+to regenerate PDF, SVG, PNG, TIFF, the consolidated CSV, figure metadata, and
+the corresponding hash records in `figure_manifest.json`.
 
 ### Molecular IR/Raman validation overview
 
@@ -72,6 +116,12 @@ spectrum. All ten positive-frequency optical modes were included. The Raman
 tensors were obtained from 20 completed positive/negative normal-coordinate
 electronic-response calculations. In particular, the 293.38 cm-1 `B1` mode is
 Raman active but has zero IR mode charge.
+
+This archived figure is now a software and selection-rule diagnostic only.
+The same eigensystem contains a doubly degenerate -167.01 cm-1 instability,
+which the older positive-frequency plotting path omitted. It is therefore not
+used as a physical spectrum benchmark in the manuscript's cross-dimensional
+figure; stable tetragonal HfO2 is used for the Bulk row instead.
 
 ### Alpha-In2Se3 hybrid 2D polarization
 
@@ -154,6 +204,18 @@ source-data sizes, and SHA-256 hashes.
 - `source_data/mos2/` contains the PBE reference structure, Gamma-point modes
   and irreducible representations, complete IR/Raman tables and spectra,
   direct-static Raman tensors, and path-free calculation metadata.
+- `source_data/hfo2/` contains the exact PBEsol/TZDP 9-au P42/nmc structure,
+  full eight-decimal BEC tensors, Gamma-point modes and irreducible
+  representations, complete IR/Raman tables and spectra, total complex
+  dielectric response, symmetry report, and compact provenance used by the
+  Bulk row.
+- `source_data/sic/` contains the VASP/PBE 3C-SiC POSCAR, unified result JSON,
+  and compact IR/Raman mode tables and spectra retained for calculator-backend
+  validation.
+- `source_data/pto/` retains the earlier PBEsol P4mm validation closure as an
+  archived regression record; it is no longer used by the main Bulk row.
+- `source_data/structure_images/` contains the eight author-supplied lossless
+  VESTA screenshots embedded in the cross-dimensional and BEC structure figures.
 - Raw ABACUS folders and charge-density cubes remain outside Git because they
   are large calculation artifacts. The compact profile records the values used
   in the figure, including a dipole closure error of

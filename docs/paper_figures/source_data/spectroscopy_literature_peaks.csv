@@ -1,0 +1,46 @@
+system,channel,mode,irrep,frequency_cm-1,relative_weight,citation_key,doi,source_method,source_scope,note
+CH4,ir,7,F2,1306.0,1.0,Shimanouchi1972,10.6028/NBS.NSRDS.39,NIST evaluated gas-phase fundamental,Td gas-phase molecule,nu4; IR and Raman active; mode is the representative ZStar mode
+CH4,ir,15,F2,3019.0,1.0,Shimanouchi1972,10.6028/NBS.NSRDS.39,NIST evaluated gas-phase fundamental,Td gas-phase molecule,nu3; IR and Raman active; mode is the representative ZStar mode
+CH4,raman,7,F2,1306.0,1.0,Shimanouchi1972,10.6028/NBS.NSRDS.39,NIST evaluated gas-phase fundamental,Td gas-phase molecule,nu4; IR and Raman active; mode is the representative ZStar mode
+CH4,raman,10,E,1534.0,1.0,Shimanouchi1972,10.6028/NBS.NSRDS.39,NIST evaluated gas-phase fundamental,Td gas-phase molecule,nu2; Raman active; mode is the representative ZStar mode
+CH4,raman,12,A1,2917.0,1.0,Shimanouchi1972,10.6028/NBS.NSRDS.39,NIST evaluated gas-phase fundamental,Td gas-phase molecule,nu1; Raman active; mode is the representative ZStar mode
+CH4,raman,15,F2,3019.0,1.0,Shimanouchi1972,10.6028/NBS.NSRDS.39,NIST evaluated gas-phase fundamental,Td gas-phase molecule,nu3; IR and Raman active; mode is the representative ZStar mode
+GaAsNW,ir,19,A1,151.652957,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,31,A1,239.927292,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,34,A1,244.756088,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,35,B2,252.679001,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,36,B1,252.739442,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,41,B2,495.828365,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,42,B1,496.105329,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,43,A1,496.139840,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,47,B2,519.223441,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,48,B1,520.481642,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,53,B1,549.002176,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,54,B2,549.080806,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,55,A1,576.228663,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,57,B2,615.726838,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,ir,58,B1,615.833012,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency from Materials Cloud dataset 10.24435/materialscloud:46-wj
+GaAsNW,raman,17,A1,137.789315,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency matched to ZStar selected mode 17
+GaAsNW,raman,21,B1,159.765049,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency matched to ZStar selected mode 21
+GaAsNW,raman,24,A2,189.558041,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency matched to ZStar selected mode 24
+GaAsNW,raman,29,B2,235.130488,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency matched to ZStar selected mode 29
+GaAsNW,raman,37,B1,445.567179,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency matched to ZStar selected mode 37
+GaAsNW,raman,39,A1,476.746769,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency matched to ZStar selected mode 39
+GaAsNW,raman,40,A2,476.972115,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency matched to ZStar selected mode 40
+GaAsNW,raman,41,B2,495.828365,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency matched to ZStar selected mode 41
+GaAsNW,raman,55,A1,576.228663,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency matched to ZStar selected mode 55
+GaAsNW,raman,57,B2,615.726838,1.0,Rivano2023,10.1038/s41524-023-01140-2,QE PBE 1D-DFPT,24-atom H-passivated wurtzite GaAs nanowire,Gamma frequency matched to ZStar selected mode 57
+MoS2,ir,6,E',381.8,1.0,Ulian2023MoS2,10.1107/S1600576723002571,VASP PBE-D3,free-standing monolayer 2H-MoS2,Table 3; IR and Raman active
+MoS2,ir,9,A2'',467.7,1.0,Ulian2023MoS2,10.1107/S1600576723002571,VASP PBE-D3,free-standing monolayer 2H-MoS2,Table 3; IR active
+MoS2,raman,4,E'',281.9,1.0,Ulian2023MoS2,10.1107/S1600576723002571,VASP PBE-D3,free-standing monolayer 2H-MoS2,Table 3; Raman active
+MoS2,raman,6,E',381.8,1.0,Ulian2023MoS2,10.1107/S1600576723002571,VASP PBE-D3,free-standing monolayer 2H-MoS2,Table 3; IR and Raman active
+MoS2,raman,8,A1',402.3,1.0,Ulian2023MoS2,10.1107/S1600576723002571,VASP PBE-D3,free-standing monolayer 2H-MoS2,Table 3; Raman active
+HfO2,ir,4,Eu,129.0,0.50,Fan2022HfO2,10.1038/s41535-022-00436-8,VASP PBEsol lattice dynamics,pure tetragonal P42/nmc HfO2,Relative bar height digitized from the tetragonal row of Fig. 4
+HfO2,ir,10,A2u,321.0,1.00,Fan2022HfO2,10.1038/s41535-022-00436-8,VASP PBEsol lattice dynamics,pure tetragonal P42/nmc HfO2,Relative bar height digitized from the tetragonal row of Fig. 4
+HfO2,ir,13,Eu,460.0,0.76,Fan2022HfO2,10.1038/s41535-022-00436-8,VASP PBEsol lattice dynamics,pure tetragonal P42/nmc HfO2,Relative bar height digitized from the tetragonal row of Fig. 4
+HfO2,raman,6,Eg,108.0,0.02,Fan2022HfO2,10.1038/s41535-022-00436-8,VASP PBEsol lattice dynamics,pure tetragonal P42/nmc HfO2,Relative bar height digitized from the tetragonal row of Fig. 4
+HfO2,raman,8,B1g,242.0,0.10,Fan2022HfO2,10.1038/s41535-022-00436-8,VASP PBEsol lattice dynamics,pure tetragonal P42/nmc HfO2,Relative bar height digitized from the tetragonal row of Fig. 4
+HfO2,raman,9,A1g,276.0,1.00,Fan2022HfO2,10.1038/s41535-022-00436-8,VASP PBEsol lattice dynamics,pure tetragonal P42/nmc HfO2,Relative bar height digitized from the tetragonal row of Fig. 4
+HfO2,raman,11,Eg,470.0,0.10,Fan2022HfO2,10.1038/s41535-022-00436-8,VASP PBEsol lattice dynamics,pure tetragonal P42/nmc HfO2,Relative bar height digitized from the tetragonal row of Fig. 4
+HfO2,raman,15,B1g,606.0,0.22,Fan2022HfO2,10.1038/s41535-022-00436-8,VASP PBEsol lattice dynamics,pure tetragonal P42/nmc HfO2,Relative bar height digitized from the tetragonal row of Fig. 4
+HfO2,raman,17,Eg,677.0,0.20,Fan2022HfO2,10.1038/s41535-022-00436-8,VASP PBEsol lattice dynamics,pure tetragonal P42/nmc HfO2,Relative bar height digitized from the tetragonal row of Fig. 4

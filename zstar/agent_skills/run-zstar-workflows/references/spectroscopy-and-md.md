@@ -17,6 +17,11 @@ zstar ir --qpoints qpoints.yaml --dim 0 \
   --displacements raman --outdir ir_spectrum
 ```
 
+All spectroscopy commands reject substantive Gamma-point imaginary modes
+below -20 cm-1 by default. Relax or verify the structure first. Override with
+`--allow-imaginary` only when analysis of the stable branches of an unstable
+phase is intentional; adjust the threshold with `--imaginary-tolerance`.
+
 ## Raman
 
 ```bash

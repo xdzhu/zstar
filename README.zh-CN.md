@@ -27,7 +27,7 @@
 ZStar 是连接 ABACUS/PyATB、VASP、CP2K、Quantum ESPRESSO 与 Phonopy
 的 Python 响应性质工作流工具。其核心任务是把不同计算器的原子响应数据整理为
 满足晶体对称性与声学求和规则的 Born 有效电荷（BEC）张量，并进一步完成声子、
-红外（IR）、介电、拉曼与分子动力学（MD）介电分析。
+红外（IR）、介电与拉曼分析。
 
 ZStar 不会隐藏中间步骤。结构、输入文件、绝缘性门控、极化值、电荷密度、张量重构报告、光谱和任务状态都会保留下来，便于检查、复现与断点续算。
 
@@ -45,14 +45,13 @@ ZStar 不会隐藏中间步骤。结构、输入文件、绝缘性门控、极�
 - CP2K Berry 相位 BEC 的串行断点续算后端及原生 APT 对照。
 - 三维、二维混合以及一维混合极化/BEC 处理。
 - 声子生成、后处理、模式分类、红外谱、拉曼谱和介电响应。
-- 使用固定或逐帧 BEC 的 MD 偶极涨落介电计算。
 - 面向薄膜和极性材料的静电势辅助分析。
 - 随软件打包的规范化 Agent Skill 和 JSON 工作区预检查。
 - 版本化的计算器无关响应规范和后端插件注册机制。
 - 面向分子和三维 bulk 的 Quantum ESPRESSO 原生 DFPT BEC/IR 收集流程。
 
 计算器无关接口、`dim=0/1/2/3` 物理约定、QE 工作流、电荷密度适配器、
-Phonopy 数据交换、偏振 Raman、光学常数及 MD 外部 BEC provider 详见
+Phonopy 数据交换、偏振 Raman、光学常数及不同维度响应归一化详见
 [计算器无关中文手册](docs/calculator_independent_backends.zh-CN.md)。
 
 ## 物理处理范围
@@ -380,10 +379,12 @@ zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
 
 ```bash
 zstar freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
-  --dielectric BORN --dim 3 --plot
+  --dielectric BORN --dim 3
 ```
 
-默认排除低于 5 cm-1 的声学模式；可以通过 `--acoustic-cutoff` 调整。
+程序默认写出零频张量、响应实部/虚部数据以及 PNG/PDF/SVG 图；只需数据时
+使用 `--no-plot`。默认排除低于 5 cm-1 的声学模式；可以通过
+`--acoustic-cutoff` 调整。
 
 二维体系不指定 `--thickness` 时，输出与真空层无关、单位为埃的片层极化率：
 
@@ -393,6 +394,8 @@ zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
 ```
 
 只有需要定义某个等效三维介电张量时，才设置 `--thickness ANGSTROM`。
+完整物理约定、三维与二维算例及输出规范见
+[介电响应指南](docs/dielectric_response.zh-CN.md)。
 
 ## 红外谱
 
@@ -513,12 +516,14 @@ VASP 对原生介电响应做模式中心差分；CP2K 使用原生振动偶极�
 [docs/paper_figures](docs/paper_figures/README.md)。
 
 <p align="center">
-  <img src="docs/paper_figures/spectroscopy_across_dimensions.png" alt="分子、纳米线、片层与体材料的 IR 和 Raman 验证谱" width="820">
+  <img src="docs/paper_figures/spectroscopy_across_dimensions.png" alt="体材料、二维片层与分子的 IR 和 Raman 验证谱" width="820">
 </p>
 
-四行对比图均为已完成计算，依次对应 `0D, Molecule`、`1D, Nanowire`、
-`2D, Slab` 和 `3D, Bulk`。GaAs 行包含全部 68 个正频 IR 模式，并给出覆盖
-`mm2` 四类不可约表示且明确说明范围的 10 模式 Raman 子集。
+三行对比图按论文顺序展示四方 HfO2（`3D, Bulk`）、单层 MoS2
+（`2D, Slab`）和 CH4（`0D, Molecule`）。PBEsol HfO2 行包含全部 15 个
+稳定光学模式和 30 个已完成的 Raman 响应阶段；更新后的
+ABACUS/PBE-D3(BJ) MoS2 行则将全部 6 个光学模式与生产级 BEC 导出的
+IR 强度及 12 个已完成的中心差分 Raman 响应阶段结合起来。
 
 <p align="center">
   <img src="docs/paper_figures/bto_mode_spectroscopy.png" alt="四方 BaTiO3 模式分辨红外与拉曼谱" width="820">
@@ -534,44 +539,13 @@ BTO 验证包含全部 10 个正频光学模式和 20 个已完成的 Raman 正�
 In2Se3 验证展示了 Berry 相位/cube 积分的维度分工，以及 In 原子面外位移
 引起的真实平面电荷重排。
 
-## MD + BEC 介电响应
+<p align="center">
+  <img src="docs/paper_figures/dielectric_response_examples.png" alt="四方 HfO2 与单层 MoS2 的静态和频率相关介电响应" width="820">
+</p>
 
-`zstar md` 不限定逐帧 BEC 的来源。BEC 可以来自：
-
-- ZStar 对选定 MD 快照做的单帧有限差分计算。
-- 对所有帧强制使用同一套固定张量。
-- QNEP 或其他外部电荷/BEC 预测模型。
-
-ZStar 负责将张量与轨迹匹配、重建周期性位移、构造离子偶极时间序列，并计算偶极涨落极化率。
-
-固定 BEC：
-
-```bash
-zstar md --dump dump.lammpstrj \
-  --fixed-bec Z-BORN-symm.out \
-  --electronic-dielectric BORN \
-  --temperature 300 --type-map "1:Hf,2:Zr,3:O" \
-  --outdir md_fixed
-```
-
-逐帧 BEC：
-
-```bash
-zstar md --dump dump.lammpstrj \
-  --bec-dir bec_frames --bec-pattern "frame_{step}.npy" \
-  --electronic-dielectric BORN \
-  --temperature 300 --type-map "1:Hf,2:Zr,3:O" \
-  --start-step 200000 --stride-step 100 \
-  --outdir md_dynamic
-```
-
-总静态介电张量为
-
-```text
-epsilon_total = epsilon_infinity + chi_ionic
-```
-
-程序分别写出 `chi_ionic.dat`、`epsilon_ionic.dat`、`epsilon_electronic.dat` 与 `epsilon_total.dat`。如果省略 `--electronic-dielectric`，程序使用单位张量，并明确将结果标识为 `I + chi_ionic`。
+HfO2 面板给出包含电子背景的三维总响应，PBEsol/TZDP 9-au 闭环得到
+`epsilon(0) = diag(75.761034, 75.761034, 18.045191)`；MoS2 面板给出不依赖
+真空层的晶格片层极化率，而不是依赖超胞高度的“二维介电常数”。
 
 ## PyATB 新旧版本兼容
 
@@ -616,7 +590,6 @@ zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
 | `zstar ir` | 计算模式有效电荷与红外谱。 |
 | `zstar raman` | 生成、运行、收集并绘制拉曼谱。 |
 | `zstar spectra` | 统一执行 VASP 或 CP2K 的 IR/Raman 工作流。 |
-| `zstar md` | 将 MD 轨迹与固定或逐帧 BEC 结合。 |
 | `zstar cp2k-bec` | 生成、串行执行、续算、汇总并验证 CP2K BEC。 |
 | `zstar db init/collect` | 建立候选清单并汇总可审计的 BEC/High-K 数据库。 |
 | `zstar potential` / `pot` | 分析静电势 cube 文件。 |

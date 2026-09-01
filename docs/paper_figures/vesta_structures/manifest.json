@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "structures": [
+    {
+      "output": "CH4_molecule.vasp",
+      "source": "source_data/molecular/ch4/STRU",
+      "atoms": 5,
+      "elements": [
+        "C",
+        "H"
+      ],
+      "cell_volume_A3": 8000.0000047528065,
+      "source_sha256": "c5dd84a835cfac86f5f641d582ab102442d7ef3e532506137f948198afe0c8f3",
+      "output_sha256": "f0e24151611bfb3fe2ac86366e147e5dbc59acabfe59e3fe02a6b54fee29b912"
+    },
+    {
+      "output": "GaAs_nanowire.vasp",
+      "source": "source_data/gaas_nanowire/STRU",
+      "atoms": 24,
+      "elements": [
+        "As",
+        "Ga",
+        "H"
+      ],
+      "cell_volume_A3": 4174.723755514469,
+      "source_sha256": "8341aacd89a2caa7c026a3a2e7abbed6e529ac02959a521175885f195e0be536",
+      "output_sha256": "cc020246e959221adc8fcdf15a3e0805a86bfd5d0ff9b9fa0a53e8bdb5f8ea33"
+    },
+    {
+      "output": "MoS2_monolayer.vasp",
+      "source": "source_data/mos2/STRU",
+      "atoms": 3,
+      "elements": [
+        "Mo",
+        "S"
+      ],
+      "cell_volume_A3": 305.4289875451043,
+      "source_sha256": "aaf15b8d6c15beaad26342ff3cc1e049268dbdbcecb356f700842c67aa8d604a",
+      "output_sha256": "cbe774c90112882b21d183e1d7edcb73a4e6b37e55e709e1387538ad90642c60"
+    },
+    {
+      "output": "PbTiO3_tetragonal.vasp",
+      "source": "source_data/pto/STRU",
+      "atoms": 5,
+      "elements": [
+        "Pb",
+        "Ti",
+        "O"
+      ],
+      "cell_volume_A3": 63.30851488793389,
+      "source_sha256": "2d6fba12d6bac3cbd1630bd9399bb99a67bd6e55efe41890b6c93fce674ba1bd",
+      "output_sha256": "7aa166384eadd8e0b86172842254c41d0d4fb3e6e4790d38b70206233f017883"
+    },
+    {
+      "output": "BaTiO3_cubic.vasp",
+      "source": "source_data/bec_structures/bto_cubic/STRU",
+      "atoms": 5,
+      "elements": [
+        "Ba",
+        "Ti",
+        "O"
+      ],
+      "cell_volume_A3": 63.11205322053757,
+      "source_sha256": "a6ea3a6c1268cd801d917620f9c3a491c0c3ea22ddbe6c663d68f0e536e16e90",
+      "output_sha256": "1fae4bc404a91876303e885b4ff94bee7c719014e8a167cfc39dcff4e13c2602"
+    },
+    {
+      "output": "HfO2_tetragonal.vasp",
+      "source": "source_data/bec_structures/hfo2_tetragonal/STRU",
+      "atoms": 6,
+      "elements": [
+        "Hf",
+        "O"
+      ],
+      "cell_volume_A3": 64.9631277707749,
+      "source_sha256": "a6b5fb56979f8b054f738a83c3e29c6d0bdaf7ee36309846b718a3d60a782384",
+      "output_sha256": "533466fd7c30d5b18a92857ed2f7d23816ec7195c70ecb064d2b19304b24233a"
+    },
+    {
+      "output": "hBN_monolayer.vasp",
+      "source": "source_data/hbn/STRU",
+      "atoms": 2,
+      "elements": [
+        "N",
+        "B"
+      ],
+      "cell_volume_A3": 163.76137611430076,
+      "source_sha256": "112749078de5071d5fb213c883125aeda19cdafdd8c04f57e6a0669225144721",
+      "output_sha256": "082e1267bfd9a443316c0025876bbb964882afc346fdab23365e814a668a02fb"
+    },
+    {
+      "output": "alpha-In2Se3_monolayer.vasp",
+      "source": "source_data/bec_structures/in2se3_monolayer/STRU",
+      "atoms": 5,
+      "elements": [
+        "In",
+        "Se"
+      ],
+      "cell_volume_A3": 528.3170365959257,
+      "source_sha256": "68e49fcb91c30c1f9af5c55f0b51036c39202373fddcb174b8ba2d389584d8af",
+      "output_sha256": "715f91556e1abcfdbe241a1184d02130c55d67541b794c2f2243a6346664792e"
+    },
+    {
+      "output": "H2O_molecule.vasp",
+      "source": "source_data/bec_structures/h2o_molecule/STRU",
+      "atoms": 3,
+      "elements": [
+        "O",
+        "H"
+      ],
+      "cell_volume_A3": 8000.0000047528065,
+      "source_sha256": "0d3b83c692b19bf86862bec11aadd911aa2d330a3cba0e98519fa77caf42f817",
+      "output_sha256": "a6fc536801ee834ec1df46141efd4affba74a541e7a655fb19a150a42634f7ec"
+    }
+  ]
+}

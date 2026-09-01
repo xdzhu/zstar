@@ -62,6 +62,20 @@ def fake_modes() -> GammaModes:
     )
 
 
+def unstable_modes() -> GammaModes:
+    modes = fake_modes()
+    frequencies = modes.frequencies_thz.copy()
+    frequencies[0] = -5.0
+    return GammaModes(
+        frequencies_thz=frequencies,
+        eigenvectors=modes.eigenvectors,
+        masses_amu=modes.masses_amu,
+        lattice_angstrom=modes.lattice_angstrom,
+        symbols=modes.symbols,
+        positions_fractional=modes.positions_fractional,
+    )
+
+
 def vasp_response(epsilon: float, charge: float) -> str:
     return (
         " MACROSCOPIC STATIC DIELECTRIC TENSOR (including local field effects in DFT)\n"
@@ -111,6 +125,9 @@ class SpectroscopyBackendTests(unittest.TestCase):
             self.assertIn("PERIODIC_DIPOLE_OPERATOR FALSE", text)
             self.assertIn("PRECONDITIONER FULL_SINGLE_INVERSE", text)
             self.assertIn("MAX_ITER 50", text)
+            manifest = json.loads((root / "spectra_manifest.json").read_text())
+            self.assertEqual(manifest["imaginary_tolerance_cm-1"], 20.0)
+            self.assertFalse(manifest["allow_imaginary"])
             states = run_calculator_spectra(root, dry_run=True)
             self.assertEqual([state.status for state in states], ["dry-run"])
             script = generate_calculator_spectra_script(
@@ -168,6 +185,25 @@ class SpectroscopyBackendTests(unittest.TestCase):
             self.assertTrue((root / "ir_spectrum" / "ir_modes.csv").is_file())
             self.assertTrue((root / "raman_spectrum" / "raman_modes.csv").is_file())
 
+    def test_cp2k_collection_rejects_substantive_imaginary_modes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "calculation").mkdir()
+            (root / "spectra_manifest.json").write_text(
+                json.dumps({"calculator": "cp2k", "dimensionality": 0})
+            )
+            (root / "calculation" / "output.log").write_text(
+                " VIB|Frequency (cm^-1)  -1.500000E+02 1.000000E+03\n"
+                " VIB|IR int (KM/Mole)   0.000000E+00 1.500000E+01\n"
+                " VIB|Raman (A^4/amu)    0.000000E+00 3.500000E+01\n"
+            )
+            with self.assertRaisesRegex(ValueError, "imaginary Gamma modes"):
+                collect_calculator_spectra(root, points=101, plot=False)
+            result = collect_calculator_spectra(
+                root, points=101, plot=False, allow_imaginary=True
+            )
+            self.assertEqual(result["frequencies_cm-1"], [-150.0, 1000.0])
+
     def test_completed_cp2k_output_with_nan_is_a_failed_stage(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -209,6 +245,8 @@ class SpectroscopyBackendTests(unittest.TestCase):
             )
             manifest = json.loads((root / "spectra_manifest.json").read_text())
             self.assertEqual(len(manifest["stages"]), 3)
+            self.assertEqual(manifest["imaginary_tolerance_cm-1"], 20.0)
+            self.assertFalse(manifest["allow_imaginary"])
             for relative in ("reference", "mode-0004/plus", "mode-0004/minus"):
                 incar = (root / relative / "INCAR").read_text()
                 self.assertIn("LEPSILON = .TRUE.", incar)
@@ -227,6 +265,23 @@ class SpectroscopyBackendTests(unittest.TestCase):
             )
             self.assertEqual(wire_manifest["periodic_axes"], "z")
             self.assertEqual(wire_manifest["nac_model"], "none")
+
+    @patch("zstar.spectroscopy_backends.load_vasp_gamma_modes", return_value=unstable_modes())
+    def test_vasp_prepare_rejects_substantive_imaginary_modes(self, _mock_modes):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "input"
+            source.mkdir()
+            for name, content in {
+                "INCAR": "ENCUT=520\n",
+                "POSCAR": "placeholder\n",
+                "KPOINTS": "Gamma\n0\nGamma\n1 1 1\n0 0 0\n",
+                "POTCAR": "licensed-placeholder\n",
+            }.items():
+                (source / name).write_text(content)
+            modes_xml = Path(tmp) / "vasprun.xml"
+            modes_xml.write_text("placeholder")
+            with self.assertRaisesRegex(ValueError, "imaginary Gamma modes"):
+                prepare_vasp_spectra(source, modes_xml, Path(tmp) / "spectra")
 
     def test_two_dimensional_native_backends_are_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:

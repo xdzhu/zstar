@@ -68,6 +68,39 @@ def write_polarization(path: Path, values, quanta=(100.0, 100.0, 100.0)):
 
 
 class SpectraTests(unittest.TestCase):
+    def test_spectra_reject_substantive_imaginary_modes_by_default(self):
+        modes = GammaModes(
+            frequencies_thz=np.asarray([-5.0, 0.0, 10.0]),
+            eigenvectors=np.asarray(
+                [
+                    [[1.0, 0.0, 0.0]],
+                    [[0.0, 1.0, 0.0]],
+                    [[0.0, 0.0, 1.0]],
+                ]
+            ),
+            masses_amu=np.asarray([1.0]),
+            lattice_angstrom=np.eye(3),
+            symbols=("X",),
+            positions_fractional=np.zeros((1, 3)),
+        )
+        born = BornData(
+            tensors=np.zeros((1, 3, 3)),
+            electronic_dielectric=np.eye(3),
+            source="test",
+        )
+
+        with self.assertRaisesRegex(ValueError, "imaginary Gamma modes"):
+            calculate_ir_spectrum(modes, born, acoustic_cutoff_cm1=0.0)
+
+        result = calculate_ir_spectrum(
+            modes,
+            born,
+            acoustic_cutoff_cm1=0.0,
+            allow_imaginary=True,
+            points=11,
+        )
+        np.testing.assert_array_equal(result.mode_numbers, [3])
+
     def test_mode_effective_charge_uses_displacement_rows(self):
         modes = GammaModes(
             frequencies_thz=np.asarray([10.0]),
@@ -128,8 +161,41 @@ class SpectraTests(unittest.TestCase):
             np.testing.assert_allclose(
                 result.effective_charges, np.diag([2.0, 3.0, 4.0])
             )
-            self.assertEqual(result.response_kind, "2D sheet polarizability (Angstrom)")
+            self.assertEqual(
+                result.response_kind,
+                "total 2D sheet polarizability (Angstrom)",
+            )
+            self.assertTrue(result.electronic_response_included)
             self.assertTrue(np.all(np.isfinite(result.response_real)))
+
+    def test_ir_response_scope_is_explicit_without_electronic_tensor(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            qpoints = Path(tmp) / "qpoints.yaml"
+            write_qpoints(qpoints)
+            modes = load_gamma_modes(qpoints)
+            born = BornData(
+                tensors=np.asarray([np.eye(3)]),
+                electronic_dielectric=None,
+                source="test",
+            )
+            bulk = calculate_ir_spectrum(
+                modes,
+                born,
+                dimensionality=3,
+                acoustic_cutoff_cm1=0.0,
+                points=11,
+            )
+            sheet = calculate_ir_spectrum(
+                modes,
+                born,
+                dimensionality=2,
+                acoustic_cutoff_cm1=0.0,
+                points=11,
+            )
+            self.assertIn("identity plus lattice", bulk.response_kind)
+            self.assertIn("lattice 2D", sheet.response_kind)
+            self.assertFalse(bulk.electronic_response_included)
+            self.assertFalse(sheet.electronic_response_included)
 
     def test_ir_1d_line_response_is_vacuum_invariant(self):
         target = np.diag([3.0, 2.0, 1.0])
@@ -159,7 +225,7 @@ class SpectraTests(unittest.TestCase):
             responses.append(result.response_real[0])
             self.assertEqual(
                 result.response_kind,
-                "1D line polarizability (Angstrom^2; SI-reduced)",
+                "total 1D line polarizability (Angstrom^2; SI-reduced)",
             )
             self.assertEqual(result.response_unit, "angstrom^2")
             self.assertIn("nonperiodic_cross_section", result.response_convention)
@@ -343,6 +409,14 @@ class SpectraTests(unittest.TestCase):
             for summary in (ir_summary, raman_summary):
                 for key in ("plot", "plot_pdf", "plot_svg"):
                     self.assertTrue(Path(summary["files"][key]).is_file())
+            for key in (
+                "static_response",
+                "response_plot",
+                "response_plot_pdf",
+                "response_plot_svg",
+            ):
+                self.assertTrue(Path(ir_summary["files"][key]).is_file())
+            self.assertTrue(ir_summary["electronic_response_included"])
 
     def test_prepare_raman_mode_pair(self):
         with tempfile.TemporaryDirectory() as tmp:

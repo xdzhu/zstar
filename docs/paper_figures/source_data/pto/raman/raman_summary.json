@@ -1,0 +1,12 @@
+{
+  "tensor_kind": "dielectric tensor derivative",
+  "modes": 12,
+  "files": {
+    "modes": "raman_modes.csv",
+    "tensors": "raman_tensors.npy",
+    "spectrum": "raman_spectrum.dat",
+    "plot": null,
+    "plot_pdf": null,
+    "plot_svg": null
+  }
+}
