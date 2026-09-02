@@ -1,5 +1,15 @@
 ## Unreleased
 
+## 0.2.1 - 2026-09-02
+
+- Publish the curated reproducible example library in the GitHub repository,
+  covering 1D wires, 2D slabs, bulk materials, molecules, CP2K, and VASP.
+- Add bilingual example indexes, case READMEs, compact reference results, and
+  an example manifest while keeping solver scratch and licensed files out of
+  the repository and release artifacts.
+- Refresh the bilingual README PDFs and synchronize the public release
+  documentation with the reorganized example layout.
+
 - Add a production `dim=0` molecular atomic-polar-tensor workflow for
   ABACUS/PYATB, including symmetry expansion, translational-sum correction,
   per-atom GAPT values, and normalized response records.

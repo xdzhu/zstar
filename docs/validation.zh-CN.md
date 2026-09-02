@@ -1,4 +1,4 @@
-# ZStar 0.2.0 数值验证记录
+# ZStar 0.2.1 数值验证记录
 
 [English](validation.md)
 

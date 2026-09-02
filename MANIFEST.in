@@ -6,4 +6,6 @@ recursive-include docs *.json *.yaml *.csv *.dat *.npy *.out
 recursive-include job_scripts *
 recursive-include zstar/agent_skills *
 prune zstar/agent_skills/run-zstar-workflows/scripts/__pycache__
+prune examples
+prune tmp
 global-exclude *.py[cod]

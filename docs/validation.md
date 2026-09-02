@@ -1,4 +1,4 @@
-# ZStar 0.2.0 Validation Record
+# ZStar 0.2.1 Validation Record
 
 [简体中文](validation.zh-CN.md)
 
