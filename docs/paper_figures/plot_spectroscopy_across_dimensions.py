@@ -311,7 +311,8 @@ def add_fitted_image(
         transform=ax.transAxes,
         zorder=0,
     )
-    image_ax.imshow(image, aspect="equal", interpolation="lanczos")
+    # Preserve the native VESTA screenshot pixels in vector exports.
+    image_ax.imshow(image, aspect="equal", interpolation="none")
     image_ax.set_axis_off()
     return fitted_left, fitted_bottom, fitted_width, fitted_height
 
@@ -325,15 +326,15 @@ def draw_structure_image(
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     image = crop_white_margin(mpimg.imread(image_path))
-    fitted_left, fitted_bottom, _, fitted_height = add_fitted_image(ax, image, image_bounds)
-    # Author-approved layout: keep the two-line system label directly above the structure.
+    add_fitted_image(ax, image, image_bounds)
+    # Use one shared left edge for all three two-line labels.
     ax.text(
-        fitted_left,
-        min(fitted_bottom + fitted_height + 0.035, 0.82),
+        0.17,
+        1.18,
         row_text,
         transform=ax.transAxes,
         ha="left",
-        va="bottom",
+        va="top",
         fontsize=9.7,
         fontweight="bold",
         linespacing=1.35,
@@ -342,16 +343,28 @@ def draw_structure_image(
     ax.set_axis_off()
 
 
-def draw_axis_triad(ax, out_of_plane_a: bool) -> None:
+def draw_axis_triad(
+    ax,
+    out_of_plane_a: bool,
+    b_angle_deg: float = 0.0,
+) -> None:
     """Draw a compact crystallographic axis marker in axes coordinates."""
 
     origin = np.array((0.14, 0.13))
+    b_dx = 0.24 * 0.6 * 1.3
+    axes_box = ax.get_window_extent()
+    b_dy = b_dx * (axes_box.width / axes_box.height) * np.tan(
+        np.deg2rad(b_angle_deg)
+    )
     endpoints = {
-        "b": (origin + np.array((0.24, 0.00)), "#19b92f"),
+        "b": (origin + np.array((b_dx, b_dy)), "#19b92f"),
         "c": (origin + np.array((0.00, 0.24)), "#1f43d5"),
     }
     if not out_of_plane_a:
-        endpoints["a"] = (origin + np.array((-0.14, -0.13)), "#e11b22")
+        endpoints["a"] = (
+            origin + 0.8 * 1.5 * np.array((-0.14, -0.13)),
+            "#e11b22",
+        )
     for label, (endpoint, color) in endpoints.items():
         ax.annotate(
             "",
@@ -491,7 +504,7 @@ def draw_spectrum(
     ax.legend(
         handles=(zstar_line, reference_line),
         loc="lower center",
-        bbox_to_anchor=(0.5, 1.12),
+        bbox_to_anchor=(0.5, 1.075),
         ncol=2,
         frameon=False,
         handlelength=1.8,
@@ -502,10 +515,10 @@ def draw_spectrum(
     )
 
 
-def panel_label(ax, label: str) -> None:
+def panel_label(ax, label: str, column: int) -> None:
     ax.text(
-        0.00,
-        1.29,
+        -0.16 if column else 0.00,
+        1.18,
         f"({label})",
         transform=ax.transAxes,
         ha="left",
@@ -578,7 +591,7 @@ def build_figure(
     available_systems = [
         {
             "name": "CH4",
-            "row": "CH$_4$\n0D, Molecule",
+            "row": "CH$_4$\nMolecule",
             "image": data_root / "structure_images" / "CH4_molecule.png",
             "stru": data_root / "molecular" / "ch4" / "STRU",
             "ir": data_root / "molecular" / "ch4" / "ir_spectrum.dat",
@@ -590,22 +603,23 @@ def build_figure(
             "ir_xlim": (1050, 3250),
             "raman_xlim": (1050, 3250),
             "ir_labels": [
-                (7, r"$\nu_4(F_2)$", 0.66, 0.080),
-                (15, r"$\nu_3(F_2)$", 0.78, -0.105),
+                (7, r"$\nu_4(F_2)$", 0.78, 0.119),
+                (15, r"$\nu_3(F_2)$", 0.72, -0.176),
             ],
             "raman_labels": [
-                (10, r"$\nu_2(E)$", 0.43, 0.075),
-                (12, r"$\nu_1(A_1)$", 0.78, -0.120),
-                (15, r"$\nu_3(F_2)$", 0.91, -0.030),
+                (10, r"$\nu_2(E)$", 0.55, 0.129),
+                (12, r"$\nu_1(A_1)$", 0.82, -0.167),
+                (15, r"$\nu_3(F_2)$", 0.92, 0.042),
             ],
             "reference_label": "Ref. [56]",
             "reference_broadening": {"ir": 16.0, "raman": 16.0},
             "out_of_plane_a": False,
-            "image_bounds": (0.22, 0.24, 0.76, 0.52),
+            "b_axis_angle_deg": -15.0,
+            "image_bounds": (0.18, 0.19, 0.82, 0.73),
         },
         {
             "name": "GaAsNW",
-            "row": "GaAs nanowire\n1D, Nanowire",
+            "row": "GaAs nanowire\nNanowire",
             "image": data_root / "structure_images" / "GaAs_nanowire.png",
             "stru": data_root / "gaas_nanowire" / "STRU",
             "ir": data_root / "gaas_nanowire" / "ir" / "ir_spectrum.dat",
@@ -634,7 +648,7 @@ def build_figure(
         },
         {
             "name": "MoS2",
-            "row": "MoS$_2$\n2D, Slab",
+            "row": "MoS$_2$\n2D",
             "image": data_root / "structure_images" / "MoS2_monolayer.png",
             "stru": data_root / "mos2" / "STRU",
             "ir": data_root / "mos2" / "ir" / "ir_spectrum.dat",
@@ -646,22 +660,23 @@ def build_figure(
             "ir_xlim": (245, 480),
             "raman_xlim": (245, 480),
             "ir_labels": [
-                (6, r"$E'$", 0.86, -0.070),
-                (9, r"$A_2''$", 0.24, -0.100),
+                (6, r"$E'$", 0.92, -0.167),
+                (9, r"$A_2''$", 0.55, -0.098),
             ],
             "raman_labels": [
-                (4, r"$E''$", 0.49, 0.060),
-                (6, r"$E'$", 0.82, -0.085),
-                (8, r"$A_1'$", 0.91, 0.085),
+                (4, r"$E''$", 0.62, 0.189),
+                (6, r"$E'$", 0.92, -0.103),
+                (8, r"$A_1'$", 0.92, 0.143),
             ],
             "reference_label": "Ref. [57]",
             "reference_broadening": {"ir": 5.0, "raman": 5.0},
             "out_of_plane_a": True,
-            "image_bounds": (0.22, 0.31, 0.76, 0.38),
+            "b_axis_angle_deg": 0.0,
+            "image_bounds": (0.17, 0.28, 0.82, 0.55),
         },
         {
             "name": "HfO2",
-            "row": "HfO$_2$\n3D, Bulk",
+            "row": "HfO$_2$\nBulk",
             "image": data_root / "structure_images" / "HfO2_tetragonal.png",
             "stru": data_root / "hfo2" / "STRU",
             "ir": data_root / "hfo2" / "ir" / "ir_spectrum.dat",
@@ -673,21 +688,22 @@ def build_figure(
             "ir_xlim": (70, 730),
             "raman_xlim": (70, 730),
             "ir_labels": [
-                (6, r"$E_u$", 0.58, 0.070),
-                (10, r"$A_{2u}$", 0.82, -0.040),
-                (13, r"$E_u$", 0.62, -0.075),
+                (6, r"$E_u$", 0.78, 0.091),
+                (10, r"$A_{2u}$", 0.92, -0.119),
+                (13, r"$E_u$", 0.73, -0.101),
             ],
             "raman_labels": [
-                (4, r"$E_g$", 0.36, 0.055),
-                (9, r"$A_{1g}$", 0.86, 0.020),
-                (11, r"$E_g$", 0.43, -0.055),
-                (15, r"$B_{1g}$", 0.52, -0.060),
-                (17, r"$E_g$", 0.82, -0.035),
+                (4, r"$E_g$", 0.60, 0.082),
+                (9, r"$A_{1g}$", 0.92, -0.100),
+                (11, r"$E_g$", 0.65, -0.099),
+                (15, r"$B_{1g}$", 0.78, -0.109),
+                (17, r"$E_g$", 0.92, 0.045),
             ],
             "reference_label": "Ref. [47]",
             "reference_broadening": {"ir": 8.0, "raman": 8.0},
             "out_of_plane_a": False,
-            "image_bounds": (0.29, 0.20, 0.68, 0.58),
+            "b_axis_angle_deg": -15.0,
+            "image_bounds": (0.20, 0.17, 0.79, 0.78),
         },
     ]
 
@@ -699,8 +715,8 @@ def build_figure(
     fig, axes = plt.subplots(
         row_count,
         3,
-        figsize=(8.0, 7.15),
-        gridspec_kw={"width_ratios": (1.04, 1.14, 1.14), "hspace": 0.88, "wspace": 0.38},
+        figsize=(8.0, 6.6),
+        gridspec_kw={"width_ratios": (1.04, 1.14, 1.14), "hspace": 0.58, "wspace": 0.38},
     )
     fig.subplots_adjust(left=0.13, right=0.985, top=0.95, bottom=0.07)
     fig.canvas.draw()
@@ -714,7 +730,11 @@ def build_figure(
             system["image"],
             system["image_bounds"],
         )
-        draw_axis_triad(axes[row, 0], system["out_of_plane_a"])
+        draw_axis_triad(
+            axes[row, 0],
+            system["out_of_plane_a"],
+            system["b_axis_angle_deg"],
+        )
         ir_data = load_spectrum(system["ir"])
         raman_data = load_spectrum(system["raman"])
         draw_spectrum(
@@ -740,7 +760,7 @@ def build_figure(
         axes[row, 1].set_ylabel("Normalized IR intensity")
         axes[row, 2].set_ylabel("Normalized Raman intensity")
         for column in range(3):
-            panel_label(axes[row, column], chr(panel))
+            panel_label(axes[row, column], chr(panel), column)
             panel += 1
         source_files.extend(
             (
@@ -778,15 +798,15 @@ def build_figure(
         "tiff": output / f"{stem}.tiff",
     }
     fig.savefig(products["png"], dpi=400, bbox_inches="tight")
-    fig.savefig(products["pdf"], bbox_inches="tight")
-    fig.savefig(products["svg"], bbox_inches="tight")
+    fig.savefig(products["pdf"], dpi=600, bbox_inches="tight")
+    fig.savefig(products["svg"], dpi=600, bbox_inches="tight")
     svg_text = products["svg"].read_text(encoding="utf-8")
     products["svg"].write_text(
         "\n".join(line.rstrip() for line in svg_text.splitlines()) + "\n",
         encoding="utf-8",
     )
     with mpl.rc_context({"svg.fonttype": "path"}):
-        fig.savefig(products["powerpoint_svg"], bbox_inches="tight")
+        fig.savefig(products["powerpoint_svg"], dpi=600, bbox_inches="tight")
     fig.savefig(products["tiff"], dpi=600, bbox_inches="tight", pil_kwargs={"compression": "tiff_lzw"})
     plt.close(fig)
 
@@ -797,7 +817,7 @@ def build_figure(
         "normalization": "ZStar spectra are normalized independently in every panel; intensities are not compared across rows or response types.",
         "placeholder": False,
         "image_scaling": "Aspect-preserving uniform scaling, centered at the largest size that fits each structure panel.",
-        "structure_label_layout": "Two-line system labels are left-aligned directly above each fitted structure image; panel letters remain separate at the upper-left of the panel.",
+        "structure_label_layout": "The chemical-formula line shares the panel-label top baseline; all three two-line labels use one common left edge across rows.",
         "reference_overlay": "Light-gray continuous envelopes are reconstructed from published or archived mode frequencies using the documented relative weights and Gaussian broadening; they are normalized independently and are not absolute-intensity traces.",
         "systems": [system["name"] for system in systems],
         "display_systems": [system["row"].split("\n", 1)[0] for system in systems],

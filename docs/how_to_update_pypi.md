@@ -9,7 +9,8 @@ Set-Location $RepoRoot
 
 ## 基本约定
 
-- `examples/` 只用于本地验证，不提交 GitHub，也不打入发布包。
+- `examples/` 是 GitHub 上公开的可复现实例库；它不打入 wheel，源码包是否
+  包含它由构建清单决定，发布前应明确检查。
 - `dist/`、`build/` 和 `*.egg-info/` 是本地构建产物，不提交 GitHub。
 - `job_scripts/` 是正式项目内容，需要提交。
 - 开发和测试使用 `zstar-test` 环境。
@@ -46,7 +47,6 @@ git diff --check
 
 确认没有误加入：
 
-- `examples/`
 - `dist/`
 - `build/`
 - 临时输出和账号凭据
@@ -63,11 +63,11 @@ python -m zstar.cli agent-skill path
 python -m zstar.cli agent-skill preflight --root . --lane bec --dim bulk
 ```
 
-需要外部程序的例子应在忽略的 `examples/` 中验证。至少确认：
+需要外部程序的例子应在仓库的 `examples/` 中验证。至少确认：
 
-- `zstar deal` 能处理已有极化结果。
+- `zstar bec post` 能处理已有极化结果。
 - 默认绝缘性门控只对 `0.no-move` 执行一次普通 `--band`。
-- `zstar workflow status` 能识别完成、失败和恢复状态。
+- `zstar bec stat` 能识别完成、失败和恢复状态。
 - 新旧 PyATB 环境都能读取电子介电张量。
 
 ## 3. 更新中英文 README 与 PDF
@@ -157,7 +157,7 @@ tmp\release-smoke\Scripts\python -m pip install --upgrade pip
 tmp\release-smoke\Scripts\python -m pip install dist\zstar-X.Y.Z-py3-none-any.whl
 tmp\release-smoke\Scripts\zstar --version
 tmp\release-smoke\Scripts\zstar --help
-tmp\release-smoke\Scripts\zstar agent-skill install --dest tmp\release-smoke-skill
+tmp\release-smoke\Scripts\zstar skill install --dest tmp\release-smoke-skill
 $codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $HOME '.codex' }
 python (Join-Path $codexHome 'skills\.system\skill-creator\scripts\quick_validate.py') tmp\release-smoke-skill\run-zstar-workflows
 ```
@@ -180,7 +180,8 @@ git commit -m "Release ZStar X.Y.Z"
 git push origin main
 ```
 
-`examples/` 与 `dist/` 已被忽略，但仍应在提交前检查一次暂存列表。
+`examples/` 是公开案例内容，应在提交前检查其 manifest、输入路径和参考结果；
+`dist/` 仍不提交。
 
 ## 8. 上传 PyPI
 
@@ -223,7 +224,7 @@ tmp\pypi-smoke\Scripts\zstar --help
 - PyPI 项目描述中的表格、代码块和链接。
 - GitHub 中英 README 与 logo。
 - GitHub PDF 链接。
-- 仓库提交中没有 `examples/` 和 `dist/`。
+- 仓库提交中包含整理后的 `examples/`，但不包含 `dist/`、scratch 输出或凭据。
 
 ## 常见问题
 

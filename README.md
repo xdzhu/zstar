@@ -24,8 +24,8 @@
 
 ## Overview
 
-ZStar is a Python workflow toolkit that connects ABACUS/PyATB, VASP, CP2K,
-Quantum ESPRESSO, and Phonopy calculations to physically auditable polarization
+ZStar is a Python workflow toolkit that connects ABACUS + PYATB, VASP, CP2K,
+Quantum ESPRESSO, and Phonopy calculations to reproducible polarization
 and dielectric-response results. Its main task is to turn atomic response data
 into symmetry-consistent Born effective charge (BEC) tensors, then use those
 tensors for phonon, infrared (IR), dielectric, and Raman analysis.
@@ -40,7 +40,7 @@ The numerical checks used for the current release are summarized in [docs/valida
 - Symmetry reduction, full-cell tensor reconstruction, and acoustic-sum-rule correction.
 - A serial, resumable `0.no-move -> displaced structures` execution model.
 - Reuse of the converged `0.no-move` charge density for every displacement.
-- One-time insulating-state validation after the reference SCF.
+- One-time insulating-state check after the reference SCF.
 - Shell, Slurm, and Torque driver generation.
 - Automatic compatibility with legacy and direct-static-response PyATB versions.
 - A serial, resumable CP2K backend for Berry-phase BEC tensors and native APT checks.
@@ -48,7 +48,7 @@ The numerical checks used for the current release are summarized in [docs/valida
 - Phonon generation, post-processing, mode classification, IR spectra, Raman spectra, and dielectric response.
 - Auxiliary electrostatic-potential analysis for slabs and polar materials.
 - A packaged, standards-compliant Agent Skill with JSON workspace preflight.
-- A versioned calculator-neutral response schema and backend plugin registry.
+- A calculator-neutral response schema and backend plugin registry.
 - Native Quantum ESPRESSO DFPT collection for molecular and bulk BEC/IR data.
 
 The calculator-independent interface, physical `dim=0/1/2/3` contract, QE
@@ -88,7 +88,7 @@ A slab requires separate treatment of in-plane and out-of-plane response:
 Canonical ZStar tensors store atomic displacement/force as rows and
 polarization/electric field as columns. Accordingly, a complete 2D BEC
 calculation needs `x`, `y`, and `z` displacements. The default
-`zstar gen --dim 2` workflow generates all three. The current hybrid
+`zstar bec pre --dim 2` workflow generates all three. The current hybrid
 implementation requires the slab normal to align with Cartesian `z`; a tilted
 slab is rejected explicitly.
 
@@ -137,14 +137,25 @@ zstar --version
 zstar --help
 ```
 
+Configure calculator executables once per project (or add `--user` for a user
+configuration), then let generated drivers select `mpirun` or `srun`:
+
+```bash
+zstar config init
+zstar config set executables.abacus /opt/abacus/bin/abacus
+zstar config set executables.pyatb /opt/pyatb/bin/pyatb
+zstar config check
+zstar backend list --check
+```
+
 ## Agent Skill
 
 Install the bundled, standards-compliant `$run-zstar-workflows` skill after
 installing ZStar:
 
 ```bash
-zstar agent-skill install
-zstar agent-skill preflight --root . --lane bec --dim bulk
+zstar skill install
+zstar skill preflight --root . --lane bec --dim bulk
 ```
 
 Open a new agent session after installation. Use `--force` to refresh the skill
@@ -153,6 +164,10 @@ directory. The skill encodes dimensional conventions, reference-first execution,
 restart behavior, scheduler authorization boundaries, and artifact-based
 completion checks. See [docs/agent_skill.md](docs/agent_skill.md).
 
+The canonical CLI, compatibility aliases, configuration precedence, and every
+public utility family are summarized in the
+[command-line reference](docs/cli_reference.md).
+
 ## Born Charge Workflow
 
 ### 1. Generate the reference and displacement folders
@@ -160,19 +175,19 @@ completion checks. See [docs/agent_skill.md](docs/agent_skill.md).
 Run this in a directory containing `STRU`:
 
 ```bash
-zstar gen --stru STRU --pyatb --method forward --force
+zstar bec pre --calculator abacus --stru STRU --pyatb --method forward --force
 ```
 
 For a 2D slab:
 
 ```bash
-zstar gen --stru STRU --dim 2 --pyatb --method forward --force
+zstar bec pre --calculator abacus --stru STRU --dim 2 --pyatb --method forward --force
 ```
 
 For a `z`-periodic wire:
 
 ```bash
-zstar gen --stru STRU --dim 1 --pyatb --method central --force
+zstar bec pre --calculator abacus --stru STRU --dim 1 --pyatb --method central --force
 ```
 
 The generated tree starts with `0.no-move`, followed by atom/direction folders such as `1.Ti/x+`. No per-displacement scheduler script is required.
@@ -181,12 +196,12 @@ Useful generation options:
 
 | Option | Meaning |
 | --- | --- |
-| `--method forward|central` | One-sided or central finite difference. |
+| `--method forward\|central` | One-sided or central finite difference. |
 | `--reduce` / `--all` | Symmetry-reduced atoms (default) or every atom. |
 | `--move "x y z"` | Explicit displacement directions. |
 | `--displacement 0.01` | Finite-displacement half-step in Angstrom. |
-| `--dim 0|1|2|3` | Molecular, one-dimensional, two-dimensional, or three-dimensional analysis. |
-| `--input-mode abacus|pyatb|hamgnn|custom` | Input preparation route. |
+| `--dim 0\|1\|2\|3` | Molecular, one-dimensional, two-dimensional, or three-dimensional analysis. |
+| `--input-mode abacus\|pyatb\|hamgnn\|custom` | Input preparation route. |
 | `--input_sets FILES` | Extra files or directories copied into generated tasks. |
 
 ### 2. Run the serial, resumable calculation
@@ -194,7 +209,7 @@ Useful generation options:
 Local shell execution:
 
 ```bash
-zstar workflow run --root . --dim 3 \
+zstar bec run --root . \
   --abacus-command "mpirun -np 1 abacus" \
   --pyatb-command "mpirun -np 1 pyatb" \
   --omp-threads 28
@@ -220,13 +235,13 @@ The default execution order is:
 The regular band path is the default lightweight gate. It can detect a gap closure on the sampled path but cannot exclude an off-path metallic pocket. A denser MP-grid check is explicit:
 
 ```bash
-zstar workflow run --gap-mode mp --mp-density 0.08
+zstar bec run --root . --gap-mode mp --mp-density 0.08
 ```
 
 Inspect progress at any time:
 
 ```bash
-zstar workflow status
+zstar bec stat --root .
 ```
 
 ### 3. Generate scheduler-specific drivers
@@ -234,21 +249,21 @@ zstar workflow status
 Shell:
 
 ```bash
-zstar workflow script --backend shell --dim 3
+zstar bec job --root . --system shell
 ```
 
 Slurm:
 
 ```bash
-zstar workflow script --backend slurm --dim 3 \
-  --queue compute --cpus-per-task 28 --walltime 24:00:00
+zstar bec job --root . --system slurm \
+  --queue compute --tasks 28 --cpus-per-task 1 --walltime 24:00:00
 ```
 
 Torque/PBS:
 
 ```bash
-zstar workflow script --backend torque --dim 3 \
-  --queue batch --cpus-per-task 28 --walltime 24:00:00
+zstar bec job --root . --system torque \
+  --queue batch --tasks 28 --cpus-per-task 1 --walltime 24:00:00
 ```
 
 Backend-aware defaults use `mpirun -np N` for shell/Torque and
@@ -264,10 +279,10 @@ Add `--submit` only when the generated script has been reviewed and the active e
 Molecular APT from ABACUS + PYATB:
 
 ```bash
-zstar gen --dim 0 --method central --displacement 0.01 --pyatb
-zstar workflow run --root . --dim 0 \
+zstar bec pre --calculator abacus --dim 0 --method central --displacement 0.01 --pyatb
+zstar bec run --root . \
   --abacus-command abacus --pyatb-command pyatb --omp-threads 20
-zstar deal --dim 0 --method central --displacement 0.01 --pyatb
+zstar bec post --root .
 ```
 
 The molecular collector reconstructs symmetry-equivalent atoms, enforces
@@ -279,22 +294,24 @@ polarization line is insufficient.
 Three-dimensional:
 
 ```bash
-zstar deal --dim 3 --method forward --pyatb
+zstar bec post --root .
 ```
 
 Two-dimensional hybrid treatment:
 
 ```bash
-zstar deal --dim 2 --method forward --pyatb
+zstar bec post --root .
 ```
 
 One-dimensional hybrid treatment for a `z`-periodic wire:
 
 ```bash
-zstar deal --dim 1 --method central --pyatb
+zstar bec post --root .
 ```
 
-For central differences, use `--method central` consistently in both `gen` and `deal`.
+The manifest carries the selected dimensionality and difference method from
+`pre` into later actions. The old `gen/workflow/deal` commands remain accepted
+for compatibility.
 
 Key outputs:
 
@@ -316,11 +333,11 @@ For a molecular (`--dim 0`) or three-dimensional insulating Gamma-point CP2K
 input, ZStar can build APT or BEC tensors directly from dipoles:
 
 ```bash
-zstar cp2k-bec prepare --input input.inp --root cp2k_bec --dim 0 \
+zstar bec pre --calculator cp2k --input input.inp --root cp2k_bec --dim 0 \
   --method central --displacement 0.005
-zstar cp2k-bec run --root cp2k_bec --cp2k-command cp2k.ssmp \
+zstar bec run --root cp2k_bec --cp2k-command cp2k.ssmp \
   --omp-threads 20 --data-dir /path/to/cp2k/data
-zstar cp2k-bec collect --root cp2k_bec
+zstar bec post --root cp2k_bec
 ```
 
 The reference wavefunction is reused by every displacement, and interrupted
@@ -335,9 +352,9 @@ ZStar can also drive VASP's native BEC implementations. Use `dfpt` for
 `LEPSILON` linear response or `finite-field` for `LCALCEPS`/PEAD:
 
 ```bash
-zstar vasp-bec prepare --input-dir vasp_input --root vasp_bec --method dfpt
-zstar vasp-bec run --root vasp_bec --vasp-command "mpirun -np 20 vasp_std"
-zstar vasp-bec collect --root vasp_bec
+zstar bec pre --calculator vasp --input-dir vasp_input --root vasp_bec --method dfpt
+zstar bec run --root vasp_bec --vasp-command "mpirun -np 20 vasp_std"
+zstar bec post --root vasp_bec
 ```
 
 The reference SCF is checked for a finite band gap before the response stage,
@@ -353,7 +370,9 @@ cluster scripts, tensor conventions, and the VASP 6.3.2 SiC validation.
 In a phonon working directory containing `STRU`, `KPT`, and an `INPUT` with `cal_force 1`:
 
 ```bash
-zstar ph --stru STRU --dim "2 2 2" --symmprec 1e-3
+zstar phonon pre --root . --calculator abacus \
+  --stru STRU --dim "2 2 2" --symmprec 1e-3
+zstar phonon run --root .
 ```
 
 Run every generated `disp-*` force calculation with the local execution system. `zstar ph` does not require or duplicate an `abacus_x.sh`; if one is present it is copied only as an optional convenience.
@@ -361,15 +380,16 @@ Run every generated `disp-*` force calculation with the local execution system. 
 ### 2. Post-process forces and classify Gamma modes
 
 ```bash
-zstar postph
-zstar irrep --file irreps.yaml --mode db
+zstar phonon stat --root .
+zstar phonon post --root .
+zstar phonon irrep --root . --file irreps.yaml --mode db
 ```
 
 For non-analytical corrections, copy the BEC workflow's `BORN` into the phonon directory before post-processing:
 
 ```bash
 cp ../polar/BORN .
-zstar postph --nac
+zstar phonon post --root . --nac
 ```
 
 ### 3. Static and frequency-dependent dielectric response
@@ -384,14 +404,14 @@ cp ../polar/Z-BORN-symm.out .
 Static response:
 
 ```bash
-zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
+zstar dielectric static --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 3
 ```
 
 Frequency-dependent response:
 
 ```bash
-zstar freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
+zstar dielectric freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 3
 ```
 
@@ -402,7 +422,7 @@ Modes below 5 cm-1 are excluded by default; change this with `--acoustic-cutoff`
 For 2D, omit `--thickness` to obtain a vacuum-independent sheet polarizability in angstroms:
 
 ```bash
-zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
+zstar dielectric static --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 2
 ```
 
@@ -416,12 +436,15 @@ contract are documented in the
 Calculate mode effective charges, oscillator strengths, broadened IR intensity, and dielectric/sheet response:
 
 ```bash
-zstar ir --qpoints qpoints.yaml \
+zstar spectra pre --calculator abacus --kind ir --root ir_spectrum \
+  --qpoints qpoints.yaml \
   --born Z-BORN-symm.out --dielectric BORN \
-  --dim 3 --broadening 10 --outdir ir_spectrum
+  --dim 3
+zstar spectra post --root ir_spectrum
 ```
 
-Select modes explicitly when needed:
+The retained low-level expert command exposes mode selection and plotting
+details when needed:
 
 ```bash
 zstar ir --modes "4,5,8-10" --outdir ir_selected
@@ -436,8 +459,9 @@ ZStar obtains non-resonant Raman tensors by central finite differences of the el
 ### 1. Prepare mode displacements
 
 ```bash
-zstar raman prepare --stru STRU --qpoints qpoints.yaml \
-  --modes "4-12" --amplitude 0.02 --outdir raman \
+zstar spectra pre --calculator abacus --kind raman --root raman \
+  --stru STRU --qpoints qpoints.yaml \
+  --modes "4-12" --amplitude 0.02 \
   --copy INPUT-scf --copy KPT
 ```
 
@@ -446,23 +470,18 @@ The amplitude is a normal-coordinate displacement in `angstrom * sqrt(amu)`.
 ### 2. Run, collect, and plot
 
 ```bash
-zstar raman run --raman-dir raman \
-  --reference 0.no-move --qpoints qpoints.yaml \
-  --dim 3 \
+zstar spectra run --root raman --reference 0.no-move \
   --abacus-command "mpirun -np 1 abacus" \
   --pyatb-command "mpirun -np 1 pyatb" \
   --omp-threads 28
+zstar spectra stat --root raman
+zstar spectra post --root raman
 ```
 
 The reference insulating gate is reused once; it is not repeated for every mode displacement. Each `plus`/`minus` stage reuses the reference charge density and records resumable state.
 
-Separate operations are also available:
-
-```bash
-zstar raman status --raman-dir raman
-zstar raman collect --raman-dir raman --qpoints qpoints.yaml --dim 3
-zstar raman spectrum --raman-dir raman --qpoints qpoints.yaml --dim 3
-```
+The low-level `zstar raman collect` and `zstar raman spectrum` commands remain
+available for expert reprocessing of an existing mode tree.
 
 For 2D, `--dim 2` converts the vacuum-dependent dielectric derivative to a sheet-susceptibility derivative using the cell height stored in the phonon data.
 
@@ -476,19 +495,20 @@ Prepare its positive-frequency vibrational modes with the same central
 normal-coordinate displacements used for Raman calculations:
 
 ```bash
-zstar raman prepare --stru STRU --qpoints qpoints.yaml \
-  --acoustic-cutoff 100 --amplitude 0.02 --outdir raman \
+zstar spectra pre --calculator abacus --kind all --root raman --dim 0 \
+  --stru STRU --qpoints qpoints.yaml \
+  --acoustic-cutoff 100 --amplitude 0.02 \
   --copy INPUT-scf --copy KPT
 ```
 
 The complete resumable calculation produces both spectra:
 
 ```bash
-zstar raman run --raman-dir raman --reference 0.no-move \
-  --qpoints qpoints.yaml --dim 0 \
+zstar spectra run --root raman --reference 0.no-move \
   --abacus-command "mpirun -np 1 abacus" \
   --pyatb-command "mpirun -np 1 pyatb" \
   --spectrum-outdir raman_spectrum --ir-outdir ir_spectrum
+zstar spectra post --root raman
 ```
 
 Each displaced SCF is evaluated with two lightweight PYATB stages. The static
@@ -497,7 +517,8 @@ dielectric response is converted to a molecular polarizability derivative,
 converted to a molecular dipole derivative, `dmu/dQ = V * dP/dQ`. The
 normal-coordinate step `Q` is in `angstrom * sqrt(amu)`.
 
-Existing polarization results can be post-processed independently:
+Existing polarization results can still be reprocessed with the low-level
+expert commands:
 
 ```bash
 zstar ir --dim 0 --qpoints qpoints.yaml \
@@ -516,12 +537,12 @@ quantitative intensity work.
 The calculator-neutral spectroscopy layer also supports VASP and CP2K:
 
 ```bash
-zstar spectra prepare --calculator vasp --input-dir vasp_input \
+zstar spectra pre --calculator vasp --input-dir vasp_input \
   --modes-xml phonon/vasprun.xml --root vasp_spectra --dim 3
 zstar spectra run --root vasp_spectra --command "mpirun -np 20 vasp_std"
-zstar spectra collect --root vasp_spectra
+zstar spectra post --root vasp_spectra
 
-zstar spectra prepare --calculator cp2k --input h2o.inp \
+zstar spectra pre --calculator cp2k --input h2o.inp \
   --root cp2k_spectra --dim 0
 ```
 
@@ -539,7 +560,7 @@ are archived in [docs/paper_figures](docs/paper_figures/README.md).
 </p>
 
 The three-row comparison follows the manuscript order: tetragonal HfO2
-(`3D, Bulk`), monolayer MoS2 (`2D, Slab`), and CH4 (`0D, Molecule`). The
+(`Bulk`), monolayer MoS2 (`2D`), and CH4 (`Molecule`). The
 PBEsol HfO2 row contains all 15 stable optical modes and 30 completed Raman
 response stages. The refreshed ABACUS/PBE-D3(BJ) MoS2 row combines all six
 optical modes with production BEC-derived IR intensities and 12 completed
@@ -582,17 +603,23 @@ The selected mode and detected version are saved in `zstar_pyatb_compat.json`.
 
 ## Electrostatic Potential
 
-`zstar potential` (alias `zstar pot`) analyzes ABACUS `ElecStaticPot.cube` files:
+`zstar pot` analyzes ABACUS `ElecStaticPot.cube` files:
 
 ```bash
 zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
   --axes z --plane xy --plane-average --tile 5 5 \
   --vacuum-level --vacuum-sides --vacuum-window 0.75 \
+  --direction a+b --mirror-test \
   --polar-arrow auto \
   --outdir potential
 ```
 
-It can generate axis profiles, tiled planar maps, directional averages, and one- or two-sided vacuum-level diagnostics. Local side windows avoid mixing a dipole-correction reset into a polar-slab surface plateau. In the representative tests, MoS2 has `Delta V_vac = -1.65e-5 eV`, while alpha-In2Se3 has `Delta V_vac = 1.220812 eV`.
+It can generate axis profiles, tiled planar maps, directional averages,
+one- or two-sided vacuum-level diagnostics, and an optimized one-period mirror
+asymmetry metric. Local side windows avoid mixing a dipole-correction reset
+into a polar-slab surface plateau. In the representative tests, MoS2 has
+`Delta V_vac = -1.65e-5 eV`, while alpha-In2Se3 has
+`Delta V_vac = 1.220812 eV`.
 
 ![Representative 2D electrostatic-potential diagnostics](docs/paper_figures/potential_examples_2d.png)
 
@@ -602,26 +629,27 @@ Commands, interpretation limits, and the SnS/SnSe/SnTe directional examples are 
 
 | Command | Purpose |
 | --- | --- |
-| `zstar gen` | Generate reference and BEC displacement folders. |
-| `zstar workflow run/status/script` | Run, inspect, or script the serial resumable workflow. |
-| `zstar deal` / `born` / `polar` | Collect polarization and construct BEC tensors. |
-| `zstar polar2d` | Audit a slab cube-pair dipole difference and out-of-plane BEC. |
-| `zstar bornsym` / `symcheck` | Reconstruct or verify tensors by symmetry. |
-| `zstar ph` / `postph` | Generate and post-process phonon tasks. |
-| `zstar irrep` | Classify Gamma-point optical activity. |
-| `zstar calc` / `freq` | Calculate static or frequency-dependent dielectric response. |
-| `zstar ir` | Calculate mode charges and IR spectra. |
-| `zstar raman` | Prepare, run, collect, and plot Raman finite differences. |
-| `zstar spectra` | Run unified VASP or CP2K IR/Raman workflows. |
-| `zstar cp2k-bec` | Prepare, run, resume, collect, and validate CP2K BEC calculations. |
-| `zstar db init/collect` | Create manifests and collect an auditable BEC/High-K database. |
-| `zstar potential` / `pot` | Analyze electrostatic-potential cube files. |
-| `zstar wyckoff` / `vasp` | Inspect Wyckoff positions or convert `STRU`. |
-| `zstar agent-skill` | Install the Agent Skill or emit a JSON workspace preflight. |
+| `zstar bec pre/run/job/stat/post` | Polarization, APT/BEC, `BORN`, resume state, and scheduler drivers. |
+| `zstar phonon pre/run/job/stat/post/irrep` | Displacements, serial forces, force constants, frequencies, and irreps. |
+| `zstar spectra pre/run/job/stat/post` | Calculator-aware IR and Raman workflows. |
+| `zstar dielectric static/freq/optics` | Static, vibrational, and electronic dielectric response. |
+| `zstar backend list` | List capabilities and optionally check executables/plugins. |
+| `zstar config init/show/set/check` | Configure calculator executable paths. |
+| `zstar response` | Validate and normalize calculator-neutral response data. |
+| `zstar density` | Prepare density-export adapters and provenance sidecars. |
+| `zstar stru convert/wyckoff` | Convert structures or inspect Wyckoff positions. |
+| `zstar data qnep/db` | Export qNEP data or manage a traceable BEC/High-K database. |
+| `zstar skill install/path/preflight` | Install the Agent Skill or inspect a workspace. |
+| `zstar pot` | Plot potential profiles/maps, vacuum steps, and mirror asymmetry. |
+
+See the [complete CLI reference](docs/cli_reference.md) for aliases, leaf
+actions, and executable-resolution rules.
 
 ## Repository and Release Policy
 
-- `examples/` contains local validation data and is intentionally ignored.
+- `examples/` contains curated, directly runnable case inputs, compact reference
+  results, and backend-specific examples. Large solver scratch outputs remain
+  outside the repository.
 - `dist/` and `build/` are local build products and are not committed.
 - `job_scripts/` contains reusable scheduler templates and is version controlled.
 - [docs/how_to_update_pypi.md](docs/how_to_update_pypi.md) records the release procedure.

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "zstar"
 version = "0.2.0"
-description = "Auditable workflows for polarization, Born effective charges, and dielectric spectroscopy."
+description = "Workflows for polarization, Born effective charges, dielectric response, and vibrational spectroscopy."
 readme = "README_PYPI.md"
 requires-python = ">=3.9"
 license = "GPL-3.0-only"
@@ -37,7 +37,8 @@ dependencies = [
   "matplotlib>=3.3",
   "spglib>=2.6.0",
   "phonopy>=2.36",
-  "pymatgen>=2024.0.0"
+  "pymatgen>=2024.0.0",
+  "tomli>=2.0; python_version<'3.11'"
 ]
 
 

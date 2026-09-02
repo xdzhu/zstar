@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
+from scipy.interpolate import CubicSpline
+from scipy.optimize import minimize_scalar
 
 
 RY_TO_EV = 13.605698066819
@@ -70,6 +72,19 @@ class DirectionProfile:
     counts: np.ndarray
     sample_shape: Tuple[int, int]
     smooth_sigma_ang: float
+
+
+@dataclass
+class MirrorAnalysis:
+    fractional_coordinate: np.ndarray
+    profile_ev: np.ndarray
+    mirrored_ev: np.ndarray
+    odd_component_ev: np.ndarray
+    mirror_asymmetry: float
+    odd_rms_ev: float
+    mirror_center_fraction: float
+    period_ang: float
+    repeated_periods: int
 
 
 @dataclass
@@ -1170,6 +1185,130 @@ def plot_direction_comparison(path: Path, profiles: Sequence[DirectionProfile], 
     plt.close()
 
 
+def analyze_mirror_symmetry(profile: DirectionProfile, *, max_repeats: int = 8) -> MirrorAnalysis:
+    """Optimize a periodic mirror center and quantify one-period asymmetry."""
+
+    coordinate = np.asarray(profile.coord_ang, dtype=float)
+    values = np.asarray(profile.values_ev, dtype=float)
+    if coordinate.ndim != 1 or values.shape != coordinate.shape or len(values) < 4:
+        raise ValueError("Mirror analysis requires at least four profile samples")
+    steps = np.diff(coordinate)
+    step = float(np.median(steps))
+    if step <= 0.0 or not np.allclose(steps, step, rtol=1.0e-4, atol=1.0e-10):
+        raise ValueError("Mirror analysis requires a uniformly increasing profile grid")
+
+    repeated_periods = 1
+    profile_rms = float(np.sqrt(np.mean((values - np.mean(values)) ** 2)))
+    candidates = (
+        range(min(int(max_repeats), len(values)), 1, -1)
+        if profile_rms > 1.0e-12
+        else ()
+    )
+    for candidate in candidates:
+        if len(values) % candidate:
+            continue
+        if len(values) // candidate < 4:
+            continue
+        blocks = values.reshape(candidate, -1)
+        folded = np.mean(blocks, axis=0)
+        folding_error = float(np.sqrt(np.mean((blocks - folded) ** 2)))
+        if folding_error <= 1.0e-5 * max(profile_rms, 1.0):
+            repeated_periods = candidate
+            values = folded
+            coordinate = coordinate[: len(folded)]
+            step = float(np.median(np.diff(coordinate)))
+            break
+
+    centered = values - np.mean(values)
+    period = step * len(coordinate)
+    origin = float(coordinate[0])
+    spline = CubicSpline(
+        np.append(coordinate, origin + period),
+        np.append(centered, centered[0]),
+        bc_type="periodic",
+    )
+
+    def periodic_values(query: np.ndarray) -> np.ndarray:
+        return spline(np.mod(query - origin, period) + origin)
+
+    denominator = 2.0 * float(np.linalg.norm(centered))
+    if denominator <= 1.0e-15:
+        mirror_center = origin + 0.5 * period
+        optimum_value = 0.0
+    else:
+        def mismatch(center: float) -> float:
+            mirrored = periodic_values(2.0 * center - coordinate)
+            return float(np.linalg.norm(centered - mirrored) / denominator)
+
+        trials = np.linspace(origin, origin + period, 4 * len(coordinate), endpoint=False)
+        scores = np.asarray([mismatch(center) for center in trials])
+        initial = float(trials[int(np.argmin(scores))])
+        optimum = minimize_scalar(
+            mismatch,
+            bounds=(initial - step, initial + step),
+            method="bounded",
+            options={"xatol": 1.0e-12},
+        )
+        mirror_center = float(np.mod(optimum.x - origin, period) + origin)
+        optimum_value = float(optimum.fun)
+
+    fractional = np.linspace(0.0, 1.0, len(coordinate), endpoint=False)
+    offset = (fractional - 0.5) * period
+    ordered = periodic_values(mirror_center + offset)
+    mirrored = periodic_values(mirror_center - offset)
+    odd = 0.5 * (ordered - mirrored)
+    return MirrorAnalysis(
+        fractional_coordinate=fractional,
+        profile_ev=ordered,
+        mirrored_ev=mirrored,
+        odd_component_ev=odd,
+        mirror_asymmetry=optimum_value,
+        odd_rms_ev=float(np.sqrt(np.mean(odd**2))),
+        mirror_center_fraction=float((mirror_center - origin) / period),
+        period_ang=float(period),
+        repeated_periods=repeated_periods,
+    )
+
+
+def write_mirror_analysis(path: Path, analysis: MirrorAnalysis) -> None:
+    with path.open("w", encoding="utf-8") as handle:
+        handle.write("# Periodic mirror-symmetry analysis\n")
+        handle.write(f"# mirror_asymmetry = {analysis.mirror_asymmetry:.12g}\n")
+        handle.write(f"# odd_rms_eV = {analysis.odd_rms_ev:.12g}\n")
+        handle.write(f"# mirror_center_fraction = {analysis.mirror_center_fraction:.12g}\n")
+        handle.write("# fraction  profile_eV  mirrored_eV  odd_component_eV\n")
+        for row in zip(
+            analysis.fractional_coordinate,
+            analysis.profile_ev,
+            analysis.mirrored_ev,
+            analysis.odd_component_ev,
+        ):
+            handle.write("  ".join(f"{value:16.9f}" for value in row) + "\n")
+
+
+def plot_mirror_analysis(path: Path, analysis: MirrorAnalysis, *, dpi: int = 300) -> None:
+    plt = _get_pyplot()
+    fig, axis = plt.subplots(figsize=(6.4, 4.5))
+    axis.plot(analysis.fractional_coordinate, analysis.profile_ev, color="#C53B31", label="Profile")
+    axis.plot(analysis.fractional_coordinate, analysis.mirrored_ev, color="#777777", ls="--", label="Mirrored")
+    axis.plot(analysis.fractional_coordinate, analysis.odd_component_ev, color="#235B8E", label="Mirror-odd")
+    axis.set_xlim(0.0, 1.0)
+    axis.set_xlabel("Fractional coordinate in one period")
+    axis.set_ylabel("Electrostatic potential (eV)")
+    axis.tick_params(direction="in", top=True, right=True)
+    axis.legend(frameon=False)
+    axis.text(
+        0.02,
+        0.97,
+        f"$A_M$ = {analysis.mirror_asymmetry:.3f}\nodd RMS = {analysis.odd_rms_ev:.3f} eV",
+        transform=axis.transAxes,
+        va="top",
+    )
+    fig.tight_layout()
+    fig.savefig(path, dpi=dpi)
+    plt.close(fig)
+
+
 def normalize_axes(axis_items: Optional[Sequence[str]], axes_text: Optional[str]) -> List[str]:
     raw: List[str] = []
     if axes_text:
@@ -1213,6 +1352,7 @@ def analyze_potential(
     direction_methods: Optional[Sequence[str]] = None,
     direction_samples: Tuple[int, int] = (64, 64),
     direction_smooth: float = 0.0,
+    mirror_test: bool = False,
     value_unit: str = "ry",
     length_unit: str = "bohr",
     vacuum_level: bool = False,
@@ -1228,6 +1368,8 @@ def analyze_potential(
     tile = normalize_tile(tile)
     direction_methods = _normalize_direction_methods(direction_methods)
     direction_samples = _normalize_direction_samples(direction_samples)
+    if mirror_test and not directions:
+        raise ValueError("--mirror-test requires at least one --direction")
     cube_path = resolve_cube_path(cube)
     field = read_cube(cube_path, value_unit=value_unit, length_unit=length_unit)
     centering_info = None
@@ -1401,6 +1543,23 @@ def analyze_potential(
                 "interpolation_samples": list(profile.sample_shape),
                 "smooth_sigma_ang": profile.smooth_sigma_ang,
             }
+            if mirror_test:
+                mirror = analyze_mirror_symmetry(profile)
+                mirror_dat = output_dir / f"{stem}-mirror.dat"
+                write_mirror_analysis(mirror_dat, mirror)
+                mirror_png = None
+                if plot:
+                    mirror_png = output_dir / f"{stem}-mirror.png"
+                    plot_mirror_analysis(mirror_png, mirror, dpi=dpi)
+                summary["direction_profiles"][key]["mirror"] = {
+                    "dat": str(mirror_dat),
+                    "png": None if mirror_png is None else str(mirror_png),
+                    "mirror_asymmetry": mirror.mirror_asymmetry,
+                    "odd_rms_eV": mirror.odd_rms_ev,
+                    "mirror_center_fraction": mirror.mirror_center_fraction,
+                    "period_ang": mirror.period_ang,
+                    "repeated_periods": mirror.repeated_periods,
+                }
         if plot and len(direction_profiles_for_compare) > 1 and safe_label_for_compare is not None:
             compare_stem = f"{prefix}-DIR-{safe_label_for_compare}-compare"
             if direction_smooth > 0.0:
@@ -1453,6 +1612,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
                         help="Perpendicular-plane sample grid for interpolated directional profiles.")
     parser.add_argument("--direction-smooth", type=float, default=0.0,
                         help="Optional periodic Gaussian smoothing sigma in Angstrom for directional profiles.")
+    parser.add_argument("--mirror-test", action="store_true",
+                        help="Optimize a one-period mirror center and report profile asymmetry.")
     parser.add_argument("--value-unit", choices=["ry", "ev", "hartree"], default="ry",
                         help="Potential unit stored in the cube data.")
     parser.add_argument("--length-unit", choices=["bohr", "angstrom"], default="bohr",
@@ -1497,6 +1658,7 @@ def main(argv: Optional[Sequence[str]] = None) -> Dict[str, object]:
         direction_methods=args.direction_method,
         direction_samples=args.direction_samples,
         direction_smooth=args.direction_smooth,
+        mirror_test=args.mirror_test,
         value_unit=args.value_unit,
         length_unit=args.length_unit,
         vacuum_level=args.vacuum_level,

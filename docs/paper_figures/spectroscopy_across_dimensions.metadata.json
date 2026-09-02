@@ -5,7 +5,7 @@
   "normalization": "ZStar spectra are normalized independently in every panel; intensities are not compared across rows or response types.",
   "placeholder": false,
   "image_scaling": "Aspect-preserving uniform scaling, centered at the largest size that fits each structure panel.",
-  "structure_label_layout": "Two-line system labels are left-aligned directly above each fitted structure image; panel letters remain separate at the upper-left of the panel.",
+  "structure_label_layout": "The chemical-formula line shares the panel-label top baseline; all three two-line labels use one common left edge across rows.",
   "reference_overlay": "Light-gray continuous envelopes are reconstructed from published or archived mode frequencies using the documented relative weights and Gaussian broadening; they are normalized independently and are not absolute-intensity traces.",
   "systems": [
     "HfO2",
@@ -100,16 +100,16 @@
       "sha256": "443f7a29bf2490419fa0823f1c42901b87e48c449aec80f5d5b32a38abe698f7"
     },
     "hfo2/qpoints.yaml": {
-      "bytes": 18799,
-      "sha256": "c92be6e3a024cbcb0b768c9d986f075a1a8ae52fac45c18027895b974513ffb3"
+      "bytes": 18786,
+      "sha256": "4b26b1c4351327dbb86bba2f352b977d407bdafa4d1edc0202c6afe55e729851"
     },
     "hfo2/phonopy.yaml": {
       "bytes": 4276,
       "sha256": "f559ee9ca8f300f873db5f0807ef52dca7c369749d25fbcdd612447f1f99e568"
     },
     "hfo2/irreps.yaml": {
-      "bytes": 5445,
-      "sha256": "5b5bd0d611b9c877e0614fdfc7ab81638555700df59922459eb017245e0cfc57"
+      "bytes": 5416,
+      "sha256": "9ef502262aa0a490dd24e0a1d1e4150c01d0935deac6a5a5a7b6b22992af454d"
     },
     "hfo2/Z-BORN-symm.out": {
       "bytes": 958,

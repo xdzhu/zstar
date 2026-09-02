@@ -16,6 +16,7 @@ from typing import Iterable, Mapping, Sequence
 import numpy as np
 
 from .dimensions import dimension_spec
+from .configuration import normalize_execution_system
 from .response_schema import ResponseQuantity, ResponseRecord
 from .spectra import (
     calculate_native_line_spectrum,
@@ -675,10 +676,11 @@ def generate_qe_backend_script(
     queue: str | None = None,
     account: str | None = None,
     env_script: str | Path | None = None,
+    pw_command: str | None = None,
+    ph_command: str | None = None,
+    dynmat_command: str | None = None,
 ) -> Path:
-    backend_key = backend.lower()
-    if backend_key not in {"shell", "slurm", "torque"}:
-        raise ValueError("backend must be shell, slurm, or torque")
+    backend_key = normalize_execution_system(backend)
     if min(nodes, tasks, cpus_per_task) < 1:
         raise ValueError("nodes, tasks, and cpus_per_task must be positive")
     root_path, _manifest = _load_manifest(root)
@@ -688,6 +690,9 @@ def generate_qe_backend_script(
     else:
         target = Path(output).resolve()
     launcher = f"srun --ntasks={tasks}" if backend_key == "slurm" else f"mpirun -np {tasks}"
+    pw_command = pw_command or f"{launcher} pw.x"
+    ph_command = ph_command or f"{launcher} ph.x"
+    dynmat_command = dynmat_command or f"{launcher} dynmat.x"
     header = ["#!/usr/bin/env bash", f"# ZStar QE response backend: {backend_key}"]
     if backend_key == "slurm":
         header.extend([
@@ -717,8 +722,8 @@ def generate_qe_backend_script(
         body.append(f"source {shlex.quote(str(Path(env_script).expanduser().resolve()))}")
     body.extend([
         f"export OMP_NUM_THREADS={cpus_per_task}",
-        f"zstar qe-bec run --root \"$ROOT\" --pw-command {shlex.quote(launcher + ' pw.x')} "
-        f"--ph-command {shlex.quote(launcher + ' ph.x')} --dynmat-command {shlex.quote(launcher + ' dynmat.x')} "
+        f"zstar qe-bec run --root \"$ROOT\" --pw-command {shlex.quote(pw_command)} "
+        f"--ph-command {shlex.quote(ph_command)} --dynmat-command {shlex.quote(dynmat_command)} "
         f"--omp-threads {cpus_per_task} 2>&1 | tee -a \"$ROOT/.zstar/workflow.log\"",
         'zstar qe-bec collect --root "$ROOT" 2>&1 | tee -a "$ROOT/.zstar/workflow.log"',
     ])

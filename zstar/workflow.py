@@ -22,6 +22,7 @@ from .pyatb_compat import (
     detect_pyatb_capabilities,
     read_band_gap,
 )
+from .configuration import normalize_execution_system
 
 
 _ATOM_DIR_RE = re.compile(r"^(\d+)\.([^.]+)$")
@@ -1048,9 +1049,7 @@ def generate_backend_script(
 ) -> Path:
     """Generate a single backend script that runs the complete serial chain."""
 
-    backend_key = backend.lower()
-    if backend_key not in {"shell", "slurm", "torque"}:
-        raise ValueError("backend must be one of: shell, slurm, torque")
+    backend_key = normalize_execution_system(backend)
     if int(nodes) < 1 or int(tasks) < 1 or int(cpus_per_task) < 1:
         raise ValueError("nodes, tasks, and cpus_per_task must be positive")
     root_path = Path(root).resolve()
@@ -1185,7 +1184,7 @@ def generate_backend_script(
 
 
 def submit_backend_script(script: str | Path, backend: str) -> str:
-    backend_key = backend.lower()
+    backend_key = normalize_execution_system(backend)
     command = {
         "slurm": ["sbatch", str(Path(script).resolve())],
         "torque": ["qsub", str(Path(script).resolve())],

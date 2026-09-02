@@ -91,6 +91,13 @@ def run_eigen_irrep(
                 "backend with a true low-dimensional Coulomb cutoff; Phonopy bulk NAC "
                 "will not be substituted"
             )
+        born_file = Path("BORN")
+        if not born_file.is_file() or born_file.stat().st_size == 0:
+            raise FileNotFoundError(
+                "NAC requested but BORN is missing or empty in the phonon "
+                "working directory. Copy the BEC workflow's BORN file here "
+                "before running phonon post-processing."
+            )
         if q_direction is not None:
             direction = np.asarray(q_direction, dtype=float)
             if direction.shape != (3,) or not np.all(np.isfinite(direction)):
@@ -101,39 +108,55 @@ def run_eigen_irrep(
     structure = Path(f_stru)
     if not structure.is_file():
         raise FileNotFoundError(f"Structure file not found: {structure}")
-
-    force_logs = sorted(Path(".").glob("disp-*/OUT*/running*.log"))
+    structure_text = structure.read_text(encoding="utf-8", errors="ignore")
+    calculator = (
+        "vasp"
+        if structure.name.upper().startswith("POSCAR")
+        else "abacus"
+    )
+    if "ATOMIC_SPECIES" in structure_text:
+        calculator = "abacus"
+    force_logs = sorted(
+        Path(".").glob("disp-*/OUT*/running*.log")
+        if calculator == "abacus"
+        else Path(".").glob("disp-*/vasprun.xml")
+    )
     if not force_logs:
         raise FileNotFoundError(
-            "No disp-*/OUT*/running*.log files were found for force collection"
+            "No disp-*/OUT*/running*.log or disp-*/vasprun.xml files were "
+            f"found for force collection ({calculator})"
         )
     _run_phonopy(
         ["phonopy", "-f", *(str(path) for path in force_logs)],
         stage="force collection",
     )
 
-    normalized = structure.with_name(f".{structure.name}.zstar-phonopy")
-    normalized_irrep = structure.with_name(
-        f".{structure.name}.zstar-phonopy-irrep"
-    )
-    write_phonopy_compatible_stru(structure, normalized)
-    # Phonopy 2.38 rejects PRIMITIVE_AXES=auto when MAGMOM is present.  The
-    # force constants and Gamma eigenvectors still come from the magnetic
-    # calculation; only the symmetry-label analysis uses a geometry-identical
-    # temporary view without magnetic moments.
-    write_phonopy_compatible_stru(
-        structure,
-        normalized_irrep,
-        include_magnetism=False,
-    )
+    normalized = None
+    normalized_irrep = None
+    qpoint_structure = structure
+    irrep_structure = structure
+    if calculator == "abacus":
+        normalized = structure.with_name(f".{structure.name}.zstar-phonopy")
+        normalized_irrep = structure.with_name(
+            f".{structure.name}.zstar-phonopy-irrep"
+        )
+        write_phonopy_compatible_stru(structure, normalized)
+        # Phonopy 2.38 rejects PRIMITIVE_AXES=auto when MAGMOM is present.
+        write_phonopy_compatible_stru(
+            structure,
+            normalized_irrep,
+            include_magnetism=False,
+        )
+        qpoint_structure = normalized
+        irrep_structure = normalized_irrep
     try:
         common = [
             f"--dim={dimension}",
             "-v",
             "-c",
-            str(normalized),
+            str(qpoint_structure),
             f"--tolerance={tolerance:g}",
-            "--abacus",
+            f"--{calculator}",
             "--qpoints=0 0 0",
         ]
         qpoint_command = ["phonopy", *common, "--eigenvectors"]
@@ -146,9 +169,9 @@ def run_eigen_irrep(
             "phonopy",
             f"--dim={dimension}",
             "-c",
-            str(normalized_irrep),
+            str(irrep_structure),
             f"--tolerance={tolerance:g}",
-            "--abacus",
+            f"--{calculator}",
             "--pa=auto",
             "--qpoints=0 0 0",
             "--irreps=0 0 0 1e-3",
@@ -161,8 +184,10 @@ def run_eigen_irrep(
             stage="irreducible-representation calculation",
         )
     finally:
-        normalized.unlink(missing_ok=True)
-        normalized_irrep.unlink(missing_ok=True)
+        if normalized is not None:
+            normalized.unlink(missing_ok=True)
+        if normalized_irrep is not None:
+            normalized_irrep.unlink(missing_ok=True)
 
     outputs = {
         "dimension": dimension,
@@ -175,6 +200,7 @@ def run_eigen_irrep(
         "physical_dimensionality": int(physical_dim),
         "nac_model": nac_method,
         "q_direction": None if q_direction is None else list(q_direction),
+        "calculator": calculator,
     }
     print(f"Collected {len(force_logs)} force calculations.")
     return outputs

@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "source_stru": "phonon_work/STRU",
+  "qpoints_atoms": 24,
+  "amplitude_A_sqrt_amu": 0.02,
+  "modes": [
+    {
+      "mode": 17,
+      "frequency_cm-1": 143.41335731668076,
+      "amplitude_A_sqrt_amu": 0.02,
+      "plus": "raman_work/mode-0017/plus",
+      "minus": "raman_work/mode-0017/minus",
+      "plus_dielectric": "raman_work/mode-0017/plus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat",
+      "minus_dielectric": "raman_work/mode-0017/minus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat"
+    },
+    {
+      "mode": 21,
+      "frequency_cm-1": 166.24596021358218,
+      "amplitude_A_sqrt_amu": 0.02,
+      "plus": "raman_work/mode-0021/plus",
+      "minus": "raman_work/mode-0021/minus",
+      "plus_dielectric": "raman_work/mode-0021/plus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat",
+      "minus_dielectric": "raman_work/mode-0021/minus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat"
+    },
+    {
+      "mode": 24,
+      "frequency_cm-1": 199.15886417662983,
+      "amplitude_A_sqrt_amu": 0.02,
+      "plus": "raman_work/mode-0024/plus",
+      "minus": "raman_work/mode-0024/minus",
+      "plus_dielectric": "raman_work/mode-0024/plus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat",
+      "minus_dielectric": "raman_work/mode-0024/minus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat"
+    },
+    {
+      "mode": 29,
+      "frequency_cm-1": 246.0764898361786,
+      "amplitude_A_sqrt_amu": 0.02,
+      "plus": "raman_work/mode-0029/plus",
+      "minus": "raman_work/mode-0029/minus",
+      "plus_dielectric": "raman_work/mode-0029/plus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat",
+      "minus_dielectric": "raman_work/mode-0029/minus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat"
+    },
+    {
+      "mode": 37,
+      "frequency_cm-1": 429.60998454470797,
+      "amplitude_A_sqrt_amu": 0.02,
+      "plus": "raman_work/mode-0037/plus",
+      "minus": "raman_work/mode-0037/minus",
+      "plus_dielectric": "raman_work/mode-0037/plus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat",
+      "minus_dielectric": "raman_work/mode-0037/minus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat"
+    },
+    {
+      "mode": 39,
+      "frequency_cm-1": 462.0161015091314,
+      "amplitude_A_sqrt_amu": 0.02,
+      "plus": "raman_work/mode-0039/plus",
+      "minus": "raman_work/mode-0039/minus",
+      "plus_dielectric": "raman_work/mode-0039/plus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat",
+      "minus_dielectric": "raman_work/mode-0039/minus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat"
+    },
+    {
+      "mode": 40,
+      "frequency_cm-1": 462.68311601421277,
+      "amplitude_A_sqrt_amu": 0.02,
+      "plus": "raman_work/mode-0040/plus",
+      "minus": "raman_work/mode-0040/minus",
+      "plus_dielectric": "raman_work/mode-0040/plus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat",
+      "minus_dielectric": "raman_work/mode-0040/minus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat"
+    },
+    {
+      "mode": 41,
+      "frequency_cm-1": 480.5815862752625,
+      "amplitude_A_sqrt_amu": 0.02,
+      "plus": "raman_work/mode-0041/plus",
+      "minus": "raman_work/mode-0041/minus",
+      "plus_dielectric": "raman_work/mode-0041/plus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat",
+      "minus_dielectric": "raman_work/mode-0041/minus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat"
+    },
+    {
+      "mode": 55,
+      "frequency_cm-1": 587.4500915463325,
+      "amplitude_A_sqrt_amu": 0.02,
+      "plus": "raman_work/mode-0055/plus",
+      "minus": "raman_work/mode-0055/minus",
+      "plus_dielectric": "raman_work/mode-0055/plus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat",
+      "minus_dielectric": "raman_work/mode-0055/minus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat"
+    },
+    {
+      "mode": 57,
+      "frequency_cm-1": 625.4420244354513,
+      "amplitude_A_sqrt_amu": 0.02,
+      "plus": "raman_work/mode-0057/plus",
+      "minus": "raman_work/mode-0057/minus",
+      "plus_dielectric": "raman_work/mode-0057/plus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat",
+      "minus_dielectric": "raman_work/mode-0057/minus/pyatb/Out/Optical_Conductivity/static_dielectric_function.dat"
+    }
+  ],
+  "reference_dir": "bec_work/0.no-move"
+}

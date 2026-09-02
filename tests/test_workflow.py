@@ -1,6 +1,8 @@
 import tempfile
+import json
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 from zstar.workflow import (
     _prepare_abacus_input,
@@ -13,9 +15,44 @@ from zstar.workflow import (
     run_raman_workflow,
     scf_is_complete,
 )
+from zstar.configuration import launcher_command, normalize_execution_system
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_execution_system_aliases_use_canonical_manifest_names(self):
+        self.assertEqual(normalize_execution_system("local"), "shell")
+        self.assertEqual(normalize_execution_system("bash"), "shell")
+        self.assertEqual(normalize_execution_system("pbs"), "torque")
+        self.assertEqual(normalize_execution_system("OpenPBS"), "torque")
+        self.assertEqual(
+            launcher_command("abacus", system="local", tasks=2),
+            "mpirun -np 2 abacus",
+        )
+        self.assertEqual(
+            launcher_command("abacus", system="pbs", tasks=2),
+            "mpirun -np 2 abacus",
+        )
+
+    def test_configured_executable_path_is_shell_quoted(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            executable = root / "software with spaces" / "abacus"
+            executable.parent.mkdir()
+            executable.write_text("placeholder", encoding="utf-8")
+            self.assertEqual(
+                launcher_command(
+                    "abacus",
+                    root=root,
+                    override=str(executable),
+                    tasks=2,
+                ),
+                f"mpirun -np 2 '{executable}'",
+            )
+
+    def test_unknown_execution_system_has_actionable_error(self):
+        with self.assertRaisesRegex(ValueError, "Unknown execution system"):
+            normalize_execution_system("unknown-scheduler")
+
     def test_scf_completion_requires_exit_and_density_convergence(self):
         with tempfile.TemporaryDirectory() as tmp:
             stage = Path(tmp)
@@ -269,6 +306,30 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(log_text.count("pyatb_input --band"), 1)
             self.assertEqual(states[0].band, "dry-run")
             self.assertEqual(states[1].band, "reference-gated")
+
+    def test_failed_insulation_gate_stops_before_displaced_stage(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._make_tree(root)
+            from zstar.workflow import run_serial_workflow
+
+            with patch(
+                "zstar.workflow._run_insulation_gate",
+                side_effect=RuntimeError("insulating-path check failed"),
+            ):
+                with self.assertRaisesRegex(RuntimeError, "insulating-path check failed"):
+                    run_serial_workflow(root, dry_run=True)
+
+            state = json.loads(
+                (root / ".zstar" / "stages" / "0.no-move.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(state["status"], "failed")
+            self.assertIn("insulating-path check failed", state["error"])
+            self.assertFalse(
+                (root / ".zstar" / "stages" / "1.Hf__x+.json").exists()
+            )
 
     def test_displaced_input_reuses_reference_charge(self):
         with tempfile.TemporaryDirectory() as tmp:

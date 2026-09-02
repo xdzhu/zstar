@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "tensor_convention": "rows=displacement/force; columns=polarization/electric field",
+  "atom_mapping_abacus_to_vasp_one_based": [
+    3,
+    4,
+    5,
+    6,
+    2,
+    1,
+    9,
+    11,
+    10,
+    12,
+    8,
+    7,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    13,
+    24
+  ],
+  "coordinate_match_max_angstrom": 1.7293535406757312e-09,
+  "bec": {
+    "max_abs_delta_e": 0.08906354000000005,
+    "rms_delta_e": 0.02067761559593997,
+    "mean_abs_delta_e": 0.01269269222222223,
+    "species": {
+      "As": {
+        "atoms": 6,
+        "max_abs_e": 0.03099099999999999,
+        "rms_e": 0.014253804288230495
+      },
+      "Ga": {
+        "atoms": 6,
+        "max_abs_e": 0.08906354000000005,
+        "rms_e": 0.0334732177440162
+      },
+      "H": {
+        "atoms": 12,
+        "max_abs_e": 0.03817537999999998,
+        "rms_e": 0.013903738779701316
+      }
+    },
+    "abacus_acoustic_sum_e": [
+      [
+        5.999999999617422e-08,
+        5.999999999617422e-08,
+        0.0
+      ],
+      [
+        7.99999999995249e-08,
+        5.999999952432944e-08,
+        -5.551115123125783e-17
+      ],
+      [
+        0.0,
+        0.0,
+        5.99999979700172e-08
+      ]
+    ],
+    "vasp_acoustic_sum_e": [
+      [
+        -3.999999999973469e-05,
+        -6.938893903907228e-18,
+        0.0
+      ],
+      [
+        0.0,
+        2.000000000033919e-05,
+        7.979727989493313e-17
+      ],
+      [
+        0.0,
+        -6.938893903907228e-18,
+        -2.0000000000020002e-05
+      ]
+    ],
+    "representative_abacus_atom_1": {
+      "label": "As",
+      "vasp_atom_one_based": 3,
+      "abacus": [
+        [
+          -0.08346277,
+          0.092481,
+          0.16936774
+        ],
+        [
+          0.09306756,
+          -0.18944198,
+          0.09119802
+        ],
+        [
+          -0.08143168,
+          -0.04654558,
+          -0.98037868
+        ]
+      ],
+      "vasp": [
+        [
+          -0.10854,
+          0.08735,
+          0.15451
+        ],
+        [
+          0.08692,
+          -0.21337,
+          0.08921
+        ],
+        [
+          -0.0844,
+          -0.04687,
+          -0.99616
+        ]
+      ],
+      "delta": [
+        [
+          0.025077229999999992,
+          0.005130999999999997,
+          0.01485773999999998
+        ],
+        [
+          0.006147559999999996,
+          0.023928019999999994,
+          0.001988020000000007
+        ],
+        [
+          0.0029683199999999965,
+          0.0003244199999999989,
+          0.0157813200000001
+        ]
+      ]
+    }
+  },
+  "electronic_response": {
+    "comparison_scope": "The periodic z component is the like-for-like 1D validation. VASP LEPSILON includes DFT local-field effects, whereas the PYATB Kubo response is independent-particle; transverse x/y differences are retained as a method-convention diagnostic.",
+    "abacus_line_polarizability_angstrom2": [
+      [
+        19.039407418926064,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        19.039407418926064,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        27.098864526106837
+      ]
+    ],
+    "vasp_line_polarizability_angstrom2": [
+      [
+        7.245146812395117,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        7.24406455878209,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        27.21750062099706
+      ]
+    ],
+    "delta_angstrom2": [
+      [
+        11.794260606530948,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        11.795342860143975,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -0.11863609489022409
+      ]
+    ],
+    "longitudinal_z_abs_delta_angstrom2": 0.11863609489022409,
+    "longitudinal_z_relative_delta": 0.004358816650442243,
+    "transverse_xy_max_abs_delta_angstrom2": 11.795342860143975,
+    "max_abs_delta_angstrom2": 11.795342860143975
+  },
+  "sources": {
+    "abacus_stru": {
+      "name": "STRU",
+      "bytes": 1793,
+      "sha256": "8341aacd89a2caa7c026a3a2e7abbed6e529ac02959a521175885f195e0be536"
+    },
+    "abacus_zborn": {
+      "name": "Z-BORN-symm.out",
+      "bytes": 3424,
+      "sha256": "78f9643d052034853a9077db5ca25d661f07efd818d22a444a6de9de82edb1c9"
+    },
+    "abacus_response": {
+      "name": "zstar_response.json",
+      "bytes": 11063,
+      "sha256": "5bf2ec30021659abb4c3eb7b280950e9c2fdcc7e2eafbb9996cbf3df5c167075"
+    },
+    "vasp_poscar": {
+      "name": "POSCAR",
+      "bytes": 1762,
+      "sha256": "dbb3d44f083813952d6495475ff735322c23f59b1d4f0b14eb1f15f41bcd4089"
+    },
+    "vasp_outcar": {
+      "name": "OUTCAR",
+      "bytes": 329248,
+      "sha256": "6f3acc51eadceb3ca4f66cc8afba54f5cd6b96b0f58631c0ce3eec525115250b"
+    }
+  }
+}

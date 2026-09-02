@@ -17,15 +17,15 @@ response and a positive/negative displacement pair for every selected optical
 mode:
 
 ```bash
-zstar spectra prepare --calculator vasp \
+zstar spectra pre --calculator vasp \
   --input-dir vasp_input --modes-xml phonon/vasprun.xml \
   --root vasp_spectra --dim 3 --method dfpt
 
 zstar spectra run --root vasp_spectra \
   --command "mpirun -np 20 vasp_std"
 
-zstar spectra status --root vasp_spectra
-zstar spectra collect --root vasp_spectra
+zstar spectra stat --root vasp_spectra
+zstar spectra post --root vasp_spectra
 ```
 
 The reference response supplies BECs and the ion-clamped dielectric tensor for
@@ -44,7 +44,7 @@ directories but must never be committed or redistributed.
 
 ### SiC validation on VASP
 
-The end-to-end test used a two-atom SiC cell, PBE, a 520 eV plane-wave cutoff,
+The complete interface test used a two-atom SiC cell, PBE, a 520 eV plane-wave cutoff,
 a 15 x 15 x 15 Monkhorst-Pack mesh, and 20 MPI ranks. The reference-first gate
 found a 1.3508 eV band gap before starting the six displaced response jobs. The
 three optical modes form a 774.964 cm-1 triplet. Their total IR activities are
@@ -74,18 +74,18 @@ Start from a tightly converged CP2K input. ZStar changes `RUN_TYPE` to
 dipoles, and activates `PROPERTIES/LINRES/POLAR`:
 
 ```bash
-zstar spectra prepare --calculator cp2k \
+zstar spectra pre --calculator cp2k \
   --input h2o.inp --root cp2k_spectra --dim 0
 
 zstar spectra run --root cp2k_spectra \
   --command "/path/to/cp2k.ssmp -i input.inp -o output.log" \
   --omp-threads 20 --cp2k-data-dir /path/to/cp2k/data
 
-zstar spectra status --root cp2k_spectra
-zstar spectra collect --root cp2k_spectra
+zstar spectra stat --root cp2k_spectra
+zstar spectra post --root cp2k_spectra
 ```
 
-For noninteractive execution, `zstar spectra script --root WORK --backend
+For noninteractive execution, `zstar spectra job --root WORK --system
 shell|slurm|torque` writes one scheduler-aware driver that resumes all stages
 and collects both spectra after successful completion.
 

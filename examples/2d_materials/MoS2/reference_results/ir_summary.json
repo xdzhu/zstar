@@ -1,0 +1,12 @@
+{
+  "dimensionality": 2,
+  "response_kind": "2D sheet polarizability (Angstrom)",
+  "modes": 6,
+  "files": {
+    "modes": "ir_modes.csv",
+    "spectrum": "ir_spectrum.dat",
+    "response_real": "ir_response_real.dat",
+    "response_imag": "ir_response_imag.dat",
+    "plot": "ir_spectrum.png"
+  }
+}

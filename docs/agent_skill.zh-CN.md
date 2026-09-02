@@ -29,20 +29,20 @@ run-zstar-workflows/
 
 ```bash
 pip install -U zstar
-zstar agent-skill install
+zstar skill install
 ```
 
 安装后新建一个智能体会话，使其重新发现技能。升级 ZStar 后可覆盖旧 Skill：
 
 ```bash
-zstar agent-skill install --force
+zstar skill install --force
 ```
 
 也可以安装到其他兼容智能体框架的技能父目录：
 
 ```bash
-zstar agent-skill install --dest /path/to/skills
-zstar agent-skill path
+zstar skill install --dest /path/to/skills
+zstar skill path
 ```
 
 源码仓库中的 Skill 位于 `zstar/agent_skills/run-zstar-workflows/`，兼容的 Skill
@@ -64,10 +64,10 @@ zstar agent-skill path
 智能体在构造或启动工作流之前，应先检查工作区：
 
 ```bash
-zstar agent-skill preflight --root . --lane bec --dim bulk
-zstar agent-skill preflight --root . --lane raman --dim 2d
-zstar agent-skill preflight --root . --lane ir --dim molecule
-zstar agent-skill preflight --root . --lane database --dim 1d
+zstar skill preflight --root . --lane bec --dim bulk
+zstar skill preflight --root . --lane raman --dim 2d
+zstar skill preflight --root . --lane ir --dim molecule
+zstar skill preflight --root . --lane database --dim 1d
 ```
 
 该命令只向标准输出写 JSON，不修改工作区。报告包括：
@@ -87,10 +87,9 @@ Skill 固化了不应随语言模型变化的关键约束：
 | --- | --- |
 | 参考态优先 | 位移 BEC 之前完成 `0.no-move` 并通过绝缘性门控。 |
 | 低维分流 | 一维纳米线与二维薄膜沿周期轴使用 Berry 响应，沿开放轴使用 cube 偶极积分。 |
-| 一维边界 | 可执行沿 `z` 周期的 ABACUS/PYATB BEC 与 Gamma 点光谱；没有真正 1D Coulomb cutoff 时，不得宣称有限波矢极性声子已经完成。 |
+| 一维边界 | 可执行沿 `z` 周期的 ABACUS + PYATB BEC 与 Gamma 点光谱；没有真正 1D Coulomb cutoff 时，不得宣称有限波矢极性声子已经完成。 |
 | 断点续算 | 复用 `.zstar` 状态并重复同一串行执行命令。 |
 | Raman 差分 | 使用正、负简正坐标位移。 |
-| MD+BEC 范围 | 消费用户提供的 BEC，不宣称从轨迹预测 BEC。 |
 | 完成判据 | 检查指定产物、状态记录、单位和物理约定。 |
 | 权限边界 | 不把准备脚本理解为允许提交或启动昂贵远程计算。 |
 

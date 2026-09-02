@@ -14,6 +14,8 @@ from typing import Iterable, Optional
 
 import numpy as np
 
+from .configuration import normalize_execution_system
+
 
 _NUMBER = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
 _INCAR_KEY = re.compile(r"^\s*([A-Za-z][A-Za-z0-9_]*)\s*=")
@@ -434,9 +436,7 @@ def generate_vasp_backend_script(
 ) -> Path:
     """Generate one local, Slurm, or Torque driver for the serial workflow."""
 
-    backend_key = backend.lower()
-    if backend_key not in {"shell", "slurm", "torque"}:
-        raise ValueError("backend must be shell, slurm, or torque")
+    backend_key = normalize_execution_system(backend)
     if min(nodes, tasks, cpus_per_task) < 1:
         raise ValueError("nodes, tasks, and cpus_per_task must be positive")
     root_path, _manifest = _load_manifest(root)

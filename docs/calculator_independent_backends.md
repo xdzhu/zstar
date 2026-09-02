@@ -19,7 +19,7 @@ The code uses `dim=0`, `1`, `2`, or `3` plus explicit periodic axes.
 For `dim=1`, the longitudinal BEC component can use periodic Berry
 polarization, whereas the two transverse components require real-space dipole
 differences. The corresponding supercell dielectric tensor is vacuum dependent.
-The ABACUS/PYATB route implements this hybrid BEC construction and supports
+The ABACUS + PYATB route implements this hybrid BEC construction and supports
 vacuum-independent line-response normalization for Gamma-point IR and Raman.
 ZStar deliberately rejects a bulk NAC model for 1D/2D systems. A finite-
 wavevector Coulomb-cutoff phonon solver is outside the current scope. See the
@@ -33,7 +33,7 @@ zstar backend list --json
 ```
 
 The table reports capabilities implemented through ZStar, not every feature of
-the underlying calculator. ABACUS/PyATB remains the complete finite-difference
+the underlying calculator. ABACUS + PYATB remains the complete finite-difference
 polarization route. VASP and CP2K provide native or finite-displacement BEC and
 spectroscopy routes. Quantum ESPRESSO provides a native DFPT route for
 molecules and 3D bulk. Phonopy supplies calculator-neutral modes and force
@@ -42,7 +42,7 @@ constants.
 Third-party adapters may expose a `BackendSpec` through the
 `zstar.backends` Python entry-point group.
 
-## Versioned response records
+## Response records
 
 The `zstar-response` 1.0 JSON format records dimensionality, periodic axes,
 values, shape, unit, normalization, tensor convention, source, and provenance.
@@ -75,22 +75,22 @@ the band-gap gate. For old QE versions, ZStar automatically converts
 restart.
 
 ```bash
-zstar qe-bec prepare --input scf.in --root qe_work --dim 3
-zstar qe-bec run --root qe_work \
+zstar bec pre --calculator qe --input scf.in --root qe_work --dim 3
+zstar bec run --root qe_work \
   --pw-command "mpirun -np 20 pw.x" --ph-command "mpirun -np 20 ph.x"
-zstar qe-bec status --root qe_work
-zstar qe-bec collect --root qe_work
+zstar bec stat --root qe_work
+zstar bec post --root qe_work
 ```
 
 The serial, resumable chain is `pw.x -> ph.x -> dynmat.x`. The SCF stage must
 show a positive highest-occupied/lowest-unoccupied gap before DFPT starts.
 Use `--no-raman` when the installed QE build or functional does not support
 native Raman response. Shell, Slurm, and Torque drivers are generated with
-`zstar qe-bec script`.
+`zstar bec job --root qe_work --system SYSTEM`.
 
-The former forms, `zstar qe ...` and `zstar backend qe ...`, remain deprecated
-compatibility aliases. New workflows should use `zstar qe-bec ...`; `zstar
-backend list` is reserved for calculator-capability discovery.
+New workflows use `zstar bec pre --calculator qe` and the manifest-driven
+`bec` lifecycle. `zstar backend list` is the single calculator-capability
+discovery interface.
 
 ## Shared real-space density route
 

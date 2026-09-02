@@ -1,0 +1,11 @@
+{
+  "gap_eV": 1.6822,
+  "vbm_eV": 10.7862,
+  "cbm_eV": 12.4684,
+  "insulating": true,
+  "threshold_eV": 0.01,
+  "source": "original_validation/cases/bto_tet/0.no-move/pyatb-band/Out/Band_Structure/band_info.dat",
+  "sampling": "path",
+  "dimensionality": 3,
+  "scope": "0.no-move reference gate"
+}

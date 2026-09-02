@@ -30,7 +30,7 @@ cross-sectional convention.
 The static command evaluates the zero-frequency contraction:
 
 ```bash
-zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
+zstar dielectric static --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 3
 ```
 
@@ -38,7 +38,7 @@ The frequency-domain command uses the same mode contraction and adds damped
 Lorentz oscillators:
 
 ```bash
-zstar freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
+zstar dielectric freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 3 --broadening 8 \
   --max-frequency 800 --points 2501 --outdir dielectric_response
 ```
@@ -61,7 +61,7 @@ epsilon_infinity = diag(5.161604, 5.161604, 4.780272)
 Reproduce the total response with:
 
 ```bash
-zstar freq \
+zstar dielectric freq \
   --qpoints docs/paper_figures/source_data/hfo2/qpoints.yaml \
   --born docs/paper_figures/source_data/hfo2/Z-BORN-symm.out \
   --dielectric docs/paper_figures/source_data/hfo2/BORN \
@@ -85,7 +85,7 @@ The retained 2H-MoS2 example uses ABACUS/PBE-D3(BJ), a 33x33x1 electronic
 mesh, a 3x3x1 phonon supercell, and a 1e-8 SCF threshold. Run:
 
 ```bash
-zstar freq \
+zstar dielectric freq \
   --qpoints docs/paper_figures/source_data/mos2/qpoints.yaml \
   --born docs/paper_figures/source_data/mos2/Z-BORN-symm.out \
   --dim 2 --broadening 8 --max-frequency 500 --points 2501 \
@@ -107,7 +107,7 @@ only when a documented effective-thickness convention is required.
 
 ## Output contract
 
-`zstar freq` writes:
+`zstar dielectric freq` writes:
 
 | File | Contents |
 | --- | --- |

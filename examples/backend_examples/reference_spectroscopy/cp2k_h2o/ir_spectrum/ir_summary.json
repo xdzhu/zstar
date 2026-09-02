@@ -1,0 +1,13 @@
+{
+  "activity_kind": "IR_intensity",
+  "activity_unit": "km/mol",
+  "modes": 3,
+  "normalization": "plot maximum equals one; tabulated activities are unchanged",
+  "files": {
+    "modes": "ir_modes.csv",
+    "spectrum": "ir_spectrum.dat",
+    "plot": "ir_spectrum.png",
+    "plot_pdf": "ir_spectrum.pdf",
+    "plot_svg": "ir_spectrum.svg"
+  }
+}

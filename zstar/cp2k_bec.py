@@ -15,6 +15,8 @@ from typing import Iterable, Optional, Sequence
 
 import numpy as np
 
+from .configuration import normalize_execution_system
+
 
 DEBYE_PER_E_ANGSTROM = 4.80320471257
 BEC_OUTPUT_PRECISION = 8
@@ -612,6 +614,101 @@ def format_cp2k_status(states: Iterable[Cp2kStageState]) -> str:
     output.append("  ".join("-" * width for width in widths))
     output.extend("  ".join(value.ljust(widths[index]) for index, value in enumerate(row)) for row in rows)
     return "\n".join(output)
+
+
+def generate_cp2k_backend_script(
+    root: str | Path,
+    *,
+    backend: str = "shell",
+    output: str | Path | None = None,
+    job_name: str = "zstar-cp2k-bec",
+    nodes: int = 1,
+    tasks: int = 1,
+    cpus_per_task: int = 1,
+    walltime: str = "24:00:00",
+    queue: str | None = None,
+    account: str | None = None,
+    env_script: str | Path | None = None,
+    cp2k_command: str | None = None,
+    data_dir: str | Path | None = None,
+) -> Path:
+    """Generate one serial, resumable CP2K BEC driver."""
+
+    backend_key = normalize_execution_system(backend)
+    if min(int(nodes), int(tasks), int(cpus_per_task)) < 1:
+        raise ValueError("nodes, tasks, and cpus_per_task must be positive")
+    root_path, _manifest = _load_manifest(root)
+    if output is None:
+        suffix = {"shell": "sh", "slurm": "slurm", "torque": "pbs"}[backend_key]
+        target = root_path / f"run_cp2k_bec.{suffix}"
+    else:
+        target = Path(output).resolve()
+    if cp2k_command is None:
+        launcher = (
+            f"srun --ntasks={int(tasks)}"
+            if backend_key == "slurm"
+            else f"mpirun -np {int(tasks)}"
+        )
+        cp2k_command = f"{launcher} cp2k.psmp"
+
+    header = [
+        "#!/usr/bin/env bash",
+        f"# ZStar CP2K BEC execution system: {backend_key}",
+        "# Reference-first serial workflow with restart-wavefunction reuse.",
+    ]
+    if backend_key == "slurm":
+        header.extend(
+            [
+                f"#SBATCH --job-name={job_name}",
+                f"#SBATCH --nodes={int(nodes)}",
+                f"#SBATCH --ntasks={int(tasks)}",
+                f"#SBATCH --cpus-per-task={int(cpus_per_task)}",
+                f"#SBATCH --time={walltime}",
+                f"#SBATCH --output={root_path}/.zstar/slurm-%j.out",
+            ]
+        )
+        if queue:
+            header.append(f"#SBATCH --partition={queue}")
+        if account:
+            header.append(f"#SBATCH --account={account}")
+    elif backend_key == "torque":
+        header.extend(
+            [
+                f"#PBS -N {job_name}",
+                f"#PBS -l nodes={int(nodes)}:ppn={int(tasks) * int(cpus_per_task)}",
+                f"#PBS -l walltime={walltime}",
+                f"#PBS -o {root_path}/.zstar/torque.out",
+                f"#PBS -e {root_path}/.zstar/torque.err",
+            ]
+        )
+        if queue:
+            header.append(f"#PBS -q {queue}")
+        if account:
+            header.append(f"#PBS -A {account}")
+
+    body = [
+        "set -euo pipefail",
+        f"ROOT={shlex.quote(str(root_path))}",
+        'mkdir -p "$ROOT/.zstar"',
+        'cd "$ROOT"',
+    ]
+    if env_script:
+        body.append(f"source {shlex.quote(str(Path(env_script).expanduser().resolve()))}")
+    if data_dir:
+        body.append(f"export CP2K_DATA_DIR={shlex.quote(str(Path(data_dir).expanduser().resolve()))}")
+    body.extend(
+        [
+            f"export OMP_NUM_THREADS={int(cpus_per_task)}",
+            f"zstar cp2k-bec run --root \"$ROOT\" --cp2k-command {shlex.quote(cp2k_command)} "
+            f"--omp-threads {int(cpus_per_task)} 2>&1 | tee -a \"$ROOT/.zstar/workflow.log\"",
+            'zstar cp2k-bec collect --root "$ROOT" 2>&1 | tee -a "$ROOT/.zstar/workflow.log"',
+        ]
+    )
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("\n".join(header + [""] + body) + "\n", encoding="utf-8", newline="\n")
+    if os.name != "nt":
+        target.chmod(target.stat().st_mode | 0o111)
+    return target
 
 
 def collect_cp2k_bec(

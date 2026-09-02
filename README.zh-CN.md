@@ -24,7 +24,7 @@
 
 ## 项目简介
 
-ZStar 是连接 ABACUS/PyATB、VASP、CP2K、Quantum ESPRESSO 与 Phonopy
+ZStar 是连接 ABACUS + PYATB、VASP、CP2K、Quantum ESPRESSO 与 Phonopy
 的 Python 响应性质工作流工具。其核心任务是把不同计算器的原子响应数据整理为
 满足晶体对称性与声学求和规则的 Born 有效电荷（BEC）张量，并进一步完成声子、
 红外（IR）、介电与拉曼分析。
@@ -83,7 +83,7 @@ Z*(kappa, alpha, beta) = Omega/e * dP_alpha / du_(kappa,beta)
 - **归一化：**面内 BEC 通过超胞体积因子消除真空层高度依赖；二维介电谱默认输出与真空无关的片层极化率。
 
 ZStar 的统一张量约定为：行表示原子位移/力，列表示极化/电场。因此，完整二维
-BEC 需要 `x`、`y`、`z` 三个方向的位移。`zstar gen --dim 2` 默认会生成全部三个
+BEC 需要 `x`、`y`、`z` 三个方向的位移。`zstar bec pre --dim 2` 默认会生成全部三个
 方向。当前混合算法要求薄膜法向与笛卡尔 `z` 轴对齐；对于倾斜薄膜会明确报错退出。
 
 可以独立审计一对参考/位移电荷密度 cube：
@@ -131,19 +131,33 @@ zstar --version
 zstar --help
 ```
 
+计算软件路径只需在项目内配置一次（加 `--user` 可写入用户配置），随后任务脚本
+会按 shell/Torque 或 Slurm 自动选择 `mpirun` 或 `srun`：
+
+```bash
+zstar config init
+zstar config set executables.abacus /opt/abacus/bin/abacus
+zstar config set executables.pyatb /opt/pyatb/bin/pyatb
+zstar config check
+zstar backend list --check
+```
+
 ## Agent Skill
 
 安装 ZStar 后，可直接安装随软件提供的 `$run-zstar-workflows` 技能：
 
 ```bash
-zstar agent-skill install
-zstar agent-skill preflight --root . --lane bec --dim bulk
+zstar skill install
+zstar skill preflight --root . --lane bec --dim bulk
 ```
 
 安装后新建智能体会话。升级 ZStar 后使用 `--force` 刷新技能；其他兼容框架可用
 `--dest /path/to/skills` 指定技能父目录。该 Skill 固化了维度约定、参考态优先执行、
 断点续算、调度系统权限边界和基于产物的完成判据。详见
 [docs/agent_skill.zh-CN.md](docs/agent_skill.zh-CN.md)。
+
+规范 CLI、兼容别名、配置优先级和全部公共工具族见
+[命令行参考](docs/cli_reference.zh-CN.md)。
 
 ## Born 有效电荷工作流
 
@@ -152,19 +166,19 @@ zstar agent-skill preflight --root . --lane bec --dim bulk
 在包含 `STRU` 的目录中执行：
 
 ```bash
-zstar gen --stru STRU --pyatb --method forward --force
+zstar bec pre --calculator abacus --stru STRU --pyatb --method forward --force
 ```
 
 二维薄膜：
 
 ```bash
-zstar gen --stru STRU --dim 2 --pyatb --method forward --force
+zstar bec pre --calculator abacus --stru STRU --dim 2 --pyatb --method forward --force
 ```
 
 沿 `z` 周期的一维纳米线：
 
 ```bash
-zstar gen --stru STRU --dim 1 --pyatb --method central --force
+zstar bec pre --calculator abacus --stru STRU --dim 1 --pyatb --method central --force
 ```
 
 生成的目录从 `0.no-move` 开始，后面是类似 `1.Ti/x+` 的原子/方向位移目录。每个位移目录不再需要单独复制一份任务脚本。
@@ -173,12 +187,12 @@ zstar gen --stru STRU --dim 1 --pyatb --method central --force
 
 | 选项 | 含义 |
 | --- | --- |
-| `--method forward|central` | 前向或中心有限差分。 |
+| `--method forward\|central` | 前向或中心有限差分。 |
 | `--reduce` / `--all` | 默认只算对称性代表原子，或强制计算全部原子。 |
 | `--move "x y z"` | 显式指定原子位移方向。 |
 | `--displacement 0.01` | 有限位移的半步长，单位为 Angstrom。 |
-| `--dim 0|1|2|3` | 分子、一维、二维或三维处理。 |
-| `--input-mode abacus|pyatb|hamgnn|custom` | 输入文件准备方式。 |
+| `--dim 0\|1\|2\|3` | 分子、一维、二维或三维处理。 |
+| `--input-mode abacus\|pyatb\|hamgnn\|custom` | 输入文件准备方式。 |
 | `--input_sets FILES` | 复制到任务目录的附加文件或文件夹。 |
 
 ### 2. 串行执行并支持断点续算
@@ -186,7 +200,7 @@ zstar gen --stru STRU --dim 1 --pyatb --method central --force
 本地 shell 运行：
 
 ```bash
-zstar workflow run --root . --dim 3 \
+zstar bec run --root . \
   --abacus-command "mpirun -np 1 abacus" \
   --pyatb-command "mpirun -np 1 pyatb" \
   --omp-threads 28
@@ -211,13 +225,13 @@ zstar workflow run --root . --dim 3 \
 默认采用普通能带路径进行轻量绝缘性门控。它可以发现所采样路径上的闭隙，但不能排除路径之外的小型费米面。只有显式指定时才采用更严格的 MP 网格：
 
 ```bash
-zstar workflow run --gap-mode mp --mp-density 0.08
+zstar bec run --root . --gap-mode mp --mp-density 0.08
 ```
 
 查看进度：
 
 ```bash
-zstar workflow status
+zstar bec stat --root .
 ```
 
 ### 3. 生成不同运行环境的脚本
@@ -225,21 +239,21 @@ zstar workflow status
 本地 shell：
 
 ```bash
-zstar workflow script --backend shell --dim 3
+zstar bec job --root . --system shell
 ```
 
 Slurm：
 
 ```bash
-zstar workflow script --backend slurm --dim 3 \
-  --queue compute --cpus-per-task 28 --walltime 24:00:00
+zstar bec job --root . --system slurm \
+  --queue compute --tasks 28 --cpus-per-task 1 --walltime 24:00:00
 ```
 
 Torque/PBS：
 
 ```bash
-zstar workflow script --backend torque --dim 3 \
-  --queue batch --cpus-per-task 28 --walltime 24:00:00
+zstar bec job --root . --system torque \
+  --queue batch --tasks 28 --cpus-per-task 1 --walltime 24:00:00
 ```
 
 后端默认启动命令会自动适配：shell/Torque 使用 `mpirun -np N`，Slurm
@@ -254,10 +268,10 @@ zstar workflow script --backend torque --dim 3 \
 ABACUS + PYATB 分子 APT：
 
 ```bash
-zstar gen --dim 0 --method central --displacement 0.01 --pyatb
-zstar workflow run --root . --dim 0 \
+zstar bec pre --calculator abacus --dim 0 --method central --displacement 0.01 --pyatb
+zstar bec run --root . \
   --abacus-command abacus --pyatb-command pyatb --omp-threads 20
-zstar deal --dim 0 --method central --displacement 0.01 --pyatb
+zstar bec post --root .
 ```
 
 分子收集器会展开对称等价原子、施加平移不变性约束，并写出
@@ -268,22 +282,23 @@ zstar deal --dim 0 --method central --displacement 0.01 --pyatb
 三维：
 
 ```bash
-zstar deal --dim 3 --method forward --pyatb
+zstar bec post --root .
 ```
 
 二维混合处理：
 
 ```bash
-zstar deal --dim 2 --method forward --pyatb
+zstar bec post --root .
 ```
 
 沿 `z` 周期的一维混合处理：
 
 ```bash
-zstar deal --dim 1 --method central --pyatb
+zstar bec post --root .
 ```
 
-中心差分必须在 `gen` 和 `deal` 两步中都使用 `--method central`。
+工作流清单会把 `pre` 选择的维度与差分方法传递给后续动作。旧的
+`gen/workflow/deal` 命令继续作为兼容入口保留。
 
 关键输出：
 
@@ -305,11 +320,11 @@ zstar deal --dim 1 --method central --pyatb
 构造 APT 或 BEC 张量：
 
 ```bash
-zstar cp2k-bec prepare --input input.inp --root cp2k_bec --dim 0 \
+zstar bec pre --calculator cp2k --input input.inp --root cp2k_bec --dim 0 \
   --method central --displacement 0.005
-zstar cp2k-bec run --root cp2k_bec --cp2k-command cp2k.ssmp \
+zstar bec run --root cp2k_bec --cp2k-command cp2k.ssmp \
   --omp-threads 20 --data-dir /path/to/cp2k/data
-zstar cp2k-bec collect --root cp2k_bec
+zstar bec post --root cp2k_bec
 ```
 
 参考波函数会被所有位移任务复用，中断后从 `.zstar/cp2k_bec_state.json` 恢复。
@@ -323,9 +338,9 @@ ZStar 也可直接驱动 VASP 的原生 BEC 功能：`dfpt` 对应 `LEPSILON` �
 `finite-field` 对应 `LCALCEPS`/PEAD 有限场：
 
 ```bash
-zstar vasp-bec prepare --input-dir vasp_input --root vasp_bec --method dfpt
-zstar vasp-bec run --root vasp_bec --vasp-command "mpirun -np 20 vasp_std"
-zstar vasp-bec collect --root vasp_bec
+zstar bec pre --calculator vasp --input-dir vasp_input --root vasp_bec --method dfpt
+zstar bec run --root vasp_bec --vasp-command "mpirun -np 20 vasp_std"
+zstar bec post --root vasp_bec
 ```
 
 工作流会先完成参考 SCF 并检查带隙，确认绝缘后才进入响应阶段；已完成阶段可以
@@ -340,7 +355,9 @@ zstar vasp-bec collect --root vasp_bec
 在包含 `STRU`、`KPT` 以及已设置 `cal_force 1` 的 `INPUT` 的声子目录中执行：
 
 ```bash
-zstar ph --stru STRU --dim "2 2 2" --symmprec 1e-3
+zstar phonon pre --root . --calculator abacus \
+  --stru STRU --dim "2 2 2" --symmprec 1e-3
+zstar phonon run --root .
 ```
 
 随后按照本地运行环境完成全部 `disp-*` 目录中的力计算。`zstar ph` 不要求也不会强制复制 `abacus_x.sh`；若当前目录确有该脚本，则只把它作为可选便利文件复制。
@@ -348,15 +365,16 @@ zstar ph --stru STRU --dim "2 2 2" --symmprec 1e-3
 ### 2. 后处理力并查看 Gamma 模式分类
 
 ```bash
-zstar postph
-zstar irrep --file irreps.yaml --mode db
+zstar phonon stat --root .
+zstar phonon post --root .
+zstar phonon irrep --root . --file irreps.yaml --mode db
 ```
 
 如果需要非解析项修正，应先把 BEC 工作流中的 `BORN` 复制到声子目录：
 
 ```bash
 cp ../polar/BORN .
-zstar postph --nac
+zstar phonon post --root . --nac
 ```
 
 ### 3. 静态与频率相关介电响应
@@ -371,14 +389,14 @@ cp ../polar/Z-BORN-symm.out .
 静态介电响应：
 
 ```bash
-zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
+zstar dielectric static --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 3
 ```
 
 频率相关介电响应：
 
 ```bash
-zstar freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
+zstar dielectric freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 3
 ```
 
@@ -389,7 +407,7 @@ zstar freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
 二维体系不指定 `--thickness` 时，输出与真空层无关、单位为埃的片层极化率：
 
 ```bash
-zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
+zstar dielectric static --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 2
 ```
 
@@ -402,12 +420,14 @@ zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
 计算模式有效电荷、振子强度、展宽后的红外谱和介电/片层响应：
 
 ```bash
-zstar ir --qpoints qpoints.yaml \
+zstar spectra pre --calculator abacus --kind ir --root ir_spectrum \
+  --qpoints qpoints.yaml \
   --born Z-BORN-symm.out --dielectric BORN \
-  --dim 3 --broadening 10 --outdir ir_spectrum
+  --dim 3
+zstar spectra post --root ir_spectrum
 ```
 
-也可以显式选择模式：
+需要显式选择模式或精细控制绘图时，可调用保留的底层专家命令：
 
 ```bash
 zstar ir --modes "4,5,8-10" --outdir ir_selected
@@ -422,8 +442,9 @@ ZStar 沿 Gamma 点简正坐标对电子介电响应做中心差分，得到非�
 ### 1. 生成简正模式正负位移
 
 ```bash
-zstar raman prepare --stru STRU --qpoints qpoints.yaml \
-  --modes "4-12" --amplitude 0.02 --outdir raman \
+zstar spectra pre --calculator abacus --kind raman --root raman \
+  --stru STRU --qpoints qpoints.yaml \
+  --modes "4-12" --amplitude 0.02 \
   --copy INPUT-scf --copy KPT
 ```
 
@@ -432,23 +453,18 @@ zstar raman prepare --stru STRU --qpoints qpoints.yaml \
 ### 2. 串行计算、收集并绘谱
 
 ```bash
-zstar raman run --raman-dir raman \
-  --reference 0.no-move --qpoints qpoints.yaml \
-  --dim 3 \
+zstar spectra run --root raman --reference 0.no-move \
   --abacus-command "mpirun -np 1 abacus" \
   --pyatb-command "mpirun -np 1 pyatb" \
   --omp-threads 28
+zstar spectra stat --root raman
+zstar spectra post --root raman
 ```
 
 参考结构的绝缘性门控只复用一次，不会对每个模式位移重复计算。所有 `plus`/`minus` 阶段都复用参考电荷密度，并记录可恢复状态。
 
-也可以分步执行：
-
-```bash
-zstar raman status --raman-dir raman
-zstar raman collect --raman-dir raman --qpoints qpoints.yaml --dim 3
-zstar raman spectrum --raman-dir raman --qpoints qpoints.yaml --dim 3
-```
+保留的 `zstar raman collect` 与 `zstar raman spectrum` 专家命令可用于对已有
+模式位移树重新后处理。
 
 二维体系使用 `--dim 2`。程序会利用声子数据中的超胞高度，将依赖真空的介电导数转换为片层极化率导数。
 
@@ -461,19 +477,20 @@ zstar raman spectrum --raman-dir raman --qpoints qpoints.yaml --dim 3
 共用的简正坐标正负位移：
 
 ```bash
-zstar raman prepare --stru STRU --qpoints qpoints.yaml \
-  --acoustic-cutoff 100 --amplitude 0.02 --outdir raman \
+zstar spectra pre --calculator abacus --kind all --root raman --dim 0 \
+  --stru STRU --qpoints qpoints.yaml \
+  --acoustic-cutoff 100 --amplitude 0.02 \
   --copy INPUT-scf --copy KPT
 ```
 
 以下命令以可断点续算的串行工作流同时生成两种谱：
 
 ```bash
-zstar raman run --raman-dir raman --reference 0.no-move \
-  --qpoints qpoints.yaml --dim 0 \
+zstar spectra run --root raman --reference 0.no-move \
   --abacus-command "mpirun -np 1 abacus" \
   --pyatb-command "mpirun -np 1 pyatb" \
   --spectrum-outdir raman_spectrum --ir-outdir ir_spectrum
+zstar spectra post --root raman
 ```
 
 每个已完成的位移 SCF 只增加两个很轻的 PYATB 后处理阶段。静态介电响应按照
@@ -481,7 +498,7 @@ zstar raman run --raman-dir raman --reference 0.no-move \
 后的 Berry 极化按照 `dmu/dQ = V * dP/dQ` 转换为分子偶极矩导数。简正坐标步长
 `Q` 的单位为 `angstrom * sqrt(amu)`。
 
-已有位移结果也可以独立后处理：
+已有位移结果仍可用底层专家命令独立后处理：
 
 ```bash
 zstar ir --dim 0 --qpoints qpoints.yaml \
@@ -498,12 +515,12 @@ zstar raman spectrum --dim 0 --qpoints qpoints.yaml \
 计算器无关谱学层也支持 VASP 和 CP2K：
 
 ```bash
-zstar spectra prepare --calculator vasp --input-dir vasp_input \
+zstar spectra pre --calculator vasp --input-dir vasp_input \
   --modes-xml phonon/vasprun.xml --root vasp_spectra --dim 3
 zstar spectra run --root vasp_spectra --command "mpirun -np 20 vasp_std"
-zstar spectra collect --root vasp_spectra
+zstar spectra post --root vasp_spectra
 
-zstar spectra prepare --calculator cp2k --input h2o.inp \
+zstar spectra pre --calculator cp2k --input h2o.inp \
   --root cp2k_spectra --dim 0
 ```
 
@@ -519,8 +536,8 @@ VASP 对原生介电响应做模式中心差分；CP2K 使用原生振动偶极�
   <img src="docs/paper_figures/spectroscopy_across_dimensions.png" alt="体材料、二维片层与分子的 IR 和 Raman 验证谱" width="820">
 </p>
 
-三行对比图按论文顺序展示四方 HfO2（`3D, Bulk`）、单层 MoS2
-（`2D, Slab`）和 CH4（`0D, Molecule`）。PBEsol HfO2 行包含全部 15 个
+三行对比图按论文顺序展示四方 HfO2（`Bulk`）、单层 MoS2
+（`2D`）和 CH4（`Molecule`）。PBEsol HfO2 行包含全部 15 个
 稳定光学模式和 30 个已完成的 Raman 响应阶段；更新后的
 ABACUS/PBE-D3(BJ) MoS2 行则将全部 6 个光学模式与生产级 BEC 导出的
 IR 强度及 12 个已完成的中心差分 Raman 响应阶段结合起来。
@@ -559,17 +576,22 @@ ZStar 会探测实际使用的 PyATB 可执行文件：
 
 ## 静电势分析
 
-`zstar potential`（别名 `zstar pot`）可分析 ABACUS 的 `ElecStaticPot.cube`：
+`zstar pot` 可分析 ABACUS 的 `ElecStaticPot.cube`：
 
 ```bash
 zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
   --axes z --plane xy --plane-average --tile 5 5 \
   --vacuum-level --vacuum-sides --vacuum-window 0.75 \
+  --direction a+b --mirror-test \
   --polar-arrow auto \
   --outdir potential
 ```
 
-它可以输出轴向平均势、平面周期拼接图、方向平均曲线，以及单侧或双侧真空能级诊断。局部平台窗口可避免把 dipole correction 的真空复位段混入极性薄膜表面平台。代表性结果中，MoS2 的 `Delta V_vac = -1.65e-5 eV`，alpha-In2Se3 的 `Delta V_vac = 1.220812 eV`。
+它可以输出轴向平均势、平面周期拼接图、方向平均曲线、单侧或双侧真空能级诊断，
+以及单周期最佳镜面中心和非对称度。局部平台窗口可避免把 dipole correction 的
+真空复位段混入极性薄膜表面平台。代表性结果中，MoS2 的
+`Delta V_vac = -1.65e-5 eV`，alpha-In2Se3 的
+`Delta V_vac = 1.220812 eV`。
 
 ![二维材料静电势代表性结果](docs/paper_figures/potential_examples_2d.png)
 
@@ -579,26 +601,25 @@ zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
 
 | 命令 | 功能 |
 | --- | --- |
-| `zstar gen` | 生成参考和 BEC 位移目录。 |
-| `zstar workflow run/status/script` | 执行、查看或生成串行可恢复工作流。 |
-| `zstar deal` / `born` / `polar` | 收集极化并构造 BEC。 |
-| `zstar polar2d` | 审计薄膜 cube 对的偶极差与面外 BEC。 |
-| `zstar bornsym` / `symcheck` | 按对称性重构或校验张量。 |
-| `zstar ph` / `postph` | 生成和后处理声子任务。 |
-| `zstar irrep` | 分类 Gamma 点模式的光学活性。 |
-| `zstar calc` / `freq` | 计算静态或频率相关介电响应。 |
-| `zstar ir` | 计算模式有效电荷与红外谱。 |
-| `zstar raman` | 生成、运行、收集并绘制拉曼谱。 |
-| `zstar spectra` | 统一执行 VASP 或 CP2K 的 IR/Raman 工作流。 |
-| `zstar cp2k-bec` | 生成、串行执行、续算、汇总并验证 CP2K BEC。 |
-| `zstar db init/collect` | 建立候选清单并汇总可审计的 BEC/High-K 数据库。 |
-| `zstar potential` / `pot` | 分析静电势 cube 文件。 |
-| `zstar wyckoff` / `vasp` | 查看 Wyckoff 位置或转换 `STRU`。 |
-| `zstar agent-skill` | 安装 Agent Skill 或输出 JSON 工作区预检查。 |
+| `zstar bec pre/run/job/stat/post` | 极化、APT/BEC、`BORN`、续算状态和任务脚本。 |
+| `zstar phonon pre/run/job/stat/post/irrep` | 位移、串行力计算、力常数、频率和不可约表示。 |
+| `zstar spectra pre/run/job/stat/post` | 计算器感知的 IR 与 Raman 工作流。 |
+| `zstar dielectric static/freq/optics` | 静态、振动及电子介电响应。 |
+| `zstar backend list` | 列出能力，并可检查程序或插件。 |
+| `zstar config init/show/set/check` | 配置计算软件可执行文件路径。 |
+| `zstar response` | 校验并统一计算器无关响应数据。 |
+| `zstar density` | 生成电荷密度导出适配器和来源 sidecar。 |
+| `zstar stru convert/wyckoff` | 转换结构或检查 Wyckoff 位置。 |
+| `zstar data qnep/db` | 导出 qNEP 数据或管理 BEC/High-K 数据库。 |
+| `zstar skill install/path/preflight` | 安装 Agent Skill 或检查工作区。 |
+| `zstar pot` | 绘制势曲线/平面图、真空势差和镜面非对称度。 |
+
+别名、全部叶节点和软件路径解析规则见[完整命令行参考](docs/cli_reference.zh-CN.md)。
 
 ## 仓库与发布约定
 
-- `examples/` 只保存本地验证数据，已加入忽略列表。
+- `examples/` 保存可直接运行的精简案例输入、参考结果和后端示例；大型
+  求解器 scratch 输出仍保留在仓库之外，不提交到 GitHub。
 - `dist/` 与 `build/` 是本地构建产物，不提交。
 - `job_scripts/` 保存可复用任务模板，随代码提交。
 - PyPI 更新流程见 [docs/how_to_update_pypi.md](docs/how_to_update_pypi.md)。

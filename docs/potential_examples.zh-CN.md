@@ -1,6 +1,6 @@
 # ZStar 二维材料静电势示例
 
-这些示例展示 `zstar potential` 对二维材料 ABACUS
+这些示例展示 `zstar pot` 对二维材料 ABACUS
 `ElecStaticPot.cube` 的后处理。MoS2 用作非极性薄膜对照，alpha-In2Se3
 展示面外极性引起的上下表面真空势差，SnS、SnSe 和 SnTe 展示沿晶格方向
 提取面内平均势的方法。
@@ -36,11 +36,13 @@ dipole correction 在真空中的势能复位段混入表面平台。
 zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
   --plane xy --plane-average --tile 5 5 \
   --direction a+b --direction a-b --direction-bins 160 \
+  --mirror-test \
   --direction-method linear --direction-samples 72 72 \
   --direction-smooth 0.15 --outdir potential
 ```
 
-论文选取 SnS 的 `a+b` 曲线进行单周期镜像检验。先去除任意的势能零点，
+`--mirror-test` 会输出最佳镜面中心、归一化非对称度、镜像奇分量 RMS 和折叠后的
+单周期曲线。论文选取 SnS 的 `a+b` 结果：先去除任意的势能零点，
 再优化镜面中心 `c`，使
 `A_M = ||V(s) - V(2c-s)||_2 / (2 ||V(s)||_2)` 最小。所得
 `A_M = 0.033`，镜像奇分量的 RMS 为 `0.048 eV`，说明该方向的微观势轮廓

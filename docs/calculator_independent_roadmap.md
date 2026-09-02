@@ -3,7 +3,7 @@
 ## Scope
 
 The upgrade remains centered on polarization, Born effective charges (BECs),
-dielectric response, phonons, IR/Raman spectra, and MD dielectric analysis. It
+dielectric response, phonons, and IR/Raman spectra. It
 does not turn ZStar into a general electronic-structure workflow engine and it
 does not add AiiDA as a dependency.
 
@@ -22,9 +22,7 @@ The work is divided into dependency-ordered stages:
 6. Add only spectroscopy features supported by the common response data:
    dimensional NAC/LO-TO handling, polarized and powder Raman geometries, and
    dielectric-derived optical observables.
-7. Refactor `zstar md` so fixed, frame-resolved, and external ML responses use
-   the same provider contract.
-8. Validate representative calculations on dedicated compute nodes and update tests,
+7. Validate representative calculations on dedicated compute nodes and update tests,
    bilingual documentation, examples, and the manuscript.
 
 Every stage must retain raw calculator output, explicit units and tensor
@@ -66,7 +64,7 @@ chain, a BN nanotube, and a GaAs nanowire, following:
   electron-phonon interactions*, Phys. Rev. B 109, 245426 (2024),
   [doi:10.1103/PhysRevB.109.245426](https://doi.org/10.1103/PhysRevB.109.245426).
 
-## Versioned response record
+## Response record
 
 The `zstar-response` schema records:
 
@@ -89,24 +87,23 @@ advertises capabilities implemented and tested through ZStar. Force support in
 the underlying calculator does not imply that BEC, density, dielectric, IR, or
 Raman support is available.
 
-The built-in registry now covers ABACUS/PYATB, VASP, CP2K, Quantum ESPRESSO,
+The built-in registry now covers ABACUS + PYATB, VASP, CP2K, Quantum ESPRESSO,
 and Phonopy. Quantum ESPRESSO parser and completion contracts pass fixture
 tests and real molecular/bulk calculations on dedicated compute nodes. The
-ABACUS/PYATB 1D route implements hybrid Berry/dipole BECs, line-response
+The ABACUS + PYATB 1D route implements hybrid Berry/dipole BECs, line-response
 normalization, and Gamma-point IR/Raman. A finite-wavevector 1D Coulomb-cutoff
 phonon solver remains explicitly outside the current release.
 
 ## Completion status
 
-- [x] Versioned response schema, dimensionality contract, and plugin registry.
+- [x] Response schema, dimensionality contract, and plugin registry.
 - [x] ABACUS, VASP, and CP2K response adapters without breaking legacy files.
 - [x] Resumable Quantum ESPRESSO SCF/DFPT/dynmat workflow and real closure.
 - [x] Phonopy mode/BORN import and intrinsic 0D/1D/2D normalization.
 - [x] Hybrid ABACUS/PYATB 1D BEC and Gamma-point IR/Raman workflow.
 - [x] Shared VASP/QE/CP2K cube preparation for real-space dipoles.
 - [x] Dimensional NAC guards, polarized Raman, and optical observables.
-- [x] Fixed, frame-resolved, command, and plugin BEC providers for MD.
-- [x] Unit tests, bilingual manuals, README PDFs, and blue-marked CPC text.
+- [x] Unit tests, bilingual manuals, README PDFs, and CPC manuscript text.
 
 The rejected general-workflow expansion (including AiiDA integration) was not
 implemented. This keeps the calculator-neutral layer focused on response

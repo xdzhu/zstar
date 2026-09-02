@@ -69,7 +69,7 @@ Atom-resolved records preferentially use full-cell tensors from
 Acoustic-sum diagnostics are evaluated only for `tensor_scope=full_cell`.
 Representative-only tensors are explicitly marked and cannot enter the ranking.
 Validated molecular spectra use `status=complete_auxiliary`: they remain
-auditable without being mislabeled as missing periodic BEC data.
+traceable without being mislabeled as missing periodic BEC data.
 
 ## Minimum provenance
 

@@ -72,7 +72,7 @@ CP2K 后端尚未实现二维薄膜面外分量所需的实空间积分。二维
 生成中心差分任务：
 
 ```bash
-zstar cp2k-bec prepare --input input.inp --root cp2k_bec \
+zstar bec pre --calculator cp2k --input input.inp --root cp2k_bec \
   --dim 0 --method central --displacement 0.005 --atoms all
 ```
 
@@ -84,7 +84,7 @@ zstar cp2k-bec prepare --input input.inp --root cp2k_bec \
 调用本地 CP2K：
 
 ```bash
-zstar cp2k-bec run --root cp2k_bec \
+zstar bec run --root cp2k_bec \
   --cp2k-command /path/to/cp2k.ssmp \
   --omp-threads 20 \
   --data-dir /path/to/cp2k/data
@@ -98,8 +98,8 @@ zstar cp2k-bec run --root cp2k_bec \
 查看进度并汇总：
 
 ```bash
-zstar cp2k-bec status --root cp2k_bec
-zstar cp2k-bec collect --root cp2k_bec
+zstar bec stat --root cp2k_bec
+zstar bec post --root cp2k_bec
 ```
 
 主要输出为：
@@ -109,9 +109,8 @@ zstar cp2k-bec collect --root cp2k_bec
 | `Z-BORN-all.out` | 每个选定原子的展平 3 x 3 APT/BEC 张量。 |
 | `cp2k_bec.json` | 参数、偶极、分支移动、张量和求和残差。 |
 
-原有入口也可以使用 `zstar gen --cp2k`、`zstar deal --cp2k` 和
-`zstar polar --cp2k` 选择该后端。更推荐专用的 `cp2k-bec` 子命令，因为它的任务
-含义和状态检查更清楚。
+常规任务推荐使用规范的 `zstar bec` 生命周期。专用的 `zstar cp2k-bec` 专家
+接口继续用于原生 `APT_FD` 生成与对比。
 
 ## 与 CP2K 原生 APT 对照
 

@@ -84,7 +84,7 @@ a BEC is a numerical derivative. For example:
 Generate a central-difference workflow:
 
 ```bash
-zstar cp2k-bec prepare --input input.inp --root cp2k_bec \
+zstar bec pre --calculator cp2k --input input.inp --root cp2k_bec \
   --dim 0 --method central --displacement 0.005 --atoms all
 ```
 
@@ -97,7 +97,7 @@ per selected atom.
 Run with a local CP2K executable:
 
 ```bash
-zstar cp2k-bec run --root cp2k_bec \
+zstar bec run --root cp2k_bec \
   --cp2k-command /path/to/cp2k.ssmp \
   --omp-threads 20 \
   --data-dir /path/to/cp2k/data
@@ -111,8 +111,8 @@ displaced stage as `reference-RESTART.wfn`, and the displaced inputs use
 Inspect progress and collect tensors:
 
 ```bash
-zstar cp2k-bec status --root cp2k_bec
-zstar cp2k-bec collect --root cp2k_bec
+zstar bec stat --root cp2k_bec
+zstar bec post --root cp2k_bec
 ```
 
 The collector writes:
@@ -127,10 +127,9 @@ record retains the available floating-point precision. This prevents an extra
 formatting loss; physical accuracy still depends on converged dipoles and a
 validated finite-difference step.
 
-The existing entry points can also select this backend with `zstar gen --cp2k`,
-`zstar deal --cp2k`, and `zstar polar --cp2k`. The dedicated `cp2k-bec`
-subcommands are preferred because their intent and status operations are
-explicit.
+The canonical `zstar bec` lifecycle is preferred for routine work. The
+dedicated `zstar cp2k-bec` expert interface remains available for native
+`APT_FD` generation and comparison.
 
 ## Native CP2K cross-check
 

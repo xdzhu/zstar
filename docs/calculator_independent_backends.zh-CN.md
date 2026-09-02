@@ -16,7 +16,7 @@ Gamma 点声子和 IR/Raman 光谱展开。不同计算器只负责生成统一�
 | 3 | 三维晶体 | 相对介电张量，无量纲 |
 
 对于 `dim=1`，沿周期方向的 BEC 可以采用 Berry 相位极化，两个横向分量则需要
-实空间偶极差分。ABACUS/PYATB 主线已经实现这套混合 BEC，并可将 Gamma 点
+实空间偶极差分。ABACUS + PYATB 主线已经实现这套混合 BEC，并可将 Gamma 点
 IR/Raman 归一化为不依赖横向真空的线响应。原始超胞介电张量仍依赖真空层，不能
 解释为一维本征介电常数。ZStar 会拒绝给一维或二维体系套用三维 bulk 的 NAC
 模型；有限波矢的库仑截断声子求解器不在当前范围内。完整流程见
@@ -30,12 +30,12 @@ zstar backend list --json
 ```
 
 这里列出的是 ZStar 已经实现的能力，而不是底层计算器理论上拥有的全部功能。
-ABACUS/PyATB 仍是完整的有限位移极化主线；VASP 和 CP2K 提供原生或有限位移
+ABACUS + PYATB 仍是完整的有限位移极化主线。VASP 和 CP2K 提供原生或有限位移
 BEC 与谱学工作流；Quantum ESPRESSO 提供分子和三维 bulk 的原生 DFPT 路线；
 Phonopy 负责与力计算器无关的力常数和模式。第三方适配器可以通过
 `zstar.backends` Python entry point 注册 `BackendSpec`。
 
-## 版本化响应记录
+## 响应记录
 
 `zstar-response` 1.0 JSON 显式保存物理维度、周期方向、数值、形状、单位、
 归一化方式、张量约定、数据来源和计算溯源。
@@ -66,19 +66,20 @@ QE，ZStar 会把 `K_POINTS gamma` 自动改写成显式 `1 1 1` 网格，使 `p
 能够读取重启数据。
 
 ```bash
-zstar qe-bec prepare --input scf.in --root qe_work --dim 3
-zstar qe-bec run --root qe_work \
+zstar bec pre --calculator qe --input scf.in --root qe_work --dim 3
+zstar bec run --root qe_work \
   --pw-command "mpirun -np 20 pw.x" --ph-command "mpirun -np 20 ph.x"
-zstar qe-bec status --root qe_work
-zstar qe-bec collect --root qe_work
+zstar bec stat --root qe_work
+zstar bec post --root qe_work
 ```
 
 可断点续算的串行流程为 `pw.x -> ph.x -> dynmat.x`。只有 SCF 输出给出正的
 最高占据/最低未占据能级差后，DFPT 才会启动。若当前 QE 版本或泛函不支持原生
-Raman，使用 `--no-raman`。`zstar qe-bec script` 可生成 shell、Slurm 和 Torque
+Raman，使用 `--no-raman`。`zstar bec job --root qe_work --system SYSTEM` 可生成 shell、Slurm 和 Torque
 驱动脚本。
 
-旧写法 `zstar qe ...` 与 `zstar backend qe ...` 暂时保留为兼容别名，并会输出弃用提示。新建工作流统一使用 `zstar qe-bec ...`；`zstar backend list` 仅用于查询计算器能力。
+新建工作流在准备阶段使用 `zstar bec pre --calculator qe`，后续由清单驱动统一的
+`bec` 生命周期；计算器能力查询只有 `zstar backend list` 一个公共入口。
 
 ## 统一实空间电荷密度路线
 

@@ -1,0 +1,141 @@
+{
+  "method": "forward",
+  "displacement_angstrom": 0.01,
+  "tensor": [
+    [
+      -2.520935926776734,
+      0.002148924000003932,
+      0.0
+    ],
+    [
+      0.00270843274889509,
+      -2.521392271303262,
+      0.0
+    ],
+    [
+      0.0023583678101166254,
+      -0.006263309185479378,
+      -0.1758161704824911
+    ]
+  ],
+  "in_plane_tensor": [
+    [
+      -2.520935926776734,
+      0.002148924000003932,
+      0.0
+    ],
+    [
+      0.00270843274889509,
+      -2.521392271303262,
+      0.0
+    ]
+  ],
+  "out_of_plane_row": [
+    0.0023583678101166254,
+    -0.006263309185479378,
+    -0.1758161704824911
+  ],
+  "diagnostics": {
+    "reference_dipole": {
+      "cube": "original_validation/cases/in2se3/0.no-move/OUT.ABACUS/SPIN1_CHG.cube",
+      "dipole_e_bohr": -0.24449881786244987,
+      "polarization_C_per_m": -1.4269199160610904e-11,
+      "area_bohr2": 51.878382255000005,
+      "height_bohr": 68.72310000000002,
+      "electron_count_raw": 43.99979566562241,
+      "ionic_charge": 44.0,
+      "neutrality_scale": 1.0000046439846937,
+      "normal": [
+        0.0,
+        -0.0,
+        1.0
+      ]
+    },
+    "directions": {
+      "x": {
+        "plus": {
+          "cube": "original_validation/cases/in2se3/3.Se/x+/OUT.ABACUS/SPIN1_CHG.cube",
+          "dipole_e_bohr": -0.24445425116982733,
+          "polarization_C_per_m": -1.4266598203197202e-11,
+          "area_bohr2": 51.878382255000005,
+          "height_bohr": 68.72310000000002,
+          "electron_count_raw": 43.99977167464947,
+          "ionic_charge": 44.0,
+          "neutrality_scale": 1.0000051892394402,
+          "normal": [
+            0.0,
+            -0.0,
+            1.0
+          ]
+        },
+        "minus": null,
+        "berry_delta_C_per_m2": [
+          -0.0007639999999999939,
+          1.000000000001e-06,
+          -0.022878999999999983
+        ],
+        "in_plane_column": [
+          -2.520935926776734,
+          0.00270843274889509
+        ],
+        "out_of_plane_component": 0.0023583678101166254
+      },
+      "y": {
+        "plus": {
+          "cube": "original_validation/cases/in2se3/3.Se/y+/OUT.ABACUS/SPIN1_CHG.cube",
+          "dipole_e_bohr": -0.24461717725239396,
+          "polarization_C_per_m": -1.4276106734735008e-11,
+          "area_bohr2": 51.878382255000005,
+          "height_bohr": 68.72310000000002,
+          "electron_count_raw": 43.999812027561774,
+          "ionic_charge": 44.0,
+          "neutrality_scale": 1.0000042721191198,
+          "normal": [
+            0.0,
+            -0.0,
+            1.0
+          ]
+        },
+        "minus": null,
+        "berry_delta_C_per_m2": [
+          -0.00044099999999999695,
+          -0.0008830000000000018,
+          0.038133000000000014
+        ],
+        "in_plane_column": [
+          0.002148924000003932,
+          -2.521392271303262
+        ],
+        "out_of_plane_component": -0.006263309185479378
+      },
+      "z": {
+        "plus": {
+          "cube": "original_validation/cases/in2se3/3.Se/z+/OUT.ABACUS/SPIN1_CHG.cube",
+          "dipole_e_bohr": -0.24782126196737408,
+          "polarization_C_per_m": -1.44631003706357e-11,
+          "area_bohr2": 51.878382255000005,
+          "height_bohr": 68.72310000000002,
+          "electron_count_raw": 43.99979077184018,
+          "ionic_charge": 44.0,
+          "neutrality_scale": 1.0000047552080622,
+          "normal": [
+            0.0,
+            -0.0,
+            1.0
+          ]
+        },
+        "minus": null,
+        "berry_delta_C_per_m2": [
+          0.0,
+          0.0,
+          -0.00580799999999998
+        ],
+        "in_plane_column": [
+          0.0,
+          0.0
+        ],
+        "out_of_plane_component": -0.1758161704824911
+      }
+    }
+  }
+}

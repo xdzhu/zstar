@@ -1,8 +1,8 @@
 ---
 name: run-zstar-workflows
-description: Prepare, execute, monitor, resume, and validate ZStar workflows for polarization, Born effective charges, phonons, IR/Raman spectra, dielectric response, and MD+BEC analysis. Use for scientific calculations with the installed zstar CLI; do not use for developing ZStar itself or for unrelated electronic-structure tasks.
+description: Prepare, execute, monitor, resume, and validate ZStar workflows for polarization, Born effective charges, phonons, IR/Raman spectra, and dielectric response. Use for scientific calculations with the installed zstar CLI; do not use for developing ZStar itself or for unrelated electronic-structure tasks.
 metadata:
-  short-description: Run auditable ZStar response workflows
+short-description: Run ZStar response workflows
 ---
 
 # Run ZStar Workflows
@@ -16,7 +16,7 @@ Identify the requested lane before constructing commands:
 
 - Polarization or BEC: read [references/bec-and-phonons.md](references/bec-and-phonons.md).
 - Phonons, mode classification, or harmonic dielectric response: read the same reference.
-- IR, Raman, molecules, or MD+BEC: read [references/spectroscopy-and-md.md](references/spectroscopy-and-md.md).
+- IR, Raman, or molecules: read [references/spectroscopy.md](references/spectroscopy.md).
 - Before declaring success, read [references/completion-contracts.md](references/completion-contracts.md).
 
 Determine whether the system is a molecule, a 1D wire or chain, a 2D slab, or
@@ -31,7 +31,7 @@ Gamma-point IR/Raman response, but it does not implement a finite-wavevector
 2. Run the non-mutating preflight and inspect its JSON:
 
    ```bash
-   zstar agent-skill preflight --root . --lane bec --dim bulk
+   zstar skill preflight --root . --lane bec --dim bulk
    ```
 
 3. Inspect the actual input files and existing `.zstar/` state. Work with
@@ -64,8 +64,6 @@ Gamma-point IR/Raman response, but it does not implement a finite-wavevector
 - For molecular charge response, call the result an atomic polar tensor (APT),
   use central differences, and compare orientation-independent GAPT traces
   before comparing individual Cartesian components.
-- Treat MD+BEC as post-processing of user-supplied fixed or frame-resolved BECs;
-  do not claim that ZStar predicts those tensors from the trajectory.
 - Keep atom ordering consistent among structures, BEC tensors, Phonopy data,
   and trajectory frames.
 

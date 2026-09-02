@@ -30,8 +30,8 @@ gas-phase integrated cross sections.
 1. Relax the molecule in a fixed vacuum cell. Fix one central atom during the
    relaxation only when needed to prevent center-of-mass drift.
 2. Release every atom and calculate finite-displacement force constants with
-   `zstar ph` and `zstar postph`.
-3. Inspect the Gamma modes with `zstar irrep`. Exclude rigid translations and
+   `zstar phonon pre` and `zstar phonon post`.
+3. Inspect the Gamma modes with `zstar phonon irrep`. Exclude rigid translations and
    rotations by a reviewed frequency cutoff or explicit mode list.
 4. Prepare central mode displacements with `zstar raman prepare`.
 5. Run the reference SCF once and retain its reusable charge density.
@@ -105,7 +105,7 @@ Carbon dioxide is the complementary centrosymmetric benchmark. A direct
 20-core run on a dedicated compute node used ABACUS 3.10.0 LTS, PBE, a 100 Ry cutoff, a
 20 Angstrom cell, and no empirical frequency scaling. The accepted linear
 geometry has a 1.17042 Angstrom C-O bond and a maximum residual force of
-0.00623 eV/Angstrom; the reference path gap is 8.6179 eV.
+0.00623 eV/Angstrom. The reference band gap along the high-symmetry path is 8.618 eV.
 
 | Fundamental | Symmetry | ZStar/ABACUS (cm-1) | NIST (cm-1) | Error | IR | Raman |
 | --- | --- | ---: | ---: | ---: | --- | --- |

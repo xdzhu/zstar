@@ -1,0 +1,11 @@
+{
+  "gap_eV": 4.8051,
+  "vbm_eV": 11.7552,
+  "cbm_eV": 16.5603,
+  "insulating": true,
+  "threshold_eV": 0.01,
+  "source": "original_validation/cases/hfo2/0.no-move/pyatb-band/Out/Band_Structure/band_info.dat",
+  "sampling": "path",
+  "dimensionality": 3,
+  "scope": "0.no-move reference gate"
+}

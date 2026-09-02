@@ -15,15 +15,15 @@ VASP 与 CP2K 统一使用新入口 `zstar spectra`。
 `vasprun.xml`。然后为所选光学模式生成一个参考响应和中心正负位移：
 
 ```bash
-zstar spectra prepare --calculator vasp \
+zstar spectra pre --calculator vasp \
   --input-dir vasp_input --modes-xml phonon/vasprun.xml \
   --root vasp_spectra --dim 3 --method dfpt
 
 zstar spectra run --root vasp_spectra \
   --command "mpirun -np 20 vasp_std"
 
-zstar spectra status --root vasp_spectra
-zstar spectra collect --root vasp_spectra
+zstar spectra stat --root vasp_spectra
+zstar spectra post --root vasp_spectra
 ```
 
 参考响应提供 IR 所需的 BEC 和冻结离子电子介电张量；Raman 张量则由每个模式
@@ -65,18 +65,18 @@ Serrano 等对 3C-SiC 报道的 LDA-DFPT 横向光学频率为 793.1 cm-1，同�
 `PROPERTIES/LINRES/POLAR`：
 
 ```bash
-zstar spectra prepare --calculator cp2k \
+zstar spectra pre --calculator cp2k \
   --input h2o.inp --root cp2k_spectra --dim 0
 
 zstar spectra run --root cp2k_spectra \
   --command "/path/to/cp2k.ssmp -i input.inp -o output.log" \
   --omp-threads 20 --cp2k-data-dir /path/to/cp2k/data
 
-zstar spectra status --root cp2k_spectra
-zstar spectra collect --root cp2k_spectra
+zstar spectra stat --root cp2k_spectra
+zstar spectra post --root cp2k_spectra
 ```
 
-非交互环境可执行 `zstar spectra script --root WORK --backend
+非交互环境可执行 `zstar spectra job --root WORK --system
 shell|slurm|torque`，生成一个能够续算全部阶段并在成功后汇总两种谱的调度器脚本。
 
 对于分子，生成输入会使用非周期偶极算符、`REFERENCE COM` 和

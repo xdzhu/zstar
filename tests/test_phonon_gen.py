@@ -69,3 +69,29 @@ class PhononGenerationTests(unittest.TestCase):
                     run_phonopy_and_process_files()
             finally:
                 os.chdir(previous)
+
+    def test_vasp_generation_uses_vasp_phonopy_mode(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name in ("POSCAR", "INCAR", "KPOINTS", "POTCAR", "POSCAR-001"):
+                (root / name).write_text(name, encoding="utf-8")
+            previous = Path.cwd()
+            os.chdir(root)
+            try:
+                with (
+                    patch("zstar.phonon_gen.subprocess.run") as run,
+                    patch("zstar.phonon_gen.create_symlink") as symlink,
+                ):
+                    run.return_value.returncode = 0
+                    run.return_value.stdout = ""
+                    run.return_value.stderr = ""
+                    generated = run_phonopy_and_process_files(
+                        f_stru="POSCAR", vasp_sub="missing.sh"
+                    )
+            finally:
+                os.chdir(previous)
+            command = run.call_args.args[0]
+            self.assertIn("--vasp", command)
+            self.assertNotIn("--abacus", command)
+            self.assertEqual(generated, [str(root / "disp-001")])
+            self.assertEqual(symlink.call_count, 4)

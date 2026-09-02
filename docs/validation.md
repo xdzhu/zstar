@@ -2,8 +2,9 @@
 
 [简体中文](validation.zh-CN.md)
 
-This document records the release-level checks without publishing the local
-`examples/` tree or the remote first-principles scratch directories. It is a
+This document records the release-level checks together with the curated public
+`examples/` tree; remote first-principles scratch directories remain excluded.
+It is a
 result summary, not a claim that the listed settings are converged production
 parameters for every material.
 
@@ -18,6 +19,7 @@ parameters for every material.
 - Scheduler script checks: shell and Torque/PBS on the direct-compute
   environment; Slurm script and environment checks on an independent Slurm
   cluster.
+- Final local regression: 184 tests passed under Python 3.10.
 
 ## Test Coverage
 
@@ -37,7 +39,7 @@ The source test suite covers:
   dipole-correction reset.
 
 The current source tree passes all 150 source tests. The ignored local BTO
-example also completes `zstar deal --dim 3 --method forward --pyatb` and
+example also completes `zstar bec post --root .` and
 reproduces the archived representative charges:
 
 | Site/component | BEC (e) |
@@ -49,7 +51,7 @@ reproduces the archived representative charges:
 
 ## Scheduler Backend Smoke Checks
 
-`zstar workflow script` was exercised with one rank and `--dry-run` for every
+`zstar bec job` was exercised with one rank and `--dry-run` for every
 supported backend. These checks validate generation, environment loading,
 reference-first stage ordering, state output, and scheduler parsing without
 launching ABACUS or PyATB.
@@ -94,16 +96,16 @@ Every material was run as one deterministic workflow beginning with
 `pyatb_input --band` path gate. Displacements were started only after that
 gate passed and reused the reference charge density.
 
-| System | Dimension | Path gap (eV) | Displaced stages |
+| System | Dimension | Band gap (eV) | Displaced stages |
 | --- | ---: | ---: | ---: |
-| MoS2 (PBE+D3(BJ)) | 2D | 1.8200 | 6 |
-| hBN | 2D | 4.6729 | 6 |
-| In2Se3 | 2D | 0.8130 | 15 |
-| BaTiO3 | 3D | 1.6822 | 12 |
-| PbTiO3 | 3D | 1.6929 | 12 |
-| HfO2 (PBEsol/TZDP 9-au) | 3D | 4.7103 | 12 |
+| MoS2 (PBE+D3(BJ)) | 2D | 1.820 | 6 |
+| hBN | 2D | 4.673 | 6 |
+| In2Se3 | 2D | 0.813 | 15 |
+| BaTiO3 | 3D | 1.682 | 12 |
+| PbTiO3 | 3D | 1.693 | 12 |
+| HfO2 (PBEsol/TZDP 9-au) | 3D | 4.710 | 12 |
 
-A separate cubic BaTiO3 seed gave a path gap of 0.0003 eV and was rejected
+A separate cubic BaTiO3 seed gave a band gap of 0.000 eV along the sampled path and was rejected
 before any displacement stage. This is retained as a negative workflow test,
 not interpreted as a material result.
 
@@ -151,7 +153,7 @@ required interchange of Cartesian axes.
 |  | O | -2.115440 | -3.278290 | -2.414210 |
 
 The corresponding legacy-PyATB electronic dielectric diagonals, evaluated
-with the validated 0-30 eV window, are `(6.465, 6.465, 5.921)` for BaTiO3,
+with the reference 0-30 eV window, are `(6.465, 6.465, 5.921)` for BaTiO3,
 `(7.380, 7.380, 7.215)` for PbTiO3. The refreshed HfO2 direct-static result
 is `(5.161604, 5.161604, 4.780272)`.
 
@@ -165,15 +167,15 @@ The same hBN sparse matrices were processed through both interfaces:
 | New direct-static kernel | (1.408043, 1.408043, 1.147124) |
 
 The maximum absolute component difference is 0.0044. A legacy 0-0.1 eV
-window returned a spurious identity tensor and is therefore not used. ZStar
-Since 0.1.1, ZStar defaults to the validated 0-30 eV compact window when direct-static
-calculation is unavailable.
+window returned a spurious identity tensor and is therefore not used. Since
+ZStar 0.1.1, the program defaults to the reference 0-30 eV compact window when
+direct-static calculation is unavailable.
 
 ## One-Dimensional GaAs Nanowire
 
-The production 1D route was validated with a 24-atom hydrogen-passivated GaAs
+The production 1D route was tested with a 24-atom hydrogen-passivated GaAs
 nanowire reconstructed from Materials Cloud record 2023.148. The reference
-ABACUS/PYATB band-path gap is 3.3994 eV. A central-difference BEC run completed
+The ABACUS + PYATB band gap along the sampled path is 3.399 eV. A central-difference BEC run completed
 49 reference/displacement stages and combined the periodic `z` Berry response
 with transverse `x/y` high-precision charge-density dipoles. Coordinate-based
 matching against an independent VASP `LEPSILON` calculation gives an RMS BEC
@@ -182,10 +184,10 @@ all 24 atoms. For representative As atom 1, mapped to VASP atom 3, all nine
 component differences are at most 0.02508 e.
 
 The periodic-axis electronic line polarizability is 27.099 Angstrom^2 with
-ABACUS/PYATB and 27.218 Angstrom^2 with VASP, a relative difference of 0.436%.
+ABACUS + PYATB and 27.218 Angstrom^2 with VASP, a relative difference of 0.436%.
 The transverse values are not used as a like-for-like validation because VASP
 `LEPSILON` includes DFT local-field effects and the PYATB Kubo response is
-independent-particle; the discrepancy is retained in the machine-readable
+independent-particle. The discrepancy is retained in the machine-readable
 comparison record rather than hidden.
 
 The 1 x 1 x 2 Phonopy supercell required 40 completed ABACUS force stages and
@@ -227,7 +229,7 @@ The Raman runner was exercised through complete plus/minus electronic
 calculations for 1D, 2D, and 3D periodic systems. The selected GaAs modes test
 the line-polarizability derivative, the selected hBN mode and complete MoS2
 optical manifold test the sheet convention, and a complete tetragonal HfO2
-manifold tests the ABACUS/PyATB bulk path. The 3C-SiC result remains a separate
+manifold tests the ABACUS + PYATB bulk path. The 3C-SiC result remains a separate
 VASP-backend closure:
 
 | System | Response convention | Mode (cm-1) | Selected result |
@@ -267,8 +269,9 @@ than filtered.
 
 The same PBEsol/TZDP 9-au HfO2 closure gives
 `epsilon_infinity = diag(5.161604, 5.161604, 4.780272)` and
-`epsilon(0) = diag(75.761034, 75.761034, 18.045191)`. Independent `zstar calc`
-and `zstar freq` invocations agree exactly for the zero-frequency tensor. The
+`epsilon(0) = diag(75.761034, 75.761034, 18.045191)`. Independent
+`zstar dielectric static` and `zstar dielectric freq` invocations agree exactly
+for the zero-frequency tensor. The
 MoS2 lattice-only two-dimensional result is the vacuum-independent sheet
 response `diag(0.710457, 0.710457, 5.68e-6) Angstrom`. Both retained frequency
 curves use 8 cm-1 Lorentzian damping and preserve real and imaginary tensor
@@ -463,8 +466,8 @@ not presented as a converged SiC response benchmark. See the
 
 ## Reproduction Boundaries
 
-Raw material folders remain in the ignored `examples/` tree or isolated
-remote scratch space. They are intentionally excluded from Git, source
-distributions, and wheels. Machine-readable stage records, tensors, and
-spectra should be archived with a scientific study when the values are used
-for publication.
+Raw solver material folders remain in isolated remote scratch space. The public
+`examples/` tree contains only curated inputs, assets, provenance, and compact
+reference records. Machine-readable stage records, tensors, and spectra should
+still be archived with a scientific study when the values are used for
+publication.

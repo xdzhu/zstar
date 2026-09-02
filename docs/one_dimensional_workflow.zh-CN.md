@@ -35,7 +35,7 @@ ZStar 会把生成的极化网格由 `1 x 1 x N` 自动补为可运行的最小
 alpha_1D = A_perp (epsilon_supercell - I) / (4 pi)
 ```
 
-单位为 `Angstrom^2`。`zstar ir` 和 `zstar calc` 的频率响应则使用结果文件中明确
+单位为 `Angstrom^2`。光谱与 `zstar dielectric static` 的频率响应则使用结果文件中明确
 标注的 SI-reduced 约定 `A_perp (epsilon - I)`。
 
 ## BEC 工作流
@@ -43,15 +43,15 @@ alpha_1D = A_perp (epsilon_supercell - I) / (4 pi)
 生成中心差分位移和参考态优先的串行工作流：
 
 ```bash
-zstar gen --stru STRU --input INPUT --dim 1 --pyatb \
+zstar bec pre --calculator abacus --stru STRU --input INPUT --dim 1 --pyatb \
   --method central --kspacing 0.12 --force
 
-zstar workflow script --backend shell --dim 1 --tasks 20 \
+zstar bec job --system shell --tasks 20 \
   --cpus-per-task 1 --env-script env.sh
 bash run_zstar_born.sh
 
-zstar workflow status --root .
-zstar deal --stru STRU --dim 1 --pyatb --method central
+zstar bec stat --root .
+zstar bec post --root .
 ```
 
 执行器首先计算 `0.no-move`，然后用 PYATB 检查沿周期方向自动生成的一维高对称
@@ -70,10 +70,11 @@ zstar deal --stru STRU --dim 1 --pyatb --method central
 只沿纳米线方向扩展声子超胞：
 
 ```bash
-zstar ph --stru STRU --dim "1 1 2"
+zstar phonon pre --stru STRU --dim "1 1 2" --physical-dim 1
 # 运行所有 disp-* ABACUS 力计算。
-zstar postph --stru STRU --physical-dim 1
-zstar irrep --file irreps.yaml --mode db --acoustic-thz 0.5
+zstar phonon run --root .
+zstar phonon post --root .
+zstar phonon irrep --root . --file irreps.yaml --mode db --acoustic-thz 0.5
 ```
 
 该 Gamma 点流程不要添加 `--nac`。三维 bulk 的非解析修正不能代替一维长程静电。
@@ -89,7 +90,7 @@ zstar irrep --file irreps.yaml --mode db --acoustic-thz 0.5
 zstar ir --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 1 --periodic-axis z --outdir ir_spectrum
 
-zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
+zstar dielectric static --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 1 --periodic-axis z --outdir dielectric_response
 ```
 
@@ -114,7 +115,7 @@ ZStar 在计算 Raman 活性前，会把依赖真空的介电导数转换为线�
 随软件分发的 24 原子氢钝化 GaAs 纳米线完成了 49 个参考/BEC 阶段和 40 个声子
 力计算阶段，默认 PYATB 路径带隙为 `3.3994 eV`。与独立 VASP 计算自动匹配
 原子后，全张量 BEC 的 RMS 差为 `0.02068 e`，最大分量差为 `0.08906 e`。
-周期方向线极化率在 ABACUS/PYATB 和 VASP 中分别为 `27.099 Angstrom^2` 与
+周期方向线极化率在 ABACUS + PYATB 和 VASP 中分别为 `27.099 Angstrom^2` 与
 `27.218 Angstrom^2`。
 
 四条近零 Gamma 分支位于 `-10.00` 至 `-1.70 cm^-1`。对于 `800 cm^-1` 以下

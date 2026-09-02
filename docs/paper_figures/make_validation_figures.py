@@ -110,8 +110,8 @@ def save_figure(fig, output: Path, stem: str) -> dict[str, str]:
         "tiff": output / f"{stem}.tiff",
     }
     fig.savefig(paths["png"], dpi=400, bbox_inches="tight")
-    fig.savefig(paths["pdf"], bbox_inches="tight")
-    fig.savefig(paths["svg"], bbox_inches="tight")
+    fig.savefig(paths["pdf"], dpi=600, bbox_inches="tight")
+    fig.savefig(paths["svg"], dpi=600, bbox_inches="tight")
     svg_lines = paths["svg"].read_text(encoding="utf-8").splitlines()
     with paths["svg"].open("w", encoding="utf-8", newline="\n") as handle:
         handle.write("\n".join(line.rstrip() for line in svg_lines) + "\n")

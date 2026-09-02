@@ -1,0 +1,10 @@
+{
+  "dimensionality": 3,
+  "response_kind": "relative dielectric tensor",
+  "modes": 10,
+  "files": {
+    "modes": "ir_modes.csv",
+    "spectrum": "ir_spectrum.dat",
+    "raman_spectrum": "raman_spectrum.dat"
+  }
+}

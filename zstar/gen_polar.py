@@ -1,19 +1,15 @@
 import os
-import re
-import os
 import sys
 import glob
 import math
 import shutil
-import tempfile
-import subprocess
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 from .stru_analyzer import stru_analyzer
 from typing import Optional, List
 import shlex
 from pathlib import Path
-from .phonopy_stru import write_phonopy_compatible_stru
+from .symmetry_reduction import reduce_abacus_atoms, write_reduction_report
 
 
 move_length = 0.01
@@ -776,44 +772,21 @@ def gen_polar(f_stru="STRU",
     
     structure_data = stru_analyzer(f_stru)
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        # 保存当前目录
-        current_dir = os.getcwd()
-        temp_stru = os.path.join(temp_dir, "STRU.phonopy")
-        write_phonopy_compatible_stru(f_stru, temp_stru)
-
-        # 切换到临时目录
-        os.chdir(temp_dir)
-        result = subprocess.run(
-            [
-                "phonopy",
-                "--dim",
-                "1 1 1",
-                "-v",
-                "-d",
-                "--abacus",
-                "-c",
-                temp_stru,
-                f"--tolerance={symm_tol}",
-            ],
-            capture_output=True,
-            text=True,
-        )
-        if result.returncode != 0:
-            message = result.stderr.strip() or result.stdout.strip()
-            raise RuntimeError(
-                f"Phonopy structure analysis failed for {f_stru}:\n{message}"
-            )
-
-        # temp_disp_yaml = os.path.join(temp_dir, 'phonopy_disp.yaml')
-        # shutil.copy(temp_disp_yaml, os.path.join(current_dir, 'phonopy_disp.yaml'))
-        print(result.stdout)
-        with open(os.path.join(current_dir, 'reduced_atom.out'), 'w') as f:
-            f.write('\n'.join(result.stdout.split('\n')[11:-10]))
-
-
-        # 返回原先的目录
-        os.chdir(current_dir)
+    reduction = reduce_abacus_atoms(
+        f_stru,
+        symprec=float(symm_tol),
+        dimensionality=int(dimension),
+    )
+    write_reduction_report(
+        Path(_call_start_dir) / "reduced_atom.out",
+        reduction,
+    )
+    print(
+        "Symmetry reduction: "
+        f"{reduction.engine}, "
+        f"space group={reduction.space_group or 'none'}, "
+        f"representatives={list(reduction.representatives)}"
+    )
 
     # 如果scf_input文件为空，那就把scf_input转换为绝对路径
     if scf_input:
@@ -821,70 +794,13 @@ def gen_polar(f_stru="STRU",
 
     A_to_bohr = 1.889726
 
-    start_pattern = r'Atomic positions'
-    end_pattern = r'unit cell'
-    pattern = rf'{start_pattern}\s*\(fractional\):\s*\n(.*?){end_pattern}'
-    primitive_match = re.search(pattern, result.stdout, re.DOTALL)
-    if primitive_match is None:
-        raise RuntimeError(
-            "Phonopy completed but its verbose atomic-position table could not "
-            "be parsed. Check the Phonopy version and STRU symmetry output."
-        )
-    primitive_unit_cell_text = primitive_match.group(1)
-    lines = primitive_unit_cell_text.strip().split('\n')
-    print(primitive_unit_cell_text)
-
-    star_atom_list = []
-    star_atom = []
-    star_atom_mass = []
-    if extract_starred_atoms_only: #True 为只提取带星号的原子
-        for line in lines:
-            if '*' in line:
-                # print(f"Atom with * symbol found at line: {line}")
-                parts = line.split()
-                atom_symbol = parts[1]
-                atom_mass = float(parts[5])
-                star_atom.append(atom_symbol)
-                star_atom_mass.append(atom_mass)
-                star_pattern = r'\*(\d+)'
-                star_matches = re.findall(star_pattern, line)
-                for match in star_matches:
-                    atom_number = int(match)
-                    star_atom_list.append(atom_number)
-                    # print(f"Found * symbol with Atom Number: {atom_number}")
-    else: #False 提取所有原子
-        for line in lines:
-            # print(line)
-            if '):' in line or  '---' in line:
-                continue  # 跳过不包含原子信息的行
-            if '*' in line:
-                # print(f"Atom with * symbol found at line: {line}")
-                parts = line.split()
-                print(parts)
-                atom_symbol = parts[1]
-                atom_mass = float(parts[5])
-                star_atom.append(atom_symbol)
-                star_atom_mass.append(atom_mass)
-                star_pattern = r'\*(\d+)'
-                star_matches = re.findall(star_pattern, line)
-                for match in star_matches:
-                    atom_number = int(match)
-                    star_atom_list.append(atom_number)
-                    # print(f"Found * symbol with Atom Number: {atom_number}")
-            else:
-                parts = line.split()
-                print(parts)
-                atom_symbol = parts[1]
-                atom_mass = float(parts[5])
-                star_atom.append(atom_symbol)
-                star_atom_mass.append(atom_mass)
-                atom_number = int(parts[0])
-                star_atom_list.append(atom_number)
-                # print(f"Found without * symbol Atom Number: {atom_number}")
-    # print("Star Atom Symbols:", star_atom)
-    # print("Star Atom Masses:", star_atom_mass)
+    all_atom_numbers = list(range(1, reduction.atom_count + 1))
+    if extract_starred_atoms_only:
+        star_atom_list = list(reduction.representatives)
+    else:
+        star_atom_list = all_atom_numbers
+    star_atom = [reduction.symbols[index - 1] for index in star_atom_list]
     reduced_atom_total = len(star_atom_list)
-    # print(f"* Atom Number in total: {len(star_atom_list)}")
     print(star_atom_list)
 
     if atom_input:
@@ -1186,8 +1102,8 @@ def gen_polar(f_stru="STRU",
                             )
 
 
-                        # 恢复标准输出
-                        sys.stdout = sys.__stdout__
+                        # 恢复调用方进入本段代码时的输出流
+                        sys.stdout = original_stdout
 
                         # 现在输出将回到控制台
                         # print("这些输出将显示在控制台。")

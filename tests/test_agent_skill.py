@@ -18,6 +18,10 @@ class AgentSkillTests(unittest.TestCase):
         self.assertEqual(skill.name, SKILL_NAME)
         self.assertIn(f"name: {SKILL_NAME}\n", text)
         self.assertNotIn("TODO", text)
+        self.assertTrue((skill / "references" / "spectroscopy.md").is_file())
+        self.assertFalse(
+            (skill / "references" / "spectroscopy-and-md.md").exists()
+        )
 
     def test_preflight_reports_required_input_and_existing_state(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -9,7 +9,11 @@ from typing import Sequence
 
 import numpy as np
 
-from .polarization_2d import read_pyatb_lattice
+from .polarization_2d import (
+    BOHR_M,
+    integrate_molecular_dipole,
+    read_pyatb_lattice,
+)
 from .spectra import ELEMENTARY_CHARGE, read_pyatb_polarization
 from .stru_analyzer import stru_analyzer
 
@@ -36,6 +40,204 @@ def _stage_polarization(stage: Path) -> tuple[np.ndarray, np.ndarray, Path]:
         except FileNotFoundError as exc:
             errors.append(str(exc))
     raise FileNotFoundError("; ".join(errors))
+
+
+def _stage_cube_dipole(stage: Path, neutrality_tolerance: float):
+    from .polarization_2d import find_charge_cube
+
+    cube = find_charge_cube(stage)
+    return integrate_molecular_dipole(
+        cube,
+        neutrality_tolerance=neutrality_tolerance,
+    )
+
+
+def calculate_molecular_cube_apt(
+    atom_directory: str | Path,
+    reference_directory: str | Path,
+    *,
+    method: str = "central",
+    displacement_angstrom: float = 0.01,
+    directions: Sequence[str] = ("x", "y", "z"),
+    neutrality_tolerance: float = 0.05,
+) -> tuple[np.ndarray, dict]:
+    """Calculate a molecular APT from static SCF charge-density cubes."""
+
+    atom_dir = Path(atom_directory).resolve()
+    reference = Path(reference_directory).resolve()
+    method_key = method.lower()
+    if method_key not in {"forward", "central"}:
+        raise ValueError("method must be forward or central")
+    displacement_bohr = float(displacement_angstrom) / (BOHR_M / 1.0e-10)
+    if displacement_bohr <= 0.0:
+        raise ValueError("displacement_angstrom must be positive")
+    normalized_directions = [str(direction).lower() for direction in directions]
+    if set(normalized_directions) - {"x", "y", "z"}:
+        raise ValueError("directions must contain only x, y, and z")
+
+    reference_dipole = _stage_cube_dipole(reference, neutrality_tolerance)
+    tensor = np.zeros((3, 3), dtype=float)
+    diagnostics = {
+        "method": method_key,
+        "displacement_angstrom": float(displacement_angstrom),
+        "reference": reference_dipole.to_dict(),
+        "directions": {},
+    }
+    for direction in normalized_directions:
+        row = "xyz".index(direction)
+        plus_stage = _direction_directory(atom_dir, direction, "+")
+        plus_dipole = _stage_cube_dipole(plus_stage, neutrality_tolerance)
+        if method_key == "central":
+            minus_stage = _direction_directory(atom_dir, direction, "-")
+            minus_dipole = _stage_cube_dipole(minus_stage, neutrality_tolerance)
+            delta = (
+                np.asarray(plus_dipole.dipole_e_bohr)
+                - np.asarray(minus_dipole.dipole_e_bohr)
+            )
+            denominator = 2.0 * displacement_bohr
+            minus_report = minus_dipole.to_dict()
+        else:
+            delta = (
+                np.asarray(plus_dipole.dipole_e_bohr)
+                - np.asarray(reference_dipole.dipole_e_bohr)
+            )
+            denominator = displacement_bohr
+            minus_report = None
+        tensor[row, :] = delta / denominator
+        diagnostics["directions"][direction] = {
+            "plus": plus_dipole.to_dict(),
+            "minus": minus_report,
+            "dipole_delta_e_bohr": delta.tolist(),
+        }
+    return tensor, diagnostics
+
+
+def collect_molecular_cube_apts(
+    root: str | Path = ".",
+    *,
+    method: str = "central",
+    displacement_angstrom: float = 0.01,
+    symprec: float = 1.0e-3,
+    neutrality_tolerance: float = 0.05,
+    response_output: str | Path = "zstar_response.json",
+) -> dict:
+    """Collect molecular APTs from cube outputs and apply molecular symmetry."""
+
+    root_path = Path(root).resolve()
+    reference = root_path / "0.no-move"
+    stru = reference / "STRU"
+    if not stru.is_file():
+        raise FileNotFoundError(stru)
+    atoms: list[dict] = []
+    diagnostics: list[dict] = []
+    for atom_dir in sorted(root_path.iterdir(), key=lambda path: path.name):
+        if not atom_dir.is_dir():
+            continue
+        match = _ATOM_DIR_RE.match(atom_dir.name)
+        if match is None:
+            continue
+        tensor, atom_diagnostics = calculate_molecular_cube_apt(
+            atom_dir,
+            reference,
+            method=method,
+            displacement_angstrom=displacement_angstrom,
+            neutrality_tolerance=neutrality_tolerance,
+        )
+        atom = {
+            "index": int(match.group(1)),
+            "label": match.group(2),
+            "tensor": tensor.tolist(),
+        }
+        atoms.append(atom)
+        diagnostics.append({**atom_diagnostics, "index": atom["index"], "label": atom["label"]})
+    atoms.sort(key=lambda item: item["index"])
+    if not atoms:
+        raise ValueError(f"No molecular atom-displacement folders found under {root_path}")
+
+    raw_path = root_path / "Z-BORN-reduced.out"
+    _write_zborn(raw_path, atoms)
+    natoms_total = _natoms_from_stru(stru)
+    all_path = root_path / "Z-BORN-all.out"
+    if len(atoms) == natoms_total:
+        _write_zborn(all_path, atoms)
+
+    from .verify_born_symmetry import run_symcheck
+
+    kwargs = {
+        "stru": str(stru),
+        "reduced": str(raw_path),
+        "symprec": float(symprec),
+        "out": str(root_path / "molecular_apt_symmetry_report.txt"),
+        "json_path": str(root_path / "molecular_apt_symmetry_report.json"),
+        "csv_path": None,
+        "symm_out": str(root_path / "Z-BORN-symm.out"),
+    }
+    if all_path.is_file():
+        kwargs["all"] = str(all_path)
+    run_symcheck(**kwargs)
+    symmetry_report_path = root_path / "molecular_apt_symmetry_report.json"
+    symmetry_report = json.loads(symmetry_report_path.read_text(encoding="utf-8"))
+    symmetry_born = symmetry_report["symmetry_born"]
+    corrected_atoms = _read_zborn(root_path / "Z-BORN-symm.out")
+    raw_expanded = symmetry_born["Z_symmetry_mean"]
+    corrected = symmetry_born["Z_corrected"]
+    for atom in corrected_atoms:
+        atom["tensor"] = corrected[str(atom["index"])]
+        atom["gapt"] = float(np.trace(np.asarray(atom["tensor"])) / 3.0)
+    for atom in atoms:
+        atom["gapt"] = float(np.trace(np.asarray(atom["tensor"])) / 3.0)
+
+    raw_reduced_sum = np.sum([np.asarray(atom["tensor"]) for atom in atoms], axis=0)
+    raw_sum = np.sum(
+        [np.asarray(raw_expanded[key]) for key in sorted(raw_expanded, key=int)], axis=0
+    )
+    corrected_sum = np.sum(
+        [np.asarray(atom["tensor"]) for atom in corrected_atoms], axis=0
+    )
+    result = {
+        "schema_version": 1,
+        "backend": "abacus-cube",
+        "dimensionality": 0,
+        "quantity": "atomic_polar_tensor",
+        "method": method.lower(),
+        "displacement_angstrom": float(displacement_angstrom),
+        "natoms_total": natoms_total,
+        "natoms_calculated": len(atoms),
+        "tensor_convention": (
+            "rows=atomic displacement; columns=molecular dipole; "
+            "molecular atomic polar tensor in units of e"
+        ),
+        "raw_atoms": atoms,
+        "atoms": corrected_atoms,
+        "raw_reduced_sum_tensor": raw_reduced_sum.tolist(),
+        "raw_acoustic_sum_tensor": raw_sum.tolist(),
+        "acoustic_sum_tensor": corrected_sum.tolist(),
+        "diagnostics": diagnostics,
+        "files": {
+            "raw_reduced": str(raw_path),
+            "raw_all": str(all_path) if all_path.is_file() else None,
+            "symmetry_corrected": str(root_path / "Z-BORN-symm.out"),
+            "symmetry_report": str(symmetry_report_path),
+        },
+    }
+    json_path = root_path / "molecular_apt.json"
+    json_path.write_text(json.dumps(result, indent=2), encoding="utf-8", newline="\n")
+    from .response_schema import response_record_from_bec_result
+
+    response_path = Path(response_output)
+    if not response_path.is_absolute():
+        response_path = root_path / response_path
+    response_record_from_bec_result(
+        result,
+        dimensionality=0,
+        provenance={
+            "collector": "zstar.molecular_bec.collect_molecular_cube_apts",
+            "root": str(root_path),
+        },
+    ).write(response_path)
+    result["json_output"] = str(json_path)
+    result["response_output"] = str(response_path)
+    return result
 
 
 def _nearest_branch(delta: np.ndarray, quanta: np.ndarray) -> tuple[np.ndarray, np.ndarray]:

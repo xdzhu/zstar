@@ -1,4 +1,4 @@
 interface:
   display_name: "Run ZStar Workflows"
-  short_description: "Run auditable BEC and dielectric workflows"
+  short_description: "Run ZStar BEC and dielectric workflows"
   default_prompt: "Use $run-zstar-workflows to prepare, validate, run, and inspect this ZStar calculation."

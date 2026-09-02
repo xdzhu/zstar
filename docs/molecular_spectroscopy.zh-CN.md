@@ -22,8 +22,8 @@
 ## 完整计算链
 
 1. 在固定真空超胞中优化分子。必要时只在结构优化阶段固定一个中心原子，防止质心漂移；
-2. 释放全部原子，通过 `zstar ph` 和 `zstar postph` 计算有限位移力常数；
-3. 使用 `zstar irrep` 检查 Gamma 点模式，通过经过审查的频率阈值或显式模式列表排除
+2. 释放全部原子，通过 `zstar phonon pre` 和 `zstar phonon post` 计算有限位移力常数；
+3. 使用 `zstar phonon irrep` 检查 Gamma 点模式，通过经过审查的频率阈值或显式模式列表排除
    刚体平移和转动；
 4. 使用 `zstar raman prepare` 生成模式中心差分位移；
 5. 只计算一次参考结构 SCF，并保留可复用的电荷密度；

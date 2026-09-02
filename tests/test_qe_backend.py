@@ -235,13 +235,14 @@ class QeBackendTests(unittest.TestCase):
             )
             self.assertIn("DEPRECATED", stderr.getvalue())
 
-    def test_help_exposes_qe_bec_and_keeps_backend_query_only(self):
+    def test_help_exposes_canonical_bec_and_keeps_backend_query_only(self):
         stdout = StringIO()
         with self.assertRaisesRegex(SystemExit, "0"), redirect_stdout(stdout):
             zstar_cli(["--help"])
         help_text = stdout.getvalue()
         self.assertIn("backend", help_text)
-        self.assertIn("qe-bec", help_text)
+        self.assertIn("bec", help_text)
+        self.assertNotIn("qe-bec", help_text)
         self.assertNotIn("==SUPPRESS==", help_text)
 
         stdout = StringIO()

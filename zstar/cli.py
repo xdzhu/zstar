@@ -23,6 +23,31 @@ from . import __version__
 
 VERSION_STR = f"ZStar {__version__}"
 
+PUBLIC_COMMANDS = (
+    ('bec', 'Polarization and Born effective-charge workflows.'),
+    ('phonon', 'Phonon preparation, execution, collection, and irreps.'),
+    ('spectra', 'Calculator-independent IR and Raman workflows.'),
+    ('dielectric', 'Static and frequency-dependent dielectric response.'),
+    ('pot', 'Electrostatic-potential profiles, maps, and asymmetry analysis.'),
+    ('backend', 'List calculator capabilities and executable availability.'),
+    ('config', 'Configure and check calculator executables.'),
+    ('response', 'Validate and convert calculator-neutral response records.'),
+    ('density', 'Export calculator densities to the ZStar cube contract.'),
+    ('stru', 'Structure conversion and symmetry utilities.'),
+    ('data', 'qNEP dataset and BEC database utilities.'),
+    ('skill', 'Install and inspect the packaged Agent Skill.'),
+)
+
+
+def _restrict_top_level_help(subparsers) -> None:
+    """Show only the stable public API while retaining legacy parsers."""
+    names = ','.join(name for name, _ in PUBLIC_COMMANDS)
+    subparsers.metavar = '{' + names + '}'
+    subparsers._choices_actions = [
+        subparsers._ChoicesPseudoAction(name, [], description)
+        for name, description in PUBLIC_COMMANDS
+    ]
+
 
 def _add_qe_action_parsers(action_subparsers) -> None:
     """Register the shared Quantum ESPRESSO response actions."""
@@ -56,7 +81,7 @@ def _add_qe_action_parsers(action_subparsers) -> None:
     parser_script = action_subparsers.add_parser('script')
     parser_script.add_argument('--root', default='qe_response')
     parser_script.add_argument(
-        '--backend', choices=['shell', 'slurm', 'torque'], default='shell'
+        '--backend', choices=['shell', 'local', 'slurm', 'torque', 'pbs'], default='shell'
     )
     parser_script.add_argument('--output', default=None)
     parser_script.add_argument('--job-name', default='zstar-qe-response')
@@ -67,6 +92,9 @@ def _add_qe_action_parsers(action_subparsers) -> None:
     parser_script.add_argument('--queue', default=None)
     parser_script.add_argument('--account', default=None)
     parser_script.add_argument('--env-script', default=None)
+    parser_script.add_argument('--pw-command', default=None)
+    parser_script.add_argument('--ph-command', default=None)
+    parser_script.add_argument('--dynmat-command', default=None)
 
 
 def _run_qe_action(args) -> None:
@@ -126,17 +154,25 @@ def _run_qe_action(args) -> None:
             queue=args.queue,
             account=args.account,
             env_script=args.env_script,
+            pw_command=args.pw_command,
+            ph_command=args.ph_command,
+            dynmat_command=args.dynmat_command,
         )
         print(f"[OUT] {output}")
 
 
-def zstar_cli(argv=None) -> None:
+def zstar_cli(argv=None, *, _canonical=True) -> None:
     """
     Entry point function for the `zstar` command.
 
     If `argv` is None, arguments are taken from `sys.argv[1:]` (normal CLI use).
     """
     cli_argv = list(sys.argv[1:] if argv is None else argv)
+    from .cli_frontend import handle_canonical_cli
+
+    legacy_runner = lambda legacy_argv: zstar_cli(legacy_argv, _canonical=False)
+    if _canonical and handle_canonical_cli(cli_argv, legacy_runner):
+        return
     legacy_qe_command = None
     if cli_argv[:1] == ['qe']:
         legacy_qe_command = 'zstar qe'
@@ -152,6 +188,20 @@ def zstar_cli(argv=None) -> None:
     )
     parser.add_argument('--version', action='store_true', help='Show version and exit')
     subparsers = parser.add_subparsers(dest='command', help='sub-command help')
+
+    # Canonical command families are dispatched by cli_frontend before this
+    # compatibility parser.  Stubs keep the preferred public API visible in
+    # the transitional top-level help.
+    for family, family_help in (
+        ('bec', 'Polarization and Born effective-charge workflows.'),
+        ('phonon', 'Phonon preparation, execution, collection, and irreps.'),
+        ('dielectric', 'Static and frequency-dependent dielectric response.'),
+        ('stru', 'Structure conversion and symmetry utilities.'),
+        ('data', 'qNEP dataset and BEC database utilities.'),
+        ('skill', 'Install and inspect the packaged Agent Skill.'),
+        ('config', 'Configure and check calculator executables.'),
+    ):
+        subparsers.add_parser(family, help=family_help)
 
     # ---------------- gen ----------------
     parser_gen = subparsers.add_parser('gen', help='Generate polarization data.')
@@ -254,6 +304,10 @@ def zstar_cli(argv=None) -> None:
     deal_calc.add_argument('--cp2k', action='store_true',
                            help='Collect a generated CP2K Berry-phase BEC workflow.')
     parser_deal.add_argument('--cp2k-root', default='cp2k_bec')
+    parser_deal.add_argument(
+        '--molecular-source', choices=['pyatb', 'cube'], default='pyatb',
+        help='For --dim 0, collect APTs from PYATB polarization or charge-density cubes.'
+    )
 
     # ---------------- bornsym ----------------
     parser_borns = subparsers.add_parser(
@@ -400,6 +454,25 @@ def zstar_cli(argv=None) -> None:
     parser_cp2k_status = cp2k_actions.add_parser('status')
     parser_cp2k_status.add_argument('--root', default='cp2k_bec')
 
+    parser_cp2k_script = cp2k_actions.add_parser(
+        'script', help='Generate a shell, Slurm, or Torque serial driver.'
+    )
+    parser_cp2k_script.add_argument('--root', default='cp2k_bec')
+    parser_cp2k_script.add_argument(
+        '--backend', choices=['shell', 'local', 'slurm', 'torque', 'pbs'], default='shell'
+    )
+    parser_cp2k_script.add_argument('--output', default=None)
+    parser_cp2k_script.add_argument('--job-name', default='zstar-cp2k-bec')
+    parser_cp2k_script.add_argument('--nodes', type=int, default=1)
+    parser_cp2k_script.add_argument('--tasks', type=int, default=1)
+    parser_cp2k_script.add_argument('--cpus-per-task', type=int, default=1)
+    parser_cp2k_script.add_argument('--walltime', default='24:00:00')
+    parser_cp2k_script.add_argument('--queue', default=None)
+    parser_cp2k_script.add_argument('--account', default=None)
+    parser_cp2k_script.add_argument('--env-script', default=None)
+    parser_cp2k_script.add_argument('--cp2k-command', default=None)
+    parser_cp2k_script.add_argument('--data-dir', default=None)
+
     parser_cp2k_collect = cp2k_actions.add_parser(
         'collect', help='Construct molecular APT or periodic BEC tensors from CP2K dipoles.'
     )
@@ -469,7 +542,7 @@ def zstar_cli(argv=None) -> None:
     )
     parser_vasp_bec_script.add_argument('--root', default='vasp_bec')
     parser_vasp_bec_script.add_argument(
-        '--backend', choices=['shell', 'slurm', 'torque'], default='shell'
+        '--backend', choices=['shell', 'local', 'slurm', 'torque', 'pbs'], default='shell'
     )
     parser_vasp_bec_script.add_argument('--output', default=None)
     parser_vasp_bec_script.add_argument('--job-name', default='zstar-vasp-bec')
@@ -546,7 +619,7 @@ def zstar_cli(argv=None) -> None:
     )
     parser_spectra_script.add_argument('--root', default='calculator_spectra')
     parser_spectra_script.add_argument(
-        '--backend', choices=['shell', 'slurm', 'torque'], default='shell'
+        '--backend', choices=['shell', 'local', 'slurm', 'torque', 'pbs'], default='shell'
     )
     parser_spectra_script.add_argument('--output', default=None)
     parser_spectra_script.add_argument('--job-name', default='zstar-spectra')
@@ -658,6 +731,11 @@ def zstar_cli(argv=None) -> None:
         'list', help='List implemented ZStar backend capabilities.'
     )
     parser_backend_list.add_argument('--json', action='store_true')
+    parser_backend_list.add_argument(
+        '--check', action='store_true',
+        help='Check configured calculator executables on this machine.'
+    )
+    parser_backend_list.add_argument('--root', default='.')
     parser_backend_list.add_argument(
         '--discover', action='store_true',
         help='Load third-party plugins registered under zstar.backends.'
@@ -800,7 +878,7 @@ def zstar_cli(argv=None) -> None:
         'script', help='Generate one shell, Slurm, or Torque driver script.'
     )
     parser_workflow_script.add_argument(
-        '--backend', choices=['shell', 'slurm', 'torque'], required=True
+        '--backend', choices=['shell', 'local', 'slurm', 'torque', 'pbs'], required=True
     )
     parser_workflow_script.add_argument('--root', default='.')
     parser_workflow_script.add_argument('--output', default=None)
@@ -1268,6 +1346,8 @@ def zstar_cli(argv=None) -> None:
                                   help='Perpendicular-plane sample grid for interpolated directional profiles.')
     parser_potential.add_argument('--direction-smooth', type=float, default=0.0,
                                   help='Optional periodic Gaussian smoothing sigma in Angstrom for directional profiles.')
+    parser_potential.add_argument('--mirror-test', action='store_true',
+                                  help='Optimize a one-period mirror center and report profile asymmetry.')
     parser_potential.add_argument('--value-unit',
                                   choices=['ry', 'ev', 'hartree'],
                                   default='ry',
@@ -1298,6 +1378,7 @@ def zstar_cli(argv=None) -> None:
     parser_potential.add_argument('--cmap', default='viridis',
                                   help='Matplotlib colormap for plane maps.')
 
+    _restrict_top_level_help(subparsers)
     args = parser.parse_args(cli_argv)
 
     if legacy_qe_command:
@@ -1381,6 +1462,7 @@ def zstar_cli(argv=None) -> None:
             compare_cp2k_bec,
             cp2k_bec_status,
             format_cp2k_status,
+            generate_cp2k_backend_script,
             prepare_cp2k_bec,
             prepare_native_apt,
             run_cp2k_bec,
@@ -1411,6 +1493,23 @@ def zstar_cli(argv=None) -> None:
             print(format_cp2k_status(states))
         elif args.cp2k_action == 'status':
             print(format_cp2k_status(cp2k_bec_status(args.root)))
+        elif args.cp2k_action == 'script':
+            output = generate_cp2k_backend_script(
+                args.root,
+                backend=args.backend,
+                output=args.output,
+                job_name=args.job_name,
+                nodes=args.nodes,
+                tasks=args.tasks,
+                cpus_per_task=args.cpus_per_task,
+                walltime=args.walltime,
+                queue=args.queue,
+                account=args.account,
+                env_script=args.env_script,
+                cp2k_command=args.cp2k_command,
+                data_dir=args.data_dir,
+            )
+            print(f"[OUT] {output}")
         elif args.cp2k_action == 'collect':
             result = collect_cp2k_bec(
                 args.root,
@@ -1732,6 +1831,11 @@ def zstar_cli(argv=None) -> None:
 
         registry = builtin_registry()
         discovered = registry.discover() if args.discover else []
+        executable_report = None
+        if args.check:
+            from .configuration import config_report
+
+            executable_report = config_report(args.root)['executables']
         if args.json:
             print(
                 json.dumps(
@@ -1739,6 +1843,7 @@ def zstar_cli(argv=None) -> None:
                         'plugin_group': 'zstar.backends',
                         'discovered': discovered,
                         'backends': [backend.spec.to_dict() for backend in registry.list()],
+                        'executables': executable_report,
                     },
                     indent=2,
                 )
@@ -1747,6 +1852,11 @@ def zstar_cli(argv=None) -> None:
             print(backend_capability_table(registry))
             if discovered:
                 print(f"Discovered plugins: {', '.join(discovered)}")
+            if executable_report is not None:
+                print("\nConfigured executables:")
+                for name, item in executable_report.items():
+                    state = 'available' if item['available'] else 'missing'
+                    print(f"{name:<10} {state:<9} {item['command']}")
 
     elif args.command == 'response':
         import json
@@ -2330,6 +2440,7 @@ def zstar_cli(argv=None) -> None:
             direction_methods=args.direction_method,
             direction_samples=args.direction_samples,
             direction_smooth=args.direction_smooth,
+            mirror_test=args.mirror_test,
             value_unit=args.value_unit,
             length_unit=args.length_unit,
             vacuum_level=args.vacuum_level,
@@ -2470,6 +2581,7 @@ def zstar_cli(argv=None) -> None:
             method=method_fd,
             running_type=running_type,
             displacement_angstrom=getattr(args, 'displacement', None),
+            molecular_source=getattr(args, 'molecular_source', 'pyatb'),
         )
         if calc_flag:
             kwargs['nscf_calculator'] = calc_flag

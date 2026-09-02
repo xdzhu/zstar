@@ -32,21 +32,21 @@ directory:
 
 ```bash
 pip install -U zstar
-zstar agent-skill install
+zstar skill install
 ```
 
 Open a new agent session so skill discovery is refreshed. To update an existing
 copy after upgrading ZStar:
 
 ```bash
-zstar agent-skill install --force
+zstar skill install --force
 ```
 
 Use a custom parent directory for another compatible harness:
 
 ```bash
-zstar agent-skill install --dest /path/to/skills
-zstar agent-skill path
+zstar skill install --dest /path/to/skills
+zstar skill path
 ```
 
 The skill is also present in a source checkout at
@@ -70,10 +70,10 @@ involve running or validating ZStar calculations.
 Agents should inspect a workspace before constructing or launching a workflow:
 
 ```bash
-zstar agent-skill preflight --root . --lane bec --dim bulk
-zstar agent-skill preflight --root . --lane raman --dim 2d
-zstar agent-skill preflight --root . --lane ir --dim molecule
-zstar agent-skill preflight --root . --lane database --dim 1d
+zstar skill preflight --root . --lane bec --dim bulk
+zstar skill preflight --root . --lane raman --dim 2d
+zstar skill preflight --root . --lane ir --dim molecule
+zstar skill preflight --root . --lane database --dim 1d
 ```
 
 The command writes JSON to standard output and does not modify the workspace.
@@ -95,10 +95,9 @@ The skill encodes the non-obvious invariants that should survive model changes:
 | --- | --- |
 | Reference first | Complete and gate `0.no-move` before displaced BEC stages. |
 | Dimensional split | Use Berry response along periodic axes and cube-integrated dipoles along open axes for 1D wires and 2D slabs. |
-| 1D boundary | Run the implemented `z`-periodic ABACUS/PYATB BEC and Gamma-spectroscopy route, but do not claim finite-wavevector polar phonons without a genuine 1D Coulomb cutoff. |
+| 1D boundary | Run the implemented `z`-periodic ABACUS + PYATB BEC and Gamma-spectroscopy route, but do not claim finite-wavevector polar phonons without a genuine 1D Coulomb cutoff. |
 | Resumability | Reuse `.zstar` state and repeat the same serial executor command. |
 | Raman derivative | Use positive/negative normal-coordinate pairs. |
-| MD+BEC scope | Consume supplied BECs; do not claim trajectory-to-BEC prediction. |
 | Completion | Check named files, state records, units, and physical convention. |
 | Authorization | Do not infer permission to submit or run expensive remote jobs. |
 

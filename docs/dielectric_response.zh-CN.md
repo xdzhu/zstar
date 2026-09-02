@@ -27,14 +27,14 @@ ZStar 将 Born 有效电荷（BEC）张量与 Gamma 点声子本征矢收缩，�
 静态命令计算零频极限：
 
 ```bash
-zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
+zstar dielectric static --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 3
 ```
 
 频域命令在相同模式收缩基础上加入阻尼 Lorentz 振子：
 
 ```bash
-zstar freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
+zstar dielectric freq --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 3 --broadening 8 \
   --max-frequency 800 --points 2501 --outdir dielectric_response
 ```
@@ -55,7 +55,7 @@ epsilon_infinity = diag(5.161604, 5.161604, 4.780272)
 复现总响应：
 
 ```bash
-zstar freq \
+zstar dielectric freq \
   --qpoints docs/paper_figures/source_data/hfo2/qpoints.yaml \
   --born docs/paper_figures/source_data/hfo2/Z-BORN-symm.out \
   --dielectric docs/paper_figures/source_data/hfo2/BORN \
@@ -78,7 +78,7 @@ epsilon(0) = diag(75.761034, 75.761034, 18.045191).
 3x3x1 声子超胞和 `1e-8` SCF 阈值：
 
 ```bash
-zstar freq \
+zstar dielectric freq \
   --qpoints docs/paper_figures/source_data/mos2/qpoints.yaml \
   --born docs/paper_figures/source_data/mos2/Z-BORN-symm.out \
   --dim 2 --broadening 8 --max-frequency 500 --points 2501 \
@@ -98,7 +98,7 @@ alpha_2D,ph(0) / epsilon_0
 
 ## 输出文件
 
-`zstar freq` 输出：
+`zstar dielectric freq` 输出：
 
 | 文件 | 内容 |
 | --- | --- |

@@ -1,6 +1,6 @@
 # Zstar Potential Examples for 2D Materials
 
-These examples demonstrate `zstar potential` on representative two-dimensional materials. MoS2 is used as a nonpolar reference, In2Se3 as an out-of-plane polar slab, and SnS/SnSe/SnTe as in-plane polar monolayers.
+These examples demonstrate `zstar pot` on representative two-dimensional materials. MoS2 is used as a nonpolar reference, In2Se3 as an out-of-plane polar slab, and SnS/SnSe/SnTe as in-plane polar monolayers.
 
 The plots were generated from converged ABACUS `ElecStaticPot.cube` files. The compact source profiles and path-free calculation metadata used for the manuscript figure are archived under `docs/paper_figures/source_data/potential/`.
 
@@ -13,7 +13,7 @@ The upper panels provide the decisive slab-normal comparison. Using 0.75 Angstro
 For a clean slab-style z profile, `--center-slab` periodically shifts the potential grid and atomic coordinates so the 2D layer is centered in the simulation cell before averaging.
 
 ```bash
-zstar potential --cube OUT.ABACUS/ElecStaticPot.cube \
+zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
   --prefix MoS2-ElecStaticPot \
   --axes z --plane xy --plane-average --tile 5 5 \
   --vacuum-level --vacuum-sides --vacuum-window 0.75 \
@@ -30,7 +30,7 @@ zstar potential --cube OUT.ABACUS/ElecStaticPot.cube \
 For an out-of-plane polar slab, `--vacuum-sides` estimates the lower and upper vacuum plateaus separately and writes their difference, local standard deviations, point counts, and averaging width to `E_vacuum_sides.out`. With `--polar-arrow auto`, the z-profile plot marks the inferred potential-step direction. In this example, the upper-minus-lower vacuum step is `1.220812 eV`; the lower and upper plateau standard deviations are `5.14e-6` and `2.78e-6 eV`, respectively.
 
 ```bash
-zstar potential --cube OUT.ABACUS/ElecStaticPot.cube \
+zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
   --prefix In2Se3-ElecStaticPot \
   --axes z --plane xy --plane-average --tile 5 5 \
   --vacuum-level --vacuum-sides --vacuum-window 0.75 \
@@ -49,17 +49,20 @@ For in-plane polar systems, plain Cartesian x/y profiles can miss the polar dire
 The tiled xy maps use `--tile 5 5`; the dashed frame marks the central primitive cell.
 
 ```bash
-zstar potential --cube OUT.ABACUS/ElecStaticPot.cube \
+zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
   --prefix SnTe-ElecStaticPot \
   --plane xy --plane-average --tile 5 5 \
   --direction a+b --direction a-b --direction-bins 160 \
+  --mirror-test \
   --direction-method linear --direction-samples 72 72 --direction-smooth 0.15 \
   --outdir potential_examples/SnTe
 ```
 
 To compare the legacy hard-binning curve with interpolated perpendicular slices, repeat `--direction-method` or use `--direction-method all`. The generated `*-compare*.png` overlay shows how much of the apparent saw-tooth structure comes from discretization.
 
-The manuscript uses the SnS `a+b` profile for a one-period mirror test. After
+`--mirror-test` writes the optimized mirror center, normalized asymmetry,
+mirror-odd RMS amplitude, and the folded one-period profile. The manuscript
+uses the SnS `a+b` result. After
 removing the arbitrary potential offset, the reflection center `c` is optimized
 to minimize
 `A_M = ||V(s) - V(2c-s)||_2 / (2 ||V(s)||_2)`.

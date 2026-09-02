@@ -19,10 +19,10 @@ Put a converged `INCAR`, `POSCAR`, `KPOINTS`, and licensed `POTCAR` in one
 directory. Do not commit or redistribute `POTCAR`.
 
 ```bash
-zstar vasp-bec prepare --input-dir vasp_input --root vasp_bec --method dfpt
-zstar vasp-bec run --root vasp_bec --vasp-command "mpirun -np 32 vasp_std"
-zstar vasp-bec status --root vasp_bec
-zstar vasp-bec collect --root vasp_bec
+zstar bec pre --calculator vasp --input-dir vasp_input --root vasp_bec --method dfpt
+zstar bec run --root vasp_bec --vasp-command "mpirun -np 32 vasp_std"
+zstar bec stat --root vasp_bec
+zstar bec post --root vasp_bec
 zstar vasp-bec compare --first dfpt/vasp_bec.json \
   --second finite_field/vasp_bec.json --output comparison.json
 ```
@@ -30,7 +30,7 @@ zstar vasp-bec compare --first dfpt/vasp_bec.json \
 To generate one resumable cluster driver instead of running interactively:
 
 ```bash
-zstar vasp-bec script --root vasp_bec --backend slurm \
+zstar bec job --root vasp_bec --system slurm \
   --tasks 32 --cpus-per-task 1 --walltime 12:00:00
 sbatch vasp_bec/run_vasp_bec.slurm
 ```

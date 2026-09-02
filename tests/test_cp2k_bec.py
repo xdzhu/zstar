@@ -11,6 +11,7 @@ from zstar.cp2k_bec import (
     compare_cp2k_bec,
     ensure_moments,
     ensure_periodic_moments,
+    generate_cp2k_backend_script,
     parse_cp2k_moment,
     parse_native_apt,
     prepare_cp2k_bec,
@@ -248,6 +249,20 @@ Sum of Born charges: 2.0
             validate_cp2k_bec_input(
                 MINIMAL_INPUT.replace("&SCF", "&KPOINTS\n&END KPOINTS\n    &SCF", 1)
             )
+
+    def test_slurm_script_is_one_serial_driver(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "input.inp"
+            source.write_text(MINIMAL_INPUT, encoding="utf-8")
+            root = prepare_cp2k_bec(source, Path(tmp) / "work", atoms="1")
+            script = generate_cp2k_backend_script(
+                root, backend="slurm", tasks=8, cpus_per_task=2
+            )
+            text = script.read_text(encoding="utf-8")
+            self.assertIn("#SBATCH --ntasks=8", text)
+            self.assertIn("srun --ntasks=8 cp2k.psmp", text)
+            self.assertEqual(text.count("zstar cp2k-bec run"), 1)
+            self.assertEqual(text.count("zstar cp2k-bec collect"), 1)
 
 
 if __name__ == "__main__":

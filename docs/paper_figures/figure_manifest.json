@@ -3,23 +3,6 @@
   "backend": "Python/matplotlib",
   "figures": [
     {
-      "figure": "spectroscopy_across_dimensions",
-      "files": {
-        "png": "spectroscopy_across_dimensions.png",
-        "pdf": "spectroscopy_across_dimensions.pdf",
-        "svg": "spectroscopy_across_dimensions.svg",
-        "powerpoint_svg": "spectroscopy_across_dimensions_powerpoint.svg",
-        "tiff": "spectroscopy_across_dimensions.tiff"
-      },
-      "layout": "3 rows by 3 columns",
-      "completed_systems": [
-        "HfO$_2$",
-        "MoS$_2$",
-        "CH$_4$"
-      ],
-      "placeholder": false
-    },
-    {
       "figure": "dielectric_response_examples",
       "files": {
         "pdf": "dielectric_response_examples.pdf",
@@ -33,6 +16,23 @@
       "completed_systems": [
         "HfO2",
         "MoS2"
+      ],
+      "placeholder": false
+    },
+    {
+      "figure": "spectroscopy_across_dimensions",
+      "files": {
+        "png": "spectroscopy_across_dimensions.png",
+        "pdf": "spectroscopy_across_dimensions.pdf",
+        "svg": "spectroscopy_across_dimensions.svg",
+        "powerpoint_svg": "spectroscopy_across_dimensions_powerpoint.svg",
+        "tiff": "spectroscopy_across_dimensions.tiff"
+      },
+      "layout": "3 rows by 3 columns",
+      "completed_systems": [
+        "HfO$_2$",
+        "MoS$_2$",
+        "CH$_4$"
       ],
       "placeholder": false
     }
@@ -95,8 +95,8 @@
     },
     {
       "path": "hfo2/irreps.yaml",
-      "size": 5445,
-      "sha256": "5b5bd0d611b9c877e0614fdfc7ab81638555700df59922459eb017245e0cfc57"
+      "size": 5416,
+      "sha256": "9ef502262aa0a490dd24e0a1d1e4150c01d0935deac6a5a5a7b6b22992af454d"
     },
     {
       "path": "hfo2/phonopy.yaml",
@@ -110,8 +110,8 @@
     },
     {
       "path": "hfo2/qpoints.yaml",
-      "size": 18799,
-      "sha256": "c92be6e3a024cbcb0b768c9d986f075a1a8ae52fac45c18027895b974513ffb3"
+      "size": 18786,
+      "sha256": "4b26b1c4351327dbb86bba2f352b977d407bdafa4d1edc0202c6afe55e729851"
     },
     {
       "path": "hfo2/raman/merge_provenance.json",

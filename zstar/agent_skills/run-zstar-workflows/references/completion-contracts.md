@@ -37,14 +37,6 @@ code zero is necessary but not sufficient for a physical result.
 - CP2K tabulated `km/mol` and `Angstrom^4/amu` activities remain unnormalized;
   only the display curves may be scaled.
 
-## MD + BEC
-
-- The selected frame count and range are recorded.
-- The BEC source is identified as fixed or frame-resolved.
-- `chi_ionic.dat`, `epsilon_electronic.dat`, and `epsilon_total.dat` are kept
-  separate, with summary metadata and diagnostics.
-- Sampling convergence remains a scientific check; ZStar does not certify it.
-
 ## Failure report
 
 When blocked, return the failed stage, relevant state/log path, command, last

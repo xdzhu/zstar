@@ -11,14 +11,196 @@ from zstar.gen_polar import (
     _abacus_assets_from_stru,
     _copy_input_sets_to_here,
     gen_input_in_folder,
+    gen_polar,
     print_modified_coordinates,
 )
 from zstar.deal_polar import _infer_displacement_angstrom
 from zstar.phonopy_stru import write_phonopy_compatible_stru
 from zstar.stru_analyzer import stru_analyzer
+from zstar.symmetry_reduction import reduce_abacus_atoms, write_reduction_report
 
 
 class GenPolarTests(unittest.TestCase):
+    def test_gen_polar_uses_spglib_representatives_for_task_directories(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            structure = root / "STRU"
+            structure.write_text(
+                """ATOMIC_SPECIES
+Ba 137.327 Ba.upf
+Ti 47.867 Ti.upf
+O 15.999 O.upf
+
+LATTICE_CONSTANT
+1.0
+
+LATTICE_VECTORS
+4.0 0.0 0.0
+0.0 4.0 0.0
+0.0 0.0 4.0
+
+ATOMIC_POSITIONS
+Direct
+
+Ba
+0
+1
+0.0 0.0 0.0
+
+Ti
+0
+1
+0.5 0.5 0.5
+
+O
+0
+3
+0.5 0.5 0.0
+0.5 0.0 0.5
+0.0 0.5 0.5
+""",
+                encoding="utf-8",
+            )
+            previous = Path.cwd()
+            try:
+                os.chdir(root)
+                with redirect_stdout(StringIO()):
+                    gen_polar(
+                        f_stru="STRU",
+                        force_delete=True,
+                        dimension=3,
+                        input_mode="custom",
+                        extract_starred_atoms_only=True,
+                        method="forward",
+                    )
+            finally:
+                os.chdir(previous)
+            self.assertTrue((root / "0.no-move").is_dir())
+            self.assertEqual(
+                sorted(path.name for path in root.iterdir() if path.is_dir()),
+                ["0.no-move", "1.Ba", "2.Ti", "3.O"],
+            )
+            self.assertIn(
+                "representatives = 1 2 3",
+                (root / "reduced_atom.out").read_text(encoding="utf-8"),
+            )
+
+    def test_spglib_reduction_returns_stable_representatives(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            structure = root / "STRU"
+            structure.write_text(
+                """ATOMIC_SPECIES
+Ba 137.327 Ba.upf
+Ti 47.867 Ti.upf
+O 15.999 O.upf
+
+LATTICE_CONSTANT
+1.0
+
+LATTICE_VECTORS
+4.0 0.0 0.0
+0.0 4.0 0.0
+0.0 0.0 4.0
+
+ATOMIC_POSITIONS
+Direct
+
+Ba
+0
+1
+0.0 0.0 0.0
+
+Ti
+0
+1
+0.5 0.5 0.5
+
+O
+0
+3
+0.5 0.5 0.0
+0.5 0.0 0.5
+0.0 0.5 0.5
+""",
+                encoding="utf-8",
+            )
+            result = reduce_abacus_atoms(structure, dimensionality=3)
+            self.assertEqual(result.representatives, (1, 2, 3))
+            self.assertEqual(result.space_group, "Pm-3m")
+            report = write_reduction_report(root / "reduced_atom.out", result)
+            self.assertIn("representatives = 1 2 3", report.read_text(encoding="utf-8"))
+
+    def test_molecular_reduction_does_not_infer_periodic_vacuum_symmetry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            structure = root / "STRU"
+            structure.write_text(
+                """ATOMIC_SPECIES
+O 15.999 O.upf
+H 1.008 H.upf
+
+LATTICE_CONSTANT
+1.0
+
+LATTICE_VECTORS
+20.0 0.0 0.0
+0.0 20.0 0.0
+0.0 0.0 20.0
+
+ATOMIC_POSITIONS
+Cartesian
+
+O
+0
+1
+10.0 10.0 10.0
+
+H
+0
+2
+10.7 10.0 10.0
+9.8 10.6 10.0
+""",
+                encoding="utf-8",
+            )
+            result = reduce_abacus_atoms(structure, dimensionality=0)
+            self.assertEqual(result.engine, "none-molecular")
+            self.assertEqual(result.representatives, (1, 2, 3))
+
+    def test_symmetry_failure_explains_all_atom_fallback(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            structure = root / "STRU"
+            structure.write_text(
+                """ATOMIC_SPECIES
+A 1.0 A.upf
+
+LATTICE_CONSTANT
+1.0
+
+LATTICE_VECTORS
+4 0 0
+0 4 0
+0 0 4
+
+ATOMIC_POSITIONS
+Direct
+
+A
+0
+1
+0 0 0
+""",
+                encoding="utf-8",
+            )
+            with patch(
+                "zstar.symmetry_reduction.spglib.get_symmetry_dataset",
+                return_value=None,
+            ):
+                with self.assertRaisesRegex(RuntimeError, "--all.*--symmprec"):
+                    reduce_abacus_atoms(structure, dimensionality=3)
+
     def test_cli_preserves_input_functional_without_explicit_xc(self):
         with patch("zstar.gen_polar.gen_polar") as run_gen:
             zstar_cli(["gen", "-i", "INPUT.seed", "--stru", "STRU"])

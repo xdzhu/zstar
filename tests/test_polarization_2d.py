@@ -11,6 +11,7 @@ from zstar.polarization_2d import (
     ELEMENTARY_CHARGE,
     calculate_hybrid_2d_born,
     compare_slab_charge_profiles,
+    integrate_molecular_dipole,
     integrate_slab_dipole,
     write_slab_charge_difference,
 )
@@ -63,7 +64,53 @@ def write_polarization(path: Path, values):
     )
 
 
+def write_molecular_cube(path: Path, dipole=(0.5, 0.0, 0.0)):
+    nx = ny = nz = 4
+    density = np.zeros((nx, ny, nz))
+    ionic = np.asarray([2.0, 2.0, 2.0])
+    electron = ionic - np.asarray(dipole, dtype=float)
+    lower = np.floor(electron).astype(int)
+    upper = lower + 1
+    weights = electron - lower
+    for axis in range(3):
+        if abs(weights[axis]) > 1.0e-12:
+            break
+    else:
+        density[tuple(lower)] = 1.0
+        axis = 0
+    if axis < 3:
+        lo = tuple(lower)
+        hi = list(lower)
+        hi[axis] = upper[axis]
+        density[lo] += 1.0 - weights[axis]
+        density[tuple(hi)] += weights[axis]
+    lines = [
+        "test molecular cube",
+        "positive electron density",
+        "1 0.0 0.0 0.0",
+        "4 1.0 0.0 0.0",
+        "4 0.0 1.0 0.0",
+        "4 0.0 0.0 1.0",
+        "1 1.0 2.0 2.0 2.0",
+    ]
+    flat = density.reshape(-1)
+    for start in range(0, len(flat), 6):
+        lines.append(" ".join(f"{value:.12e}" for value in flat[start : start + 6]))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 class Polarization2DTests(unittest.TestCase):
+    def test_molecular_dipole_integrates_all_cartesian_components(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cube = Path(tmp) / "SPIN1_CHG.cube"
+            write_molecular_cube(cube, (0.5, 0.0, 0.0))
+            result = integrate_molecular_dipole(cube)
+            np.testing.assert_allclose(result.dipole_e_bohr, (0.5, 0.0, 0.0))
+            self.assertAlmostEqual(result.dipole_debye[0], 1.27088, places=4)
+            self.assertEqual(result.ionic_charge, 1.0)
+            self.assertLess(result.diagnostics["neutrality_error_relative"], 1.0e-12)
+
     def test_real_space_dipole_integral(self):
         with tempfile.TemporaryDirectory() as tmp:
             cube = Path(tmp) / "SPIN1_CHG.cube"

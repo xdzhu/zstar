@@ -1728,7 +1728,16 @@ def _infer_displacement_angstrom(default=0.01):
     return float(default), "default"
 
 
-def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb', method="central", running_type = None, displacement_angstrom=None):
+def main(
+    f_stru="STRU",
+    symm_tol=1e-3,
+    dimension=3,
+    nscf_calculator="pyatb",
+    method="central",
+    running_type=None,
+    displacement_angstrom=None,
+    molecular_source="pyatb",
+):
 
     if running_type == 'solo':
         # 如果独立运行极化，只计算并输出当前目录的极化
@@ -1768,12 +1777,15 @@ def main(f_stru="STRU", symm_tol = 1e-3, dimension = 3, nscf_calculator='pyatb',
     cord_type = {'cart': half_displacement}
 
     if dimension == 0:
-        from .molecular_bec import collect_molecular_apts
+        from .molecular_bec import collect_molecular_apts, collect_molecular_cube_apts
 
-        result = collect_molecular_apts(
-            ".",
-            method=method,
-            displacement_angstrom=half_displacement,
+        collector = (
+            collect_molecular_cube_apts
+            if str(molecular_source).lower() in {"cube", "cube-apt", "hse"}
+            else collect_molecular_apts
+        )
+        result = collector(
+            ".", method=method, displacement_angstrom=half_displacement,
             symprec=symm_tol,
         )
         print(

@@ -44,7 +44,7 @@ alpha_1D = A_perp (epsilon_supercell - I) / (4 pi)
 ```
 
 in `Angstrom^2` in `zstar_response.json`. The frequency-dependent `zstar ir`
-and `zstar calc` outputs use the explicitly labelled SI-reduced convention
+and `zstar dielectric static` outputs use the explicitly labelled SI-reduced convention
 `A_perp (epsilon - I)`.
 
 ## BEC workflow
@@ -52,15 +52,15 @@ and `zstar calc` outputs use the explicitly labelled SI-reduced convention
 Prepare central finite displacements and a reference-first workflow:
 
 ```bash
-zstar gen --stru STRU --input INPUT --dim 1 --pyatb \
+zstar bec pre --calculator abacus --stru STRU --input INPUT --dim 1 --pyatb \
   --method central --kspacing 0.12 --force
 
-zstar workflow script --backend shell --dim 1 --tasks 20 \
+zstar bec job --system shell --tasks 20 \
   --cpus-per-task 1 --env-script env.sh
 bash run_zstar_born.sh
 
-zstar workflow status --root .
-zstar deal --stru STRU --dim 1 --pyatb --method central
+zstar bec stat --root .
+zstar bec post --root .
 ```
 
 The executor runs `0.no-move` first, checks the automatic one-dimensional
@@ -82,10 +82,11 @@ Important outputs are:
 Generate a force-constant supercell elongated only along the wire:
 
 ```bash
-zstar ph --stru STRU --dim "1 1 2"
+zstar phonon pre --stru STRU --dim "1 1 2" --physical-dim 1
 # Run every disp-* ABACUS force calculation.
-zstar postph --stru STRU --physical-dim 1
-zstar irrep --file irreps.yaml --mode db --acoustic-thz 0.5
+zstar phonon run --root .
+zstar phonon post --root .
+zstar phonon irrep --root . --file irreps.yaml --mode db --acoustic-thz 0.5
 ```
 
 Do not add `--nac` for this Gamma workflow. A bulk 3D non-analytic correction
@@ -105,7 +106,7 @@ Calculate the Gamma-point IR response:
 zstar ir --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 1 --periodic-axis z --outdir ir_spectrum
 
-zstar calc --qpoints qpoints.yaml --born Z-BORN-symm.out \
+zstar dielectric static --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 1 --periodic-axis z --outdir dielectric_response
 ```
 
@@ -131,11 +132,11 @@ with every stable optical mode.
 ## Retained GaAs benchmark
 
 The distributed 24-atom hydrogen-passivated GaAs nanowire completed 49
-reference/BEC stages and 40 phonon-force stages. Its default PYATB path gap is
+reference/BEC stages and 40 phonon-force stages. Its default PYATB band gap along
 `3.3994 eV`. Automatic atom matching against an independent VASP calculation
 gives a full-tensor BEC RMS difference of `0.02068 e` and a maximum component
 difference of `0.08906 e`. The periodic-axis line polarizabilities are
-`27.099 Angstrom^2` from ABACUS/PYATB and `27.218 Angstrom^2` from VASP.
+`27.099 Angstrom^2` from ABACUS + PYATB and `27.218 Angstrom^2` from VASP.
 
 The four near-zero Gamma branches span `-10.00` to `-1.70 cm^-1`. For the 56
 stable lattice modes below `800 cm^-1`, comparison with the archived Quantum

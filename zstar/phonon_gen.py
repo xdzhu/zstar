@@ -32,25 +32,31 @@ def _phonopy_displacements(
     *,
     dim: str,
     symm_tol: float,
+    calculator: str,
 ) -> None:
-    from .phonopy_stru import write_phonopy_compatible_stru
+    normalized = None
+    source = structure
+    if calculator == "abacus":
+        from .phonopy_stru import write_phonopy_compatible_stru
 
-    normalized = structure.with_name(f".{structure.name}.zstar-phonopy")
-    write_phonopy_compatible_stru(structure, normalized)
+        normalized = structure.with_name(f".{structure.name}.zstar-phonopy")
+        write_phonopy_compatible_stru(structure, normalized)
+        source = normalized
     command = [
         "phonopy",
         f"--dim={dim}",
         "-v",
         "-d",
-        "--abacus",
+        f"--{calculator}",
         "-c",
-        str(normalized),
+        str(source),
         f"--tolerance={float(symm_tol):g}",
     ]
     try:
         result = subprocess.run(command, text=True, capture_output=True)
     finally:
-        normalized.unlink(missing_ok=True)
+        if normalized is not None:
+            normalized.unlink(missing_ok=True)
     if result.stdout:
         print(result.stdout)
     if result.stderr:
@@ -102,7 +108,12 @@ def run_phonopy_and_process_files(
                 "ABACUS phonon INPUT must enable `cal_force 1` before "
                 "running `zstar ph`"
             )
-    _phonopy_displacements(structure, dim=dim, symm_tol=symm_tol)
+    _phonopy_displacements(
+        structure,
+        dim=dim,
+        symm_tol=symm_tol,
+        calculator="abacus" if is_abacus else "vasp",
+    )
 
     workdir = Path.cwd().resolve()
     stru_files = sorted(

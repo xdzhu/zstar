@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "description": "Curated reproducible ZStar examples with compact reference results.",
+  "cases": [
+    {"id": "gaas_nanowire", "path": "1d_wires/GaAs_nanowire", "dim": 1, "calculator": "ABACUS+PYATB", "features": ["bec", "phonon", "ir", "raman"]},
+    {"id": "mos2", "path": "2d_materials/MoS2", "dim": 2, "calculator": "ABACUS+PYATB", "features": ["bec", "ir", "dielectric", "pot"]},
+    {"id": "in2se3", "path": "2d_materials/In2Se3", "dim": 2, "calculator": "ABACUS+PYATB", "features": ["bec", "ir", "dielectric", "pot"]},
+    {"id": "batio3", "path": "3d_bulk/BaTiO3", "dim": 3, "calculator": "ABACUS+PYATB", "features": ["bec", "phonon", "ir", "dielectric"]},
+    {"id": "hfo2", "path": "3d_bulk/HfO2", "dim": 3, "calculator": "ABACUS+PYATB", "features": ["bec", "phonon", "ir", "dielectric"]},
+    {"id": "ch4", "path": "molecules/CH4", "dim": 0, "calculator": "ABACUS+PYATB", "features": ["apt", "phonon", "ir", "raman"]},
+    {"id": "co2", "path": "molecules/CO2", "dim": 0, "calculator": "ABACUS+PYATB", "features": ["apt", "phonon", "ir", "raman"]},
+    {"id": "cp2k_bec_h2o", "path": "backend_examples/cp2k_bec/H2O", "dim": 0, "calculator": "CP2K", "features": ["bec", "native_apt", "comparison"]},
+    {"id": "cp2k_bec_mgo", "path": "backend_examples/cp2k_bec/MgO", "dim": 3, "calculator": "CP2K", "features": ["bec", "native_apt", "comparison"]},
+    {"id": "cp2k_spectroscopy_h2o", "path": "backend_examples/reference_spectroscopy/cp2k_h2o", "dim": 0, "calculator": "CP2K", "features": ["ir", "raman"]},
+    {"id": "vasp_spectroscopy_sic", "path": "backend_examples/reference_spectroscopy/vasp_sic", "dim": 3, "calculator": "VASP", "features": ["ir", "raman"]}
+  ]
+}

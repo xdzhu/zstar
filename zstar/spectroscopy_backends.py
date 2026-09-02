@@ -16,6 +16,8 @@ from typing import Iterable, Sequence
 
 import numpy as np
 
+from .configuration import normalize_execution_system
+
 from .cp2k_bec import (
     _find_section,
     _has_section,
@@ -508,9 +510,7 @@ def generate_calculator_spectra_script(
 ) -> Path:
     """Generate one shell, Slurm, or Torque driver for the serial workflow."""
 
-    backend_key = backend.lower()
-    if backend_key not in {"shell", "slurm", "torque"}:
-        raise ValueError("backend must be shell, slurm, or torque")
+    backend_key = normalize_execution_system(backend)
     if min(nodes, tasks, cpus_per_task) < 1:
         raise ValueError("nodes, tasks, and cpus_per_task must be positive")
     root_path, manifest = _load_manifest(root)

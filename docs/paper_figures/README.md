@@ -1,9 +1,10 @@
 # Paper Figure Archive
 
 This directory contains the source data and Python scripts used for the
-validation figures in the ZStar CPC manuscript. The archive reproduces
-the plotted figures; it does not redistribute the full ABACUS calculation
-folders, pseudopotentials, orbitals, or the ignored `examples/` tree.
+figures in the ZStar CPC manuscript. The archive reproduces
+the plotted figures; it does not redistribute full ABACUS calculation folders
+or remote scratch output. Curated inputs and compact reference records are
+now available in the public repository `examples/` tree.
 
 ## Figures
 
@@ -30,8 +31,8 @@ it is a direct comparison or contextual evidence.
 ![Validated IR/Raman spectroscopy across dimensionalities](spectroscopy_across_dimensions.png)
 
 The manuscript uses the nine-panel `spectroscopy_across_dimensions` figure.
-Its completed rows follow the validation order: tetragonal P42/nmc HfO2
-(`3D, Bulk`), 2H-MoS2 (`2D, Slab`), and CH4 (`0D, Molecule`). Each row contains
+Its completed rows follow the manuscript order: tetragonal P42/nmc HfO2
+(`Bulk`), 2H-MoS2 (`2D`), and CH4 (`Molecule`). Each row contains
 an author-supplied VESTA view of the retained calculation structure, followed
 by calculated IR and Raman spectra. Every spectral panel shows total response
 only; IR is red and Raman is blue. Different panels are normalized

@@ -114,6 +114,7 @@ class PhononPostTests(unittest.TestCase):
                 "phonopy:\n  configuration:\n    dim: '1 1 1'\n",
                 encoding="utf-8",
             )
+            (root / "BORN").write_text("born\n", encoding="utf-8")
             log = root / "disp-001" / "OUT.TEST" / "running_scf.log"
             log.parent.mkdir(parents=True)
             log.write_text("done", encoding="utf-8")
@@ -135,6 +136,22 @@ class PhononPostTests(unittest.TestCase):
             self.assertIn("--q-direction", qpoint_command)
             self.assertEqual(report["q_direction"], [1.0, 0.0, 0.0])
 
+    def test_bulk_nac_requires_born_file_before_phonopy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "STRU").write_text("structure", encoding="utf-8")
+            (root / "phonopy_disp.yaml").write_text(
+                "phonopy:\n  configuration:\n    dim: '1 1 1'\n",
+                encoding="utf-8",
+            )
+            previous = Path.cwd()
+            os.chdir(root)
+            try:
+                with self.assertRaisesRegex(FileNotFoundError, "Copy the BEC workflow's BORN"):
+                    run_eigen_irrep(nac=True, physical_dim=3)
+            finally:
+                os.chdir(previous)
+
     def test_low_dimensional_bulk_nac_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -152,3 +169,26 @@ class PhononPostTests(unittest.TestCase):
                     run_eigen_irrep(nac=True, physical_dim=2, nac_model="2d-cutoff")
             finally:
                 os.chdir(previous)
+
+    def test_vasp_postprocess_collects_vasprun_outputs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "POSCAR").write_text("vasp structure", encoding="utf-8")
+            (root / "phonopy_disp.yaml").write_text(
+                "phonopy:\n  configuration:\n    dim: '1 1 1'\n",
+                encoding="utf-8",
+            )
+            output = root / "disp-001" / "vasprun.xml"
+            output.parent.mkdir(parents=True)
+            output.write_text("placeholder", encoding="utf-8")
+            previous = Path.cwd()
+            os.chdir(root)
+            try:
+                with patch("zstar.phonon_post._run_phonopy") as run:
+                    report = run_eigen_irrep(f_stru="POSCAR")
+            finally:
+                os.chdir(previous)
+            commands = [call.args[0] for call in run.call_args_list]
+            self.assertIn("disp-001\\vasprun.xml", commands[0][2])
+            self.assertTrue(all("--vasp" in command for command in commands[1:]))
+            self.assertEqual(report["calculator"], "vasp")

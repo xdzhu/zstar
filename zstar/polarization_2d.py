@@ -40,6 +40,23 @@ class SlabDipole:
 
 
 @dataclass(frozen=True)
+class MolecularDipole:
+    """Three-dimensional dipole reconstructed from a neutral charge cube."""
+
+    cube: str
+    dipole_e_bohr: tuple[float, float, float]
+    dipole_debye: tuple[float, float, float]
+    electron_count_raw: float
+    ionic_charge: float
+    neutrality_scale: float
+    center_fractional: tuple[float, float, float]
+    diagnostics: dict
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
 class Hybrid2DBorn:
     tensor: np.ndarray
     in_plane_tensor: np.ndarray
@@ -342,6 +359,102 @@ def integrate_slab_dipole(
         ionic_charge=ionic_total,
         neutrality_scale=cube.neutrality_scale,
         normal=tuple(float(value) for value in cube.normal),
+    )
+
+
+def integrate_molecular_dipole(
+    cube_path: str | Path,
+    *,
+    neutrality_tolerance: float = 0.05,
+    ionic_valence_charges: Optional[Sequence[float]] = None,
+) -> MolecularDipole:
+    """Integrate a neutral molecular dipole from a 3D electron-density cube.
+
+    The cube is interpreted as a periodic numerical box with localized molecular
+    charge. Atomic positions and the density grid are unwrapped around a
+    charge-weighted molecular center before integrating, so a molecule crossing
+    a box boundary does not create a spurious dipole jump. The returned dipole
+    is in ``e bohr`` and Debye; it is origin independent when the neutrality
+    check passes.
+    """
+
+    cube = _read_cube_profile_data(
+        cube_path,
+        neutrality_tolerance=neutrality_tolerance,
+        ionic_valence_charges=ionic_valence_charges,
+    )
+    cell = np.asarray(cube.cell, dtype=float)
+    inverse_cell = np.linalg.inv(cell)
+    origin = np.asarray(cube.origin, dtype=float)
+    atom_fractional = (cube.positions - origin) @ inverse_cell
+    center = np.asarray(
+        [
+            _periodic_weighted_center(
+                atom_fractional[:, axis],
+                cube.charges,
+                0.0,
+                1.0,
+            )
+            for axis in range(3)
+        ],
+        dtype=float,
+    )
+    atom_unwrapped_fractional = np.column_stack(
+        [
+            _periodic_unwrap(atom_fractional[:, axis], center[axis], 1.0)
+            for axis in range(3)
+        ]
+    )
+
+    # The density array can be large (ABACUS HSE cubes are often 243^3).
+    # Compute its first moments using one-dimensional coordinate vectors rather
+    # than materializing three full Cartesian coordinate arrays.
+    fractional_axes = [
+        _periodic_unwrap(
+            np.arange(size, dtype=float) / float(size), center[axis], 1.0
+        )
+        for axis, size in enumerate(cube.dimensions)
+    ]
+    density = cube.density * cube.voxel_volume_bohr3 * cube.neutrality_scale
+    electronic_fractional_moment = np.asarray(
+        [
+            float(
+                np.sum(
+                    density
+                    * fractional_axes[axis].reshape(
+                        (-1, 1, 1) if axis == 0 else
+                        (1, -1, 1) if axis == 1 else (1, 1, -1)
+                    )
+                )
+            )
+            for axis in range(3)
+        ],
+        dtype=float,
+    )
+    ionic_fractional_moment = np.sum(
+        cube.charges[:, None] * atom_unwrapped_fractional, axis=0
+    )
+    ionic_dipole = ionic_fractional_moment @ cell
+    electronic_dipole = -electronic_fractional_moment @ cell
+    dipole = ionic_dipole + electronic_dipole
+    dipole_debye = dipole * BOHR_M * ELEMENTARY_CHARGE / 3.33564e-30
+    return MolecularDipole(
+        cube=str(cube.path),
+        dipole_e_bohr=tuple(float(value) for value in dipole),
+        dipole_debye=tuple(float(value) for value in dipole_debye),
+        electron_count_raw=cube.electron_count_raw,
+        ionic_charge=float(np.sum(cube.charges)),
+        neutrality_scale=cube.neutrality_scale,
+        center_fractional=tuple(float(value) for value in center),
+        diagnostics={
+            "cell_bohr": cell.tolist(),
+            "dimensions": list(cube.dimensions),
+            "ionic_dipole_e_bohr": ionic_dipole.tolist(),
+            "electronic_dipole_e_bohr": electronic_dipole.tolist(),
+            "neutrality_error_relative": abs(
+                cube.electron_count_raw - float(np.sum(cube.charges))
+            ) / float(np.sum(cube.charges)),
+        },
     )
 
 

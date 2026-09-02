@@ -1,0 +1,21 @@
+# Tetragonal HfO2
+
+This PBEsol tetragonal bulk case is the high-k reference for BEC, phonons, IR,
+and frequency-dependent dielectric response. Its input records the TZDP-style
+ABACUS numerical-orbital setup used for the retained reference calculation.
+
+```bash
+cp -r input work
+cd work
+zstar gen --stru STRU --input INPUT --input_sets assets --dim 3 \
+  --pyatb --method central --displacement 0.01 --force
+zstar workflow script --backend shell --dim 3 --tasks 1 --cpus-per-task 20
+zstar workflow run --root . --dim 3 --abacus-command "mpirun -np 20 abacus"
+zstar workflow status --root .
+zstar deal --stru STRU --dim 3 --pyatb --method central
+```
+
+For lattice IR, run `zstar ph`, `zstar postph`, copy `BORN`, and then run
+`zstar ir`. Use `zstar dielectric static` or `zstar dielectric freq` for the
+electronic/lattice response records. The retained structure is tetragonal;
+do not mix its BEC values with monoclinic HfO2 references.

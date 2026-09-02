@@ -203,6 +203,12 @@ def build_figure(output: Path) -> dict:
     for axis, label in zip(axes.flat, ("(a)", "(b)", "(c)", "(d)")):
         _style_axis(axis)
         _panel_label(axis, label)
+    for axis in axes[0, :]:
+        axis.set_xlim(0.0, float(hfo2_frequency.max()))
+        axis.margins(x=0.0)
+    for axis in axes[1, :]:
+        axis.set_xlim(0.0, float(mos2_frequency.max()))
+        axis.margins(x=0.0)
     axes[0, 1].legend(loc="best", fontsize=8.5, handlelength=2.2)
     axes[1, 1].legend(loc="best", fontsize=8.5, handlelength=2.2)
 
