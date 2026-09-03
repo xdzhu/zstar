@@ -7,6 +7,7 @@
     {"id": "hbn", "path": "2d_materials/hBN", "dim": 2, "calculator": "ABACUS+PYATB", "features": ["bec", "phonon", "ir", "dielectric"]},
     {"id": "in2se3", "path": "2d_materials/In2Se3", "dim": 2, "calculator": "ABACUS+PYATB", "features": ["bec", "ir", "dielectric", "pot"]},
     {"id": "batio3", "path": "3d_bulk/BaTiO3", "dim": 3, "calculator": "ABACUS+PYATB", "features": ["bec", "phonon", "ir", "dielectric"]},
+    {"id": "batio3_cubic_bec", "path": "3d_bulk/BaTiO3_cubic", "dim": 3, "calculator": "ABACUS+PYATB", "features": ["bec", "paper_benchmark"]},
     {"id": "hfo2", "path": "3d_bulk/HfO2", "dim": 3, "calculator": "ABACUS+PYATB", "features": ["bec", "phonon", "ir", "dielectric"]},
     {"id": "ch4", "path": "molecules/CH4", "dim": 0, "calculator": "ABACUS+PYATB", "features": ["apt", "phonon", "ir", "raman", "hse_apt_record"]},
     {"id": "h2o_hse_apt", "path": "molecules/H2O", "dim": 0, "calculator": "ABACUS+PYATB", "features": ["apt", "hse_apt_record"]},
@@ -23,6 +24,7 @@
     {"id": "spectra_gaas_nanowire", "path": "IR_Raman_Spectra/Nanowire_GaAs", "dim": 1, "calculator": "ABACUS+PYATB", "features": ["ir", "raman"]},
     {"id": "potential_mos2", "path": "Electrostatic_Potential/MoS2", "dim": 2, "calculator": "ABACUS+ZStar", "features": ["potential", "plane_average", "tiled_map"]},
     {"id": "potential_in2se3", "path": "Electrostatic_Potential/In2Se3", "dim": 2, "calculator": "ABACUS+ZStar", "features": ["potential", "plane_average", "polar_arrow"]},
+    {"id": "potential_ges", "path": "Electrostatic_Potential/GeS", "dim": 2, "calculator": "ABACUS+ZStar", "features": ["potential", "direction_profile", "mirror_test", "tiled_map"]},
     {"id": "potential_sns", "path": "Electrostatic_Potential/SnS", "dim": 2, "calculator": "ABACUS+ZStar", "features": ["potential", "direction_profile", "mirror_test", "tiled_map"], "assets_required": false},
     {"id": "potential_snse", "path": "Electrostatic_Potential/SnSe", "dim": 2, "calculator": "ABACUS+ZStar", "features": ["potential", "direction_profile", "mirror_test", "tiled_map"], "assets_required": false},
     {"id": "potential_snte", "path": "Electrostatic_Potential/SnTe", "dim": 2, "calculator": "ABACUS+ZStar", "features": ["potential", "direction_profile", "mirror_test", "tiled_map"], "assets_required": false}

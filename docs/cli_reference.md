@@ -129,30 +129,27 @@ when changing backends.
 Phonons and mode classification:
 
 ```bash
-zstar phonon pre --root . --calculator abacus --stru STRU --dim "2 2 2"
-zstar phonon job --root . --system slurm --tasks 28
-zstar phonon stat --root .
-zstar phonon post --root . --nac
-zstar phonon irrep --root . --file irreps.yaml --mode db
+zstar phonon pre --stru STRU --dim "2 2 2"
+zstar phonon job --system slurm --tasks 28
+zstar phonon stat
+zstar phonon post
+zstar phonon irrep
 ```
 
 IR and Raman:
 
 ```bash
-zstar spectra pre --calculator abacus --kind all --root spectra \
-  --stru STRU --qpoints qpoints.yaml --born Z-BORN-symm.out --dielectric BORN
-zstar spectra job --root spectra --system slurm --tasks 28
-zstar spectra stat --root spectra
-zstar spectra post --root spectra
+zstar spectra pre --stru STRU
+zstar spectra job --system slurm --tasks 28
+zstar spectra stat
+zstar spectra post
 ```
 
 Static and frequency-dependent dielectric response:
 
 ```bash
-zstar dielectric static --qpoints qpoints.yaml \
-  --born Z-BORN-symm.out --dielectric BORN --dim 3
-zstar dielectric freq --qpoints qpoints.yaml \
-  --born Z-BORN-symm.out --dielectric BORN --dim 3
+zstar dielectric static
+zstar dielectric freq
 ```
 
 ## Electrostatic-potential coverage

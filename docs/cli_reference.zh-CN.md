@@ -125,30 +125,27 @@ zstar bec post --root .
 声子与模式分类：
 
 ```bash
-zstar phonon pre --root . --calculator abacus --stru STRU --dim "2 2 2"
-zstar phonon job --root . --system slurm --tasks 28
-zstar phonon stat --root .
-zstar phonon post --root . --nac
-zstar phonon irrep --root . --file irreps.yaml --mode db
+zstar phonon pre --stru STRU --dim "2 2 2"
+zstar phonon job --system slurm --tasks 28
+zstar phonon stat
+zstar phonon post
+zstar phonon irrep
 ```
 
 IR 与 Raman：
 
 ```bash
-zstar spectra pre --calculator abacus --kind all --root spectra \
-  --stru STRU --qpoints qpoints.yaml --born Z-BORN-symm.out --dielectric BORN
-zstar spectra job --root spectra --system slurm --tasks 28
-zstar spectra stat --root spectra
-zstar spectra post --root spectra
+zstar spectra pre --stru STRU
+zstar spectra job --system slurm --tasks 28
+zstar spectra stat
+zstar spectra post
 ```
 
 静态与频率相关介电响应：
 
 ```bash
-zstar dielectric static --qpoints qpoints.yaml \
-  --born Z-BORN-symm.out --dielectric BORN --dim 3
-zstar dielectric freq --qpoints qpoints.yaml \
-  --born Z-BORN-symm.out --dielectric BORN --dim 3
+zstar dielectric static
+zstar dielectric freq
 ```
 
 ## 静电势能力闭环

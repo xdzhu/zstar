@@ -20,6 +20,14 @@ LegacyRunner = Callable[[Sequence[str]], None]
 ALIASES = {"prepare": "pre", "status": "stat", "collect": "post", "script": "job"}
 
 
+def _default_root() -> str:
+    """Return the prepared default workspace, preferring the ABACUS layout."""
+    for candidate in ("raman", "calculator_spectra"):
+        if manifest_path(candidate, "spectra").is_file():
+            return candidate
+    return "calculator_spectra"
+
+
 def _option(arguments: Sequence[str], *names: str, default=None):
     for index, token in enumerate(arguments):
         for name in names:
@@ -143,7 +151,7 @@ def run_spectra_cli(arguments: Sequence[str], legacy: LegacyRunner) -> None:
         if action == "job":
             print("job options: --system, --tasks, --cpus-per-task, --walltime")
         return
-    legacy_root = str(_option(rest, "--root", default="calculator_spectra"))
+    legacy_root = str(_option(rest, "--root", default=_default_root()))
     if (
         arguments[0] in {"status", "collect", "script"}
         and not manifest_path(legacy_root, "spectra").is_file()
@@ -174,6 +182,10 @@ def run_spectra_cli(arguments: Sequence[str], legacy: LegacyRunner) -> None:
         if calculator == "abacus":
             clean = _drop(clean, "--root", "--born", "--dielectric", "--dim")
             if kind in {"raman", "all"}:
+                if not _has(clean, "--copy"):
+                    for name in ("INPUT-scf", "INPUT", "KPT"):
+                        if Path(name).is_file():
+                            clean.extend(["--copy", name])
                 if not _has(clean, "--outdir"):
                     clean.extend(["--outdir", root])
                 legacy(["raman", "prepare", *clean])
@@ -206,7 +218,7 @@ def run_spectra_cli(arguments: Sequence[str], legacy: LegacyRunner) -> None:
         print(f"[MANIFEST] {manifest_path(root, 'spectra')}")
         return
 
-    root = str(root_given or "calculator_spectra")
+    root = str(root_given or _default_root())
     calculator, kind, dim, options = _saved(root, calculator, kind, dim)
     if action == "job":
         system = str(_option(rest, "--system", "--backend", default="shell"))

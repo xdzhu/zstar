@@ -12,7 +12,7 @@ import re
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Polygon, Rectangle
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 from scipy.interpolate import CubicSpline
@@ -673,8 +673,9 @@ def read_vacuum_sides(path: Path) -> dict[str, float]:
 def load_mirror_asymmetry(
     root: Path,
     material: str,
+    filename: str = "a_plus_b.dat",
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, float, int]:
-    data = np.loadtxt(root / material / "a_plus_b.dat")
+    data = np.loadtxt(root / material / filename)
     coordinate = data[:, 0]
     values = data[:, 1]
     repeated_periods = 1
@@ -748,55 +749,275 @@ def load_mirror_asymmetry(
     )
 
 
-def make_potential_examples(data_root: Path, output: Path) -> dict:
-    root = data_root / "potential"
-    materials = {
-        "MoS2": COLORS["muted"],
-        "In2Se3": COLORS["red"],
-        "SnS": COLORS["red"],
-        "SnSe": COLORS["green"],
-        "SnTe": COLORS["blue"],
-    }
-    display = {
-        "MoS2": r"MoS$_2$",
-        "In2Se3": r"$\alpha$-In$_2$Se$_3$",
-        "SnS": "SnS",
-        "SnSe": "SnSe",
-        "SnTe": "SnTe",
+def _load_planar_map(path: Path) -> tuple[np.ndarray, ...]:
+    data = np.loadtxt(path)
+    nx = int(np.max(data[:, 0])) + 1
+    ny = int(np.max(data[:, 1])) + 1
+    x_coord = data[:, 2].reshape(nx, ny)
+    y_coord = data[:, 3].reshape(nx, ny)
+    values = data[:, 4].reshape(nx, ny)
+    values -= np.mean(values)
+    step_a = np.array(
+        [
+            np.mean(np.diff(x_coord, axis=0)),
+            np.mean(np.diff(y_coord, axis=0)),
+        ]
+    )
+    step_b = np.array(
+        [
+            np.mean(np.diff(x_coord, axis=1)),
+            np.mean(np.diff(y_coord, axis=1)),
+        ]
+    )
+    vector_a = step_a * nx
+    vector_b = step_b * ny
+    origin = np.array([x_coord[0, 0], y_coord[0, 0]]) - 0.5 * (
+        step_a + step_b
+    )
+    return x_coord, y_coord, values, vector_a, vector_b, origin
+
+
+def _plot_tiled_planar_map(
+    fig,
+    axis,
+    path: Path,
+    *,
+    title: str,
+    arrow_label: str,
+) -> None:
+    x_coord, y_coord, values, vector_a, vector_b, origin = _load_planar_map(path)
+    limit = float(np.percentile(np.abs(values), 98.0))
+    image = None
+    all_x = []
+    all_y = []
+    for ia in (-1, 0, 1):
+        for ib in (-1, 0, 1):
+            shift = ia * vector_a + ib * vector_b
+            shifted_x = x_coord + shift[0]
+            shifted_y = y_coord + shift[1]
+            all_x.append(shifted_x)
+            all_y.append(shifted_y)
+            image = axis.pcolormesh(
+                shifted_x,
+                shifted_y,
+                values,
+                shading="nearest",
+                cmap="RdBu_r",
+                vmin=-limit,
+                vmax=limit,
+                rasterized=True,
+            )
+
+    central_cell = np.array(
+        [
+            origin,
+            origin + vector_a,
+            origin + vector_a + vector_b,
+            origin + vector_b,
+        ]
+    )
+    axis.add_patch(
+        Polygon(
+            central_cell,
+            closed=True,
+            fill=False,
+            edgecolor=COLORS["ink"],
+            linewidth=0.9,
+            linestyle=(0, (4, 2.5)),
+            zorder=5,
+        )
+    )
+    center = origin + 0.5 * (vector_a + vector_b)
+    arrow_end = center + 0.38 * vector_a
+    axis.annotate(
+        "",
+        xy=arrow_end,
+        xytext=center,
+        arrowprops={"arrowstyle": "-|>", "color": COLORS["red"], "lw": 1.0},
+    )
+    axis.text(
+        arrow_end[0],
+        arrow_end[1],
+        arrow_label,
+        color=COLORS["red"],
+        ha="left",
+        va="bottom",
+        fontsize=7.5,
+    )
+    axis.set_aspect("equal")
+    axis.set_xlim(
+        min(float(array.min()) for array in all_x),
+        max(float(array.max()) for array in all_x),
+    )
+    axis.set_ylim(
+        min(float(array.min()) for array in all_y),
+        max(float(array.max()) for array in all_y),
+    )
+    axis.set_xlabel(r"$x$ ($\AA$)")
+    axis.set_ylabel(r"$y$ ($\AA$)")
+    axis.set_title(title, loc="left", pad=4)
+    style_data_axis(axis)
+    colorbar_axis = make_axes_locatable(axis).append_axes(
+        "right", size="4.2%", pad=0.04
+    )
+    colorbar = fig.colorbar(image, cax=colorbar_axis, orientation="vertical")
+    colorbar.set_label(r"$V-\langle V\rangle$ (eV)")
+    colorbar_axis.tick_params(
+        axis="y",
+        which="both",
+        direction="in",
+        left=False,
+        right=True,
+        labelleft=False,
+        labelright=True,
+    )
+
+
+def _plot_mirror_profile(
+    profile_axis,
+    odd_axis,
+    root: Path,
+    material: str,
+    *,
+    title: str,
+) -> dict[str, float]:
+    (
+        fractional_coord,
+        profile,
+        mirrored,
+        odd_component,
+        metric,
+        center,
+        folded_periods,
+    ) = load_mirror_asymmetry(root, material, "a.dat")
+    profile_axis.plot(
+        fractional_coord,
+        profile,
+        color=COLORS["red"],
+        linewidth=1.15,
+        label=r"$V(s)$",
+    )
+    profile_axis.plot(
+        fractional_coord,
+        mirrored,
+        color=COLORS["blue"],
+        linewidth=1.0,
+        linestyle=(0, (4, 2.5)),
+        label=r"$V(2c-s)$",
+    )
+    profile_axis.fill_between(
+        fractional_coord,
+        profile,
+        mirrored,
+        color=COLORS["gold"],
+        alpha=0.22,
+        linewidth=0,
+    )
+    profile_axis.axhline(0.0, color=COLORS["muted"], linewidth=0.5)
+    profile_axis.set_xlim(0.0, 1.0)
+    profile_axis.tick_params(labelbottom=False)
+    profile_axis.set_ylabel(r"$V-\langle V\rangle$ (eV)")
+    profile_axis.set_title(title, loc="left", pad=4)
+    profile_axis.text(
+        0.03,
+        0.08,
+        rf"$A_\mathrm{{M}}={metric:.3f}$",
+        transform=profile_axis.transAxes,
+        ha="left",
+        va="bottom",
+        fontsize=7.5,
+        bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.78, "pad": 1.0},
+    )
+    profile_axis.legend(
+        loc="upper right",
+        ncol=2,
+        handlelength=1.5,
+        columnspacing=0.8,
+    )
+    odd_axis.fill_between(
+        fractional_coord,
+        0.0,
+        odd_component,
+        where=odd_component >= 0.0,
+        color=COLORS["red"],
+        alpha=0.42,
+        linewidth=0,
+    )
+    odd_axis.fill_between(
+        fractional_coord,
+        0.0,
+        odd_component,
+        where=odd_component < 0.0,
+        color=COLORS["blue"],
+        alpha=0.42,
+        linewidth=0,
+    )
+    odd_axis.plot(
+        fractional_coord,
+        odd_component,
+        color=COLORS["ink"],
+        linewidth=0.65,
+    )
+    odd_axis.axhline(0.0, color=COLORS["muted"], linewidth=0.5)
+    odd_axis.set_xlim(0.0, 1.0)
+    odd_axis.set_xlabel("Fractional coordinate along $a$")
+    odd_axis.set_ylabel(r"$V_\mathrm{odd}$ (eV)")
+    for axis in (profile_axis, odd_axis):
+        axis.grid(axis="y", color=COLORS["grid"], linewidth=0.4)
+        style_data_axis(axis)
+    return {
+        "metric": metric,
+        "odd_rms_eV": float(np.sqrt(np.mean(odd_component**2))),
+        "optimized_center_fraction": center,
+        "input_periods_folded": folded_periods,
     }
 
-    fig = plt.figure(figsize=(7.2, 5.5), constrained_layout=True)
-    grid = fig.add_gridspec(2, 2, height_ratios=(1.0, 1.04))
-    ax_mos2 = fig.add_subplot(grid[0, 0])
-    ax_in2se3 = fig.add_subplot(grid[0, 1])
-    ax_map = fig.add_subplot(grid[1, 0])
-    direction_grid = grid[1, 1].subgridspec(
-        2,
-        1,
-        height_ratios=(2.25, 1.0),
-        hspace=0.08,
+
+def make_potential_examples(data_root: Path, output: Path) -> dict:
+    """Compare slab-normal and in-plane potential signatures in 2D systems."""
+
+    root = data_root / "potential"
+    fig = plt.figure(figsize=(7.2, 6.9), constrained_layout=True)
+    grid = fig.add_gridspec(3, 2, height_ratios=(0.88, 1.12, 1.25))
+    ax_mos2_z = fig.add_subplot(grid[0, 0])
+    ax_in2se3_z = fig.add_subplot(grid[0, 1])
+    ax_mos2_map = fig.add_subplot(grid[1, 0])
+    ax_ges_map = fig.add_subplot(grid[1, 1])
+    mos2_profile_grid = grid[2, 0].subgridspec(
+        2, 1, height_ratios=(2.2, 1.0), hspace=0.08
     )
-    ax_direction = fig.add_subplot(direction_grid[0, 0])
-    ax_odd = fig.add_subplot(direction_grid[1, 0], sharex=ax_direction)
+    ges_profile_grid = grid[2, 1].subgridspec(
+        2, 1, height_ratios=(2.2, 1.0), hspace=0.08
+    )
+    ax_mos2_profile = fig.add_subplot(mos2_profile_grid[0, 0])
+    ax_mos2_odd = fig.add_subplot(
+        mos2_profile_grid[1, 0], sharex=ax_mos2_profile
+    )
+    ax_ges_profile = fig.add_subplot(ges_profile_grid[0, 0])
+    ax_ges_odd = fig.add_subplot(ges_profile_grid[1, 0], sharex=ax_ges_profile)
 
     slab_sources = {}
-    for material, axis in (("MoS2", ax_mos2), ("In2Se3", ax_in2se3)):
+    for material, axis, color, title, upper_limit in (
+        ("MoS2", ax_mos2_z, COLORS["muted"], r"MoS$_2$", 5.8),
+        (
+            "In2Se3",
+            ax_in2se3_z,
+            COLORS["red"],
+            r"$\alpha$-In$_2$Se$_3$",
+            3.2,
+        ),
+    ):
         profile_path = root / material / "z_profile.dat"
         vacuum_path = root / material / "E_vacuum_sides.out"
         profile = np.loadtxt(profile_path)
         vacuum = read_vacuum_sides(vacuum_path)
         z_coord = profile[:, 1]
         relative_potential = profile[:, 2] - vacuum["lower_eV"]
-        color = materials[material]
-        axis.plot(z_coord, relative_potential, color=color, linewidth=1.15)
-        axis.axhline(0.0, color=COLORS["muted"], linewidth=0.55)
+        axis.plot(z_coord, relative_potential, color=color, linewidth=1.1)
+        axis.axhline(0.0, color=COLORS["muted"], linewidth=0.5)
         for coord, level, shade_color in (
             (vacuum["lower_coord_ang"], 0.0, COLORS["blue"]),
-            (
-                vacuum["upper_coord_ang"],
-                vacuum["delta_eV"],
-                COLORS["red"],
-            ),
+            (vacuum["upper_coord_ang"], vacuum["delta_eV"], COLORS["red"]),
         ):
             half_width = 0.5 * vacuum["window_ang"]
             axis.axvspan(
@@ -809,226 +1030,77 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
             axis.scatter(
                 [coord],
                 [level],
-                s=21,
+                s=20,
                 color=shade_color,
                 edgecolor="white",
-                linewidth=0.55,
+                linewidth=0.5,
                 zorder=4,
             )
         axis.set_xlim(float(z_coord[0]), float(z_coord[-1]))
-        lower_limit = axis.get_ylim()[0]
-        axis.set_ylim(lower_limit, 5.0 if material == "MoS2" else 2.5)
+        axis.set_ylim(axis.get_ylim()[0], upper_limit)
         axis.set_xlabel(r"$z$ coordinate ($\AA$)")
         axis.set_ylabel(r"$V(z)-V_{\mathrm{vac}}^{\mathrm{lower}}$ (eV)")
-        axis.grid(axis="y", color=COLORS["grid"], linewidth=0.45)
-        axis.set_title(display[material], loc="left")
+        axis.set_title(title, loc="left", pad=4)
         delta_text = (
             rf"$\Delta V_\mathrm{{vac}}={vacuum['delta_eV']:.3f}$ eV"
             if abs(vacuum["delta_eV"]) >= 0.001
-            else (
-                rf"$\Delta V_\mathrm{{vac}}="
-                rf"{vacuum['delta_eV'] / 1.0e-5:.2f}"
-                rf"\times10^{{-5}}$ eV"
-            )
+            else rf"$\Delta V_\mathrm{{vac}}={vacuum['delta_eV'] / 1.0e-5:.2f}\times10^{{-5}}$ eV"
         )
         axis.text(
-            0.5,
-            0.96,
+            0.50,
+            0.93,
             delta_text,
             transform=axis.transAxes,
             ha="center",
             va="top",
-            color=COLORS["ink"],
-            fontsize=7.6,
-            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.80, "pad": 1.2},
+            fontsize=7.5,
+            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.80, "pad": 1.0},
         )
+        axis.grid(axis="y", color=COLORS["grid"], linewidth=0.4)
+        style_data_axis(axis)
         slab_sources[material] = (profile_path, vacuum_path, vacuum)
 
-    map_path = root / "SnS" / "xy_map.dat"
-    map_data = np.loadtxt(map_path)
-    nx = int(np.max(map_data[:, 0])) + 1
-    ny = int(np.max(map_data[:, 1])) + 1
-    x_coord = map_data[:, 2].reshape(nx, ny)[:, 0]
-    y_coord = map_data[:, 3].reshape(nx, ny)[0, :]
-    potential_map = map_data[:, 4].reshape(nx, ny).T
-    potential_map -= np.mean(potential_map)
-    limit = float(np.percentile(np.abs(potential_map), 98.0))
-    tile_count = 3
-    tile_offset = tile_count // 2
-    dx = float(np.mean(np.diff(x_coord)))
-    dy = float(np.mean(np.diff(y_coord)))
-    x_period = dx * nx
-    y_period = dy * ny
-    x_tiled = x_coord[0] + (
-        np.arange(tile_count * nx) - tile_offset * nx
-    ) * dx
-    y_tiled = y_coord[0] + (
-        np.arange(tile_count * ny) - tile_offset * ny
-    ) * dy
-    tiled_map = np.tile(potential_map, (tile_count, tile_count))
-    image = ax_map.pcolormesh(
-        x_tiled,
-        y_tiled,
-        tiled_map,
-        shading="nearest",
-        cmap="RdBu_r",
-        vmin=-limit,
-        vmax=limit,
-        rasterized=True,
+    _plot_tiled_planar_map(
+        fig,
+        ax_mos2_map,
+        root / "MoS2" / "xy_map.dat",
+        title=r"MoS$_2$ (3$\times$3)",
+        arrow_label=r"$a$",
     )
-    ax_map.set_aspect("equal")
-    ax_map.set_xlabel(r"$x$ ($\AA$)")
-    ax_map.set_ylabel(r"$y$ ($\AA$)")
-    ax_map.set_title("SnS (3x3)", loc="left")
-    ax_map.set_xlim(x_tiled[0] - 0.5 * dx, x_tiled[-1] + 0.5 * dx)
-    ax_map.set_ylim(y_tiled[0] - 0.5 * dy, y_tiled[-1] + 0.5 * dy)
-    central_cell = Rectangle(
-        (x_coord[0] - 0.5 * dx, y_coord[0] - 0.5 * dy),
-        x_period,
-        y_period,
-        fill=False,
-        edgecolor=COLORS["ink"],
-        linewidth=1.0,
-        linestyle=(0, (4, 2.5)),
-        zorder=5,
+    _plot_tiled_planar_map(
+        fig,
+        ax_ges_map,
+        root / "GeS" / "xy_map.dat",
+        title=r"GeS (3$\times$3)",
+        arrow_label=r"$a$",
     )
-    ax_map.add_patch(central_cell)
-    x_mid = 0.5 * (float(x_coord[0]) + float(x_coord[-1]))
-    y_mid = 0.5 * (float(y_coord[0]) + float(y_coord[-1]))
-    arrow_scale = 0.30 * min(
-        float(x_coord[-1] - x_coord[0]),
-        float(y_coord[-1] - y_coord[0]),
+    mos2_mirror = _plot_mirror_profile(
+        ax_mos2_profile,
+        ax_mos2_odd,
+        root,
+        "MoS2",
+        title=r"MoS$_2$ along $a$",
     )
-    ax_map.annotate(
-        "",
-        xy=(x_mid + arrow_scale, y_mid + arrow_scale),
-        xytext=(x_mid, y_mid),
-        arrowprops={"arrowstyle": "-|>", "color": COLORS["red"], "lw": 1.1},
+    ges_mirror = _plot_mirror_profile(
+        ax_ges_profile,
+        ax_ges_odd,
+        root,
+        "GeS",
+        title=r"GeS along $a$",
     )
-    ax_map.text(
-        x_mid + arrow_scale,
-        y_mid + arrow_scale,
-        r"$a+b$",
-        color=COLORS["red"],
-        ha="left",
-        va="center",
-        fontsize=7.4,
-    )
-    colorbar_axis = make_axes_locatable(ax_map).append_axes(
-        "right",
-        size="4.5%",
-        pad=0.045,
-    )
-    colorbar = fig.colorbar(
-        image,
-        cax=colorbar_axis,
-        orientation="vertical",
-    )
-    colorbar.set_label(r"$V-\langle V\rangle$ (eV)")
-    colorbar_axis.tick_params(
-        axis="y",
-        which="both",
-        direction="in",
-        left=False,
-        right=True,
-        labelleft=False,
-        labelright=True,
-    )
-
-    (
-        fractional_coord,
-        direction_profile,
-        mirrored_profile,
-        odd_component,
-        mirror_metric,
-        mirror_center,
-        folded_periods,
-    ) = load_mirror_asymmetry(root, "SnS")
-    ax_direction.plot(
-        fractional_coord,
-        direction_profile,
-        color=COLORS["red"],
-        linewidth=1.25,
-        label=r"$V(s)$",
-    )
-    ax_direction.plot(
-        fractional_coord,
-        mirrored_profile,
-        color=COLORS["blue"],
-        linewidth=1.05,
-        linestyle=(0, (4, 2.5)),
-        label=r"$V(2c-s)$",
-    )
-    ax_direction.fill_between(
-        fractional_coord,
-        direction_profile,
-        mirrored_profile,
-        color=COLORS["gold"],
-        alpha=0.24,
-        linewidth=0,
-    )
-    ax_direction.axhline(0.0, color=COLORS["muted"], linewidth=0.55)
-    ax_direction.set_xlim(0.0, 1.0)
-    ax_direction.tick_params(labelbottom=False)
-    ax_direction.set_ylabel(r"$V-\langle V\rangle$ (eV)")
-    ax_direction.set_title(r"SnS (along $a+b$)", loc="left")
-    ax_direction.grid(axis="y", color=COLORS["grid"], linewidth=0.45)
-    ax_direction.legend(
-        loc="lower center",
-        bbox_to_anchor=(0.62, 0.02),
-        ncol=2,
-        handlelength=1.6,
-        columnspacing=0.9,
-    )
-    ax_direction.text(
-        0.03,
-        0.08,
-        rf"$A_\mathrm{{M}}={mirror_metric:.3f}$",
-        transform=ax_direction.transAxes,
-        ha="left",
-        va="bottom",
-        color=COLORS["ink"],
-        fontsize=7.6,
-    )
-
-    ax_odd.fill_between(
-        fractional_coord,
-        0.0,
-        odd_component,
-        where=odd_component >= 0.0,
-        color=COLORS["red"],
-        alpha=0.45,
-        linewidth=0,
-    )
-    ax_odd.fill_between(
-        fractional_coord,
-        0.0,
-        odd_component,
-        where=odd_component < 0.0,
-        color=COLORS["blue"],
-        alpha=0.45,
-        linewidth=0,
-    )
-    ax_odd.plot(
-        fractional_coord,
-        odd_component,
-        color=COLORS["ink"],
-        linewidth=0.75,
-    )
-    ax_odd.axhline(0.0, color=COLORS["muted"], linewidth=0.55)
-    ax_odd.set_xlim(0.0, 1.0)
-    ax_odd.set_xlabel("Fractional coordinate within one period")
-    ax_odd.set_ylabel(r"$V_\mathrm{odd}$ (eV)")
-    ax_odd.grid(axis="y", color=COLORS["grid"], linewidth=0.45)
-
-    for axis in (ax_mos2, ax_in2se3, ax_map, ax_direction, ax_odd):
-        style_data_axis(axis)
 
     for label, axis in zip(
-        "abcd",
-        (ax_mos2, ax_in2se3, ax_map, ax_direction),
+        "abcdef",
+        (
+            ax_mos2_z,
+            ax_in2se3_z,
+            ax_mos2_map,
+            ax_ges_map,
+            ax_mos2_profile,
+            ax_ges_profile,
+        ),
     ):
-        panel_label(axis, label)
+        panel_label(axis, label, x=-0.25, y=1.10)
 
     files = save_figure(fig, output, "potential_examples_2d")
     plt.close(fig)
@@ -1039,22 +1111,25 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
         slab_sources["MoS2"][1],
         slab_sources["In2Se3"][0],
         slab_sources["In2Se3"][1],
-        map_path,
-        root / "SnS" / "a_plus_b.dat",
+        root / "MoS2" / "xy_map.dat",
+        root / "MoS2" / "a.dat",
+        root / "GeS" / "xy_map.dat",
+        root / "GeS" / "a.dat",
     ]
     return {
         "figure": "potential_examples_2d",
         "files": files,
+        "figure_contract": {
+            "conclusion": "ZStar resolves a negligible in-plane mirror-odd potential for nonpolar MoS2 and a pronounced polar-axis asymmetry for ferroelectric GeS while retaining slab-normal vacuum-step diagnostics.",
+            "archetype": "quantitative grid",
+        },
         "vacuum_step_eV": {
             material: slab_sources[material][2]["delta_eV"]
             for material in ("MoS2", "In2Se3")
         },
         "mirror_asymmetry": {
-            "material": "SnS",
-            "direction": "a+b",
-            "metric": mirror_metric,
-            "optimized_center_fraction": mirror_center,
-            "input_periods_folded": folded_periods,
+            "MoS2": mos2_mirror,
+            "GeS": ges_mirror,
         },
         "source_files": source_files,
     }

@@ -14,7 +14,7 @@ Options:
   -h, --help            Show this help.
 
 Environment:
-  ABACUS_COMMAND, PYATB_COMMAND, OMP_NUM_THREADS, ZSTAR_DISPLACEMENT,
+  ABACUS_COMMAND, PYATB_COMMAND, OMP_NUM_THREADS, ZSTAR_DISPLACEMENT, ZSTAR_METHOD,
   ZSTAR_WORK. Commands may contain launcher arguments, e.g. "mpirun -np 20 abacus".
 EOF
 }
@@ -59,6 +59,10 @@ abacus_command=${ABACUS_COMMAND:-abacus}
 pyatb_command=${PYATB_COMMAND:-pyatb}
 omp_threads=${OMP_NUM_THREADS:-20}
 displacement=${ZSTAR_DISPLACEMENT:-0.01}
+method=${ZSTAR_METHOD:-central}
+[[ "$method" == "forward" || "$method" == "central" ]] || {
+    echo "ZSTAR_METHOD must be forward or central" >&2; exit 2;
+}
 
 for required in INPUT STRU; do
     [[ -f "$input_dir/$required" ]] || {
@@ -82,8 +86,8 @@ if [[ "$dry_run" -eq 1 ]]; then
     cat <<EOF
 DRY RUN: no files will be generated and no external solver will be started.
 1. cp -a "$input_dir/." "$work/"
-2. zstar bec pre --stru STRU --input INPUT --input_sets assets --dim $dim \\
-     --method central --displacement $displacement --force
+2. zstar bec pre --stru STRU --input INPUT --pp assets --orb assets --dim $dim \\
+     --method $method --displacement $displacement --force
 3. zstar workflow run --root . --dimensionality $dim --omp-threads $omp_threads \\
      --abacus-command "$abacus_command" --pyatb-command "$pyatb_command"
 4. zstar bec post --root .
@@ -106,8 +110,8 @@ fi
 
 cd "$work"
 if [[ ! -f .zstar-bec-prepared ]]; then
-    zstar bec pre --stru STRU --input INPUT --input_sets assets --dim "$dim" \\
-        --method central --displacement "$displacement" --force
+    zstar bec pre --stru STRU --input INPUT --pp assets --orb assets --dim "$dim" \\
+        --method "$method" --displacement "$displacement" --force
     touch .zstar-bec-prepared
 fi
 

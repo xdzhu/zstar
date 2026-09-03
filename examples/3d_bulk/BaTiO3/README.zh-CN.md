@@ -1,12 +1,12 @@
-# 立方 BaTiO3
+# 四方 BaTiO3
 
-这是用于检验三维 BEC、声子、IR 和介电函数流程的 PBEsol 体材料案例。
+这是用于检验三维 BEC、声子、IR 和介电函数流程的 PBEsol $P4mm$ 体材料案例。
 精简参考目录包含绝缘性检查、BORN 张量、对称性报告和响应数据。
 
 ```bash
 cp -r run work
 cd work
-zstar bec pre --stru STRU --input INPUT --input_sets assets --dim 3 \
+zstar bec pre --stru STRU --input INPUT --pp assets --orb assets --dim 3 \
   --method central --displacement 0.01 --force
 zstar workflow script --backend shell --dim 3 --tasks 1 --cpus-per-task 20
 zstar workflow run --root . --dim 3 --abacus-command "mpirun -np 20 abacus"

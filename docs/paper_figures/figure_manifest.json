@@ -3,6 +3,76 @@
   "backend": "Python/matplotlib",
   "figures": [
     {
+      "figure": "bto_mode_spectroscopy",
+      "files": {
+        "png": "bto_mode_spectroscopy.png",
+        "pdf": "bto_mode_spectroscopy.pdf",
+        "svg": "bto_mode_spectroscopy.svg",
+        "tiff": "bto_mode_spectroscopy.tiff"
+      },
+      "optical_mode_groups": 7,
+      "raman_modes": 10
+    },
+    {
+      "figure": "in2se3_hybrid_polarization",
+      "files": {
+        "png": "in2se3_hybrid_polarization.png",
+        "pdf": "in2se3_hybrid_polarization.pdf",
+        "svg": "in2se3_hybrid_polarization.svg",
+        "tiff": "in2se3_hybrid_polarization.tiff"
+      },
+      "dipole_change_e_angstrom": 0.0034940086116847765,
+      "effective_charge_e": 0.34940086116847763
+    },
+    {
+      "figure": "bec_validation_across_dimensions",
+      "files": {
+        "png": "bec_validation_across_dimensions.png",
+        "pdf": "bec_validation_across_dimensions.pdf",
+        "svg": "bec_validation_across_dimensions.svg",
+        "tiff": "bec_validation_across_dimensions.tiff"
+      },
+      "systems": [
+        "BaTiO3",
+        "HfO2",
+        "hBN",
+        "alpha-In2Se3",
+        "H2O",
+        "CH4"
+      ]
+    },
+    {
+      "figure": "potential_examples_2d",
+      "files": {
+        "png": "potential_examples_2d.png",
+        "pdf": "potential_examples_2d.pdf",
+        "svg": "potential_examples_2d.svg",
+        "tiff": "potential_examples_2d.tiff"
+      },
+      "figure_contract": {
+        "conclusion": "ZStar resolves a negligible in-plane mirror-odd potential for nonpolar MoS2 and a pronounced polar-axis asymmetry for ferroelectric GeS while retaining slab-normal vacuum-step diagnostics.",
+        "archetype": "quantitative grid"
+      },
+      "vacuum_step_eV": {
+        "MoS2": -1.6509e-05,
+        "In2Se3": 1.22081212731
+      },
+      "mirror_asymmetry": {
+        "MoS2": {
+          "metric": 0.0005095516914105905,
+          "odd_rms_eV": 0.00031514545231076764,
+          "optimized_center_fraction": 0.9874962719966331,
+          "input_periods_folded": 1
+        },
+        "GeS": {
+          "metric": 0.09827549975095315,
+          "odd_rms_eV": 0.057623011607690476,
+          "optimized_center_fraction": 0.3876469669378192,
+          "input_periods_folded": 2
+        }
+      }
+    },
+    {
       "figure": "spectroscopy_across_dimensions",
       "files": {
         "png": "spectroscopy_across_dimensions.png",
@@ -29,16 +99,135 @@
         "csv": "dielectric_response_examples.csv",
         "metadata": "dielectric_response_examples.metadata.json"
       },
-      "layout": "3x2: HfO2 bulk and MoS2/hBN sheet responses, each with real and imaginary panels",
+      "layout": "2x2: HfO2 bulk and MoS2 sheet responses, each with real and imaginary panels",
       "completed_systems": [
         "HfO2",
-        "MoS2",
-        "hBN"
+        "MoS2"
       ],
       "placeholder": false
     }
   ],
   "source_data": [
+    {
+      "path": "bec_literature_benchmark.csv",
+      "size": 6706,
+      "sha256": "fe5b338a3792e7d0d27051f8ddebfd4d3c05c118f8622280d3224d5726ce9080"
+    },
+    {
+      "path": "bto/ir/ir_modes.csv",
+      "size": 1244,
+      "sha256": "334caf175ee42128216511381216dd14f4b9d273216aec0d494cb34483646d83"
+    },
+    {
+      "path": "bto/ir/ir_spectrum.dat",
+      "size": 250194,
+      "sha256": "3321027ade30d9179e2957491a21c63d7076da8e70835a68444caee85d66a33d"
+    },
+    {
+      "path": "bto/irreps.yaml",
+      "size": 2910,
+      "sha256": "526743cbc7c3738dabc80d5e10e9a130e5a1aa0945866ee3dca3aad06f05935f"
+    },
+    {
+      "path": "bto/phonopy.yaml",
+      "size": 3867,
+      "sha256": "e54954473985c795c1b938934163a2f9386d900b2c0b24499363d93669ea21f8"
+    },
+    {
+      "path": "bto/qpoints.yaml",
+      "size": 13269,
+      "sha256": "b300e88c7555281abedf5d701a7aeff0b7d9ec35ecc45702ca66f44a9f728e73"
+    },
+    {
+      "path": "bto/raman/raman_modes.csv",
+      "size": 2106,
+      "sha256": "18956b48b718a3a70e161c5e2504ad7cec53d0bbdd8ba80f92be3f6d695fa2e7"
+    },
+    {
+      "path": "bto/raman/raman_spectrum.dat",
+      "size": 100088,
+      "sha256": "d05b47b048a229e96f24286e0352f4e6bd78ff035b3da7d9ca578d2250e08187"
+    },
+    {
+      "path": "bto/raman/raman_tensors.npy",
+      "size": 848,
+      "sha256": "66d9ec8a8982292547ac13ca3ed3cd34cf5c598b42898a1ec5df4e6fe9cd46de"
+    },
+    {
+      "path": "in2se3/phonopy.yaml",
+      "size": 3875,
+      "sha256": "4f3b570da70ae08468244852e65a06ac2bcaa77d4c0a9a920818d0c141b11fcb"
+    },
+    {
+      "path": "in2se3/profile/slab_charge_profile.csv",
+      "size": 58758,
+      "sha256": "a7afead2505ee93f7f667133613168ee10eb38fa5dfc0018b07759ca8bf2f412"
+    },
+    {
+      "path": "in2se3/profile/slab_dipole_summary.json",
+      "size": 1211,
+      "sha256": "7fac63e6cd18b17d64798e4f235f490ad7ce56603aac391ea8d98ab52b57d5fe"
+    },
+    {
+      "path": "in2se3/qpoints.yaml",
+      "size": 13269,
+      "sha256": "2d338a930fe89ba22722861ad3cd6af218c5d98bae21bc639eadb5bc8f8e1d5f"
+    },
+    {
+      "path": "in2se3/Z-BORN-symm.out",
+      "size": 821,
+      "sha256": "ab8858e9f363e8a3251bfdd8d63babb8360f5af5bea9714584d1fd660b1d8438"
+    },
+    {
+      "path": "potential/calculation_metadata.json",
+      "size": 3233,
+      "sha256": "1e9c0c5d454ac4616da04bb14571fe1812477b72b24edf46ef61eec6192bcb1d"
+    },
+    {
+      "path": "potential/GeS/a.dat",
+      "size": 3151,
+      "sha256": "41bfb4067926080d16125772f0771716e4dadf4bbb6392a8454a39b6c3752bc5"
+    },
+    {
+      "path": "potential/GeS/xy_map.dat",
+      "size": 172991,
+      "sha256": "6ba76510dd5be4164fe71a2bffff5df4a9e1fb0ce9e9ee7ba58944b366de1ba7"
+    },
+    {
+      "path": "potential/In2Se3/E_vacuum_sides.out",
+      "size": 471,
+      "sha256": "44d28dd372b1b205a876b928add7edcc6d1d4c683052d3497ffe5ea1ea81cdb5"
+    },
+    {
+      "path": "potential/In2Se3/z_profile.dat",
+      "size": 19434,
+      "sha256": "0276b2574df417845e064c20e3923571adc659b8ab86e29644b8703a3d36259a"
+    },
+    {
+      "path": "potential/MoS2/a.dat",
+      "size": 2191,
+      "sha256": "ddabf9f325b932fc4fe4fd4aaaac4128ec702e08baf508258c37f114eff718df"
+    },
+    {
+      "path": "potential/MoS2/E_vacuum_sides.out",
+      "size": 471,
+      "sha256": "5ed702afc37b8cb8cee9d52546c68ae75acb4f360f3fccec643006b7505dee16"
+    },
+    {
+      "path": "potential/MoS2/xy_map.dat",
+      "size": 102591,
+      "sha256": "d8a24928ffe06669ebcc38006b6aa7ae19f305ae49bc52a21ad6510310ef8189"
+    },
+    {
+      "path": "potential/MoS2/z_profile.dat",
+      "size": 18660,
+      "sha256": "afdc8a70076f088b11a13006f56a0541ce1c4b8d912f0065efca7ac9ca197fa9"
+    },
+    {
+      "path": "potential/README.md",
+      "size": 1074,
+      "sha256": "05a4797e75a66ba58931788a6d39e6e023dd00786041679a6a24a58721946dc8"
+    },
     {
       "path": "gaas_nanowire/STRU",
       "size": 1793,

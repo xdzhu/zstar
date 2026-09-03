@@ -1,6 +1,6 @@
-# Cubic BaTiO3
+# Tetragonal BaTiO3
 
-This PBEsol cubic bulk case demonstrates the standard three-dimensional BEC,
+This PBEsol $P4mm$ bulk case demonstrates the standard three-dimensional BEC,
 phonon, IR, and dielectric workflow. The compact reference directory includes
 the insulating-state gate, BORN tensors, symmetry report, and response data.
 
@@ -13,7 +13,7 @@ Generated stages go to `work/`; `run/` contains only the reproducible inputs.
 ```bash
 cp -r run work
 cd work
-zstar bec pre --stru STRU --input INPUT --input_sets assets --dim 3 \
+zstar bec pre --stru STRU --input INPUT --pp assets --orb assets --dim 3 \
   --method central --displacement 0.01 --force
 zstar workflow script --backend shell --dim 3 --tasks 1 --cpus-per-task 20
 zstar workflow run --root . --dim 3 --abacus-command "mpirun -np 20 abacus"

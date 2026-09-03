@@ -19,7 +19,7 @@ parameters for every material.
 - Scheduler script checks: shell and Torque/PBS on the direct-compute
   environment; Slurm script and environment checks on an independent Slurm
   cluster.
-- Final local regression: 203 tests passed under Python 3.10.
+- Final local regression: 205 tests passed under Python 3.10.
 
 ## Test Coverage
 
@@ -38,9 +38,9 @@ The source test suite covers:
 - local two-sided slab vacuum plateaus in the presence of a
   dipole-correction reset.
 
-The current source tree passes all 203 source tests. The ignored local BTO
-example also completes `zstar bec post --root .` and
-reproduces the archived representative charges:
+The current source tree passes all 205 source tests. The public cubic BaTiO3
+example also completes `zstar bec post` and reproduces the archived
+representative charges:
 
 | Site/component | BEC (e) |
 | --- | ---: |
@@ -105,9 +105,11 @@ gate passed and reused the reference charge density.
 | PbTiO3 | 3D | 1.693 | 12 |
 | HfO2 (PBEsol/TZDP 9-au) | 3D | 4.710 | 12 |
 
-A separate cubic BaTiO3 seed gave a band gap of 0.000 eV along the sampled path and was rejected
-before any displacement stage. This is retained as a negative workflow test,
-not interpreted as a material result.
+A deliberately metallic BaTiO3 test seed gave a band gap of 0.000 eV and was
+rejected before any displacement stage. It is retained only as a negative
+workflow test. A separate phase-matched cubic $Pm\bar{3}m$ benchmark was
+recomputed from a fresh PBEsol reference SCF and gave a 1.686 eV band gap
+along G-X-M-G-R-X-M-R; this public example passes the insulating-state gate.
 
 ## Hybrid 2D Born Charges
 

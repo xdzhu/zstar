@@ -957,6 +957,10 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     # ---------------- wyckoff / irrep / vasp / calc ----------------
     parser_wyckoff = subparsers.add_parser('wyckoff', help='Get Wyckoff positions.')
     parser_wyckoff.add_argument('--stru', help='Path to the STRU file', default='STRU')
+    parser_wyckoff.add_argument(
+        '--symprec', type=float, default=1.0e-3,
+        help='Cartesian symmetry tolerance in Angstrom (default: 1e-3).'
+    )
 
     p_ir = subparsers.add_parser('irrep', help='Classify Gamma irreps from irreps.yaml')
     p_ir.add_argument('-f', '--file', default='irreps.yaml', help='Path to irreps.yaml')
@@ -2628,9 +2632,9 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
         run_stru2vasp(f_stru=args.stru)
 
     elif args.command == 'wyckoff':
-        from .get_wyckoff import get_wyckoff_position as run_get_wyckoff
+        from .structure_io import format_wyckoff_summary, wyckoff_summary
 
-        run_get_wyckoff(fstru=args.stru)
+        print(format_wyckoff_summary(wyckoff_summary(args.stru, symprec=args.symprec)))
 
     elif args.command == 'symcheck':
         from .verify_born_symmetry import run_symcheck

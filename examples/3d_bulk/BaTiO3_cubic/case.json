@@ -1,0 +1,16 @@
+{
+  "id": "batio3_cubic_bec",
+  "formula": "BaTiO3",
+  "phase": "cubic",
+  "space_group": "Pm-3m",
+  "dimensionality": 3,
+  "calculator": "ABACUS+PYATB",
+  "functional": "PBEsol",
+  "method": "forward",
+  "insulation_check": {
+    "mode": "band_path",
+    "band_gap_ev": 1.6859,
+    "path": "G-X-M-G-R-X-M-R"
+  },
+  "reference_results": "results"
+}

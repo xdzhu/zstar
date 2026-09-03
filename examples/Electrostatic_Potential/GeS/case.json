@@ -1,0 +1,10 @@
+{
+  "id": "potential_ges",
+  "calculator": "ABACUS+ZStar",
+  "dimensionality": 2,
+  "functional": "PBE-D3",
+  "features": ["potential", "direction_profile", "mirror_test", "tiled_map"],
+  "assets_required": true,
+  "cube_required": true,
+  "reference_results": "results"
+}

@@ -508,11 +508,8 @@ contract are documented in the
 Calculate mode effective charges, oscillator strengths, broadened IR intensity, and dielectric/sheet response:
 
 ```bash
-zstar spectra pre --calculator abacus --kind ir --root ir_spectrum \
-  --qpoints qpoints.yaml \
-  --born Z-BORN-symm.out --dielectric BORN \
-  --dim 3
-zstar spectra post --root ir_spectrum
+zstar spectra pre --kind ir
+zstar spectra post
 ```
 
 The retained low-level expert command exposes mode selection and plotting
@@ -531,10 +528,8 @@ ZStar obtains non-resonant Raman tensors by central finite differences of the el
 ### 1. Prepare mode displacements
 
 ```bash
-zstar spectra pre --calculator abacus --kind raman --root raman \
-  --stru STRU --qpoints qpoints.yaml \
-  --modes "4-12" --amplitude 0.02 \
-  --copy INPUT-scf --copy KPT
+zstar spectra pre --stru STRU --kind raman \
+  --modes "4-12" --amplitude 0.02
 ```
 
 The amplitude is a normal-coordinate displacement in `angstrom * sqrt(amu)`.
@@ -542,12 +537,9 @@ The amplitude is a normal-coordinate displacement in `angstrom * sqrt(amu)`.
 ### 2. Run, collect, and plot
 
 ```bash
-zstar spectra run --root raman --reference 0.no-move \
-  --abacus-command "mpirun -np 1 abacus" \
-  --pyatb-command "mpirun -np 1 pyatb" \
-  --omp-threads 28
-zstar spectra stat --root raman
-zstar spectra post --root raman
+zstar spectra run --omp-threads 28
+zstar spectra stat
+zstar spectra post
 ```
 
 The reference insulating gate is reused once; it is not repeated for every mode displacement. Each `plus`/`minus` stage reuses the reference charge density and records resumable state.
@@ -567,20 +559,15 @@ Prepare its positive-frequency vibrational modes with the same central
 normal-coordinate displacements used for Raman calculations:
 
 ```bash
-zstar spectra pre --calculator abacus --kind all --root raman --dim 0 \
-  --stru STRU --qpoints qpoints.yaml \
-  --acoustic-cutoff 100 --amplitude 0.02 \
-  --copy INPUT-scf --copy KPT
+zstar spectra pre --stru STRU --dim 0 \
+  --acoustic-cutoff 100 --amplitude 0.02
 ```
 
 The complete resumable calculation produces both spectra:
 
 ```bash
-zstar spectra run --root raman --reference 0.no-move \
-  --abacus-command "mpirun -np 1 abacus" \
-  --pyatb-command "mpirun -np 1 pyatb" \
-  --spectrum-outdir raman_spectrum --ir-outdir ir_spectrum
-zstar spectra post --root raman
+zstar spectra run
+zstar spectra post
 ```
 
 Each displaced SCF is evaluated with two lightweight PYATB stages. The static

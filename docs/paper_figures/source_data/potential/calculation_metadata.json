@@ -12,13 +12,15 @@
   "calculations": {
     "MoS2": {
       "role": "nonpolar slab control",
-      "abacus_version": "3.8.0",
+      "slab_profile_abacus_version": "3.8.0",
+      "planar_map_abacus_version": "3.10.0 LTS",
       "basis_type": "lcao",
       "ecutwfc_ry": 100,
       "kspacing": [0.1, 0.1, 1.0],
-      "scf_threshold_ry": 1e-07,
+      "planar_map_scf_threshold_ry": 1e-08,
       "smearing_method": "gauss",
       "smearing_sigma_ry": 0.01,
+      "vdw_method": "d3_bj",
       "dipole_correction": true
     },
     "In2Se3": {
@@ -69,13 +71,29 @@
       "smearing_sigma_ry": 0.001,
       "spin_orbit_coupling": true,
       "vdw_method": "d3_0"
+    },
+    "GeS": {
+      "role": "strong in-plane-polar comparison",
+      "structure_source": "previously relaxed monolayer GeS structure",
+      "abacus_version": "3.10.0 LTS",
+      "basis_type": "lcao",
+      "ecutwfc_ry": 100,
+      "kspacing": [0.05, 0.05, 1.0],
+      "scf_threshold_ry": 1e-08,
+      "smearing_method": "gauss",
+      "smearing_sigma_ry": 0.001,
+      "spin_orbit_coupling": false,
+      "vdw_method": "d3_0",
+      "calculation_node": "cu24",
+      "wall_time_seconds": 43
     }
   },
   "directional_profiles": {
-    "directions": ["a+b", "a-b"],
-    "bins": 160,
+    "figure_direction": "a",
+    "legacy_directions": ["a+b", "a-b"],
+    "bins": "native grid count",
     "interpolation": "linear",
-    "samples": [72, 72],
+    "samples": [64, 64],
     "periodic_gaussian_smoothing_sigma_angstrom": 0.15,
     "interpretation": "The mean-centered difference is a directional potential diagnostic, not a polarization magnitude."
   }

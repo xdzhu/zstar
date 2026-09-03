@@ -10,11 +10,11 @@ scratch 目录不放入仓库。
 |---|---|---|
 | `1d_wires/` | 周期性一维响应 | GaAs 纳米线 |
 | `2d_materials/` | 薄层及与真空无关的面响应 | MoS2、hBN、alpha-In2Se3 |
-| `3d_bulk/` | 体材料 BEC 与介电响应 | BaTiO3、HfO2 |
+| `3d_bulk/` | 体材料 BEC 与介电响应 | 四方及立方 BaTiO3、HfO2 |
 | `molecules/` | 分子 APT、IR 与 Raman | H2O、CH4、CO2 |
 | `backend_examples/` | 计算器后端验证 | CP2K BEC/IR/Raman、ABACUS/VASP 的 SiC 与 HfO2 基准 |
 | `IR_Raman_Spectra/` | 一键 IR 与 Raman 工作流 | HfO2、MoS2、CH4、GaAs 纳米线 |
-| `Electrostatic_Potential/` | 基于 cube 的静电势分析 | MoS2、alpha-In2Se3、SnS、SnSe、SnTe |
+| `Electrostatic_Potential/` | 基于 cube 的静电势分析 | MoS2、alpha-In2Se3、GeS、SnS、SnSe、SnTe |
 
 机器可读索引为 `manifest.json`。每个案例都包含干净的 `run/` 输入目录、
 保存已有计算结果的 `results/` 目录、中英文 README，以及案例根目录的

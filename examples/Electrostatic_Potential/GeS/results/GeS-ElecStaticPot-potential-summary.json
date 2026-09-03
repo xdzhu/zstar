@@ -1,0 +1,135 @@
+{
+  "cube": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\ElecStaticPot.cube",
+  "outdir": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results",
+  "shape": [
+    60,
+    45,
+    288
+  ],
+  "value_unit": "ry",
+  "length_unit": "bohr",
+  "center_slab": {
+    "axis": "z",
+    "shift_index": 0,
+    "shift_ang": 0.0,
+    "slab_center_before_ang": 11.338591747956684,
+    "slab_center_after_ang": 11.338591747956684,
+    "cell_length_ang": 22.677116290402743
+  },
+  "axis_profiles": {
+    "z": {
+      "dat": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-Z.dat",
+      "png": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-vs-Z.png"
+    }
+  },
+  "plane_maps": {
+    "xy": {
+      "dat": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-XY-avg-cart.dat",
+      "png": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-XY-avg-cart-tile3x3.png",
+      "normal_axis": "z",
+      "normal_index": -1,
+      "normal_coord_ang": null,
+      "averaged": true,
+      "coord_mode": "cartesian",
+      "tile": [
+        3,
+        3
+      ]
+    }
+  },
+  "direction_profiles": {
+    "a:linear": {
+      "dat": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-DIR-a-linear-smooth0p15.dat",
+      "png": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-DIR-a-linear-smooth0p15.png",
+      "method": "linear",
+      "lattice_coeffs": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        4.522274685139196,
+        0.0,
+        0.0
+      ],
+      "bins": 60,
+      "tile_radius": 1,
+      "interpolation_samples": [
+        64,
+        64
+      ],
+      "smooth_sigma_ang": 0.15,
+      "mirror": {
+        "dat": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-DIR-a-linear-smooth0p15-mirror.dat",
+        "png": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-DIR-a-linear-smooth0p15-mirror.png",
+        "mirror_asymmetry": 0.09827548384131904,
+        "odd_rms_eV": 0.05762300361185503,
+        "mirror_center_fraction": 0.38764693876993506,
+        "period_ang": 2.261137342569598,
+        "repeated_periods": 2
+      }
+    },
+    "b:linear": {
+      "dat": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-DIR-b-linear-smooth0p15.dat",
+      "png": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-DIR-b-linear-smooth0p15.png",
+      "method": "linear",
+      "lattice_coeffs": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        0.0,
+        3.6424804662692547,
+        0.0
+      ],
+      "bins": 45,
+      "tile_radius": 1,
+      "interpolation_samples": [
+        64,
+        64
+      ],
+      "smooth_sigma_ang": 0.15,
+      "mirror": {
+        "dat": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-DIR-b-linear-smooth0p15-mirror.dat",
+        "png": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-DIR-b-linear-smooth0p15-mirror.png",
+        "mirror_asymmetry": 5.206459418258372e-07,
+        "odd_rms_eV": 2.7631893815073654e-07,
+        "mirror_center_fraction": 0.48888888893877236,
+        "period_ang": 3.642480466269254,
+        "repeated_periods": 1
+      }
+    },
+    "a+b:linear": {
+      "dat": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-DIR-a_plus_b-linear-smooth0p15.dat",
+      "png": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-DIR-a_plus_b-linear-smooth0p15.png",
+      "method": "linear",
+      "lattice_coeffs": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        4.522274685139196,
+        3.6424804662692547,
+        0.0
+      ],
+      "bins": 60,
+      "tile_radius": 1,
+      "interpolation_samples": [
+        64,
+        64
+      ],
+      "smooth_sigma_ang": 0.15,
+      "mirror": {
+        "dat": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-DIR-a_plus_b-linear-smooth0p15-mirror.dat",
+        "png": "D:\\Work\\Code\\zstar\\tmp\\night-revision\\GeS\\results\\GeS-ElecStaticPot-DIR-a_plus_b-linear-smooth0p15-mirror.png",
+        "mirror_asymmetry": 0.005920890209795876,
+        "odd_rms_eV": 0.0046394383584724905,
+        "mirror_center_fraction": 0.7168758037408312,
+        "period_ang": 5.806774687811114,
+        "repeated_periods": 1
+      }
+    }
+  }
+}

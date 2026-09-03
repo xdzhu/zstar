@@ -11,11 +11,11 @@ directories are intentionally excluded.
 |---|---|---|
 | `1d_wires/` | periodic one-dimensional response | GaAs nanowire |
 | `2d_materials/` | slab and vacuum-independent sheet response | MoS2, hBN, alpha-In2Se3 |
-| `3d_bulk/` | bulk BEC and dielectric response | BaTiO3, HfO2 |
+| `3d_bulk/` | bulk BEC and dielectric response | tetragonal and cubic BaTiO3, HfO2 |
 | `molecules/` | molecular APT, IR, and Raman | H2O, CH4, CO2 |
 | `backend_examples/` | calculator-specific validation | CP2K BEC/IR/Raman; ABACUS/VASP SiC and HfO2 benchmarks |
 | `IR_Raman_Spectra/` | one-command IR and Raman workflows | HfO2, MoS2, CH4, GaAs nanowire |
-| `Electrostatic_Potential/` | cube-based electrostatic-potential analysis | MoS2, alpha-In2Se3, SnS, SnSe, SnTe |
+| `Electrostatic_Potential/` | cube-based electrostatic-potential analysis | MoS2, alpha-In2Se3, GeS, SnS, SnSe, SnTe |
 
 The machine-readable index is `manifest.json`. Every case contains a clean
 `run/` input directory, a `results/` directory with retained outputs, a

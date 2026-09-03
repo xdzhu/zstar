@@ -1,0 +1,8 @@
+Calculator: ABACUS 3.10.0-LTS + PYATB 1.1.2.dev0+2ad34bc
+XC functional: PBEsol
+ABACUS reference SCF: 100 Ry, 9 x 9 x 9 k mesh, scf_thr = 1e-7
+Band path: G-X-M-G-R-X-M-R
+Band gap: 1.6859 eV
+VBM: 10.6884 eV at R
+CBM: 12.3743 eV at Gamma
+Outcome: insulating-state gate passed

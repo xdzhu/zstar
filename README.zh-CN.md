@@ -475,11 +475,8 @@ zstar dielectric static --qpoints qpoints.yaml --born Z-BORN-symm.out \
 计算模式有效电荷、振子强度、展宽后的红外谱和介电/片层响应：
 
 ```bash
-zstar spectra pre --calculator abacus --kind ir --root ir_spectrum \
-  --qpoints qpoints.yaml \
-  --born Z-BORN-symm.out --dielectric BORN \
-  --dim 3
-zstar spectra post --root ir_spectrum
+zstar spectra pre --kind ir
+zstar spectra post
 ```
 
 需要显式选择模式或精细控制绘图时，可调用保留的底层专家命令：
@@ -497,10 +494,8 @@ ZStar 沿 Gamma 点简正坐标对电子介电响应做中心差分，得到非�
 ### 1. 生成简正模式正负位移
 
 ```bash
-zstar spectra pre --calculator abacus --kind raman --root raman \
-  --stru STRU --qpoints qpoints.yaml \
-  --modes "4-12" --amplitude 0.02 \
-  --copy INPUT-scf --copy KPT
+zstar spectra pre --stru STRU --kind raman \
+  --modes "4-12" --amplitude 0.02
 ```
 
 `--amplitude` 的单位为 `angstrom * sqrt(amu)`。
@@ -508,12 +503,9 @@ zstar spectra pre --calculator abacus --kind raman --root raman \
 ### 2. 串行计算、收集并绘谱
 
 ```bash
-zstar spectra run --root raman --reference 0.no-move \
-  --abacus-command "mpirun -np 1 abacus" \
-  --pyatb-command "mpirun -np 1 pyatb" \
-  --omp-threads 28
-zstar spectra stat --root raman
-zstar spectra post --root raman
+zstar spectra run --omp-threads 28
+zstar spectra stat
+zstar spectra post
 ```
 
 参考结构的绝缘性门控只复用一次，不会对每个模式位移重复计算。所有 `plus`/`minus` 阶段都复用参考电荷密度，并记录可恢复状态。
@@ -532,20 +524,15 @@ zstar spectra post --root raman
 共用的简正坐标正负位移：
 
 ```bash
-zstar spectra pre --calculator abacus --kind all --root raman --dim 0 \
-  --stru STRU --qpoints qpoints.yaml \
-  --acoustic-cutoff 100 --amplitude 0.02 \
-  --copy INPUT-scf --copy KPT
+zstar spectra pre --stru STRU --dim 0 \
+  --acoustic-cutoff 100 --amplitude 0.02
 ```
 
 以下命令以可断点续算的串行工作流同时生成两种谱：
 
 ```bash
-zstar spectra run --root raman --reference 0.no-move \
-  --abacus-command "mpirun -np 1 abacus" \
-  --pyatb-command "mpirun -np 1 pyatb" \
-  --spectrum-outdir raman_spectrum --ir-outdir ir_spectrum
-zstar spectra post --root raman
+zstar spectra run
+zstar spectra post
 ```
 
 每个已完成的位移 SCF 只增加两个很轻的 PYATB 后处理阶段。静态介电响应按照

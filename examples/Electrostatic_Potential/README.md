@@ -2,8 +2,9 @@
 
 These cases exercise `zstar pot` on two-dimensional electrostatic-potential
 cubes. `MoS2` is a non-polar slab reference, `In2Se3` demonstrates the
-out-of-plane polar-slab analysis, and `SnS`, `SnSe`, and `SnTe` provide the
-in-plane directional-potential family used in the paper.
+out-of-plane polar-slab analysis, and `GeS` provides the strong in-plane-polar
+comparison used in the paper. `SnS`, `SnSe`, and `SnTe` retain the broader
+directional-potential family.
 
 Every case has the same delivery layout:
 

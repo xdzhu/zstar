@@ -187,6 +187,32 @@ class CanonicalCliArchitectureTests(unittest.TestCase):
             self.assertTrue(script.is_file())
             self.assertIn("zstar spectra run", script.read_text(encoding="utf-8"))
 
+    def test_abacus_spectra_default_root_is_reused_by_later_actions(self):
+        calls = []
+        with tempfile.TemporaryDirectory() as tmp:
+            previous = Path.cwd()
+            os.chdir(tmp)
+            try:
+                Path("INPUT").write_text("INPUT_PARAMETERS\n", encoding="utf-8")
+                Path("KPT").write_text("K_POINTS\n", encoding="utf-8")
+                handle_canonical_cli(
+                    ["spectra", "pre", "--stru", "STRU"],
+                    lambda argv: calls.append(list(argv)),
+                )
+                self.assertTrue((Path("raman") / ".zstar" / "spectra.json").is_file())
+                self.assertEqual(calls[0].count("--copy"), 2)
+                self.assertIn("INPUT", calls[0])
+                self.assertIn("KPT", calls[0])
+
+                calls.clear()
+                handle_canonical_cli(
+                    ["spectra", "stat"],
+                    lambda argv: calls.append(list(argv)),
+                )
+                self.assertEqual(calls, [["raman", "status", "--raman-dir", "raman"]])
+            finally:
+                os.chdir(previous)
+
     def test_canonical_bec_job_accepts_pbs_alias_and_writes_pbs_driver(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

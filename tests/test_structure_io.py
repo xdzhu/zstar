@@ -4,7 +4,13 @@ import sys
 
 import numpy as np
 
-from zstar.structure_io import read_structure, read_poscar, write_poscar
+from zstar.structure_io import (
+    format_wyckoff_summary,
+    read_poscar,
+    read_structure,
+    write_poscar,
+    wyckoff_summary,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,3 +61,44 @@ assert abs(estimate_cell_volume('examples/molecules/CH4/run/STRU') - 8000.0) < 1
         text=True,
     )
     assert result.returncode == 0, result.stderr
+
+
+def test_wyckoff_summary_uses_spglib_without_pymatgen_or_smodes(tmp_path):
+    source = tmp_path / "CsCl.vasp"
+    source.write_text(
+        "CsCl\n1.0\n"
+        "4 0 0\n0 4 0\n0 0 4\n"
+        "Cs Cl\n1 1\nDirect\n"
+        "0 0 0\n0.5 0.5 0.5\n",
+        encoding="utf-8",
+    )
+    summary = wyckoff_summary(source)
+    assert summary["space_group"] == "Pm-3m"
+    assert summary["number"] == 221
+    assert [site["wyckoff"] for site in summary["sites"]] == ["a", "b"]
+    assert [site["representative"] for site in summary["sites"]] == [1, 2]
+    rendered = format_wyckoff_summary(summary)
+    assert "Space group: Pm-3m (No. 221)" in rendered
+    assert "Cs" in rendered and "Cl" in rendered
+
+    code = f"""
+import builtins
+real_import = builtins.__import__
+def blocked(name, *args, **kwargs):
+    if name == 'pymatgen' or name.startswith('pymatgen.') or name == 'pandas':
+        raise ModuleNotFoundError('blocked for core-command test')
+    return real_import(name, *args, **kwargs)
+builtins.__import__ = blocked
+from zstar.cli import zstar_cli
+zstar_cli(['stru', 'wyckoff', '--stru', r'{source}'])
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "Space group: Pm-3m (No. 221)" in result.stdout
+    assert not (tmp_path / "input.smodes").exists()
+    assert not (tmp_path / "out.smodes").exists()
