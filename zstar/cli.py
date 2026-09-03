@@ -29,7 +29,6 @@ PUBLIC_COMMANDS = (
     ('phonon', 'Phonon preparation, execution, collection, and irreps.'),
     ('spectra', 'Calculator-independent IR and Raman workflows.'),
     ('dielectric', 'Static and frequency-dependent dielectric response.'),
-    ('pot', 'Electrostatic-potential profiles, maps, and asymmetry analysis.'),
     ('backend', 'List calculator capabilities and executable availability.'),
     ('config', 'Configure and check calculator executables.'),
     ('response', 'Validate and convert calculator-neutral response records.'),
@@ -37,6 +36,7 @@ PUBLIC_COMMANDS = (
     ('stru', 'Structure conversion and symmetry utilities.'),
     ('data', 'qNEP dataset and BEC database utilities.'),
     ('skill', 'Install and inspect the packaged Agent Skill.'),
+    ('pot', 'Electrostatic-potential profiles, maps, and asymmetry analysis.'),
 )
 
 

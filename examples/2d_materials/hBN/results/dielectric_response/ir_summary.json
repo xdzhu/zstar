@@ -1,0 +1,38 @@
+{
+  "dimensionality": 2,
+  "response_kind": "total 2D sheet polarizability (Angstrom)",
+  "response_unit": "angstrom",
+  "response_convention": "alpha_2D/epsilon_0 = cell_height*(epsilon_supercell-I)",
+  "electronic_response_included": true,
+  "static_response": [
+    [
+      18.025918801106826,
+      0.0021746556633562585,
+      0.0
+    ],
+    [
+      0.0021746556633562585,
+      18.02591960593868,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      4.545241408444071
+    ]
+  ],
+  "modes": 3,
+  "files": {
+    "modes": "D:\\Work\\Zstar\\zstar-article\\tmp\\hbn-20260903\\dielectric_current\\ir_modes.csv",
+    "spectrum": "D:\\Work\\Zstar\\zstar-article\\tmp\\hbn-20260903\\dielectric_current\\ir_spectrum.dat",
+    "response_real": "D:\\Work\\Zstar\\zstar-article\\tmp\\hbn-20260903\\dielectric_current\\ir_response_real.dat",
+    "response_imag": "D:\\Work\\Zstar\\zstar-article\\tmp\\hbn-20260903\\dielectric_current\\ir_response_imag.dat",
+    "static_response": "D:\\Work\\Zstar\\zstar-article\\tmp\\hbn-20260903\\dielectric_current\\static_response.json",
+    "plot": "D:\\Work\\Zstar\\zstar-article\\tmp\\hbn-20260903\\dielectric_current\\ir_spectrum.png",
+    "plot_pdf": "D:\\Work\\Zstar\\zstar-article\\tmp\\hbn-20260903\\dielectric_current\\ir_spectrum.pdf",
+    "plot_svg": "D:\\Work\\Zstar\\zstar-article\\tmp\\hbn-20260903\\dielectric_current\\ir_spectrum.svg",
+    "response_plot": "D:\\Work\\Zstar\\zstar-article\\tmp\\hbn-20260903\\dielectric_current\\dielectric_response.png",
+    "response_plot_pdf": "D:\\Work\\Zstar\\zstar-article\\tmp\\hbn-20260903\\dielectric_current\\dielectric_response.pdf",
+    "response_plot_svg": "D:\\Work\\Zstar\\zstar-article\\tmp\\hbn-20260903\\dielectric_current\\dielectric_response.svg"
+  }
+}

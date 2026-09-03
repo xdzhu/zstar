@@ -10,7 +10,7 @@ directories are intentionally excluded.
 | Directory | Scope | Cases |
 |---|---|---|
 | `1d_wires/` | periodic one-dimensional response | GaAs nanowire |
-| `2d_materials/` | slab and vacuum-independent sheet response | MoS2, alpha-In2Se3 |
+| `2d_materials/` | slab and vacuum-independent sheet response | MoS2, hBN, alpha-In2Se3 |
 | `3d_bulk/` | bulk BEC and dielectric response | BaTiO3, HfO2 |
 | `molecules/` | molecular APT, IR, and Raman | H2O, CH4, CO2 |
 | `backend_examples/` | calculator-specific validation | CP2K BEC/IR/Raman, VASP SiC |

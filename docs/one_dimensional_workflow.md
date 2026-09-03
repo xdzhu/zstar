@@ -44,8 +44,8 @@ alpha_1D = A_perp (epsilon_supercell - I) / (4 pi)
 ```
 
 in `Angstrom^2` in `zstar_response.json`. The frequency-dependent `zstar ir`
-and `zstar dielectric static` outputs use the explicitly labelled SI-reduced convention
-`A_perp (epsilon - I)`.
+and `zstar dielectric static` outputs report
+`alpha_1D/epsilon_0 = A_perp (epsilon_supercell - I)` in `Angstrom^2`.
 
 ## BEC workflow
 

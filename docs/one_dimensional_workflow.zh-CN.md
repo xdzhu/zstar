@@ -35,8 +35,8 @@ ZStar 会把生成的极化网格由 `1 x 1 x N` 自动补为可运行的最小
 alpha_1D = A_perp (epsilon_supercell - I) / (4 pi)
 ```
 
-单位为 `Angstrom^2`。光谱与 `zstar dielectric static` 的频率响应则使用结果文件中明确
-标注的 SI-reduced 约定 `A_perp (epsilon - I)`。
+单位为 `Angstrom^2`。光谱与 `zstar dielectric static` 的频率响应在结果文件中明确写为
+`alpha_1D/epsilon_0 = A_perp (epsilon_supercell - I)`，单位同为 `Angstrom^2`。
 
 ## BEC 工作流
 

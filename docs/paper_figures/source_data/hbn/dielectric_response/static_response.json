@@ -1,0 +1,24 @@
+{
+  "frequency_cm-1": 0.0,
+  "tensor": [
+    [
+      18.025918801106826,
+      0.0021746556633562585,
+      0.0
+    ],
+    [
+      0.0021746556633562585,
+      18.02591960593868,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      4.545241408444071
+    ]
+  ],
+  "response_kind": "total 2D sheet polarizability (Angstrom)",
+  "response_unit": "angstrom",
+  "response_convention": "alpha_2D/epsilon_0 = cell_height*(epsilon_supercell-I)",
+  "electronic_response_included": true
+}

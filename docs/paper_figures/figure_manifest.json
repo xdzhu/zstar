@@ -3,23 +3,6 @@
   "backend": "Python/matplotlib",
   "figures": [
     {
-      "figure": "dielectric_response_examples",
-      "files": {
-        "pdf": "dielectric_response_examples.pdf",
-        "svg": "dielectric_response_examples.svg",
-        "png": "dielectric_response_examples.png",
-        "tiff": "dielectric_response_examples.tiff",
-        "csv": "dielectric_response_examples.csv",
-        "metadata": "dielectric_response_examples.metadata.json"
-      },
-      "layout": "2x2: HfO2 real/imaginary bulk response and MoS2 real/imaginary sheet response",
-      "completed_systems": [
-        "HfO2",
-        "MoS2"
-      ],
-      "placeholder": false
-    },
-    {
       "figure": "spectroscopy_across_dimensions",
       "files": {
         "png": "spectroscopy_across_dimensions.png",
@@ -33,6 +16,24 @@
         "HfO$_2$",
         "MoS$_2$",
         "CH$_4$"
+      ],
+      "placeholder": false
+    },
+    {
+      "figure": "dielectric_response_examples",
+      "files": {
+        "pdf": "dielectric_response_examples.pdf",
+        "svg": "dielectric_response_examples.svg",
+        "png": "dielectric_response_examples.png",
+        "tiff": "dielectric_response_examples.tiff",
+        "csv": "dielectric_response_examples.csv",
+        "metadata": "dielectric_response_examples.metadata.json"
+      },
+      "layout": "3x2: HfO2 bulk and MoS2/hBN sheet responses, each with real and imaginary panels",
+      "completed_systems": [
+        "HfO2",
+        "MoS2",
+        "hBN"
       ],
       "placeholder": false
     }
@@ -62,6 +63,16 @@
       "path": "gaas_nanowire/raman/raman_spectrum.dat",
       "size": 100088,
       "sha256": "90231191e6d25dce0d7ea0fb31c2f75a0f855efe39ae8329101bdc00da6a69cc"
+    },
+    {
+      "path": "hbn/dielectric_response/ir_response_imag.dat",
+      "size": 535593,
+      "sha256": "70ab513b777ee5c43babcef3b80520f0bca24667b0526db9473dee9eb490d372"
+    },
+    {
+      "path": "hbn/dielectric_response/ir_response_real.dat",
+      "size": 537603,
+      "sha256": "98a35bd1b11606d0b3b9a5a01a4a4fa43b504ed2add8a3c857d8f4c75924b43a"
     },
     {
       "path": "hfo2/STRU",

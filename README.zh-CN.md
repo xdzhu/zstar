@@ -661,16 +661,16 @@ zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
 
 | 命令 | 功能 |
 | --- | --- |
-| `zstar bec pre/run/job/stat/post` | 极化、APT/BEC、`BORN`、续算状态和任务脚本。 |
-| `zstar phonon pre/run/job/stat/post/irrep` | 位移、串行力计算、力常数、频率和不可约表示。 |
-| `zstar spectra pre/run/job/stat/post` | 计算器感知的 IR 与 Raman 工作流。 |
+| `zstar bec pre/job/run/stat/post` | 极化、APT/BEC、`BORN`、续算状态和任务脚本。 |
+| `zstar phonon pre/job/run/stat/post/irrep` | 位移、串行力计算、力常数、频率和不可约表示。 |
+| `zstar spectra pre/job/run/stat/post` | 计算器感知的 IR 与 Raman 工作流。 |
 | `zstar dielectric static/freq/optics` | 静态、振动及电子介电响应。 |
 | `zstar backend list` | 列出能力，并可检查程序或插件。 |
 | `zstar config init/show/set/check` | 配置计算软件路径、运行时默认值和 ABACUS 全局资源目录。 |
 | `zstar response` | 校验并统一计算器无关响应数据。 |
 | `zstar density` | 生成电荷密度导出适配器和来源 sidecar。 |
 | `zstar stru convert/wyckoff` | 转换结构或检查 Wyckoff 位置。 |
-| `zstar data qnep/db` | 导出 qNEP 数据或管理 BEC/High-K 数据库。 |
+| `zstar data db/qnep` | 管理可追溯 BEC/High-K 数据库或导出 qNEP 数据。 |
 | `zstar skill install/path/preflight` | 安装 Agent Skill 或检查工作区。 |
 | `zstar pot` | 绘制势曲线/平面图、真空势差和镜面非对称度。 |
 

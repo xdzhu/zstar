@@ -23,8 +23,34 @@ class CanonicalCliArchitectureTests(unittest.TestCase):
         output = StringIO()
         with redirect_stdout(output):
             zstar_cli(["spectra", "--help"])
-        self.assertIn("pre, run, job, stat, post", output.getvalue())
+        self.assertIn("pre, job, run, stat, post", output.getvalue())
         self.assertNotIn("prepare,run,status", output.getvalue())
+
+    def test_family_help_uses_documented_action_order(self):
+        expected = {
+            "bec": "pre, job, run, stat, post",
+            "phonon": "pre, job, run, stat, post, irrep",
+            "spectra": "pre, job, run, stat, post",
+            "data": "db, qnep",
+        }
+        for family, actions in expected.items():
+            output = StringIO()
+            with redirect_stdout(output):
+                zstar_cli([family, "--help"])
+            self.assertIn(f"actions: {actions}", output.getvalue())
+
+    def test_top_level_help_uses_documented_family_order(self):
+        output = StringIO()
+        with redirect_stdout(output):
+            with self.assertRaises(SystemExit) as context:
+                zstar_cli(["--help"])
+        self.assertEqual(context.exception.code, 0)
+        text = output.getvalue()
+        expected = (
+            "{bec,phonon,spectra,dielectric,backend,config,response,density,"
+            "stru,data,skill,pot}"
+        )
+        self.assertIn(expected, text)
 
     def test_simple_families_route_to_established_handlers(self):
         calls = []

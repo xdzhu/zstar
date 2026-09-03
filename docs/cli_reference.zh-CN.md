@@ -20,16 +20,16 @@ pre -> run -> job -> stat -> post
 
 | 功能族 | 规范动作 | 用途 |
 | --- | --- | --- |
-| `zstar bec` | `pre/run/job/stat/post` | 极化、APT/BEC 与 `BORN`；支持 ABACUS + PYATB、VASP、CP2K、QE。 |
-| `zstar phonon` (`ph`) | `pre/run/job/stat/post/irrep` | 位移、串行力计算、力常数、频率与 Gamma 点不可约表示。 |
-| `zstar spectra` | `pre/run/job/stat/post` | ABACUS + PYATB、VASP、CP2K、QE 的 IR 与 Raman 工作流。 |
+| `zstar bec` | `pre/job/run/stat/post` | 极化、APT/BEC 与 `BORN`；支持 ABACUS + PYATB、VASP、CP2K、QE。 |
+| `zstar phonon` (`ph`) | `pre/job/run/stat/post/irrep` | 位移、串行力计算、力常数、频率与 Gamma 点不可约表示。 |
+| `zstar spectra` | `pre/job/run/stat/post` | ABACUS + PYATB、VASP、CP2K、QE 的 IR 与 Raman 工作流。 |
 | `zstar dielectric` (`diel`) | `static` (`zero`)、`freq`、`optics` | 晶格静态响应、频率相关振动响应与电子光学响应。 |
 | `zstar backend list` | `--check`、`--json`、`--discover` | 列出已实现能力，并可检查本机程序或第三方插件。 |
 | `zstar config` | `init/show/set/check` | 分层管理计算软件路径与运行配置。 |
 | `zstar response` | `validate/import-bec/import-abacus/import-phonopy/intrinsic` | 计算器无关响应文档及低维本征响应。 |
 | `zstar density` | `vasp-cube/qe-input/qe-sidecar/cp2k-block/sidecar` | 电荷密度导出适配器与来源 sidecar。 |
 | `zstar stru` | `convert/wyckoff` | 结构转换与对称性检查。 |
-| `zstar data` | `qnep/db` | qNEP 训练数据和可追溯 BEC/High-K 数据库。 |
+| `zstar data` | `db/qnep` | 可追溯 BEC/High-K 数据库和 qNEP 训练数据。 |
 | `zstar skill` | `install/path/preflight` | 安装或检查随包发布的 Agent Skill，并执行只读预检查。 |
 | `zstar pot` | 选项驱动 | 轴向曲线、平面图、方向曲线、真空势差和镜面对称破缺。 |
 
@@ -174,7 +174,7 @@ zstar pot --cube ElecStaticPot.cube --axes z \
 | `zstar bec run/job/stat` | `zstar workflow run/status/script` |
 | `zstar bec post` | `zstar deal` |
 | `zstar phonon pre/post/irrep` | `zstar ph/postph/irrep` |
-| `zstar spectra pre/run/job/stat/post` | `prepare/run/status/collect/script`；底层 `ir`、`raman` 继续可用 |
+| `zstar spectra pre/job/run/stat/post` | `prepare/script/run/status/collect`；底层 `ir`、`raman` 继续可用 |
 | `zstar dielectric static/freq` | `zstar calc/freq` |
 | `zstar stru convert/wyckoff` | `zstar vasp/wyckoff` |
 | `zstar skill install/path/preflight` | `zstar agent-skill ...` |

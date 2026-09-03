@@ -19,6 +19,6 @@
   ],
   "response_kind": "lattice 2D sheet polarizability (Angstrom)",
   "response_unit": "angstrom",
-  "response_convention": "SI-reduced; alpha_2D/epsilon_0 = cell_height*(epsilon_supercell-I)",
+  "response_convention": "alpha_2D/epsilon_0 = cell_height*(epsilon_supercell-I)",
   "electronic_response_included": false
 }

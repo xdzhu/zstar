@@ -1,11 +1,12 @@
 {
   "schema": 1,
   "figure_contract": {
-    "conclusion": "ZStar produces anisotropic bulk dielectric spectra and vacuum-independent two-dimensional lattice sheet response from the same BEC-mode contraction.",
+    "conclusion": "ZStar produces anisotropic bulk dielectric spectra and vacuum-independent two-dimensional sheet responses from the same BEC-mode contraction.",
     "archetype": "quantitative grid",
     "normalization": {
       "HfO2": "dimensionless total relative permittivity",
-      "MoS2": "lattice alpha_2D/epsilon_0 in Angstrom"
+      "MoS2": "lattice alpha_2D/epsilon_0 in Angstrom",
+      "hBN": "total alpha_2D/epsilon_0 in Angstrom"
     },
     "broadening_cm-1": 8.0
   },
@@ -43,6 +44,23 @@
         0.0,
         5.6767209753e-06
       ]
+    ],
+    "hBN_total_sheet_A": [
+      [
+        18.025918801,
+        0.0021746556634,
+        0.0
+      ],
+      [
+        0.0021746556634,
+        18.025919606,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        4.5452414084
+      ]
     ]
   },
   "source_data": {
@@ -61,6 +79,14 @@
     "source_data/mos2/dielectric_response/ir_response_imag.dat": {
       "bytes": 417162,
       "sha256": "8f5f9f5b96acf653aa321a72f611a4d172a247443e8527f90637e216f487c74e"
+    },
+    "source_data/hbn/dielectric_response/ir_response_real.dat": {
+      "bytes": 537603,
+      "sha256": "98a35bd1b11606d0b3b9a5a01a4a4fa43b504ed2add8a3c857d8f4c75924b43a"
+    },
+    "source_data/hbn/dielectric_response/ir_response_imag.dat": {
+      "bytes": 535593,
+      "sha256": "70ab513b777ee5c43babcef3b80520f0bca24667b0526db9473dee9eb490d372"
     }
   },
   "exports": {

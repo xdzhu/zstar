@@ -25,21 +25,9 @@ class PhononGenerationTests(unittest.TestCase):
             os.chdir(root)
             try:
                 with (
-                    patch("zstar.phonon_gen.subprocess.run") as run,
+                    patch("zstar.phonon_gen._phonopy_displacements"),
                     patch("zstar.phonon_gen.create_symlink") as symlink,
-                    patch(
-                        "zstar.phonopy_stru.write_phonopy_compatible_stru"
-                    ) as normalize,
                 ):
-                    normalize.side_effect = (
-                        lambda source, destination: Path(destination).write_text(
-                            Path(source).read_text(encoding="utf-8"),
-                            encoding="utf-8",
-                        )
-                    )
-                    run.return_value.returncode = 0
-                    run.return_value.stdout = ""
-                    run.return_value.stderr = ""
                     generated = run_phonopy_and_process_files(
                         abacus_sub="missing.sh"
                     )
@@ -69,6 +57,42 @@ class PhononGenerationTests(unittest.TestCase):
                     run_phonopy_and_process_files()
             finally:
                 os.chdir(previous)
+
+    def test_abacus_assets_are_copied_into_displacement_folders(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            assets = root / "assets"
+            assets.mkdir()
+            (assets / "H.upf").write_text("pseudo", encoding="utf-8")
+            (assets / "H.orb").write_text("orbital", encoding="utf-8")
+            (root / "STRU").write_text(
+                "ATOMIC_SPECIES\nH 1 H.upf\n\nNUMERICAL_ORBITAL\nH.orb\n",
+                encoding="utf-8",
+            )
+            (root / "INPUT").write_text(
+                "INPUT_PARAMETERS\ncal_force 1\n",
+                encoding="utf-8",
+            )
+            for name in ("KPT", "STRU-001"):
+                (root / name).write_text(name, encoding="utf-8")
+            previous = Path.cwd()
+            os.chdir(root)
+            try:
+                with (
+                    patch("zstar.phonon_gen._phonopy_displacements"),
+                ):
+                    run_phonopy_and_process_files(abacus_sub=None)
+            finally:
+                os.chdir(previous)
+
+            for name in ("H.upf", "H.orb"):
+                copied = root / "disp-001" / name
+                self.assertTrue(copied.is_file())
+                self.assertFalse(copied.is_symlink())
+                self.assertEqual(
+                    copied.read_text(encoding="utf-8"),
+                    (assets / name).read_text(encoding="utf-8"),
+                )
 
     def test_vasp_generation_uses_vasp_phonopy_mode(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -707,16 +707,16 @@ Commands, interpretation limits, and the SnS/SnSe/SnTe directional examples are 
 
 | Command | Purpose |
 | --- | --- |
-| `zstar bec pre/run/job/stat/post` | Polarization, APT/BEC, `BORN`, resume state, and scheduler drivers. |
-| `zstar phonon pre/run/job/stat/post/irrep` | Displacements, serial forces, force constants, frequencies, and irreps. |
-| `zstar spectra pre/run/job/stat/post` | Calculator-aware IR and Raman workflows. |
+| `zstar bec pre/job/run/stat/post` | Polarization, APT/BEC, `BORN`, resume state, and scheduler drivers. |
+| `zstar phonon pre/job/run/stat/post/irrep` | Displacements, serial forces, force constants, frequencies, and irreps. |
+| `zstar spectra pre/job/run/stat/post` | Calculator-aware IR and Raman workflows. |
 | `zstar dielectric static/freq/optics` | Static, vibrational, and electronic dielectric response. |
 | `zstar backend list` | List capabilities and optionally check executables/plugins. |
 | `zstar config init/show/set/check` | Configure calculator executable paths. |
 | `zstar response` | Validate and normalize calculator-neutral response data. |
 | `zstar density` | Prepare density-export adapters and provenance sidecars. |
 | `zstar stru convert/wyckoff` | Convert structures or inspect Wyckoff positions. |
-| `zstar data qnep/db` | Export qNEP data or manage a traceable BEC/High-K database. |
+| `zstar data db/qnep` | Manage a traceable BEC/High-K database or export qNEP data. |
 | `zstar skill install/path/preflight` | Install the Agent Skill or inspect a workspace. |
 | `zstar pot` | Plot potential profiles/maps, vacuum steps, and mirror asymmetry. |
 

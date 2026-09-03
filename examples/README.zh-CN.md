@@ -9,7 +9,7 @@ scratch 目录不放入仓库。
 | 目录 | 范围 | 案例 |
 |---|---|---|
 | `1d_wires/` | 周期性一维响应 | GaAs 纳米线 |
-| `2d_materials/` | 薄层及与真空无关的面响应 | MoS2、alpha-In2Se3 |
+| `2d_materials/` | 薄层及与真空无关的面响应 | MoS2、hBN、alpha-In2Se3 |
 | `3d_bulk/` | 体材料 BEC 与介电响应 | BaTiO3、HfO2 |
 | `molecules/` | 分子 APT、IR 与 Raman | H2O、CH4、CO2 |
 | `backend_examples/` | 计算器后端验证 | CP2K BEC/IR/Raman、VASP SiC |

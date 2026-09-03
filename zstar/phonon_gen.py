@@ -9,6 +9,16 @@ import subprocess
 from typing import Optional
 
 
+_ABACUS_SECTION_HEADERS = {
+    "ATOMIC_SPECIES",
+    "NUMERICAL_ORBITAL",
+    "NUMERICAL_DESCRIPTOR",
+    "LATTICE_CONSTANT",
+    "LATTICE_VECTORS",
+    "ATOMIC_POSITIONS",
+}
+
+
 def create_symlink(source: str | Path, link_name: str | Path) -> None:
     source_path = Path(source).resolve()
     link_path = Path(link_name)
@@ -25,6 +35,45 @@ def _copy_optional_script(script: Optional[str | Path], target: Path) -> None:
     source = Path(script)
     if source.is_file():
         shutil.copy2(source, target / source.name)
+
+
+def _referenced_abacus_assets(structure: Path, workdir: Path) -> list[Path]:
+    """Find distributable PP/orbital files referenced by an ABACUS STRU."""
+
+    section = None
+    references: list[str] = []
+    for raw in structure.read_text(encoding="utf-8", errors="ignore").splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line:
+            continue
+        upper = line.upper()
+        if upper in _ABACUS_SECTION_HEADERS:
+            section = upper
+            continue
+        tokens = line.split()
+        if section == "ATOMIC_SPECIES" and len(tokens) >= 3:
+            references.append(tokens[2])
+        elif section == "NUMERICAL_ORBITAL" and tokens:
+            references.append(tokens[0])
+
+    assets: list[Path] = []
+    for reference in references:
+        candidate = Path(reference).expanduser()
+        choices = [candidate] if candidate.is_absolute() else [
+            workdir / candidate,
+            workdir / "assets" / candidate.name,
+        ]
+        resolved = next((path.resolve() for path in choices if path.is_file()), None)
+        if resolved is not None and resolved not in assets:
+            assets.append(resolved)
+    return assets
+
+
+def _copy_abacus_assets(assets: list[Path], target: Path) -> None:
+    for source in assets:
+        destination = target / source.name
+        if source != destination.resolve():
+            shutil.copy2(source, destination)
 
 
 def _phonopy_displacements(
@@ -127,6 +176,7 @@ def run_phonopy_and_process_files(
     generated: list[str] = []
 
     if stru_files:
+        assets = _referenced_abacus_assets(structure, workdir)
         for displaced in stru_files:
             number = displaced.name.split("-", 1)[1]
             target = workdir / f"disp-{number}"
@@ -134,6 +184,7 @@ def run_phonopy_and_process_files(
             create_symlink(workdir / "INPUT", target / "INPUT")
             create_symlink(workdir / "KPT", target / "KPT")
             create_symlink(displaced, target / "STRU")
+            _copy_abacus_assets(assets, target)
             _copy_optional_script(abacus_sub, target)
             generated.append(str(target))
     elif poscar_files:

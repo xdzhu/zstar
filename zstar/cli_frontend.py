@@ -35,12 +35,12 @@ ACTION_ALIASES = {
 }
 
 FAMILY_HELP = {
-    "bec": "pre, run, job, stat, post",
-    "phonon": "pre, run, job, stat, post, irrep",
-    "spectra": "pre, run, job, stat, post",
+    "bec": "pre, job, run, stat, post",
+    "phonon": "pre, job, run, stat, post, irrep",
+    "spectra": "pre, job, run, stat, post",
     "dielectric": "static, freq, optics",
     "stru": "convert, wyckoff",
-    "data": "qnep, db",
+    "data": "db, qnep",
     "skill": "install, path, preflight",
     "config": "init, show, set, check",
 }

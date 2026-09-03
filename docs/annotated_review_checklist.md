@@ -1,13 +1,14 @@
 # Annotated CPC Review Checklist
 
 This checklist converts the comments in
-`zstar_CPC-annotated.pdf` into an execution order. It records the current
+`zstar_CPC-annotated-0903.pdf` into an execution order. It records the current
 status after the code, example, result, and manuscript passes. Each later
 stage depends on the artifacts and tests completed in the preceding stage.
 
 ## Annotation coverage
 
-The source PDF has 33 pages and 53 semantic highlight comments. The comments
+The source PDF produced 68 actionable comments after duplicate highlights were
+reconciled. The comments
 were grouped by dependency rather than handled in page order:
 
 - Pages 1--3: title, abstract, Introduction structure, finite-difference
@@ -16,7 +17,7 @@ were grouped by dependency rather than handled in page order:
   scheduler support, PYATB compatibility, and parameter detail.
 - Pages 13--17: Examples structure, BEC comparison tables, hBN/In2Se3 labels,
   molecular APT interpretation, and the Python-version statement.
-- Pages 19--22: figure placement, NAC phonons, dielectric-response ordering,
+- Pages 19--22: figure placement, dielectric-response ordering,
   spectral axes, mode labels, and figure captions.
 - Pages 23--24: concise Summary, appendix scope, and removal of unnecessary
   material.
@@ -81,7 +82,7 @@ charge (BEC)`` consistently.
   which are the systems covered by syntax and environment checks. LSF and SGE
   remain outside the current scope.
 - [x] Make job help and documentation display the requested order
-  `pre/run/job/stat/post`, while retaining the existing action behavior.
+  `pre/job/run/stat/post`, while retaining the existing action behavior.
 
 ### 1.3 Insulation gate and PYATB compatibility
 
@@ -98,7 +99,7 @@ charge (BEC)`` consistently.
   test confirms that `.zstar/stages/0.no-move.json` is saved and no displaced
   stage state is created.
 - [x] Replace stale test-count and compatibility claims in validation records
-  after the final full test run. The current local suite reports 184 passed
+  after the final full test run. The current local suite reports 202 passed
   tests under Python 3.10.
 
 ### 1.4 Response physics and backend scope
@@ -108,9 +109,9 @@ charge (BEC)`` consistently.
   cube-integrated dipole treatment.
 - [x] Keep `zstar pot` support for profiles, plane maps, tiled maps, directional
   profiles, vacuum steps, and mirror-asymmetry analysis.
-- [x] Add a clear missing-`BORN` guard before bulk NAC post-processing.
-- [x] Add the NAC comparison workflow requested in the annotations: BTO and
-  tetragonal HfO2, phonons without NAC versus NAC using BEC.
+- [x] Keep optional non-analytic phonon corrections guarded by an explicit
+  `BORN` check in the software, while omitting the withdrawn comparison from
+  the manuscript.
 - [x] Verify that backend capability metadata matches actual implemented
   commands, especially the claimed VASP, CP2K, and QE IR/Raman paths.
 - [x] Preserve BEC output precision at the source and through response export.
@@ -126,17 +127,16 @@ Only after Section 1 is complete and tested:
   pseudopotential/orbital, backend, gap, sum-rule residual, and output
   provenance. The large solver scratch directories remain intentionally local
   and are not claimed as a fresh all-node rerun in this pass.
-- [ ] Bulk BEC: cubic BTO and tetragonal HfO2. Keep each material in its own
+- [x] Bulk BEC: cubic BTO and tetragonal HfO2. Keep each material in its own
   transposed comparison table.
-- [ ] 2D BEC: hBN and alpha-In2Se3. Show both B and N for hBN and make the
+- [x] 2D BEC: hBN and alpha-In2Se3. Show both B and N for hBN and make the
   In2Se3 component labels readable without unexplained parenthetical codes.
-- [ ] Molecular BEC/APT: H2O and CH4. State clearly that molecular APT is the
+- [x] Molecular BEC/APT: H2O and CH4. State clearly that molecular APT is the
   finite-system analogue and is not a periodic bulk BEC.
-- [ ] Spectroscopy: retain the well-matched Bulk, 2D, and Molecule examples.
+- [x] Spectroscopy: retain the well-matched Bulk, 2D, and Molecule examples.
   Keep nanowire as a limited capability example rather than a headline result.
 - [x] Replace the earlier BTO spectrum if it contains an unrelaxed imaginary
   mode. Use the approved tetragonal HfO2 spectrum for the Bulk presentation.
-- [x] Generate the BTO and HfO2 NAC/non-NAC phonon comparison data.
 - [x] Re-run the frequency-dependent dielectric examples and retain both
   static/intercept and frequency-resolved outputs.
 - [x] Reproduce the SnS potential panel with a plotted 3x3 or 5x5 tiling, a
@@ -191,7 +191,7 @@ Only after Section 1 is complete and tested:
   examples in one concise paragraph and point readers to `examples/` and the
   reproducibility records.
 - [x] Present the result subsections in the agreed order: Bulk BEC, 2D BEC,
-  molecular BEC, NAC phonons, dielectric response, IR/Raman spectra, and
+  molecular BEC, dielectric response, IR/Raman spectra, and
   electrostatic potential.
 - [x] Replace `Discussion` plus `Conclusions` with a concise two-paragraph
   `Summary`.
@@ -219,6 +219,5 @@ Only after Section 1 is complete and tested:
   solver scratch remain excluded; site-specific scheduler templates are not
   included because drivers are generated by the public CLI and customized
   through job options and `--env-script`.
-- [x] Release boundary recorded: the private GitHub update is a separate user
-  authorization step, and PyPI release remains deferred unless a versioned
-  software release is explicitly requested.
+- [x] Release boundary recorded: repository updates are committed and pushed
+  when authorized; PyPI and tagged releases remain separate versioned actions.

@@ -654,8 +654,7 @@ def calculate_ir_spectrum(
             )
             response_unit = "angstrom"
             response_convention = (
-                "SI-reduced; alpha_2D/epsilon_0 = "
-                "cell_height*(epsilon_supercell-I)"
+                "alpha_2D/epsilon_0 = cell_height*(epsilon_supercell-I)"
             )
     else:
         length_m = modes.periodic_length_angstrom(periodic_axis) * 1.0e-10
@@ -673,14 +672,14 @@ def calculate_ir_spectrum(
             )[None, :, :]
         response *= 1.0e20
         response_kind = (
-            "total 1D line polarizability (Angstrom^2; SI-reduced)"
+            "total 1D line polarizability (Angstrom^2)"
             if born.electronic_dielectric is not None
-            else "lattice 1D line polarizability (Angstrom^2; SI-reduced)"
+            else "lattice 1D line polarizability (Angstrom^2)"
         )
         response_unit = "angstrom^2"
         response_convention = (
-            "SI-reduced; alpha_1D/epsilon_0 = "
-            "nonperiodic_cross_section*(epsilon_supercell-I)"
+            "alpha_1D/epsilon_0 = nonperiodic_cross_section*"
+            "(epsilon_supercell-I)"
         )
 
     return IRSpectrumResult(

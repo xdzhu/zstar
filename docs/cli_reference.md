@@ -20,16 +20,16 @@ aliases. New documentation and automation should use the short canonical verbs.
 
 | Family | Canonical actions | Purpose |
 | --- | --- | --- |
-| `zstar bec` | `pre/run/job/stat/post` | Polarization, APT/BEC, and `BORN`; calculators: ABACUS + PYATB, VASP, CP2K, QE. |
-| `zstar phonon` (`ph`) | `pre/run/job/stat/post/irrep` | Displacements, serial force calculations, force constants, frequencies, and Gamma irreps. |
-| `zstar spectra` | `pre/run/job/stat/post` | IR and Raman workflows for ABACUS + PYATB, VASP, CP2K, and QE. |
+| `zstar bec` | `pre/job/run/stat/post` | Polarization, APT/BEC, and `BORN`; calculators: ABACUS + PYATB, VASP, CP2K, QE. |
+| `zstar phonon` (`ph`) | `pre/job/run/stat/post/irrep` | Displacements, serial force calculations, force constants, frequencies, and Gamma irreps. |
+| `zstar spectra` | `pre/job/run/stat/post` | IR and Raman workflows for ABACUS + PYATB, VASP, CP2K, and QE. |
 | `zstar dielectric` (`diel`) | `static` (`zero`), `freq`, `optics` | Ionic static response, frequency-dependent vibrational response, and electronic optics. |
 | `zstar backend list` | `--check`, `--json`, `--discover` | List implemented capabilities and optionally check configured executables or plugins. |
 | `zstar config` | `init/show/set/check` | Layered executable and launch configuration. |
 | `zstar response` | `validate/import-bec/import-abacus/import-phonopy/intrinsic` | Calculator-neutral response documents and intrinsic low-dimensional response. |
 | `zstar density` | `vasp-cube/qe-input/qe-sidecar/cp2k-block/sidecar` | Density-export adapters and provenance sidecars. |
 | `zstar stru` | `convert/wyckoff` | Structure conversion and symmetry inspection. |
-| `zstar data` | `qnep/db` | qNEP training-data export and traceable BEC/High-K databases. |
+| `zstar data` | `db/qnep` | Traceable BEC/High-K databases and qNEP training-data export. |
 | `zstar skill` | `install/path/preflight` | Install or inspect the packaged Agent Skill and run non-mutating preflight checks. |
 | `zstar pot` | option-driven | Axis profiles, plane maps, directional profiles, vacuum steps, and mirror asymmetry. |
 
@@ -180,7 +180,7 @@ it does not compare `a+b` against `a-b`.
 | `zstar bec run/job/stat` | `zstar workflow run/status/script` |
 | `zstar bec post` | `zstar deal` |
 | `zstar phonon pre/post/irrep` | `zstar ph/postph/irrep` |
-| `zstar spectra pre/run/job/stat/post` | `prepare/run/status/collect/script`; low-level `ir` and `raman` remain available |
+| `zstar spectra pre/job/run/stat/post` | `prepare/script/run/status/collect`; low-level `ir` and `raman` remain available |
 | `zstar dielectric static/freq` | `zstar calc/freq` |
 | `zstar stru convert/wyckoff` | `zstar vasp/wyckoff` |
 | `zstar skill install/path/preflight` | `zstar agent-skill ...` |

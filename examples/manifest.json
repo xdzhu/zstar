@@ -4,6 +4,7 @@
   "cases": [
     {"id": "gaas_nanowire", "path": "1d_wires/GaAs_nanowire", "dim": 1, "calculator": "ABACUS+PYATB", "features": ["bec", "phonon", "ir", "raman"]},
     {"id": "mos2", "path": "2d_materials/MoS2", "dim": 2, "calculator": "ABACUS+PYATB", "features": ["bec", "ir", "dielectric", "pot"]},
+    {"id": "hbn", "path": "2d_materials/hBN", "dim": 2, "calculator": "ABACUS+PYATB", "features": ["bec", "phonon", "ir", "dielectric"]},
     {"id": "in2se3", "path": "2d_materials/In2Se3", "dim": 2, "calculator": "ABACUS+PYATB", "features": ["bec", "ir", "dielectric", "pot"]},
     {"id": "batio3", "path": "3d_bulk/BaTiO3", "dim": 3, "calculator": "ABACUS+PYATB", "features": ["bec", "phonon", "ir", "dielectric"]},
     {"id": "hfo2", "path": "3d_bulk/HfO2", "dim": 3, "calculator": "ABACUS+PYATB", "features": ["bec", "phonon", "ir", "dielectric"]},

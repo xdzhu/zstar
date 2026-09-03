@@ -16,7 +16,8 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "tmp" / "delivery-source"
 OUTPUT = ROOT / "tmp" / "delivery"
-BUNDLE_NAME = "ZStar-0.2.1-Complete-Collaboration-20260903"
+PACKAGE_VERSION = "0.2.1"
+BUNDLE_NAME = f"ZStar-{PACKAGE_VERSION}-Complete-Collaboration-20260903"
 BUNDLE = OUTPUT / BUNDLE_NAME
 
 
@@ -666,13 +667,15 @@ export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
     shutil.copytree(ROOT / "zstar", BUNDLE / "source_snapshot" / "zstar", ignore=ignore_cache)
     shutil.copytree(ROOT / "tests", BUNDLE / "source_snapshot" / "tests", ignore=ignore_cache)
     shutil.copytree(ROOT / "tools", BUNDLE / "source_snapshot" / "tools", ignore=ignore_cache)
-    shutil.copytree(ROOT / "job_scripts", BUNDLE / "job_scripts", ignore=ignore_cache)
     shutil.copytree(ROOT / "examples" / "backend_examples" / "cp2k_bec", BUNDLE / "backend_examples" / "cp2k_bec", ignore=ignore_cache)
     shutil.copytree(ROOT / "examples" / "backend_examples" / "calculator_spectroscopy", BUNDLE / "backend_examples" / "calculator_spectroscopy", ignore=ignore_cache)
     shutil.copytree(ROOT / "examples" / "common", BUNDLE / "cases" / "common", ignore=ignore_cache)
-    wheel = sorted((ROOT / "tmp" / "collaboration-wheel").glob("*.whl"))
+    wheel_dir = ROOT / "tmp" / "collaboration-wheel"
+    wheel = sorted(wheel_dir.glob(f"zstar-{PACKAGE_VERSION}-*.whl"))
     if len(wheel) != 1:
-        raise RuntimeError("Build exactly one wheel under tmp/collaboration-wheel first")
+        raise RuntimeError(
+            f"Build exactly one ZStar {PACKAGE_VERSION} wheel under {wheel_dir} first"
+        )
     copy_file(wheel[0], BUNDLE / "wheel" / wheel[0].name)
     add_case("3d_bulk", "BaTiO3", SOURCE / "3d" / "BaTiO3", 3)
     add_case("3d_bulk", "HfO2", SOURCE / "3d" / "HfO2", 3)
@@ -690,12 +693,17 @@ export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
             "zstar.bib",
             "zstar_CPC-full.pdf",
             "doi_verification.md",
+            "REFERENCE_AUDIT.md",
+            "reference_audit.json",
+            "reference_audit.csv",
             "Figure_1_ZStar_workflow.pdf",
             "Figure_2_BEC_physical_picture.pdf",
-            "Figure_3_BEC_validation_across_dimensions.pdf",
-            "Figure_4_Spectroscopy_across_dimensions.pdf",
-            "Figure_Appendix_In2Se3_hybrid_polarization.pdf",
-            "Figure_Appendix_Potential_examples_2D.pdf",
+            "Figure_3_Bulk_BEC_structures.pdf",
+            "Figure_4_2D_BEC_structures.pdf",
+            "Figure_5_Molecular_APT_structures.pdf",
+            "Figure_6_Dielectric_response_examples.pdf",
+            "Figure_7_Spectroscopy_across_dimensions_compact.pdf",
+            "Figure_8_Potential_examples_2D.pdf",
         ):
             source = article / name
             if source.is_file():

@@ -816,13 +816,12 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
                 zorder=4,
             )
         axis.set_xlim(float(z_coord[0]), float(z_coord[-1]))
+        lower_limit = axis.get_ylim()[0]
+        axis.set_ylim(lower_limit, 5.0 if material == "MoS2" else 2.5)
         axis.set_xlabel(r"$z$ coordinate ($\AA$)")
         axis.set_ylabel(r"$V(z)-V_{\mathrm{vac}}^{\mathrm{lower}}$ (eV)")
         axis.grid(axis="y", color=COLORS["grid"], linewidth=0.45)
-        axis.set_title(
-            f"{display[material]} slab-normal potential",
-            loc="left",
-        )
+        axis.set_title(display[material], loc="left")
         delta_text = (
             rf"$\Delta V_\mathrm{{vac}}={vacuum['delta_eV']:.3f}$ eV"
             if abs(vacuum["delta_eV"]) >= 0.001
@@ -833,20 +832,15 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
             )
         )
         axis.text(
-            0.04,
-            0.08,
-            delta_text
-            + "\n"
-            + (
-                "nonpolar control"
-                if material == "MoS2"
-                else "opposite surface vacua"
-            ),
+            0.5,
+            0.96,
+            delta_text,
             transform=axis.transAxes,
-            ha="left",
-            va="bottom",
+            ha="center",
+            va="top",
             color=COLORS["ink"],
             fontsize=7.6,
+            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.80, "pad": 1.2},
         )
         slab_sources[material] = (profile_path, vacuum_path, vacuum)
 
@@ -885,7 +879,7 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
     ax_map.set_aspect("equal")
     ax_map.set_xlabel(r"$x$ ($\AA$)")
     ax_map.set_ylabel(r"$y$ ($\AA$)")
-    ax_map.set_title("SnS in-plane potential texture (3x3 tiled)", loc="left")
+    ax_map.set_title("SnS (3x3)", loc="left")
     ax_map.set_xlim(x_tiled[0] - 0.5 * dx, x_tiled[-1] + 0.5 * dx)
     ax_map.set_ylim(y_tiled[0] - 0.5 * dy, y_tiled[-1] + 0.5 * dy)
     central_cell = Rectangle(
@@ -977,10 +971,7 @@ def make_potential_examples(data_root: Path, output: Path) -> dict:
     ax_direction.set_xlim(0.0, 1.0)
     ax_direction.tick_params(labelbottom=False)
     ax_direction.set_ylabel(r"$V-\langle V\rangle$ (eV)")
-    ax_direction.set_title(
-        r"SnS one-period mirror test along $a+b$",
-        loc="left",
-    )
+    ax_direction.set_title(r"SnS (along $a+b$)", loc="left")
     ax_direction.grid(axis="y", color=COLORS["grid"], linewidth=0.45)
     ax_direction.legend(
         loc="lower center",

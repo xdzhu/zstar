@@ -225,7 +225,7 @@ class SpectraTests(unittest.TestCase):
             responses.append(result.response_real[0])
             self.assertEqual(
                 result.response_kind,
-                "total 1D line polarizability (Angstrom^2; SI-reduced)",
+                "total 1D line polarizability (Angstrom^2)",
             )
             self.assertEqual(result.response_unit, "angstrom^2")
             self.assertIn("nonperiodic_cross_section", result.response_convention)

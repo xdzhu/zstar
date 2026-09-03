@@ -131,7 +131,7 @@ def _write_driver(
 def run_spectra_cli(arguments: Sequence[str], legacy: LegacyRunner) -> None:
     if not arguments or arguments[0] in {"-h", "--help"}:
         print("usage: zstar spectra <action> [options]")
-        print("actions: pre, run, stat, post, job")
+        print("actions: pre, job, run, stat, post")
         return
     action = ALIASES.get(arguments[0], arguments[0])
     if action not in {"pre", "run", "stat", "post", "job"}:

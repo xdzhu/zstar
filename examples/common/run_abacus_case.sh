@@ -88,6 +88,7 @@ DRY RUN: no files will be generated and no external solver will be started.
      --abacus-command "$abacus_command" --pyatb-command "$pyatb_command"
 4. zstar bec post --root .
 5. zstar ph --stru STRU --dim "$phonon_dim"
+   (INPUT.phonon replaces INPUT first when the case provides it.)
 EOF
     exit 0
 fi
@@ -116,6 +117,9 @@ zstar workflow status --root .
 zstar bec post --root .
 
 if [[ "$stage" == "all" ]]; then
+    if [[ -f "$input_dir/INPUT.phonon" ]]; then
+        cp "$input_dir/INPUT.phonon" INPUT
+    fi
     if [[ ! -f qpoints.yaml ]]; then
         zstar ph --stru STRU --dim "$phonon_dim"
     fi

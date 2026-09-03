@@ -1,0 +1,19 @@
+INPUT_PARAMETERS
+suffix              POLAR
+ecutwfc             100
+calculation         scf
+
+ks_solver           genelpa
+basis_type          lcao
+nspin               1
+smearing_method     gauss
+smearing_sigma      0.010
+scf_nmax            200
+scf_thr             1e-7
+
+init_chg            auto
+stru_file           STRU
+dft_functional      pbe
+kspacing            0.1 0.1 1
+symmetry            1
+cal_force           1
