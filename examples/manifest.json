@@ -15,6 +15,8 @@
     {"id": "cp2k_bec_mgo", "path": "backend_examples/cp2k_bec/MgO", "dim": 3, "calculator": "CP2K", "features": ["bec", "native_apt", "comparison"]},
     {"id": "cp2k_spectroscopy_h2o", "path": "backend_examples/calculator_spectroscopy/cp2k_h2o", "dim": 0, "calculator": "CP2K", "features": ["ir", "raman"]},
     {"id": "vasp_spectroscopy_sic", "path": "backend_examples/calculator_spectroscopy/vasp_sic", "dim": 3, "calculator": "VASP", "features": ["ir", "raman"]},
+    {"id": "abacus_spectroscopy_sic_benchmark", "path": "backend_examples/calculator_spectroscopy/abacus_sic", "dim": 3, "calculator": "ABACUS+PYATB", "features": ["relax", "bec", "phonon", "ir", "raman", "resource_benchmark"]},
+    {"id": "vasp_spectroscopy_hfo2_benchmark", "path": "backend_examples/calculator_spectroscopy/vasp_hfo2", "dim": 3, "calculator": "VASP", "features": ["relax", "bec", "phonon", "ir", "raman", "resource_benchmark"], "licensed_assets_required": ["POTCAR"]},
     {"id": "spectra_hfo2", "path": "IR_Raman_Spectra/Bulk_HfO2", "dim": 3, "calculator": "ABACUS+PYATB", "features": ["ir", "raman"]},
     {"id": "spectra_mos2", "path": "IR_Raman_Spectra/2D_MoS2", "dim": 2, "calculator": "ABACUS+PYATB", "features": ["ir", "raman"]},
     {"id": "spectra_ch4", "path": "IR_Raman_Spectra/Molecule_CH4", "dim": 0, "calculator": "ABACUS+PYATB", "features": ["ir", "raman"]},

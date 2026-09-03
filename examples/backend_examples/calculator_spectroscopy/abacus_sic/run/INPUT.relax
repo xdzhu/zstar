@@ -1,0 +1,16 @@
+INPUT_PARAMETERS
+suffix              SIC_RELAX
+calculation         cell-relax
+ecutwfc             100
+dft_functional      pbe
+basis_type          lcao
+ks_solver           genelpa
+nspin               1
+smearing_method     gauss
+smearing_sigma      0.01
+scf_nmax            200
+scf_thr             1e-7
+relax_nmax           100
+force_thr_ev         0.005
+stress_thr           0.5
+out_stru             1

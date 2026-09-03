@@ -13,7 +13,7 @@ directories are intentionally excluded.
 | `2d_materials/` | slab and vacuum-independent sheet response | MoS2, hBN, alpha-In2Se3 |
 | `3d_bulk/` | bulk BEC and dielectric response | BaTiO3, HfO2 |
 | `molecules/` | molecular APT, IR, and Raman | H2O, CH4, CO2 |
-| `backend_examples/` | calculator-specific validation | CP2K BEC/IR/Raman, VASP SiC |
+| `backend_examples/` | calculator-specific validation | CP2K BEC/IR/Raman; ABACUS/VASP SiC and HfO2 benchmarks |
 | `IR_Raman_Spectra/` | one-command IR and Raman workflows | HfO2, MoS2, CH4, GaAs nanowire |
 | `Electrostatic_Potential/` | cube-based electrostatic-potential analysis | MoS2, alpha-In2Se3, SnS, SnSe, SnTe |
 
@@ -42,11 +42,11 @@ equivalent explicit commands are:
 cd examples/3d_bulk/HfO2
 cp -r run work
 cd work
-zstar bec pre --stru STRU --input INPUT --input_sets assets \
+zstar bec pre --stru STRU --pp assets --orb assets \
   --dim 3 --method central --displacement 0.01 --force
-zstar workflow script --backend shell --dim 3 --tasks 1 --cpus-per-task 20
-zstar workflow run --root . --dim 3 --abacus-command "mpirun -np 20 abacus"
-zstar workflow status --root .
+zstar bec job --root . --system shell --tasks 1 --cpus-per-task 20
+zstar bec run --root . --abacus-command "mpirun -np 20 abacus"
+zstar bec stat --root .
 zstar bec post --root .
 ```
 
@@ -74,6 +74,7 @@ DFT executables.
 The backend examples document how to connect ZStar to CP2K and VASP. Licensed
 files such as VASP `POTCAR` are not redistributed. See
 `docs/calculator_independent_backends.md`, `docs/calculator_spectroscopy.md`,
+`docs/spectroscopy_backend_benchmark.md`,
 and the individual case READMEs for calculator-specific setup.
 
 The `Electrostatic_Potential/SnS`, `SnSe`, and `SnTe` cases are compact

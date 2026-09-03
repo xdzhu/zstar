@@ -581,6 +581,8 @@ zstar spectra pre --calculator cp2k --input h2o.inp \
 
 VASP 对原生介电响应做模式中心差分；CP2K 使用原生振动偶极和
 `LINRES/POLAR` 活动度。详见[计算器谱学文档](docs/calculator_spectroscopy.zh-CN.md)。
+SiC/HfO2 的 ABACUS-VASP 全流程数值与核时对照见
+[后端基准](docs/spectroscopy_backend_benchmark.zh-CN.md)。
 
 分子 APT 案例还包含紧凑的 HSE 参考记录：
 `examples/molecules/{H2O,CH4}/reference/hse_apt_summary.json`。完整求解器

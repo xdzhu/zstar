@@ -19,7 +19,7 @@ parameters for every material.
 - Scheduler script checks: shell and Torque/PBS on the direct-compute
   environment; Slurm script and environment checks on an independent Slurm
   cluster.
-- Final local regression: 184 tests passed under Python 3.10.
+- Final local regression: 203 tests passed under Python 3.10.
 
 ## Test Coverage
 
@@ -38,7 +38,7 @@ The source test suite covers:
 - local two-sided slab vacuum plateaus in the presence of a
   dipole-correction reset.
 
-The current source tree passes all 150 source tests. The ignored local BTO
+The current source tree passes all 203 source tests. The ignored local BTO
 example also completes `zstar bec post --root .` and
 reproduces the archived representative charges:
 
@@ -239,6 +239,12 @@ VASP-backend closure:
 | MoS2 | 2D sheet-susceptibility derivative | 401.50 A1' | diag(R) = (-2.1420, -2.1420, -8.7720), depolarization ratio = 0.1283 |
 | HfO2 | 3D dielectric derivative | 286.16 A1g | diag(R) = (-0.012325, -0.012325, -0.400100), normalized activity = 1.0000 |
 | 3C-SiC | 3D dielectric derivative | 774.96 T2 (threefold) | normalized Raman activities = 0.6622, 0.7989, 1.0000 |
+
+An additional symmetric backend benchmark starts from structural relaxation
+for 3C-SiC/PBE and tetragonal HfO2/PBEsol. ABACUS + PYATB and VASP differ by
+0.477% for the SiC optical triplet; the 15 HfO2 optical frequencies have a
+modewise MAE of 4.314 cm-1. Full stage-resolved timings and limitations are in
+[the spectroscopy backend benchmark](spectroscopy_backend_benchmark.md).
 
 The refreshed MoS2 closure used ABACUS/PBE+D3(BJ), `scf_thr = 1e-8`, a
 `33 x 33 x 1` primitive-cell mesh, and PYATB `1.1.2.dev0+2ad34bc` with its

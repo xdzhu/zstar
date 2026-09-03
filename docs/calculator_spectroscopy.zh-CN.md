@@ -126,6 +126,13 @@ NIST 给出的对应谐振参考值为 1649、3832 和 3943 cm-1，因此这里�
 VASP 结果还包含统一约定的 BEC、介电和 Raman 张量。CP2K 的原生 IR/Raman
 活动度不会在数据表中归一化，只有展示曲线缩放到最大值为一。
 
+## ABACUS/VASP 端到端基准
+
+3C-SiC/PBE 和四方 HfO2/PBEsol 已完成相互对照的全流程基准。计算从结构优化
+开始，包括 BEC、声子、IR 以及全部光学模的 Raman 响应。数值对照、分阶段
+CPU 核时、费用估算和可复现输入见
+[ABACUS/VASP 谱学全流程基准](spectroscopy_backend_benchmark.zh-CN.md)。
+
 ## 维度边界
 
 原生后端当前接受分子（`--dim 0`）和三维晶体（`--dim 3`），并主动拒绝

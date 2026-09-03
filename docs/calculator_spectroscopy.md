@@ -142,6 +142,14 @@ The VASP route additionally records normalized BEC, dielectric, and Raman
 tensors. CP2K records its native IR and Raman activities without normalization;
 only plotted curves are scaled to unit maximum.
 
+## ABACUS/VASP end-to-end benchmark
+
+A matched workflow benchmark is available for 3C-SiC/PBE and tetragonal
+HfO2/PBEsol. It starts from structural relaxation and includes BECs, phonons,
+IR, and every optical Raman mode. The numerical comparison, stage-resolved CPU
+core-hours, cost estimate, and reproducible inputs are documented in the
+[ABACUS/VASP spectroscopy benchmark](spectroscopy_backend_benchmark.md).
+
 ## Dimensional scope
 
 The native backends accept molecules (`--dim 0`) and three-dimensional bulk

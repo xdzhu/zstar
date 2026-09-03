@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "system": "tetragonal P4_2/nmc HfO2",
+  "calculator": "VASP 6.3.2",
+  "xc": "PBEsol",
+  "potential": "Hf_pv and O PAW PBE potential set; POTCAR not distributed",
+  "licensed_inputs_required": ["POTCAR"],
+  "encut_eV": 520,
+  "k_mesh": [9, 9, 6],
+  "phonon_bec_dielectric_method": "VASP DFPT, IBRION=8 and LEPSILON",
+  "raman_amplitude_A_sqrt_amu": 0.02,
+  "allocation": "40 MPI x 1 OpenMP",
+  "allocated_core_hours": 91.6635
+}

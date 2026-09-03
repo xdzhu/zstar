@@ -266,6 +266,52 @@ class SpectroscopyBackendTests(unittest.TestCase):
             self.assertEqual(wire_manifest["periodic_axes"], "z")
             self.assertEqual(wire_manifest["nac_model"], "none")
 
+    @patch("zstar.spectroscopy_backends.parse_vasp_gap", return_value=1.5)
+    @patch("zstar.spectroscopy_backends.vasp_output_complete")
+    @patch("zstar.spectroscopy_backends.subprocess.run")
+    def test_vasp_run_uses_manifest_reference_path(
+        self, mocked_run, mocked_complete, _mocked_gap
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            root = base / "shard"
+            reference = base / "shared-reference"
+            displaced = base / "shared-stage"
+            root.mkdir()
+            reference.mkdir()
+            displaced.mkdir()
+            (reference / "OUTCAR").write_text("complete\n")
+            (reference / "vasprun.xml").write_text("gap\n")
+            (reference / "WAVECAR").write_text("wave\n")
+            (reference / "CHGCAR").write_text("charge\n")
+            (root / "spectra_manifest.json").write_text(
+                json.dumps(
+                    {
+                        "calculator": "vasp",
+                        "stages": [
+                            {
+                                "name": "reference",
+                                "path": str(reference),
+                                "reference": True,
+                            },
+                            {"name": "mode-0004/plus", "path": str(displaced)},
+                        ],
+                    }
+                )
+            )
+
+            mocked_complete.side_effect = lambda path: Path(path).is_file()
+
+            def finish_stage(*_args, **kwargs):
+                (Path(kwargs["cwd"]) / "OUTCAR").write_text("complete\n")
+
+            mocked_run.side_effect = finish_stage
+            states = run_calculator_spectra(root, command="vasp_std")
+
+            self.assertEqual([state.status for state in states], ["completed", "completed"])
+            self.assertEqual((displaced / "WAVECAR").read_text(), "wave\n")
+            self.assertEqual((displaced / "CHGCAR").read_text(), "charge\n")
+
     @patch("zstar.spectroscopy_backends.load_vasp_gamma_modes", return_value=unstable_modes())
     def test_vasp_prepare_rejects_substantive_imaginary_modes(self, _mock_modes):
         with tempfile.TemporaryDirectory() as tmp:

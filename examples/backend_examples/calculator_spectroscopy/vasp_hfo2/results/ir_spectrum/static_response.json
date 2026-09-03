@@ -1,0 +1,24 @@
+{
+  "frequency_cm-1": 0.0,
+  "tensor": [
+    [
+      88.34679828115382,
+      -5.149648610963856e-15,
+      -2.644372623348425e-15
+    ],
+    [
+      -5.149648610963856e-15,
+      88.34679828115382,
+      2.6902119825609414e-14
+    ],
+    [
+      -2.644372623348425e-15,
+      2.6902119825609414e-14,
+      17.800800445818094
+    ]
+  ],
+  "response_kind": "total relative dielectric tensor",
+  "response_unit": "1",
+  "response_convention": "relative permittivity",
+  "electronic_response_included": true
+}

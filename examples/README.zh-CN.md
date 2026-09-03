@@ -12,7 +12,7 @@ scratch 目录不放入仓库。
 | `2d_materials/` | 薄层及与真空无关的面响应 | MoS2、hBN、alpha-In2Se3 |
 | `3d_bulk/` | 体材料 BEC 与介电响应 | BaTiO3、HfO2 |
 | `molecules/` | 分子 APT、IR 与 Raman | H2O、CH4、CO2 |
-| `backend_examples/` | 计算器后端验证 | CP2K BEC/IR/Raman、VASP SiC |
+| `backend_examples/` | 计算器后端验证 | CP2K BEC/IR/Raman、ABACUS/VASP 的 SiC 与 HfO2 基准 |
 | `IR_Raman_Spectra/` | 一键 IR 与 Raman 工作流 | HfO2、MoS2、CH4、GaAs 纳米线 |
 | `Electrostatic_Potential/` | 基于 cube 的静电势分析 | MoS2、alpha-In2Se3、SnS、SnSe、SnTe |
 
@@ -38,11 +38,11 @@ bash run.sh
 cd examples/3d_bulk/HfO2
 cp -r run work
 cd work
-zstar bec pre --stru STRU --input INPUT --input_sets assets \
+zstar bec pre --stru STRU --pp assets --orb assets \
   --dim 3 --method central --displacement 0.01 --force
-zstar workflow script --backend shell --dim 3 --tasks 1 --cpus-per-task 20
-zstar workflow run --root . --dim 3 --abacus-command "mpirun -np 20 abacus"
-zstar workflow status --root .
+zstar bec job --root . --system shell --tasks 1 --cpus-per-task 20
+zstar bec run --root . --abacus-command "mpirun -np 20 abacus"
+zstar bec stat --root .
 zstar bec post --root .
 ```
 
@@ -65,7 +65,8 @@ DFT 可执行程序。
 
 `backend_examples/` 说明如何连接 CP2K 和 VASP。VASP 的授权文件（例如
 `POTCAR`）不会被重新分发。更多说明见
-`docs/calculator_independent_backends.md`、`docs/calculator_spectroscopy.md`
+`docs/calculator_independent_backends.md`、`docs/calculator_spectroscopy.md`、
+`docs/spectroscopy_backend_benchmark.zh-CN.md`
 以及各案例 README。
 
 `Electrostatic_Potential/SnS`、`SnSe` 和 `SnTe` 是紧凑的后处理案例：保留已核验

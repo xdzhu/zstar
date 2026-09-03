@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "system": "3C-SiC two-atom primitive cell",
+  "calculator": "ABACUS 3.10.0-LTS + PYATB 1.1.2.dev0+2ad34bc",
+  "xc": "PBE",
+  "basis": "SG15 ONCV plus 7-au DZP numerical atomic orbitals",
+  "ecutwfc_Ry": 100,
+  "k_mesh": [13, 13, 13],
+  "bec_method": "central finite difference",
+  "phonon_supercell": [1, 1, 1],
+  "raman_amplitude_A_sqrt_amu": 0.02,
+  "allocation": "1 MPI x 40 OpenMP",
+  "allocated_core_hours": 20.3444
+}

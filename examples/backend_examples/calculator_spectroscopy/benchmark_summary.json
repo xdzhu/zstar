@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "metric": "allocated_cpu_core_hours",
+  "exclusions": ["preflight", "queue_time", "file_transfer", "plotting"],
+  "allocations": {
+    "ABACUS+PYATB": "1 MPI x 40 OpenMP",
+    "VASP": "40 MPI x 1 OpenMP"
+  },
+  "systems": {
+    "3C-SiC": {
+      "xc": "PBE",
+      "frequency_cm-1": {"ABACUS+PYATB": 771.264935, "VASP": 774.964061},
+      "bec_e": {"ABACUS+PYATB": 2.701000, "VASP": 2.690380},
+      "electronic_dielectric": {"ABACUS+PYATB": 6.867069, "VASP": 6.998503},
+      "total_core_hours": {"ABACUS+PYATB": 20.3444, "VASP": 41.5137}
+    },
+    "t-HfO2": {
+      "xc": "PBEsol",
+      "frequency_pairing": "15 optical modes in ascending order",
+      "frequency_mae_cm-1": 4.313564,
+      "frequency_max_abs_difference_cm-1": 9.544381,
+      "hfo2_hf_bec_xx_zz_e": {"ABACUS+PYATB": [5.393731, 4.828420], "VASP": [5.512610, 4.866050]},
+      "electronic_dielectric_xx_zz": {"ABACUS+PYATB": [5.161604, 4.780272], "VASP": [5.288458, 4.817172]},
+      "total_core_hours": {"ABACUS+PYATB": 54.1700, "VASP": 91.6635}
+    }
+  }
+}

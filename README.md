@@ -620,7 +620,9 @@ zstar spectra pre --calculator cp2k --input h2o.inp \
 
 VASP uses central differences of native dielectric responses; CP2K uses native
 vibrational dipole and `LINRES/POLAR` intensities. See the
-[calculator spectroscopy guide](docs/calculator_spectroscopy.md).
+[calculator spectroscopy guide](docs/calculator_spectroscopy.md). A complete
+SiC/HfO2 ABACUS-VASP comparison, including CPU core-hours, is available in the
+[backend benchmark](docs/spectroscopy_backend_benchmark.md).
 
 The molecular APT examples also include compact HSE reference records in
 `examples/molecules/{H2O,CH4}/reference/hse_apt_summary.json`. The associated

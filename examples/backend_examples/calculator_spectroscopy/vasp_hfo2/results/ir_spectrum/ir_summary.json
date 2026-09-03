@@ -1,0 +1,38 @@
+{
+  "dimensionality": 3,
+  "response_kind": "total relative dielectric tensor",
+  "response_unit": "1",
+  "response_convention": "relative permittivity",
+  "electronic_response_included": true,
+  "static_response": [
+    [
+      88.34679828115382,
+      -5.149648610963856e-15,
+      -2.644372623348425e-15
+    ],
+    [
+      -5.149648610963856e-15,
+      88.34679828115382,
+      2.6902119825609414e-14
+    ],
+    [
+      -2.644372623348425e-15,
+      2.6902119825609414e-14,
+      17.800800445818094
+    ]
+  ],
+  "modes": 15,
+  "files": {
+    "modes": "./ir_spectrum/ir_modes.csv",
+    "spectrum": "./ir_spectrum/ir_spectrum.dat",
+    "response_real": "./ir_spectrum/ir_response_real.dat",
+    "response_imag": "./ir_spectrum/ir_response_imag.dat",
+    "static_response": "./ir_spectrum/static_response.json",
+    "plot": "./ir_spectrum/ir_spectrum.png",
+    "plot_pdf": "./ir_spectrum/ir_spectrum.pdf",
+    "plot_svg": "./ir_spectrum/ir_spectrum.svg",
+    "response_plot": "./ir_spectrum/dielectric_response.png",
+    "response_plot_pdf": "./ir_spectrum/dielectric_response.pdf",
+    "response_plot_svg": "./ir_spectrum/dielectric_response.svg"
+  }
+}

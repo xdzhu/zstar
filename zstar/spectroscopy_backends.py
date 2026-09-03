@@ -354,6 +354,19 @@ def run_calculator_spectra(
     if extra_env:
         environment.update({str(key): str(value) for key, value in extra_env.items()})
     states: list[SpectraStageState] = []
+    reference_data = next(
+        (
+            stage
+            for stage in manifest["stages"]
+            if stage.get("reference") or stage.get("name") == "reference"
+        ),
+        None,
+    )
+    reference_dir = (
+        root_path / reference_data["path"]
+        if reference_data is not None
+        else root_path / "reference"
+    )
 
     for stage_data in manifest["stages"]:
         name = stage_data["name"]
@@ -403,7 +416,7 @@ def run_calculator_spectra(
                 _write_states(root_path, states)
                 break
             if not dry_run:
-                _copy_vasp_restart(root_path / "reference", directory)
+                _copy_vasp_restart(reference_dir, directory)
 
         state.started_at = _utc_now()
         state.error = None
