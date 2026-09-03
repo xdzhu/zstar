@@ -1,0 +1,9 @@
+{
+  "case": "CP2K_MgO_BEC",
+  "dimensionality": 3,
+  "calculator": "CP2K",
+  "input": "run",
+  "results": "results",
+  "role": "periodic BEC and native APT diagnostic",
+  "data_dir_required": true
+}

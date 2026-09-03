@@ -16,7 +16,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "tmp" / "delivery-source"
 OUTPUT = ROOT / "tmp" / "delivery"
-BUNDLE_NAME = "ZStar-0.2.0-Complete-Collaboration-20260826"
+BUNDLE_NAME = "ZStar-0.2.1-Complete-Collaboration-20260903"
 BUNDLE = OUTPUT / BUNDLE_NAME
 
 
@@ -35,9 +35,9 @@ def portable_stru(source: Path, target: Path) -> None:
 
 def add_case(category: str, name: str, source: Path, dimensionality: int) -> None:
     target = BUNDLE / "cases" / category / name
-    input_dir = target / "input"
+    input_dir = target / "run"
     assets = input_dir / "assets"
-    reference = target / "reference_results"
+    reference = target / "results"
     for filename in ("README.md", "README.zh-CN.md", "ASSET_PROVENANCE.md"):
         path = source / filename
         if path.is_file():
@@ -52,6 +52,8 @@ def add_case(category: str, name: str, source: Path, dimensionality: int) -> Non
                 portable_stru(path, input_dir / filename)
             elif filename in {"INPUT", "INPUT.seed"}:
                 copy_file(path, input_dir / "INPUT")
+            elif filename == "run_phonon_serial.sh":
+                copy_file(path, target / "run_phonon_serial.legacy.sh")
             else:
                 copy_file(path, input_dir / filename)
     for path in source.iterdir():
@@ -84,8 +86,8 @@ def add_case(category: str, name: str, source: Path, dimensionality: int) -> Non
                 "case": name,
                 "dimensionality": dimensionality,
                 "role": "validated quickstart and reference",
-                "input": "input",
-                "reference_results": "reference_results",
+                "input": "run",
+                "results": "results",
                 "method": "central finite displacement recommended for production",
             },
             indent=2,
@@ -96,13 +98,32 @@ def add_case(category: str, name: str, source: Path, dimensionality: int) -> Non
 
 def add_molecule(name: str, source: Path) -> None:
     target = BUNDLE / "cases" / "molecules" / name
-    shutil.copytree(source, target, dirs_exist_ok=True)
+    run_dir = target / "run"
+    results_dir = target / "results"
+    source_run = source / "run" if (source / "run").is_dir() else source
+    source_results = source / "results" if (source / "results").is_dir() else source / "reference"
+    for path in source_run.iterdir():
+        if path.name in {"run", "results", "reference"}:
+            continue
+        destination = run_dir / path.name
+        if path.is_dir():
+            shutil.copytree(path, destination, dirs_exist_ok=True)
+        else:
+            copy_file(path, destination)
+    if source_results.is_dir():
+        shutil.copytree(source_results, results_dir, dirs_exist_ok=True)
+    for filename in ("README.md", "README.zh-CN.md", "ASSET_PROVENANCE.md"):
+        path = source / filename
+        if path.is_file():
+            copy_file(path, target / filename)
     (target / "case.json").write_text(
         json.dumps(
             {
                 "case": name,
                 "dimensionality": 0,
                 "role": "validated molecular IR/Raman quickstart",
+                "input": "run",
+                "results": "results",
                 "high_k_ranking": False,
                 "note": "Molecular responses are not bulk dielectric constants.",
             },
@@ -110,6 +131,22 @@ def add_molecule(name: str, source: Path) -> None:
         ),
         encoding="utf-8",
     )
+
+
+def overlay_curated_examples() -> None:
+    """Use the repository's canonical examples layout in the final bundle.
+
+    The historical delivery-source tree is still used for compact reference
+    records, but the checked-in examples are the source of truth for the
+    user-facing run/results layout, bilingual guides, and one-click runners.
+    """
+    manifest = json.loads((ROOT / "examples" / "manifest.json").read_text(encoding="utf-8"))
+    for record in manifest["cases"]:
+        source = ROOT / "examples" / record["path"]
+        target = BUNDLE / "cases" / record["path"]
+        if not source.is_dir():
+            raise FileNotFoundError(f"Curated example is missing: {source}")
+        shutil.copytree(source, target, dirs_exist_ok=True)
 
 
 def sanitize_json_paths() -> None:
@@ -155,12 +192,14 @@ python scripts/smoke_reference_database.py
 - `cases/1d_wires/`：GaAs 纳米线，展示纵向 Berry 极化、横向 cube 偶极及线响应。
 - `cases/3d_bulk/`：BaTiO3、HfO2，面向 BEC、声子与 High-K。
 - `cases/2d_materials/`：MoS2、alpha-In2Se3，展示面内 Berry 相位与面外 cube 积分。
-- `cases/molecules/`：CH4、CO2，展示 `--dim 0` IR/Raman 工作流。
+- `cases/molecules/`：H2O、CH4、CO2，展示 `--dim 0` IR/Raman 工作流。
+- `cases/IR_Raman_Spectra/`：按材料整理的 HfO2、MoS2、CH4 和 GaAs 纳米线光谱案例。
+- `cases/Electrostatic_Potential/`：MoS2、alpha-In2Se3 以及 SnS/SnSe/SnTe 静电势后处理案例。
 - `project/`：候选清单、参考结果清单和数据库输出位置。
 - `scripts/`：环境检查、批量准备、参考数据库冒烟和结果汇总。
 - `docs/`：中英文手册、物理口径与运行说明。
 - `backend_examples/`：CP2K/VASP 适配器和 IR/Raman 参考输出。
-- `source_snapshot/`：0.2.0 源码、测试、工具和引用元数据。
+- `source_snapshot/`：0.2.1 源码、测试、工具和引用元数据。
 - `paper/`：设置 `ZSTAR_ARTICLE_DIR` 构建时附带的论文源码、图片和 PDF。
 
 ## High-K 项目标准流程
@@ -205,7 +244,7 @@ python scripts/smoke_reference_database.py
 
 Edit `config/environment.sh` and `project/candidates.csv` before any DFT run.
 The bundle contains validated 1D wire (GaAs), 3D bulk (BaTiO3, HfO2), 2D
-(MoS2, alpha-In2Se3), and molecular (CH4, CO2) examples, calculator-backend references, the full
+(MoS2, alpha-In2Se3), and molecular (H2O, CH4, CO2) examples, calculator-backend references, the full
 test suite, and an optional manuscript snapshot. Only insulating 3D materials with a total
 static dielectric tensor enter `high_k_rank.csv`; electronic-only, 2D, and
 molecular responses remain clearly labeled and unranked.
@@ -226,9 +265,9 @@ required = [
     ("matplotlib", "matplotlib", "3.3"),
     ("spglib", "spglib", "2.6.0"),
     ("phonopy", "phonopy", "2.36"),
-    ("pymatgen", "pymatgen", "2024.0.0"),
-    ("zstar", "zstar", "0.2.0"),
+    ("zstar", "zstar", "0.2.1"),
 ]
+optional = [("pymatgen", "pymatgen", "2024.0.0")]
 report = {"python": sys.version, "packages": {}, "executables": {}}
 failed = False
 def version_key(value):
@@ -248,6 +287,22 @@ for module_name, distribution, minimum in required:
             "ok": False, "minimum": minimum, "error": str(exc),
         }
         failed = True
+for module_name, distribution, minimum in optional:
+    try:
+        importlib.import_module(module_name)
+        actual = importlib.metadata.version(distribution)
+        report.setdefault("optional_packages", {})[module_name] = {
+            "ok": version_key(actual) >= version_key(minimum),
+            "version": actual,
+            "minimum": minimum,
+        }
+    except Exception as exc:
+        report.setdefault("optional_packages", {})[module_name] = {
+            "ok": False,
+            "minimum": minimum,
+            "error": str(exc),
+            "install": "pip install zstar[vasp]",
+        }
 for name in ["zstar", "abacus", "pyatb_input", "pyatb", "phonopy", "phonopy-bandplot", "sbatch", "qsub"]:
     report["executables"][name] = shutil.which(name)
 for relative in ["project/reference_manifest.csv", "project/candidates.csv", "docs/QUICKSTART.zh-CN.md"]:
@@ -385,7 +440,7 @@ python scripts/smoke_reference_database.py
 
 ## 3. 跑一个 BTO 案例
 
-复制 `cases/3d_bulk/BaTiO3/input` 到自己的项目输入目录，在
+复制 `cases/3d_bulk/BaTiO3/run` 到自己的项目输入目录，在
 `project/candidates.csv` 中保留 BTO 行，然后：
 
 ```bash
@@ -426,8 +481,8 @@ CASE_GUIDE_ZH = r"""# 三类案例与项目接入指南
 | 分子 | CH4 | 非中心对称分子的 IR/Raman 活性 | 否 |
 | 分子 | CO2 | 中心对称互斥定则与简并弯曲模 | 否 |
 
-每个材料目录中的 `input/` 是可移植输入，`assets/` 含相应赝势和数值原子轨道，
-`reference_results/` 是数据库冒烟与结果对照。分子目录同时含输入、资产和绘制好的
+每个材料目录中的 `run/` 是可移植输入，`run/assets/` 含相应赝势和数值原子轨道，
+`results/` 是数据库冒烟与结果对照。分子目录同时含输入、资产和绘制好的
 benchmark 图。参考结果用于验证读取和工作流，不代表所有生产参数都已完成系统收敛。
 
 ## 三维 bulk
@@ -502,21 +557,21 @@ def write_manifests() -> None:
     with (project / "reference_manifest.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
         writer.writerow(["material_id", "formula", "dimensionality", "workspace", "backend", "structure_source", "notes"])
-        writer.writerow(["gaas-nanowire-reference", "GaAs", 1, "../cases/1d_wires/GaAs_nanowire/reference_results", "abacus-pyatb-1d", "Materials Cloud 2023.148", "line response; no bulk NAC"])
-        writer.writerow(["bto-reference", "BaTiO3", 3, "../cases/3d_bulk/BaTiO3/reference_results", "abacus-pyatb", "bundled validated case", "PBEsol"])
-        writer.writerow(["hfo2-reference", "HfO2", 3, "../cases/3d_bulk/HfO2/reference_results", "abacus-pyatb", "bundled validated case", "PBEsol"])
-        writer.writerow(["mos2-reference", "MoS2", 2, "../cases/2d_materials/MoS2/reference_results", "abacus-pyatb-2d", "bundled validated case", "sheet response"])
-        writer.writerow(["in2se3-reference", "In2Se3", 2, "../cases/2d_materials/In2Se3/reference_results", "abacus-pyatb-2d", "bundled validated case", "hybrid out-of-plane BEC"])
-        writer.writerow(["ch4-reference", "CH4", 0, "../cases/molecules/CH4/reference", "abacus-pyatb-molecule", "bundled validated case", "IR/Raman, no bulk K"])
-        writer.writerow(["co2-reference", "CO2", 0, "../cases/molecules/CO2/reference", "abacus-pyatb-molecule", "bundled validated case", "IR/Raman, no bulk K"])
+        writer.writerow(["gaas-nanowire-reference", "GaAs", 1, "../cases/1d_wires/GaAs_nanowire/results", "abacus-pyatb-1d", "Materials Cloud 2023.148", "line response; no bulk NAC"])
+        writer.writerow(["bto-reference", "BaTiO3", 3, "../cases/3d_bulk/BaTiO3/results", "abacus-pyatb", "bundled validated case", "PBEsol"])
+        writer.writerow(["hfo2-reference", "HfO2", 3, "../cases/3d_bulk/HfO2/results", "abacus-pyatb", "bundled validated case", "PBEsol"])
+        writer.writerow(["mos2-reference", "MoS2", 2, "../cases/2d_materials/MoS2/results", "abacus-pyatb-2d", "bundled validated case", "sheet response"])
+        writer.writerow(["in2se3-reference", "In2Se3", 2, "../cases/2d_materials/In2Se3/results", "abacus-pyatb-2d", "bundled validated case", "hybrid out-of-plane BEC"])
+        writer.writerow(["ch4-reference", "CH4", 0, "../cases/molecules/CH4/results", "abacus-pyatb-molecule", "bundled validated case", "IR/Raman, no bulk K"])
+        writer.writerow(["co2-reference", "CO2", 0, "../cases/molecules/CO2/results", "abacus-pyatb-molecule", "bundled validated case", "IR/Raman, no bulk K"])
     with (project / "candidates.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
         writer.writerow(["material_id", "formula", "dimensionality", "input_dir", "workdir", "scheduler", "structure_source", "active", "notes"])
-        writer.writerow(["bto-demo", "BaTiO3", 3, "../cases/3d_bulk/BaTiO3/input", "work/bto-demo", "shell", "replace-with-source-id", 1, "start here"])
-        writer.writerow(["hfo2-demo", "HfO2", 3, "../cases/3d_bulk/HfO2/input", "work/hfo2-demo", "slurm", "replace-with-source-id", 0, "enable after environment review"])
-        writer.writerow(["mos2-demo", "MoS2", 2, "../cases/2d_materials/MoS2/input", "work/mos2-demo", "slurm", "replace-with-source-id", 0, "2D method"])
-        writer.writerow(["in2se3-demo", "In2Se3", 2, "../cases/2d_materials/In2Se3/input", "work/in2se3-demo", "slurm", "replace-with-source-id", 0, "polar 2D method"])
-        writer.writerow(["gaas-nanowire-demo", "GaAs", 1, "../cases/1d_wires/GaAs_nanowire/input", "work/gaas-nanowire-demo", "shell", "Materials Cloud 2023.148", 0, "z-periodic 1D method"])
+        writer.writerow(["bto-demo", "BaTiO3", 3, "../cases/3d_bulk/BaTiO3/run", "work/bto-demo", "shell", "replace-with-source-id", 1, "start here"])
+        writer.writerow(["hfo2-demo", "HfO2", 3, "../cases/3d_bulk/HfO2/run", "work/hfo2-demo", "slurm", "replace-with-source-id", 0, "enable after environment review"])
+        writer.writerow(["mos2-demo", "MoS2", 2, "../cases/2d_materials/MoS2/run", "work/mos2-demo", "slurm", "replace-with-source-id", 0, "2D method"])
+        writer.writerow(["in2se3-demo", "In2Se3", 2, "../cases/2d_materials/In2Se3/run", "work/in2se3-demo", "slurm", "replace-with-source-id", 0, "polar 2D method"])
+        writer.writerow(["gaas-nanowire-demo", "GaAs", 1, "../cases/1d_wires/GaAs_nanowire/run", "work/gaas-nanowire-demo", "shell", "Materials Cloud 2023.148", 0, "z-periodic 1D method"])
     copy_file(project / "reference_manifest.csv", project / "results_manifest.csv")
 
 
@@ -612,9 +667,9 @@ export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
     shutil.copytree(ROOT / "tests", BUNDLE / "source_snapshot" / "tests", ignore=ignore_cache)
     shutil.copytree(ROOT / "tools", BUNDLE / "source_snapshot" / "tools", ignore=ignore_cache)
     shutil.copytree(ROOT / "job_scripts", BUNDLE / "job_scripts", ignore=ignore_cache)
-    shutil.copytree(ROOT / "examples" / "cp2k_bec", BUNDLE / "backend_examples" / "cp2k_bec", ignore=ignore_cache)
-    shutil.copytree(ROOT / "examples" / "calculator_spectroscopy", BUNDLE / "backend_examples" / "calculator_spectroscopy", ignore=ignore_cache)
-    shutil.copytree(ROOT / "docs" / "spectroscopy_examples", BUNDLE / "backend_examples" / "reference_spectroscopy", ignore=ignore_cache)
+    shutil.copytree(ROOT / "examples" / "backend_examples" / "cp2k_bec", BUNDLE / "backend_examples" / "cp2k_bec", ignore=ignore_cache)
+    shutil.copytree(ROOT / "examples" / "backend_examples" / "calculator_spectroscopy", BUNDLE / "backend_examples" / "calculator_spectroscopy", ignore=ignore_cache)
+    shutil.copytree(ROOT / "examples" / "common", BUNDLE / "cases" / "common", ignore=ignore_cache)
     wheel = sorted((ROOT / "tmp" / "collaboration-wheel").glob("*.whl"))
     if len(wheel) != 1:
         raise RuntimeError("Build exactly one wheel under tmp/collaboration-wheel first")
@@ -626,6 +681,7 @@ export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
     add_case("1d_wires", "GaAs_nanowire", SOURCE / "1d" / "GaAs_nanowire", 1)
     add_molecule("CH4", SOURCE / "molecules" / "CH4")
     add_molecule("CO2", SOURCE / "molecules" / "CO2")
+    overlay_curated_examples()
     article_env = os.environ.get("ZSTAR_ARTICLE_DIR")
     if article_env:
         article = Path(article_env).expanduser().resolve()

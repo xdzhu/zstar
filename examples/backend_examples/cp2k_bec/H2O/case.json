@@ -1,0 +1,9 @@
+{
+  "case": "CP2K_H2O_BEC",
+  "dimensionality": 0,
+  "calculator": "CP2K",
+  "input": "run",
+  "results": "results",
+  "role": "quantitative ZStar APT versus CP2K native response",
+  "data_dir_required": true
+}

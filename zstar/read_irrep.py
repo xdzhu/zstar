@@ -108,7 +108,7 @@ def read_irreps_yaml(file_path: Union[str, Path] = "irreps.yaml",
     """
     fp = Path(file_path)
     if not fp.exists():
-        raise FileNotFoundError(f"找不到 irreps.yaml：{fp}, 请检查文件是否生成，先执行 kappa postph 命令")
+        raise FileNotFoundError(f"找不到 irreps.yaml：{fp}, 请检查文件是否生成，先执行 phonon postph 命令")
 
     with fp.open("r", encoding="utf-8") as f:
         data = yaml.load(f, Loader=yaml.SafeLoader)
@@ -390,25 +390,21 @@ def estimate_cell_volume(structure_file: Optional[Union[str, Path]] = None) -> f
       2) 若未提供：优先找当前目录的 POSCAR；其次找 *.vasp；再次找 STRU
     失败会抛出 RuntimeError。
     """
-    try:
-        from pymatgen.core import Structure  # 轻量依赖，你环境里已有
-    except Exception as exc:
-        raise RuntimeError("需要 pymatgen 才能估算晶胞体积（db 模式）。请安装 pymatgen。") from exc
+    from .structure_io import read_structure
 
     def _from_file(path: Union[str, Path]) -> float:
         path = str(path)
         lower = path.lower()
-        if 'poscar' in lower or lower.endswith('.vasp'):
-            s = Structure.from_file(path)
-            return float(s.volume)
-        if 'stru' in lower:
-            if get_wyckoff is None or not hasattr(get_wyckoff, 'stru2vasp'):
-                raise RuntimeError("找不到 get_wyckoff.stru2vasp 无法解析 STRU。请提供 POSCAR/.vasp 或启用 pymatgen。")
-            s = get_wyckoff.stru2vasp(path)  # 该函数已返回 Structure 对象
-            return float(s.volume)
-        # 其它格式也让 pymatgen 试一下
-        s = Structure.from_file(path)
-        return float(s.volume)
+        if 'poscar' in lower or lower.endswith('.vasp') or 'stru' in lower:
+            return float(read_structure(path).volume)
+        try:
+            from pymatgen.core import Structure
+        except Exception as exc:
+            raise RuntimeError(
+                "Only POSCAR/.vasp/STRU volume parsing is available without pymatgen; "
+                "install `zstar[vasp]` for other structure formats."
+            ) from exc
+        return float(Structure.from_file(path).volume)
 
     # 优先使用传入的路径
     if structure_file:

@@ -1,0 +1,67 @@
+{
+  "cube": "/home/zhuxd/abacus/10.topo/PtHgX/FE-mat/MX/SnSe/soc/OUT.ABACUS/ElecStaticPot.cube",
+  "outdir": "/home/zhuxd/abacus/zstar_potential_examples/results/SnSe",
+  "shape": [
+    54,
+    54,
+    288
+  ],
+  "value_unit": "ry",
+  "length_unit": "bohr",
+  "center_slab": null,
+  "axis_profiles": {
+    "z": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnSe/SnSe-ElecStaticPot-Z.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnSe/SnSe-ElecStaticPot-vs-Z.png"
+    }
+  },
+  "plane_maps": {
+    "xy": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnSe/SnSe-ElecStaticPot-XY-avg-cart.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnSe/SnSe-ElecStaticPot-XY-avg-cart-tile5x5.png",
+      "normal_axis": "z",
+      "normal_index": -1,
+      "normal_coord_ang": null,
+      "averaged": true,
+      "coord_mode": "cartesian",
+      "tile": [
+        5,
+        5
+      ]
+    }
+  },
+  "direction_profiles": {
+    "a+b": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnSe/SnSe-ElecStaticPot-DIR-a_plus_b.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnSe/SnSe-ElecStaticPot-DIR-a_plus_b.png",
+      "lattice_coeffs": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        4.475077366300885,
+        4.292908098332633,
+        0.0
+      ],
+      "bins": 160,
+      "tile_radius": 1
+    },
+    "a-b": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnSe/SnSe-ElecStaticPot-DIR-a_minus_b.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnSe/SnSe-ElecStaticPot-DIR-a_minus_b.png",
+      "lattice_coeffs": [
+        1.0,
+        -1.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        4.475077366300885,
+        -4.292908098332633,
+        0.0
+      ],
+      "bins": 160,
+      "tile_radius": 1
+    }
+  }
+}

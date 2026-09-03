@@ -12,10 +12,16 @@ only along the wire. ZStar evaluates the longitudinal BEC column from PYATB
 Berry polarization and the transverse columns from high-precision ABACUS
 charge-density cubes.
 
+## One-command reproduction
+
+Run `bash run.sh --dry-run` first, then
+`ABACUS_COMMAND="mpirun -np 20 abacus" PYATB_COMMAND="pyatb" bash run.sh`.
+Outputs are written to `work/`; clean inputs remain under `run/`.
+
 ## Born effective charges
 
 ```bash
-cp -r input bec_work
+cp -r run bec_work
 cd bec_work
 zstar gen --stru STRU --input INPUT --input_sets assets \
   --dim 1 --pyatb --method central --displacement 0.01 --force
@@ -35,7 +41,7 @@ response.
 ## Gamma phonons and spectra
 
 ```bash
-cp -r input phonon_work
+cp -r run phonon_work
 cd phonon_work
 zstar ph --stru STRU --dim "1 1 2"
 ABACUS_COMMAND="mpirun -np 20 abacus" bash run_phonon_serial.sh
@@ -67,7 +73,7 @@ Coulomb cutoff, which is outside this Gamma-point benchmark.
 
 ## Retained reference results
 
-`reference_results/` contains the compact ABACUS/PYATB outputs used by the
+`results/` contains the compact ABACUS/PYATB outputs used by the
 paper: the full 24-atom BEC tensor, calculator-neutral response record, 72
 Gamma modes, all 68 positive-frequency IR modes, and the ten selected Raman
 modes. The completed calculation gives:

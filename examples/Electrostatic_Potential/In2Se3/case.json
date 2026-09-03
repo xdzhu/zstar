@@ -1,0 +1,9 @@
+{
+  "id": "potential_in2se3",
+  "calculator": "ABACUS+ZStar",
+  "dimensionality": 2,
+  "features": ["potential", "plane_average", "polar_arrow"],
+  "assets_required": true,
+  "cube_required": true,
+  "reference_results": "results"
+}

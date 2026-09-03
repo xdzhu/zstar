@@ -4,8 +4,15 @@ This PBEsol tetragonal bulk case is the high-k reference for BEC, phonons, IR,
 and frequency-dependent dielectric response. Its input records the TZDP-style
 ABACUS numerical-orbital setup used for the retained reference calculation.
 
+## One-command reproduction
+
+Run `bash run.sh --dry-run` first, then
+`ABACUS_COMMAND="mpirun -np 20 abacus" PYATB_COMMAND="pyatb" bash run.sh`.
+Generated stages go to `work/`; `run/` contains the PBEsol inputs and included
+pseudopotentials and numerical orbitals.
+
 ```bash
-cp -r input work
+cp -r run work
 cd work
 zstar gen --stru STRU --input INPUT --input_sets assets --dim 3 \
   --pyatb --method central --displacement 0.01 --force

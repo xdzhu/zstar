@@ -1,0 +1,19 @@
+INPUT_PARAMETERS
+suffix              PHONON
+calculation         scf
+basis_type          lcao
+ecutwfc             100
+ks_solver           genelpa
+nspin               1
+smearing_method     gauss
+smearing_sigma      0.005
+scf_nmax            200
+scf_thr             1e-8
+init_chg            atomic
+stru_file           STRU
+cal_force           1
+out_chg             0
+dft_functional      pbe
+symmetry            1
+pseudo_dir          ../assets
+orbital_dir         ../assets

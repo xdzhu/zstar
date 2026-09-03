@@ -11,13 +11,13 @@ pseudopotentials, SCF tolerance, geometry, and tensor convention are used.
 Atoms 1 and 5 are one symmetry representative of Mg and O, respectively.
 
 ```bash
-zstar cp2k-bec prepare --input input.inp --root work \
+zstar cp2k-bec prepare --input run/input.inp --root work \
   --method central --displacement 0.005 --atoms 1,5
 zstar cp2k-bec run --root work --cp2k-command cp2k.ssmp \
   --omp-threads 20 --data-dir /path/to/cp2k/data
 zstar cp2k-bec collect --root work
 
-zstar cp2k-bec native --input input.inp --root native \
+zstar cp2k-bec native --input run/input.inp --root native \
   --field-strength 1e-4 --cp2k-command cp2k.ssmp --omp-threads 20 \
   --data-dir /path/to/cp2k/data
 zstar cp2k-bec compare --zstar-json work/cp2k_bec.json \
@@ -28,5 +28,12 @@ The direct-node run gave ZStar diagonal tensors of `+1.90239 e` for Mg and
 `-1.90315 e` for O, with a selected-pair sum of `0.000763 e`. CP2K's native
 eight-atom APT gave `+1.89558 e` and `-1.80470 e`, respectively, and an
 unphysical maximum acoustic-sum component of `0.36351 e`. The retained
-`comparison.json` therefore documents a native CP2K 2025.2 inconsistency for
+`results/comparison.json` therefore documents a native CP2K 2025.2 inconsistency for
 this input; the tight-SCF H2O case is the quantitative acceptance benchmark.
+
+## One-command reproduction
+
+Set `CP2K_COMMAND` and, when required by the installation, `CP2K_DATA_DIR`,
+then run `bash run.sh --dry-run` followed by `OMP_NUM_THREADS=20 bash run.sh`.
+The clean CP2K input is `run/input.inp`; generated stages are written to
+`work/` and `native/`.

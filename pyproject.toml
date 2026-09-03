@@ -37,9 +37,12 @@ dependencies = [
   "matplotlib>=3.3",
   "spglib>=2.6.0",
   "phonopy>=2.36",
-  "pymatgen>=2024.0.0",
   "tomli>=2.0; python_version<'3.11'"
 ]
+
+[project.optional-dependencies]
+vasp = ["pymatgen>=2024.0.0"]
+full = ["pymatgen>=2024.0.0"]
 
 
 [project.urls]

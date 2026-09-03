@@ -1,0 +1,44 @@
+{
+  "cube": "/home/zhuxd/abacus/CJ.Zuo/1.MoS2-addE-primitive/E=0/OUT.ABACUS/ElecStaticPot.cube",
+  "outdir": "/home/zhuxd/abacus/zstar_potential_examples/results/MoS2",
+  "shape": [
+    40,
+    40,
+    432
+  ],
+  "value_unit": "ry",
+  "length_unit": "bohr",
+  "center_slab": {
+    "axis": "z",
+    "shift_index": 176,
+    "shift_ang": 14.047115910154972,
+    "slab_center_before_ang": 3.2257912188550506,
+    "slab_center_after_ang": 17.272907129010022,
+    "cell_length_ang": 34.47928450674402
+  },
+  "axis_profiles": {
+    "z": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/MoS2/MoS2-ElecStaticPot-Z.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/MoS2/MoS2-ElecStaticPot-vs-Z.png",
+      "vacuum_eV": 2.966599917187196,
+      "vacuum_coord_ang": 9.657392188231544,
+      "vacuum_file": "/home/zhuxd/abacus/zstar_potential_examples/results/MoS2/E_vacuum.out"
+    }
+  },
+  "plane_maps": {
+    "xy": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/MoS2/MoS2-ElecStaticPot-XY-avg-cart.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/MoS2/MoS2-ElecStaticPot-XY-avg-cart-tile5x5.png",
+      "normal_axis": "z",
+      "normal_index": -1,
+      "normal_coord_ang": null,
+      "averaged": true,
+      "coord_mode": "cartesian",
+      "tile": [
+        5,
+        5
+      ]
+    }
+  },
+  "direction_profiles": {}
+}

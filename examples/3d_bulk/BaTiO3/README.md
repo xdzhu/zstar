@@ -4,8 +4,14 @@ This PBEsol cubic bulk case demonstrates the standard three-dimensional BEC,
 phonon, IR, and dielectric workflow. The compact reference directory includes
 the insulating-state gate, BORN tensors, symmetry report, and response data.
 
+## One-command reproduction
+
+Run `bash run.sh --dry-run` first, then
+`ABACUS_COMMAND="mpirun -np 20 abacus" PYATB_COMMAND="pyatb" bash run.sh`.
+Generated stages go to `work/`; `run/` contains only the reproducible inputs.
+
 ```bash
-cp -r input work
+cp -r run work
 cd work
 zstar gen --stru STRU --input INPUT --input_sets assets --dim 3 \
   --pyatb --method central --displacement 0.01 --force

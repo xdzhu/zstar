@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "backend": "ABACUS+PYATB cube dipole",
+  "calculator": "ABACUS",
+  "functional": "HSE",
+  "dim": 0,
+  "method": "central",
+  "displacement_angstrom": 0.01,
+  "scf_thr": 1e-7,
+  "cell_angstrom": [20.0, 20.0, 20.0],
+  "quantity": "generalized atomic polar tensor charge",
+  "units": "e",
+  "tensor_convention": "rows=atomic displacement; columns=polarization",
+  "gapt": {"O": -0.50637008, "H": 0.25318504},
+  "acoustic_sum_rule_corrected": true,
+  "acoustic_sum_tensor": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+  "provenance": "HSE molecular APT validation run on 235/cu20-cu26; solver scratch and cube files are excluded from the repository."
+}

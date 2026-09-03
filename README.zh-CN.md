@@ -124,6 +124,17 @@ pip install .
 - VASP：原生三维 BEC 和模式位移介电响应工作流。
 - Quantum ESPRESSO：可选的原生 DFPT BEC、介电和 IR 路线。
 
+核心安装使用 `spglib` 完成周期对称性处理，不再强制依赖 `pymatgen`。
+如果使用 `vasprun.xml`、`CHGCAR/POTCAR` 转换，或旧版 smodes/Wyckoff 适配器，
+请安装可选的 VASP 扩展：
+
+```bash
+pip install -U "zstar[vasp]"
+```
+
+POSCAR/CONTCAR、ABACUS `STRU`、MD 结构帧读取以及核心对称性约化均由 ZStar
+自带的轻量读取器完成。
+
 检查安装：
 
 ```bash
@@ -526,6 +537,11 @@ zstar spectra pre --calculator cp2k --input h2o.inp \
 
 VASP 对原生介电响应做模式中心差分；CP2K 使用原生振动偶极和
 `LINRES/POLAR` 活动度。详见[计算器谱学文档](docs/calculator_spectroscopy.zh-CN.md)。
+
+分子 APT 案例还包含紧凑的 HSE 参考记录：
+`examples/molecules/{H2O,CH4}/reference/hse_apt_summary.json`。完整求解器
+临时目录和 cube 文件有意不纳入仓库；JSON 保留泛函、收敛阈值、位移、张量约定
+和对称性修正后的结果，足以追溯该基准。
 
 ## 代表性验证图
 

@@ -2,11 +2,11 @@
 
 这是第二个 IR/Raman 分子基准案例，结构为线性中心对称分子。输入文件可以
 直接用于 ABACUS + PYATB 的 `dim=0` 流程，精简参考谱线和基准图保存在
-`reference/` 中。
+`results/` 中。
 
 ```bash
-mkdir work
-cp -r INPUT INPUT.phonon KPT STRU assets work/
+mkdir -p work
+cp -r run/. work/
 cd work
 zstar gen --stru STRU --input INPUT --input_sets assets --dim 0 \
   --pyatb --method central --displacement 0.01 --force

@@ -93,12 +93,12 @@ def render_incar(
 
 def _structure_labels(poscar: Path) -> list[str]:
     try:
-        from pymatgen.core import Structure
+        from .structure_io import read_structure
 
-        structure = Structure.from_file(poscar)
+        structure = read_structure(poscar)
     except Exception as exc:
         raise ValueError(f"Cannot parse VASP structure {poscar}: {exc}") from exc
-    return [site.specie.symbol for site in structure]
+    return list(structure.symbols)
 
 
 def prepare_vasp_bec(

@@ -30,7 +30,13 @@ pip install -U zstar
 zstar --version
 ```
 
-Python 3.9 or newer is required. ABACUS, PyATB, and Phonopy are external programs used only by the corresponding workflows.
+Python 3.9 or newer is required. ABACUS, PyATB, and Phonopy are external programs used only by the corresponding workflows. The core installation uses `spglib` for symmetry and does not require `pymatgen`.
+
+For VASP `vasprun.xml`, `CHGCAR/POTCAR`, or legacy smodes/Wyckoff adapters, install the optional extra:
+
+```bash
+pip install -U "zstar[vasp]"
+```
 
 Configure external executables in `.zstar/config.toml` and verify them:
 

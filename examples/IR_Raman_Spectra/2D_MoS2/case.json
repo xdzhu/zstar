@@ -1,0 +1,9 @@
+{
+  "case": "2D_MoS2",
+  "dimensionality": 2,
+  "calculator": "ABACUS+PYATB",
+  "input": "run",
+  "results": "results",
+  "exchange_correlation": "PBE+D3(BJ)",
+  "features": ["ir", "raman"]
+}

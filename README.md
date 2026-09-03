@@ -130,6 +130,17 @@ External programs are required only for the corresponding workflows:
 - VASP for native bulk BEC and mode-displaced dielectric-response workflows.
 - Quantum ESPRESSO for the optional native DFPT BEC, dielectric, and IR route.
 
+The core package uses `spglib` for periodic symmetry and does not require
+`pymatgen`. Install the optional VASP extra when using `vasprun.xml`,
+`CHGCAR/POTCAR` conversion, or the legacy smodes/Wyckoff adapter:
+
+```bash
+pip install -U "zstar[vasp]"
+```
+
+POSCAR/CONTCAR structures, ABACUS `STRU` files, MD frame discovery, and the
+core symmetry-reduction paths are handled by ZStar's lightweight readers.
+
 Verify the command:
 
 ```bash
@@ -549,6 +560,12 @@ zstar spectra pre --calculator cp2k --input h2o.inp \
 VASP uses central differences of native dielectric responses; CP2K uses native
 vibrational dipole and `LINRES/POLAR` intensities. See the
 [calculator spectroscopy guide](docs/calculator_spectroscopy.md).
+
+The molecular APT examples also include compact HSE reference records in
+`examples/molecules/{H2O,CH4}/reference/hse_apt_summary.json`. The associated
+solver scratch directories and cube files are intentionally excluded; the JSON
+records retain the functional, convergence threshold, displacement, tensor
+convention, and symmetry-corrected values needed to identify the benchmark.
 
 ## Representative Validation Figures
 

@@ -1,0 +1,9 @@
+{
+  "case": "VASP_SiC_spectroscopy",
+  "dimensionality": 3,
+  "calculator": "VASP",
+  "input": "run",
+  "results": "results",
+  "role": "calculator-native IR and Raman reference; licensed inputs supplied locally",
+  "licensed_inputs_required": ["POTCAR", "vasprun.xml"]
+}

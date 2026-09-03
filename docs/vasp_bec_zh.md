@@ -11,6 +11,14 @@ VASP 的原生线性响应能力，而不是照搬 ABACUS/PYATB 的有限位移�
 读取 `vasprun.xml` 检查带隙，确认绝缘后才运行响应计算，并复用 `WAVECAR`
 和 `CHGCAR`；若参考结构金属化，工作流立即停止。
 
+ZStar 的核心安装不再强制依赖 `pymatgen`。如果需要解析 VASP 的
+`vasprun.xml`、`CHGCAR`、`POTCAR`，或使用旧版 smodes/Wyckoff 适配器，请安装
+可选依赖：
+
+```bash
+pip install "zstar[vasp]"
+```
+
 ## 快速使用
 
 将收敛过的 `INCAR`、`POSCAR`、`KPOINTS` 和有许可证的 `POTCAR` 放在同一

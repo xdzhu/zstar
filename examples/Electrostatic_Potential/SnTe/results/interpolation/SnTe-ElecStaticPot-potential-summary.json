@@ -1,0 +1,231 @@
+{
+  "cube": "/home/zhuxd/abacus/10.topo/PtHgX/FE-mat/MX/SnTe/soc/OUT.ABACUS/ElecStaticPot.cube",
+  "outdir": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp",
+  "shape": [
+    60,
+    60,
+    288
+  ],
+  "value_unit": "ry",
+  "length_unit": "bohr",
+  "center_slab": null,
+  "axis_profiles": {
+    "z": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-Z.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-vs-Z.png"
+    }
+  },
+  "plane_maps": {
+    "xy": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-XY-avg-cart.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-XY-avg-cart-tile5x5.png",
+      "normal_axis": "z",
+      "normal_index": -1,
+      "normal_coord_ang": null,
+      "averaged": true,
+      "coord_mode": "cartesian",
+      "tile": [
+        5,
+        5
+      ]
+    }
+  },
+  "direction_profiles": {
+    "a+b:bin": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_plus_b-bin-smooth0p15.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_plus_b-bin-smooth0p15.png",
+      "method": "bin",
+      "lattice_coeffs": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        4.639529779972618,
+        4.561931228179256,
+        -0.00031750634940000394
+      ],
+      "bins": 160,
+      "tile_radius": 1,
+      "interpolation_samples": [
+        72,
+        72
+      ],
+      "smooth_sigma_ang": 0.15
+    },
+    "a+b:nearest": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_plus_b-nearest-smooth0p15.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_plus_b-nearest-smooth0p15.png",
+      "method": "nearest",
+      "lattice_coeffs": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        4.639529779972618,
+        4.561931228179256,
+        -0.00031750634940000394
+      ],
+      "bins": 160,
+      "tile_radius": 1,
+      "interpolation_samples": [
+        72,
+        72
+      ],
+      "smooth_sigma_ang": 0.15
+    },
+    "a+b:linear": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_plus_b-linear-smooth0p15.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_plus_b-linear-smooth0p15.png",
+      "method": "linear",
+      "lattice_coeffs": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        4.639529779972618,
+        4.561931228179256,
+        -0.00031750634940000394
+      ],
+      "bins": 160,
+      "tile_radius": 1,
+      "interpolation_samples": [
+        72,
+        72
+      ],
+      "smooth_sigma_ang": 0.15
+    },
+    "a+b:cubic": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_plus_b-cubic-smooth0p15.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_plus_b-cubic-smooth0p15.png",
+      "method": "cubic",
+      "lattice_coeffs": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        4.639529779972618,
+        4.561931228179256,
+        -0.00031750634940000394
+      ],
+      "bins": 160,
+      "tile_radius": 1,
+      "interpolation_samples": [
+        72,
+        72
+      ],
+      "smooth_sigma_ang": 0.15
+    },
+    "a+b:compare": {
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_plus_b-compare-smooth0p15.png",
+      "methods": [
+        "bin",
+        "nearest",
+        "linear",
+        "cubic"
+      ],
+      "smooth_sigma_ang": 0.15
+    },
+    "a-b:bin": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_minus_b-bin-smooth0p15.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_minus_b-bin-smooth0p15.png",
+      "method": "bin",
+      "lattice_coeffs": [
+        1.0,
+        -1.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        4.639529779972618,
+        -4.561931228179256,
+        -0.00031750634940000394
+      ],
+      "bins": 160,
+      "tile_radius": 1,
+      "interpolation_samples": [
+        72,
+        72
+      ],
+      "smooth_sigma_ang": 0.15
+    },
+    "a-b:nearest": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_minus_b-nearest-smooth0p15.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_minus_b-nearest-smooth0p15.png",
+      "method": "nearest",
+      "lattice_coeffs": [
+        1.0,
+        -1.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        4.639529779972618,
+        -4.561931228179256,
+        -0.00031750634940000394
+      ],
+      "bins": 160,
+      "tile_radius": 1,
+      "interpolation_samples": [
+        72,
+        72
+      ],
+      "smooth_sigma_ang": 0.15
+    },
+    "a-b:linear": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_minus_b-linear-smooth0p15.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_minus_b-linear-smooth0p15.png",
+      "method": "linear",
+      "lattice_coeffs": [
+        1.0,
+        -1.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        4.639529779972618,
+        -4.561931228179256,
+        -0.00031750634940000394
+      ],
+      "bins": 160,
+      "tile_radius": 1,
+      "interpolation_samples": [
+        72,
+        72
+      ],
+      "smooth_sigma_ang": 0.15
+    },
+    "a-b:cubic": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_minus_b-cubic-smooth0p15.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_minus_b-cubic-smooth0p15.png",
+      "method": "cubic",
+      "lattice_coeffs": [
+        1.0,
+        -1.0,
+        0.0
+      ],
+      "direction_cart_ang": [
+        4.639529779972618,
+        -4.561931228179256,
+        -0.00031750634940000394
+      ],
+      "bins": 160,
+      "tile_radius": 1,
+      "interpolation_samples": [
+        72,
+        72
+      ],
+      "smooth_sigma_ang": 0.15
+    },
+    "a-b:compare": {
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/SnTe_interp/SnTe-ElecStaticPot-DIR-a_minus_b-compare-smooth0p15.png",
+      "methods": [
+        "bin",
+        "nearest",
+        "linear",
+        "cubic"
+      ],
+      "smooth_sigma_ang": 0.15
+    }
+  }
+}

@@ -4,8 +4,8 @@
 它使用大周期盒并设置 `dim=0`；分子响应不是体材料介电常数。
 
 ```bash
-mkdir work
-cp -r INPUT INPUT.phonon KPT STRU assets work/
+mkdir -p work
+cp -r run/. work/
 cd work
 zstar gen --stru STRU --input INPUT --input_sets assets --dim 0 \
   --pyatb --method central --displacement 0.01 --force
@@ -18,5 +18,5 @@ zstar postph --stru STRU --physical-dim 0
 zstar irrep --file irreps.yaml --mode db
 ```
 
-`reference/ir` 和 `reference/raman` 中保存了分子验证所用的机器可读模式表
+`results/ir` 和 `results/raman` 中保存了分子验证所用的机器可读模式表
 和谱图。

@@ -5,6 +5,17 @@ ZStar keeps its scientific scope narrow: polarization, Born effective charges
 phonons, and IR/Raman spectra. Calculator adapters produce common
 response records; they do not turn ZStar into a general workflow engine.
 
+### Structure dependency policy
+
+Periodic symmetry reduction uses `spglib`, and the core package does not
+require `pymatgen`. ZStar's lightweight readers cover POSCAR/CONTCAR and
+ABACUS `STRU` files for cell data, atom labels, coordinates, and volume.
+`pymatgen` remains an optional VASP-format adapter for `vasprun.xml`,
+`CHGCAR/POTCAR`, and the legacy smodes/Wyckoff route because `spglib` is a
+symmetry library rather than a parser for those electronic-structure outputs.
+Install it with `pip install "zstar[vasp]"` only when one of those paths is
+needed.
+
 ## Physical dimensionality
 
 The code uses `dim=0`, `1`, `2`, or `3` plus explicit periodic axes.

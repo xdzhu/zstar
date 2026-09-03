@@ -11,21 +11,32 @@ scratch 目录不放入仓库。
 | `1d_wires/` | 周期性一维响应 | GaAs 纳米线 |
 | `2d_materials/` | 薄层及与真空无关的面响应 | MoS2、alpha-In2Se3 |
 | `3d_bulk/` | 体材料 BEC 与介电响应 | BaTiO3、HfO2 |
-| `molecules/` | 分子 APT、IR 与 Raman | CH4、CO2 |
+| `molecules/` | 分子 APT、IR 与 Raman | H2O、CH4、CO2 |
 | `backend_examples/` | 计算器后端验证 | CP2K BEC/IR/Raman、VASP SiC |
+| `IR_Raman_Spectra/` | 一键 IR 与 Raman 工作流 | HfO2、MoS2、CH4、GaAs 纳米线 |
+| `Electrostatic_Potential/` | 基于 cube 的静电势分析 | MoS2、alpha-In2Se3、SnS、SnSe、SnTe |
 
-机器可读索引为 `manifest.json`。每个案例包含 `input/` 或案例根目录的
-计算输入，以及 `reference_results/` 或 `reference/` 参考结果。参考结果
-用于复现和接口检查，不能替代用户在新机器上的收敛性测试。
+机器可读索引为 `manifest.json`。每个案例都包含干净的 `run/` 输入目录、
+保存已有计算结果的 `results/` 目录、中英文 README，以及案例根目录的
+`run.sh`。参考结果用于复现和接口检查，不能替代用户在新机器上的收敛性
+测试。
 
 ## 快速开始
 
-先安装 ZStar 和所需的外部计算器，再进入案例目录，将输入复制到临时工作
-目录。ABACUS + PYATB 案例可以这样开始：
+先安装 ZStar 和所需的外部计算器，再进入案例目录。最短路径是：
+
+```bash
+bash run.sh --dry-run
+bash run.sh
+```
+
+脚本会在案例旁边创建 `work/`，保留已有阶段，并支持中断后续算。使用
+`bash run.sh --stage all` 可以继续生成声子并完成声子力计算。ABACUS + PYATB
+案例也可以使用以下等价的显式命令：
 
 ```bash
 cd examples/3d_bulk/HfO2
-cp -r input work
+cp -r run work
 cd work
 zstar gen --stru STRU --input INPUT --input_sets assets \
   --dim 3 --pyatb --method central --displacement 0.01 --force
@@ -42,7 +53,7 @@ DFT 可执行程序。
 ## 可复现约定
 
 - 请从案例工作目录执行命令，以保证相对路径能够找到赝势和轨道。
-- 不要修改 `reference*` 目录，新结果写入 `work/`。
+- 不要修改 `run/` 和 `results/`，新结果写入 `work/`。
 - `dim=0/1/2/3` 分别表示分子、周期性纳米线、薄层和体材料。
 - `dim=2` 的面内极化使用 Berry phase，面外极化使用电荷密度 cube 的
   实空间积分。
@@ -56,3 +67,6 @@ DFT 可执行程序。
 `POTCAR`）不会被重新分发。更多说明见
 `docs/calculator_independent_backends.md`、`docs/calculator_spectroscopy.md`
 以及各案例 README。
+
+`Electrostatic_Potential/SnS`、`SnSe` 和 `SnTe` 是紧凑的后处理案例：保留已核验
+的轮廓和图像，但原始 cube 与上游私有 SCF 输入不放入公开包。

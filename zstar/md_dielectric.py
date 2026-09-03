@@ -307,7 +307,7 @@ def read_lammps_dump(path: str | Path, type_map: Optional[Dict[int, str]] = None
 
 
 def read_structure_frames(structure_dir: str | Path, pattern: str = "frame_*.vasp") -> MDTrajectory:
-    from pymatgen.core import Structure
+    from .structure_io import read_structure
 
     paths = sorted(Path(structure_dir).glob(pattern))
     if not paths:
@@ -318,14 +318,14 @@ def read_structure_frames(structure_dir: str | Path, pattern: str = "frame_*.vas
     volumes = []
     elements = None
     for idx, path in enumerate(paths):
-        structure = Structure.from_file(str(path))
+        structure = read_structure(path)
         steps.append(_extract_step(path.name, default=idx))
         positions.append(np.asarray(structure.cart_coords, dtype=float))
-        cell = np.asarray(structure.lattice.matrix, dtype=float)
+        cell = np.asarray(structure.lattice_angstrom, dtype=float)
         cells.append(cell)
         volumes.append(abs(float(np.linalg.det(cell))))
         if elements is None:
-            elements = np.asarray([str(site.specie) for site in structure.sites])
+            elements = np.asarray(structure.symbols)
     n_atoms = positions[0].shape[0]
     if any(frame.shape[0] != n_atoms for frame in positions):
         raise ValueError("All structure frames must contain the same number of atoms")

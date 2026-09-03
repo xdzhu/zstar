@@ -1,0 +1,9 @@
+{
+  "case": "Nanowire_GaAs",
+  "dimensionality": 1,
+  "calculator": "ABACUS+PYATB",
+  "input": "run",
+  "results": "results",
+  "exchange_correlation": "PBE",
+  "features": ["ir", "raman"]
+}

@@ -7,11 +7,21 @@
     {"id": "in2se3", "path": "2d_materials/In2Se3", "dim": 2, "calculator": "ABACUS+PYATB", "features": ["bec", "ir", "dielectric", "pot"]},
     {"id": "batio3", "path": "3d_bulk/BaTiO3", "dim": 3, "calculator": "ABACUS+PYATB", "features": ["bec", "phonon", "ir", "dielectric"]},
     {"id": "hfo2", "path": "3d_bulk/HfO2", "dim": 3, "calculator": "ABACUS+PYATB", "features": ["bec", "phonon", "ir", "dielectric"]},
-    {"id": "ch4", "path": "molecules/CH4", "dim": 0, "calculator": "ABACUS+PYATB", "features": ["apt", "phonon", "ir", "raman"]},
+    {"id": "ch4", "path": "molecules/CH4", "dim": 0, "calculator": "ABACUS+PYATB", "features": ["apt", "phonon", "ir", "raman", "hse_apt_record"]},
+    {"id": "h2o_hse_apt", "path": "molecules/H2O", "dim": 0, "calculator": "ABACUS+PYATB", "features": ["apt", "hse_apt_record"]},
     {"id": "co2", "path": "molecules/CO2", "dim": 0, "calculator": "ABACUS+PYATB", "features": ["apt", "phonon", "ir", "raman"]},
     {"id": "cp2k_bec_h2o", "path": "backend_examples/cp2k_bec/H2O", "dim": 0, "calculator": "CP2K", "features": ["bec", "native_apt", "comparison"]},
     {"id": "cp2k_bec_mgo", "path": "backend_examples/cp2k_bec/MgO", "dim": 3, "calculator": "CP2K", "features": ["bec", "native_apt", "comparison"]},
-    {"id": "cp2k_spectroscopy_h2o", "path": "backend_examples/reference_spectroscopy/cp2k_h2o", "dim": 0, "calculator": "CP2K", "features": ["ir", "raman"]},
-    {"id": "vasp_spectroscopy_sic", "path": "backend_examples/reference_spectroscopy/vasp_sic", "dim": 3, "calculator": "VASP", "features": ["ir", "raman"]}
+    {"id": "cp2k_spectroscopy_h2o", "path": "backend_examples/calculator_spectroscopy/cp2k_h2o", "dim": 0, "calculator": "CP2K", "features": ["ir", "raman"]},
+    {"id": "vasp_spectroscopy_sic", "path": "backend_examples/calculator_spectroscopy/vasp_sic", "dim": 3, "calculator": "VASP", "features": ["ir", "raman"]},
+    {"id": "spectra_hfo2", "path": "IR_Raman_Spectra/Bulk_HfO2", "dim": 3, "calculator": "ABACUS+PYATB", "features": ["ir", "raman"]},
+    {"id": "spectra_mos2", "path": "IR_Raman_Spectra/2D_MoS2", "dim": 2, "calculator": "ABACUS+PYATB", "features": ["ir", "raman"]},
+    {"id": "spectra_ch4", "path": "IR_Raman_Spectra/Molecule_CH4", "dim": 0, "calculator": "ABACUS+PYATB", "features": ["ir", "raman"]},
+    {"id": "spectra_gaas_nanowire", "path": "IR_Raman_Spectra/Nanowire_GaAs", "dim": 1, "calculator": "ABACUS+PYATB", "features": ["ir", "raman"]},
+    {"id": "potential_mos2", "path": "Electrostatic_Potential/MoS2", "dim": 2, "calculator": "ABACUS+ZStar", "features": ["potential", "plane_average", "tiled_map"]},
+    {"id": "potential_in2se3", "path": "Electrostatic_Potential/In2Se3", "dim": 2, "calculator": "ABACUS+ZStar", "features": ["potential", "plane_average", "polar_arrow"]},
+    {"id": "potential_sns", "path": "Electrostatic_Potential/SnS", "dim": 2, "calculator": "ABACUS+ZStar", "features": ["potential", "direction_profile", "mirror_test", "tiled_map"], "assets_required": false},
+    {"id": "potential_snse", "path": "Electrostatic_Potential/SnSe", "dim": 2, "calculator": "ABACUS+ZStar", "features": ["potential", "direction_profile", "mirror_test", "tiled_map"], "assets_required": false},
+    {"id": "potential_snte", "path": "Electrostatic_Potential/SnTe", "dim": 2, "calculator": "ABACUS+ZStar", "features": ["potential", "direction_profile", "mirror_test", "tiled_map"], "assets_required": false}
   ]
 }

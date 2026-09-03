@@ -1,0 +1,9 @@
+{
+  "id": "potential_sns",
+  "calculator": "ABACUS+ZStar",
+  "dimensionality": 2,
+  "features": ["potential", "direction_profile", "mirror_test", "tiled_map"],
+  "assets_required": false,
+  "cube_required": true,
+  "reference_results": "results/base"
+}

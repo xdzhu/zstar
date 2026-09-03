@@ -4,7 +4,7 @@
 精简参考目录包含绝缘性检查、BORN 张量、对称性报告和响应数据。
 
 ```bash
-cp -r input work
+cp -r run work
 cd work
 zstar gen --stru STRU --input INPUT --input_sets assets --dim 3 \
   --pyatb --method central --displacement 0.01 --force

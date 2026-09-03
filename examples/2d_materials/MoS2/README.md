@@ -1,13 +1,19 @@
 # Monolayer 2H-MoS2
 
-This PBE case is the non-polar two-dimensional benchmark for in-plane and
+This PBE+D3(BJ) case is the non-polar two-dimensional benchmark for in-plane and
 out-of-plane BEC handling, IR response, dielectric response, and potential
-diagnostics. The `input/` directory includes the ABACUS `INPUT`, `KPT`, `STRU`,
-and the matching pseudopotentials and numerical orbitals. `reference_results/`
+diagnostics. The `run/` directory includes the ABACUS `INPUT`, `KPT`, `STRU`,
+and the matching pseudopotentials and numerical orbitals. `results/`
 contains compact BORN, insulation, BEC-diagnostic, IR, and response records.
 
+## One-command reproduction
+
+Run `bash run.sh --dry-run` first, then
+`ABACUS_COMMAND="mpirun -np 20 abacus" PYATB_COMMAND="pyatb" bash run.sh`.
+Generated stages go to `work/`; `run/` and `results/` stay unchanged.
+
 ```bash
-cp -r input work
+cp -r run work
 cd work
 zstar gen --stru STRU --input INPUT --input_sets assets --dim 2 \
   --pyatb --method central --displacement 0.01 --force

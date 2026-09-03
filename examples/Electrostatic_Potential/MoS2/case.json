@@ -1,0 +1,9 @@
+{
+  "id": "potential_mos2",
+  "calculator": "ABACUS+ZStar",
+  "dimensionality": 2,
+  "features": ["potential", "plane_average", "tiled_map"],
+  "assets_required": true,
+  "cube_required": true,
+  "reference_results": "results"
+}

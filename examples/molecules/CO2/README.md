@@ -3,11 +3,18 @@
 This isolated-molecule PBE case is a second IR/Raman benchmark with a linear,
 centrosymmetric structure. The inputs are ready for an ABACUS + PYATB `dim=0`
 workflow; compact reference spectra and a benchmark figure are retained under
-`reference/`.
+`results/`.
+
+## One-command reproduction
+
+Run `bash run.sh --dry-run` first, then
+`ABACUS_COMMAND="mpirun -np 20 abacus" PYATB_COMMAND="pyatb" bash run.sh`.
+The clean inputs and ABACUS assets are under `run/`; generated output is
+written to `work/`.
 
 ```bash
-mkdir work
-cp -r INPUT INPUT.phonon KPT STRU assets work/
+mkdir -p work
+cp -r run/. work/
 cd work
 zstar gen --stru STRU --input INPUT --input_sets assets --dim 0 \
   --pyatb --method central --displacement 0.01 --force

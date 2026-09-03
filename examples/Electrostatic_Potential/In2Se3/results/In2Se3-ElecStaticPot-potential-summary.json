@@ -1,0 +1,45 @@
+{
+  "cube": "/home/zhuxd/abacus/10.topo/PtHgX/FE-mat/In2Se3/In2Se3_a=4.1/soc-dipole/OUT.ABACUS/ElecStaticPot.cube",
+  "outdir": "/home/zhuxd/abacus/zstar_potential_examples/results/In2Se3",
+  "shape": [
+    50,
+    50,
+    450
+  ],
+  "value_unit": "ry",
+  "length_unit": "bohr",
+  "center_slab": null,
+  "axis_profiles": {
+    "z": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/In2Se3/In2Se3-ElecStaticPot-Z.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/In2Se3/In2Se3-ElecStaticPot-vs-Z.png",
+      "vacuum_eV": 4.285116031337162,
+      "vacuum_coord_ang": 28.446841671699612,
+      "vacuum_file": "/home/zhuxd/abacus/zstar_potential_examples/results/In2Se3/E_vacuum.out",
+      "vacuum_sides": {
+        "file": "/home/zhuxd/abacus/zstar_potential_examples/results/In2Se3/E_vacuum_sides.out",
+        "lower_eV": 3.0642985219794667,
+        "upper_eV": 3.426020747850302,
+        "delta_upper_minus_lower_eV": 0.36172222587083525,
+        "lower_coord_ang": 5.087841222680979,
+        "upper_coord_ang": 32.6778610173929
+      }
+    }
+  },
+  "plane_maps": {
+    "xy": {
+      "dat": "/home/zhuxd/abacus/zstar_potential_examples/results/In2Se3/In2Se3-ElecStaticPot-XY-avg-cart.dat",
+      "png": "/home/zhuxd/abacus/zstar_potential_examples/results/In2Se3/In2Se3-ElecStaticPot-XY-avg-cart-tile5x5.png",
+      "normal_axis": "z",
+      "normal_index": -1,
+      "normal_coord_ang": null,
+      "averaged": true,
+      "coord_mode": "cartesian",
+      "tile": [
+        5,
+        5
+      ]
+    }
+  },
+  "direction_profiles": {}
+}

@@ -13,6 +13,14 @@ tensors. The workflow first performs a normal SCF, checks the fundamental gap,
 and only then starts the response calculation. `WAVECAR` and `CHGCAR` are
 reused. A metallic reference stops the workflow.
 
+The core ZStar installation does not require `pymatgen`. Install the optional
+VASP extra when you need to parse VASP XML/CHGCAR/POTCAR data or use the legacy
+smodes/Wyckoff adapter:
+
+```bash
+pip install "zstar[vasp]"
+```
+
 ## Quick start
 
 Put a converged `INCAR`, `POSCAR`, `KPOINTS`, and licensed `POTCAR` in one

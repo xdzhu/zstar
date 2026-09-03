@@ -1,0 +1,9 @@
+{
+  "case": "Molecule_CH4",
+  "dimensionality": 0,
+  "calculator": "ABACUS+PYATB",
+  "input": "run",
+  "results": "results",
+  "exchange_correlation": "PBE",
+  "features": ["ir", "raman"]
+}

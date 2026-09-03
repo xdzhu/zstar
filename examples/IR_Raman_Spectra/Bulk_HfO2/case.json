@@ -1,0 +1,10 @@
+{
+  "case": "Bulk_HfO2",
+  "dimensionality": 3,
+  "calculator": "ABACUS+PYATB",
+  "input": "run",
+  "results": "results",
+  "exchange_correlation": "PBEsol",
+  "basis": "TZDP_9au",
+  "features": ["ir", "raman"]
+}

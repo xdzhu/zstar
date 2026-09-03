@@ -1,0 +1,12 @@
+{
+  "tensor_kind": "molecular polarizability derivative (Angstrom^3 per Angstrom sqrt(amu))",
+  "modes": 9,
+  "files": {
+    "modes": "raman_modes.csv",
+    "tensors": "raman_tensors.npy",
+    "spectrum": "raman_spectrum.dat",
+    "plot": "raman_spectrum.png",
+    "plot_pdf": "raman_spectrum.pdf",
+    "plot_svg": "raman_spectrum.svg"
+  }
+}

@@ -134,19 +134,21 @@ def _write_vasp_poscar(
     modes: GammaModes,
     displacement_angstrom: np.ndarray | None = None,
 ) -> None:
-    from pymatgen.core import Lattice, Structure
-    from pymatgen.io.vasp.inputs import Poscar
+    from .structure_io import StructureData, write_poscar
 
-    structure = Structure(
-        Lattice(modes.lattice_angstrom),
-        list(modes.symbols),
-        modes.positions_fractional,
-        coords_are_cartesian=False,
-    )
+    positions = np.asarray(modes.positions_fractional, dtype=float).copy()
     if displacement_angstrom is not None:
         for index, vector in enumerate(displacement_angstrom):
-            structure.translate_sites(index, vector, frac_coords=False, to_unit_cell=True)
-    Poscar(structure).write_file(destination)
+            positions[index] += np.asarray(vector, dtype=float) @ np.linalg.inv(modes.lattice_angstrom)
+    positions %= 1.0
+    write_poscar(
+        destination,
+        StructureData(
+            np.asarray(modes.lattice_angstrom, dtype=float),
+            positions,
+            tuple(modes.symbols),
+        ),
+    )
 
 
 def prepare_vasp_spectra(

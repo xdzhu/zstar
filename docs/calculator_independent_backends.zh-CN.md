@@ -4,6 +4,15 @@ ZStar 始终围绕极化、Born 有效电荷（BEC）、静态与频率相关介
 Gamma 点声子和 IR/Raman 光谱展开。不同计算器只负责生成统一响应记录，ZStar
 不会扩展成通用电子结构任务平台。
 
+### 结构依赖策略
+
+周期对称性约化由 `spglib` 完成，核心安装不再强制依赖 `pymatgen`。ZStar
+自带轻量读取器，可处理 POSCAR/CONTCAR 和 ABACUS `STRU` 中的晶格、原子标签、
+坐标及体积。由于 `spglib` 是对称性库，而不是电子结构输出文件解析器，
+`pymatgen` 仍作为可选 VASP 格式适配器用于 `vasprun.xml`、`CHGCAR/POTCAR`
+及旧版 smodes/Wyckoff 路线。只有需要这些路径时才安装：
+`pip install "zstar[vasp]"`。
+
 ## 物理维度
 
 代码使用 `dim=0`、`1`、`2` 或 `3`，同时显式记录周期方向。

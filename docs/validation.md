@@ -336,18 +336,21 @@ The compact source data and reproducible figure are archived in
 ## Molecular atomic polar tensors
 
 The ABACUS + PYATB `--dim 0` route was exercised with H2O and CH4 in 20
-Angstrom vacuum cells. Both used PBE, a 100 Ry cutoff, 9 au numerical atomic
+Angstrom vacuum cells. The reproducible baseline used PBE, a 100 Ry cutoff, 9 au numerical atomic
 orbitals, 0.01 Angstrom central atomic displacements, ABACUS 3.10.0 LTS, and
 PYATB 1.1.2.dev0+2ad34bc. The CP2K check used the same molecular geometries,
 PBE/TZV2P-MOLOPT-GTH, a 500 Ry GPW cutoff, `EPS_SCF=1e-10`, and a nonperiodic
 Wavelet Poisson solver. GAPT is the rotational invariant `trace(APT)/3`.
 
-| Molecule | Site | ABACUS + PYATB GAPT (e) | CP2K dipole, 0.005 Angstrom (e) | CP2K native APT (e) |
-| --- | --- | ---: | ---: | ---: |
-| H2O | O | -0.480524 | -0.491314 | -0.515970 |
-| H2O | H | +0.240262 | +0.245754 | +0.257731 |
-| CH4 | C | -0.020784 | -0.046884 | -0.061499 |
-| CH4 | H | +0.005196 | +0.011719 | +0.015391 |
+The same central-difference cube workflow was also completed with HSE and
+`scf_thr = 1e-7`; its compact records are retained in the molecular examples.
+
+| Molecule | Site | ABACUS + PYATB PBE GAPT (e) | ABACUS + PYATB HSE GAPT (e) | CP2K dipole, 0.005 Angstrom (e) | CP2K native APT (e) |
+| --- | --- | ---: | ---: | ---: | ---: |
+| H2O | O | -0.480524 | -0.506370 | -0.491314 | -0.515970 |
+| H2O | H | +0.240262 | +0.253185 | +0.245754 | +0.257731 |
+| CH4 | C | -0.020784 | -0.014826 | -0.046884 | -0.061499 |
+| CH4 | H | +0.005196 | +0.003706 | +0.011719 | +0.015391 |
 
 The native column uses `1e-4` a.u. for H2O and the converged `1e-3` a.u.
 plateau point for CH4.

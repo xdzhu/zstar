@@ -1,11 +1,11 @@
 # 单层 2H-MoS2
 
-这是用于检验二维面内、面外 BEC、IR、介电响应和静电势诊断的 PBE 案例。
-`input/` 包含 ABACUS 的 `INPUT`、`KPT`、`STRU` 以及匹配的赝势和数值轨道；
-`reference_results/` 保存精简的 BORN、绝缘性、BEC 诊断、IR 和响应结果。
+这是用于检验二维面内、面外 BEC、IR、介电响应和静电势诊断的 PBE+D3(BJ) 案例。
+`run/` 包含 ABACUS 的 `INPUT`、`KPT`、`STRU` 以及匹配的赝势和数值轨道；
+`results/` 保存精简的 BORN、绝缘性、BEC 诊断、IR 和响应结果。
 
 ```bash
-cp -r input work
+cp -r run work
 cd work
 zstar gen --stru STRU --input INPUT --input_sets assets --dim 2 \
   --pyatb --method central --displacement 0.01 --force

@@ -1,0 +1,12 @@
+{
+  "tensor_kind": "2D sheet susceptibility derivative",
+  "modes": 6,
+  "files": {
+    "modes": "raman_modes.csv",
+    "tensors": "raman_tensors.npy",
+    "spectrum": "raman_spectrum.dat",
+    "plot": "raman_spectrum.png",
+    "plot_pdf": "raman_spectrum.pdf",
+    "plot_svg": "raman_spectrum.svg"
+  }
+}

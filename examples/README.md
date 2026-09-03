@@ -12,22 +12,35 @@ directories are intentionally excluded.
 | `1d_wires/` | periodic one-dimensional response | GaAs nanowire |
 | `2d_materials/` | slab and vacuum-independent sheet response | MoS2, alpha-In2Se3 |
 | `3d_bulk/` | bulk BEC and dielectric response | BaTiO3, HfO2 |
-| `molecules/` | molecular APT, IR, and Raman | CH4, CO2 |
+| `molecules/` | molecular APT, IR, and Raman | H2O, CH4, CO2 |
 | `backend_examples/` | calculator-specific validation | CP2K BEC/IR/Raman, VASP SiC |
+| `IR_Raman_Spectra/` | one-command IR and Raman workflows | HfO2, MoS2, CH4, GaAs nanowire |
+| `Electrostatic_Potential/` | cube-based electrostatic-potential analysis | MoS2, alpha-In2Se3, SnS, SnSe, SnTe |
 
-The machine-readable index is `manifest.json`. Every case contains an
-`input/` or case-root calculator input and a `reference_results/` or
-`reference/` directory. The reference files are provenance-bearing validation
-records, not a substitute for convergence testing on a new machine.
+The machine-readable index is `manifest.json`. Every case contains a clean
+`run/` input directory, a `results/` directory with retained outputs, a
+bilingual README, and a root-level `run.sh`. The reference files are
+provenance-bearing validation records, not a substitute for convergence
+testing on a new machine.
 
 ## Quick start
 
-Install ZStar and the external calculator(s) first, then enter a case directory
-and copy its inputs to a disposable work directory. For ABACUS + PYATB cases:
+Install ZStar and the external calculator(s) first, then enter a case directory.
+The shortest path is:
+
+```bash
+bash run.sh --dry-run
+bash run.sh
+```
+
+The script seeds a sibling `work/` directory, preserves existing stages, and
+resumes after interruption. Use `bash run.sh --stage all` to continue through
+phonon generation and force calculations. For ABACUS + PYATB cases, the
+equivalent explicit commands are:
 
 ```bash
 cd examples/3d_bulk/HfO2
-cp -r input work
+cp -r run work
 cd work
 zstar gen --stru STRU --input INPUT --input_sets assets \
   --dim 3 --pyatb --method central --displacement 0.01 --force
@@ -46,7 +59,7 @@ DFT executables.
 
 - Run commands from the case work directory so relative asset paths remain
   visible.
-- Keep `reference*` directories unchanged; write new outputs to `work/`.
+- Keep `run/` and `results/` unchanged; write new outputs to `work/`.
 - `dim=0`, `1`, `2`, and `3` mean molecule, periodic wire, slab, and bulk.
 - For `dim=2`, in-plane polarization uses the Berry-phase route while the
   out-of-plane component uses the charge-density cube integration route.
@@ -62,3 +75,7 @@ The backend examples document how to connect ZStar to CP2K and VASP. Licensed
 files such as VASP `POTCAR` are not redistributed. See
 `docs/calculator_independent_backends.md`, `docs/calculator_spectroscopy.md`,
 and the individual case READMEs for calculator-specific setup.
+
+The `Electrostatic_Potential/SnS`, `SnSe`, and `SnTe` cases are compact
+post-processing examples: they retain verified profiles and plots, while the
+upstream raw cube and private SCF inputs remain outside the public package.

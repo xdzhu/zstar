@@ -6,9 +6,20 @@ import glob
 import shutil
 import subprocess
 import tempfile
-from pymatgen.core import Structure, Composition
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, SpacegroupOperations
-import pandas as pd
+
+
+def _pymatgen_classes():
+    """Load the legacy smodes adapter only when that command is requested."""
+
+    try:
+        from pymatgen.core import Composition, Structure
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    except Exception as exc:
+        raise RuntimeError(
+            "The legacy smodes/Wyckoff adapter requires pymatgen. "
+            "Install it with `pip install zstar[vasp]` or use `zstar phonon irrep --mode db`."
+        ) from exc
+    return Composition, SpacegroupAnalyzer, Structure
 
 
 def stru2vasp(f_stru="STRU"):
@@ -202,6 +213,7 @@ def stru2pymatgen(f_stru="STRU"):
         FileNotFoundError: If the structure file is not found.
         ValueError: If the structure file is not in a valid format.
     """
+    _Composition, _SpacegroupAnalyzer, Structure = _pymatgen_classes()
     # 获取当前工作目录
     current_dir = os.getcwd()
     f_stru_path = os.path.join(current_dir, f_stru)
@@ -339,6 +351,15 @@ def get_wyckoff_position(fstru="STRU"):
 
     """
  
+    Composition, SpacegroupAnalyzer, Structure = _pymatgen_classes()
+    try:
+        import pandas as pd
+    except Exception as exc:
+        raise RuntimeError(
+            "The legacy smodes/Wyckoff adapter also requires pandas. "
+            "Install it with `pip install zstar[vasp]`."
+        ) from exc
+
     if ('poscar' in fstru.lower() or '.vasp' in fstru.lower()) and '.stru' not in fstru.lower():
         # print("结构文件包含 'POSCAR' 或 '.vasp'，且不包含 '.STRU'，说明是VASP结构，直接导入pymatgen")
         structure = Structure.from_file(fstru)
@@ -446,4 +467,3 @@ if __name__ == "__main__":
         struname = sys.argv[1]
 
     get_wyckoff_position(struname)
-    

@@ -11,7 +11,7 @@ PYATB Berry 极化，横向两列来自高精度 ABACUS 电荷密度 cube 偶极
 ## Born 有效电荷
 
 ```bash
-cp -r input bec_work
+cp -r run bec_work
 cd bec_work
 zstar gen --stru STRU --input INPUT --input_sets assets \
   --dim 1 --pyatb --method central --displacement 0.01 --force
@@ -29,7 +29,7 @@ zstar deal --stru STRU --dim 1 --pyatb --method central
 ## Gamma 点声子与光谱
 
 ```bash
-cp -r input phonon_work
+cp -r run phonon_work
 cd phonon_work
 zstar ph --stru STRU --dim "1 1 2"
 ABACUS_COMMAND="mpirun -np 20 abacus" bash run_phonon_serial.sh
@@ -61,7 +61,7 @@ Gamma 点基准的范围。
 
 ## 保留的参考结果
 
-`reference_results/` 包含论文使用的紧凑 ABACUS/PYATB 输出：24 原子完整 BEC
+`results/` 包含论文使用的紧凑 ABACUS/PYATB 输出：24 原子完整 BEC
 张量、计算器无关响应记录、72 个 Gamma 模、全部 68 个正频 IR 模以及 10 个
 选定 Raman 模。已完成计算给出：
 

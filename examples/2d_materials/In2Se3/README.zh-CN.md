@@ -5,7 +5,7 @@
 介电响应和静电势参考结果。
 
 ```bash
-cp -r input work
+cp -r run work
 cd work
 zstar gen --stru STRU --input INPUT --input_sets assets --dim 2 \
   --pyatb --method central --displacement 0.01 --force
@@ -16,5 +16,5 @@ zstar deal --stru STRU --dim 2 --pyatb --method central
 ```
 
 比较面外分量时应保持真空方向和 cube 网格约定不变。内禀面响应位于
-`reference_results/dielectric_response/`，不要将它直接与依赖真空厚度的
+`results/dielectric_response/`，不要将它直接与依赖真空厚度的
 三维介电常数比较。

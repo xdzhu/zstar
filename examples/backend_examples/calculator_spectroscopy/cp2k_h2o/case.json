@@ -1,0 +1,9 @@
+{
+  "case": "CP2K_H2O_spectroscopy",
+  "dimensionality": 0,
+  "calculator": "CP2K",
+  "input": "run",
+  "results": "results",
+  "role": "calculator-native IR and Raman reference",
+  "data_dir_required": true
+}

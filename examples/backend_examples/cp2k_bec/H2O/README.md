@@ -6,13 +6,13 @@ that both numerical derivatives are converged enough for component-wise
 comparison.
 
 ```bash
-zstar cp2k-bec prepare --input input.inp --root work \
+zstar cp2k-bec prepare --input run/input.inp --root work \
   --method central --displacement 0.005
 zstar cp2k-bec run --root work --cp2k-command cp2k.ssmp \
   --omp-threads 20 --data-dir /path/to/cp2k/data
 zstar cp2k-bec collect --root work
 
-zstar cp2k-bec native --input input.inp --root native \
+zstar cp2k-bec native --input run/input.inp --root native \
   --field-strength 1e-4 --cp2k-command cp2k.ssmp \
   --omp-threads 20 --data-dir /path/to/cp2k/data
 zstar cp2k-bec compare --zstar-json work/cp2k_bec.json \
@@ -26,5 +26,12 @@ the RMS difference was `0.000179 e`. The parser transposes CP2K's raw
 row-field/column-force APT layout into ZStar's row-force/column-field
 convention before comparison.
 
-The compact accepted outputs are included beside the input. Generated stage
+The compact accepted outputs are included in `results/`. Generated stage
 directories remain local and are excluded from Git.
+
+## One-command reproduction
+
+Set `CP2K_COMMAND` and, when required by the installation, `CP2K_DATA_DIR`,
+then run `bash run.sh --dry-run` followed by `OMP_NUM_THREADS=20 bash run.sh`.
+The clean CP2K input is `run/input.inp`; generated stages are written to
+`work/` and `native/`.
