@@ -651,3 +651,9 @@ zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
 ZStar 使用 GNU General Public License v3.0。
 
 Copyright (c) Xudong Zhu.
+## 持续构建与发布
+
+每次推送到 `main` 以及每个面向 `main` 的 pull request，GitHub Actions 都会
+自动构建 wheel 和源码包，并将其保存为 workflow artifact。推送类似 `v0.2.1`
+的版本标签时，还会创建 GitHub Release 并附加构建文件。PyPI 发布仍然保持为
+单独、明确执行的发布步骤。

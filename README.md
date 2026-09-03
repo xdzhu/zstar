@@ -682,3 +682,10 @@ Machine-readable citation metadata for this release are provided in [CITATION.cf
 ZStar is distributed under the GNU General Public License v3.0.
 
 Copyright (c) Xudong Zhu.
+## Continuous builds and releases
+
+Every push to `main` and every pull request targeting `main` builds the wheel
+and source distribution in GitHub Actions and stores them as workflow
+artifacts. A version tag such as `v0.2.1` additionally creates a GitHub
+Release and attaches the built files. PyPI publication remains an explicit,
+separate release step.
