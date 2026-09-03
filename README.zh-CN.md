@@ -177,19 +177,23 @@ zstar skill preflight --root . --lane bec --dim bulk
 在包含 `STRU` 的目录中执行：
 
 ```bash
-zstar bec pre --calculator abacus --stru STRU --pyatb --method forward --force
+zstar bec pre --stru STRU
 ```
+
+`bec pre` 默认使用 ABACUS + PYATB 路线以及 forward 前向有限差分，因此不必
+重复写这些参数。只有切换到其他后端时，才使用 `--calculator cp2k`、
+`--calculator vasp` 或 `--calculator qe`。
 
 二维薄膜：
 
 ```bash
-zstar bec pre --calculator abacus --stru STRU --dim 2 --pyatb --method forward --force
+zstar bec pre --stru STRU --dim 2
 ```
 
 沿 `z` 周期的一维纳米线：
 
 ```bash
-zstar bec pre --calculator abacus --stru STRU --dim 1 --pyatb --method central --force
+zstar bec pre --stru STRU --dim 1 --method central
 ```
 
 生成的目录从 `0.no-move` 开始，后面是类似 `1.Ti/x+` 的原子/方向位移目录。每个位移目录不再需要单独复制一份任务脚本。
@@ -279,7 +283,7 @@ zstar bec job --root . --system torque \
 ABACUS + PYATB 分子 APT：
 
 ```bash
-zstar bec pre --calculator abacus --dim 0 --method central --displacement 0.01 --pyatb
+zstar bec pre --stru STRU --dim 0 --method central --displacement 0.01
 zstar bec run --root . \
   --abacus-command abacus --pyatb-command pyatb --omp-threads 20
 zstar bec post --root .

@@ -90,6 +90,21 @@ class CanonicalCliArchitectureTests(unittest.TestCase):
             handle_canonical_cli(["bec", "post", "--root", str(root)], runner)
             self.assertEqual(calls[-1][1], root.resolve())
 
+    def test_bec_pre_uses_abacus_pyatb_defaults(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "polar"
+            calls = []
+            handle_canonical_cli(
+                ["bec", "pre", "--root", str(root), "--stru", "STRU"],
+                lambda argv: calls.append(list(argv)),
+            )
+            manifest = json.loads((root / ".zstar" / "bec.json").read_text())
+            self.assertEqual(manifest["calculator"], "abacus")
+            self.assertEqual(manifest["options"]["method"], "forward")
+            self.assertEqual(calls[0][0], "gen")
+            self.assertNotIn("--calculator", calls[0])
+            self.assertNotIn("--pyatb", calls[0])
+
     def test_old_ph_command_is_not_consumed_as_family_alias(self):
         self.assertFalse(handle_canonical_cli(["ph", "--stru", "STRU"], lambda _: None))
 

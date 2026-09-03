@@ -67,11 +67,15 @@ Windows 位于 `%APPDATA%/zstar/config.toml`。`ZSTAR_CONFIG` 可指定其他用
 以下示例均在已经放好计算器输入文件的工作目录中执行。ABACUS + PYATB 三维 BEC：
 
 ```bash
-zstar bec pre --calculator abacus --root . --dim 3 --stru STRU --pyatb
+zstar bec pre --stru STRU
 zstar bec job --root . --system slurm --tasks 28 --env-script env.sh
 zstar bec stat --root .
 zstar bec post --root .
 ```
+
+`zstar bec pre` 默认使用 ABACUS + PYATB 和 forward 前向有限差分，因此规范示例
+省略计算器和 `--pyatb` 开关。只有切换后端时才指定 `--calculator cp2k`、`vasp`
+或 `qe`。
 
 声子与模式分类：
 

@@ -52,7 +52,7 @@ and `zstar dielectric static` outputs use the explicitly labelled SI-reduced con
 Prepare central finite displacements and a reference-first workflow:
 
 ```bash
-zstar bec pre --calculator abacus --stru STRU --input INPUT --dim 1 --pyatb \
+zstar bec pre --stru STRU --input INPUT --dim 1 \
   --method central --kspacing 0.12 --force
 
 zstar bec job --system shell --tasks 20 \

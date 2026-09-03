@@ -82,11 +82,11 @@ if [[ "$dry_run" -eq 1 ]]; then
     cat <<EOF
 DRY RUN: no files will be generated and no external solver will be started.
 1. cp -a "$input_dir/." "$work/"
-2. zstar gen --stru STRU --input INPUT --input_sets assets --dim $dim \\
-     --pyatb --method central --displacement $displacement --force
+2. zstar bec pre --stru STRU --input INPUT --input_sets assets --dim $dim \\
+     --method central --displacement $displacement --force
 3. zstar workflow run --root . --dimensionality $dim --omp-threads $omp_threads \\
      --abacus-command "$abacus_command" --pyatb-command "$pyatb_command"
-4. zstar deal --stru STRU --dim $dim --pyatb --method central
+4. zstar bec post --root .
 5. zstar ph --stru STRU --dim "$phonon_dim"
 EOF
     exit 0
@@ -105,15 +105,15 @@ fi
 
 cd "$work"
 if [[ ! -f .zstar-bec-prepared ]]; then
-    zstar gen --stru STRU --input INPUT --input_sets assets --dim "$dim" \\
-        --pyatb --method central --displacement "$displacement" --force
+    zstar bec pre --stru STRU --input INPUT --input_sets assets --dim "$dim" \\
+        --method central --displacement "$displacement" --force
     touch .zstar-bec-prepared
 fi
 
 zstar workflow run --root . --dimensionality "$dim" --omp-threads "$omp_threads" \\
     --abacus-command "$abacus_command" --pyatb-command "$pyatb_command"
 zstar workflow status --root .
-zstar deal --stru STRU --dim "$dim" --pyatb --method central
+zstar bec post --root .
 
 if [[ "$stage" == "all" ]]; then
     if [[ ! -f qpoints.yaml ]]; then

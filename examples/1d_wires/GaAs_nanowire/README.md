@@ -23,13 +23,13 @@ Outputs are written to `work/`; clean inputs remain under `run/`.
 ```bash
 cp -r run bec_work
 cd bec_work
-zstar gen --stru STRU --input INPUT --input_sets assets \
-  --dim 1 --pyatb --method central --displacement 0.01 --force
+zstar bec pre --stru STRU --input INPUT --input_sets assets \
+  --dim 1 --method central --displacement 0.01 --force
 zstar workflow script --backend shell --dim 1 --tasks 20 \
   --cpus-per-task 1 --env-script /path/to/environment.sh
 bash run_zstar_born.sh
 zstar workflow status
-zstar deal --stru STRU --dim 1 --pyatb --method central
+zstar bec post --root .
 ```
 
 Inspect `zstar_insulation.json`, `Z-BORN-symm.out`, `BORN`,

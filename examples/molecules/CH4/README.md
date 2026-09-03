@@ -16,12 +16,12 @@ is written to `work/`.
 mkdir -p work
 cp -r run/. work/
 cd work
-zstar gen --stru STRU --input INPUT --input_sets assets --dim 0 \
-  --pyatb --method central --displacement 0.01 --force
+zstar bec pre --stru STRU --input INPUT --input_sets assets --dim 0 \
+  --method central --displacement 0.01 --force
 zstar workflow script --backend shell --dim 0 --tasks 1 --cpus-per-task 20
 zstar workflow run --root . --dim 0 --abacus-command "mpirun -np 20 abacus"
 zstar workflow status --root .
-zstar deal --stru STRU --dim 0 --pyatb --method central
+zstar bec post --root .
 zstar ph --stru STRU --dim 0
 zstar postph --stru STRU --physical-dim 0
 zstar irrep --file irreps.yaml --mode db

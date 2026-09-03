@@ -70,11 +70,16 @@ Run the following examples from a prepared workflow directory containing the
 calculator inputs. ABACUS + PYATB bulk BEC:
 
 ```bash
-zstar bec pre --calculator abacus --root . --dim 3 --stru STRU --pyatb
+zstar bec pre --stru STRU
 zstar bec job --root . --system slurm --tasks 28 --env-script env.sh
 zstar bec stat --root .
 zstar bec post --root .
 ```
+
+For `zstar bec pre`, ABACUS + PYATB and the forward finite-difference method
+are the defaults. The calculator and `--pyatb` switch are therefore omitted
+from the canonical example; specify `--calculator cp2k`, `vasp`, or `qe` only
+when changing backends.
 
 Phonons and mode classification:
 

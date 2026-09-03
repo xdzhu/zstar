@@ -14,12 +14,12 @@ pseudopotentials and numerical orbitals.
 ```bash
 cp -r run work
 cd work
-zstar gen --stru STRU --input INPUT --input_sets assets --dim 3 \
-  --pyatb --method central --displacement 0.01 --force
+zstar bec pre --stru STRU --input INPUT --input_sets assets --dim 3 \
+  --method central --displacement 0.01 --force
 zstar workflow script --backend shell --dim 3 --tasks 1 --cpus-per-task 20
 zstar workflow run --root . --dim 3 --abacus-command "mpirun -np 20 abacus"
 zstar workflow status --root .
-zstar deal --stru STRU --dim 3 --pyatb --method central
+zstar bec post --root .
 ```
 
 For lattice IR, run `zstar ph`, `zstar postph`, copy `BORN`, and then run

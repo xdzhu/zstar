@@ -43,7 +43,7 @@ alpha_1D = A_perp (epsilon_supercell - I) / (4 pi)
 生成中心差分位移和参考态优先的串行工作流：
 
 ```bash
-zstar bec pre --calculator abacus --stru STRU --input INPUT --dim 1 --pyatb \
+zstar bec pre --stru STRU --input INPUT --dim 1 \
   --method central --kspacing 0.12 --force
 
 zstar bec job --system shell --tasks 20 \

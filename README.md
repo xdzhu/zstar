@@ -186,19 +186,24 @@ public utility family are summarized in the
 Run this in a directory containing `STRU`:
 
 ```bash
-zstar bec pre --calculator abacus --stru STRU --pyatb --method forward --force
+zstar bec pre --stru STRU
 ```
+
+`bec pre` defaults to the ABACUS + PYATB route and the forward finite
+difference method, so these defaults do not need to be repeated. Use
+`--calculator cp2k`, `--calculator vasp`, or `--calculator qe` only when
+selecting another backend.
 
 For a 2D slab:
 
 ```bash
-zstar bec pre --calculator abacus --stru STRU --dim 2 --pyatb --method forward --force
+zstar bec pre --stru STRU --dim 2
 ```
 
 For a `z`-periodic wire:
 
 ```bash
-zstar bec pre --calculator abacus --stru STRU --dim 1 --pyatb --method central --force
+zstar bec pre --stru STRU --dim 1 --method central
 ```
 
 The generated tree starts with `0.no-move`, followed by atom/direction folders such as `1.Ti/x+`. No per-displacement scheduler script is required.
@@ -290,7 +295,7 @@ Add `--submit` only when the generated script has been reviewed and the active e
 Molecular APT from ABACUS + PYATB:
 
 ```bash
-zstar bec pre --calculator abacus --dim 0 --method central --displacement 0.01 --pyatb
+zstar bec pre --stru STRU --dim 0 --method central --displacement 0.01
 zstar bec run --root . \
   --abacus-command abacus --pyatb-command pyatb --omp-threads 20
 zstar bec post --root .
