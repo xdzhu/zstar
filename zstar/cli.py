@@ -278,7 +278,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     gen_calc.add_argument('--abacus', action='store_true',
                           help='Use ABACUS for NSCF Berry phase.')
     gen_calc.add_argument('--pyatb', action='store_true',
-                          help='Use PyATB for NSCF Berry phase [Recommended].')
+                          help='Use PYATB for NSCF Berry phase [Recommended].')
     gen_calc.add_argument('--cp2k', action='store_true',
                           help='Use a CP2K input template for Berry-phase BEC.')
     parser_gen.add_argument('--cp2k-root', default='cp2k_bec',
@@ -309,7 +309,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     deal_calc.add_argument('--abacus', action='store_true',
                            help='Use ABACUS for NSCF Berry phase.')
     deal_calc.add_argument('--pyatb', action='store_true',
-                           help='Use PyATB for NSCF Berry phase [Recommended].')
+                           help='Use PYATB for NSCF Berry phase [Recommended].')
     deal_calc.add_argument('--cp2k', action='store_true',
                            help='Collect a generated CP2K Berry-phase BEC workflow.')
     parser_deal.add_argument('--cp2k-root', default='cp2k_bec')
@@ -349,7 +349,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     born_calc.add_argument('--abacus', action='store_true',
                            help='Use ABACUS for NSCF Berry phase.')
     born_calc.add_argument('--pyatb', action='store_true',
-                           help='Use PyATB for NSCF Berry phase [Recommended].')
+                           help='Use PYATB for NSCF Berry phase [Recommended].')
 
     # ---------------- polar ----------------
     parser_polar = subparsers.add_parser('polar', help='Polarization data only.')
@@ -364,7 +364,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     polar_calc.add_argument('--abacus', action='store_true',
                             help='Use ABACUS for NSCF Berry phase.')
     polar_calc.add_argument('--pyatb', action='store_true',
-                            help='Use PyATB for NSCF Berry phase [Recommended].')
+                            help='Use PYATB for NSCF Berry phase [Recommended].')
     polar_calc.add_argument('--cp2k', action='store_true',
                             help='Collect a generated CP2K Berry-phase BEC workflow.')
     parser_polar.add_argument('--cp2k-root', default='cp2k_bec')

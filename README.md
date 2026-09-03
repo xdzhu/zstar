@@ -42,7 +42,7 @@ The numerical checks used for the current release are summarized in [docs/valida
 - Reuse of the converged `0.no-move` charge density for every displacement.
 - One-time insulating-state check after the reference SCF.
 - Shell, Slurm, and Torque driver generation.
-- Automatic compatibility with legacy and direct-static-response PyATB versions.
+- Automatic compatibility with legacy and direct-static-response PYATB versions.
 - A serial, resumable CP2K backend for Berry-phase BEC tensors and native APT checks.
 - Three-dimensional, hybrid two-dimensional, and hybrid one-dimensional polarization/BEC analysis.
 - Phonon generation, post-processing, mode classification, IR spectra, Raman spectra, and dielectric response.
@@ -124,7 +124,7 @@ pip install .
 External programs are required only for the corresponding workflows:
 
 - ABACUS for SCF, charge density, force, and sparse-matrix calculations.
-- PyATB for Berry-phase polarization, band checks, and electronic dielectric response.
+- PYATB for Berry-phase polarization, band checks, and electronic dielectric response.
 - Phonopy for displacement generation and phonon post-processing.
 - CP2K for the optional CP2K finite-displacement BEC backend.
 - VASP for native bulk BEC and mode-displaced dielectric-response workflows.
@@ -281,7 +281,7 @@ rounding.
 The default execution order is:
 
 1. Run `0.no-move` SCF and save charge density and sparse matrices.
-2. Generate a normal PyATB high-symmetry band path with `pyatb_input --band`.
+2. Generate a normal PYATB high-symmetry band path with `pyatb_input --band`.
 3. Stop before any displacement if the reference is metallic.
 4. Calculate reference polarization and electronic dielectric response.
 5. Copy the reference charge cube/restart into each target `OUT.<suffix>/`.
@@ -669,9 +669,9 @@ background: the PBEsol/TZDP 9-au closure gives
 intrinsic lattice sheet polarizability; they are not a vacuum-dependent
 supercell dielectric constant.
 
-## PyATB Compatibility
+## PYATB Compatibility
 
-ZStar probes the PyATB executable selected for the workflow:
+ZStar probes the PYATB executable selected for the workflow:
 
 - New builds with direct static response use `static_dielectric_only`.
 - Older builds use a compact 0-30 eV optical grid at 0.1 eV spacing. This range was checked against the new direct-static intercept; the coarse spacing avoids an unnecessarily dense full optical spectrum.

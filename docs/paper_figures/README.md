@@ -57,7 +57,7 @@ stages give `Zxx = Zyy = -0.80585922` and `Zzz = 0.00273336` for Mo, with the
 two symmetry-equivalent S atoms carrying the compensating tensor. Contracting
 these BECs with all six optical modes makes the E' pair at 369.15 cm-1 the
 dominant IR feature. Twelve completed central-difference response stages with
-the PyATB `static_dielectric_only` kernel give Raman-active E'', E', and A1'
+the PYATB `static_dielectric_only` kernel give Raman-active E'', E', and A1'
 families at 270.63, 369.15, and 401.50 cm-1, respectively. A1' is the strongest
 Raman line, while the A2'' normalized Raman activity is `3.02e-14`, recovering
 the expected selection rule to numerical precision.

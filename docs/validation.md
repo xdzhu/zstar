@@ -12,8 +12,8 @@ parameters for every material.
 
 - Local unit and integration tests: Python 3.10 test environment on Windows.
 - Direct compute-node regression: ABACUS 3.10.0-LTS, Phonopy 2.38.2, and an
-  established PyATB environment on dedicated compute nodes.
-- PyATB compatibility: established interface plus the
+  established PYATB environment on dedicated compute nodes.
+- PYATB compatibility: established interface plus the
   `wheels-cp310plus-2ad34bc.zip` build, detected as
   `1.1.2.dev0+2ad34bc`.
 - Scheduler script checks: shell and Torque/PBS on the direct-compute
@@ -29,7 +29,7 @@ The source test suite covers:
   resume behavior;
 - default band-path and explicit Monkhorst-Pack insulation gates;
 - shell, Slurm, and Torque single-driver scripts;
-- legacy and direct-static PyATB input/output compatibility;
+- legacy and direct-static PYATB input/output compatibility;
 - 3D, hybrid 2D, and hybrid 1D BEC assembly, including low-dimensional
   tensor conventions and geometric guards;
 - phonon folder generation and force post-processing;
@@ -54,7 +54,7 @@ reproduces the archived representative charges:
 `zstar bec job` was exercised with one rank and `--dry-run` for every
 supported backend. These checks validate generation, environment loading,
 reference-first stage ordering, state output, and scheduler parsing without
-launching ABACUS or PyATB.
+launching ABACUS or PYATB.
 
 | Backend | Generated driver | Default launcher | Environment evidence |
 | --- | --- | --- | --- |
@@ -152,12 +152,12 @@ required interchange of Cartesian axes.
 | HfO2 | Hf | 5.393731 | 5.393731 | 4.828420 |
 |  | O | -2.115440 | -3.278290 | -2.414210 |
 
-The corresponding legacy-PyATB electronic dielectric diagonals, evaluated
+The corresponding legacy-PYATB electronic dielectric diagonals, evaluated
 with the reference 0-30 eV window, are `(6.465, 6.465, 5.921)` for BaTiO3,
 `(7.380, 7.380, 7.215)` for PbTiO3. The refreshed HfO2 direct-static result
 is `(5.161604, 5.161604, 4.780272)`.
 
-## PyATB Static-Response Compatibility
+## PYATB Static-Response Compatibility
 
 The same hBN sparse matrices were processed through both interfaces:
 
@@ -241,7 +241,7 @@ VASP-backend closure:
 | 3C-SiC | 3D dielectric derivative | 774.96 T2 (threefold) | normalized Raman activities = 0.6622, 0.7989, 1.0000 |
 
 The refreshed MoS2 closure used ABACUS/PBE+D3(BJ), `scf_thr = 1e-8`, a
-`33 x 33 x 1` primitive-cell mesh, and PyATB `1.1.2.dev0+2ad34bc` with its
+`33 x 33 x 1` primitive-cell mesh, and PYATB `1.1.2.dev0+2ad34bc` with its
 direct `static_dielectric_only` kernel. The six optical modes required 12
 positive/negative Raman stages. The degenerate `E''` pair at 270.63 cm-1,
 the `E'` pair at 369.15 cm-1, and `A1'` at 401.50 cm-1 have normalized Raman
@@ -256,7 +256,7 @@ Four symmetry-reduced force-displacement stages
 produce no substantive imaginary mode: the largest acoustic residual is
 0.357 cm-1 and the 15 optical branches span 96.13--670.45 cm-1. The complete
 Raman run evaluates every optical mode through 30 positive/negative response
-stages using PyATB `1.1.2.dev0+2ad34bc` and its direct-static kernel. The
+stages using PYATB `1.1.2.dev0+2ad34bc` and its direct-static kernel. The
 Raman-active `A1g`, `B1g`, and `Eg` modes remain finite, while the largest
 normalized residual among `Eu`, `A2u`, and silent `B2u` modes is `5.86e-9`.
 Fan et al. provide the phase- and functional-matched VASP/PBEsol reference

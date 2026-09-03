@@ -36,7 +36,7 @@ bohr_radius = 5.29177e-11  # Bohr 半径 (m)
 _NUM = r'[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?'
 
 
-# ====== PyATB 极化文件解析（单位 C/m^2）======
+# ====== PYATB 极化文件解析（单位 C/m^2）======
 def _parse_pyatb_polar_file(dat_path):
     pat = re.compile(
         rf"The calculated polarization direction is in\s+([abc]),\s*P\s*=\s*({_NUM})\s*\(mod\s*({_NUM})\)\s*C/m\^2\.",
@@ -677,7 +677,7 @@ def format_matrix(Z, xx_len=BORN_OUTPUT_WIDTH):
     return formatted_rows
 
 
-# ========== 1) 写死 ./0.no-move 的基准读取；ABACUS 走旧法，PyATB 走新法 ==========
+# ========== 1) 写死 ./0.no-move 的基准读取；ABACUS 走旧法，PYATB 走新法 ==========
 def deal_poalr_no_move(nscf_calculator='abacus'):
     """
     返回:
@@ -695,7 +695,7 @@ def deal_poalr_no_move(nscf_calculator='abacus'):
 
     nscf = str(nscf_calculator).lower().strip()
     if nscf == 'pyatb':
-        # -------- PyATB：P0 & Q 来自 polarization.dat；T 来自 input.json ----------
+        # -------- PYATB：P0 & Q 来自 polarization.dat；T 来自 input.json ----------
         dat_path = os.path.join(base, "pyatb", "Out", "Polarization", "polarization.dat")
         P0_a, P0_b, P0_c, Q_a, Q_b, Q_c = _parse_pyatb_polar_file(dat_path)  # C/m^2
 
@@ -737,11 +737,11 @@ def deal_poalr_no_move(nscf_calculator='abacus'):
     return P_0, float(Q_a), float(Q_b), float(Q_c), T
 
 
-# ========== 2) deal_polar：ABACUS 走旧法；PyATB 用新法（input.json） ==========
+# ========== 2) deal_polar：ABACUS 走旧法；PYATB 用新法（input.json） ==========
 def deal_polar(cord_type,  P_0, Quanta_a, Quanta_b, Quanta_c, transformation_matrix,
                nscf_calculator='abacus', disp_A=0.01, prefixes=('x', 'y', 'z')):
     """
-    ABACUS / PyATB 统一：都在 C/m^2 单位下处理极化，再用
+    ABACUS / PYATB 统一：都在 C/m^2 单位下处理极化，再用
         Z* = (Ω/e) * ΔP / Δu
     得到 Z*（单位 e）
 
@@ -758,7 +758,7 @@ def deal_polar(cord_type,  P_0, Quanta_a, Quanta_b, Quanta_c, transformation_mat
     nscf = str(nscf_calculator).lower().strip()
     prefixes = list(prefixes)
 
-    # ====================== PyATB 分支（基本不动） ======================
+    # ====================== PYATB 分支（基本不动） ======================
     if nscf == 'pyatb':
         # ----- 1) 读取三个位移目录的极化（C/m^2），并与 P_0 做最近支展开 -----
         dP = {}
@@ -940,7 +940,7 @@ def deal_polar_bec_2d(cord_type,
 def deal_polar_central(cord_type, transformation_matrix,
                nscf_calculator='abacus', disp_A=0.02):
     """
-    ABACUS / PyATB 统一：都在 C/m^2 单位下处理极化，再用
+    ABACUS / PYATB 统一：都在 C/m^2 单位下处理极化，再用
         Z* = (Ω/e) * ΔP / Δu
     得到 Z*（单位 e）
 
@@ -957,7 +957,7 @@ def deal_polar_central(cord_type, transformation_matrix,
     nscf = str(nscf_calculator).lower().strip()
     prefixes = ['x', 'y', 'z']
 
-    # ====================== PyATB 分支（基本不动） ======================
+    # ====================== PYATB 分支（基本不动） ======================
     if nscf == 'pyatb':
         # ----- 1) 读取三个位移目录的极化（C/m^2），并与 P_0 做最近支展开 -----
         dP = {}

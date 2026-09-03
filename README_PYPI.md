@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/zstar)](https://pypi.org/project/zstar/)
 [![License](https://img.shields.io/badge/license-GPL--3.0-green)](https://www.gnu.org/licenses/gpl-3.0.html)
 
-ZStar is a Python workflow toolkit for polarization, Born effective charge (BEC), phonon, infrared, Raman, and dielectric-response calculations with ABACUS, PyATB, and Phonopy.
+ZStar is a Python workflow toolkit for polarization, Born effective charge (BEC), phonon, infrared, Raman, and dielectric-response calculations with ABACUS, PYATB, and Phonopy.
 
 ## Highlights
 
@@ -15,7 +15,7 @@ ZStar is a Python workflow toolkit for polarization, Born effective charge (BEC)
 - Reuse of the converged reference charge density.
 - A one-time insulating-state gate using a normal band path by default.
 - Shell, Slurm, and Torque/PBS driver generation.
-- Legacy and direct-static-response PyATB compatibility.
+- Legacy and direct-static-response PYATB compatibility.
 - Hybrid 1D BECs: transverse charge-density dipoles plus longitudinal Berry polarization.
 - Hybrid 2D BECs: Berry-phase in-plane response plus cube-integrated out-of-plane dipole.
 - IR, Raman, and static/frequency-dependent dielectric response.
@@ -30,7 +30,7 @@ pip install -U zstar
 zstar --version
 ```
 
-Python 3.9 or newer is required. ABACUS, PyATB, and Phonopy are external programs used only by the corresponding workflows. The core installation uses `spglib` for symmetry and does not require `pymatgen`.
+Python 3.9 or newer is required. ABACUS, PYATB, and Phonopy are external programs used only by the corresponding workflows. The core installation uses `spglib` for symmetry and does not require `pymatgen`.
 
 For VASP `vasprun.xml`, `CHGCAR/POTCAR`, or legacy smodes/Wyckoff adapters, install the optional extra:
 

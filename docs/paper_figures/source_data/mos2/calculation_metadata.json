@@ -15,7 +15,7 @@
     "raman_dimensionality": "2D sheet susceptibility derivative"
   },
   "electronic_response": {
-    "program": "PyATB",
+    "program": "PYATB",
     "version": "1.1.2.dev0+2ad34bc",
     "interface": "static_dielectric_only",
     "output": "static_dielectric_function.dat"

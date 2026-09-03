@@ -68,7 +68,7 @@ python -m zstar.cli agent-skill preflight --root . --lane bec --dim bulk
 - `zstar bec post` 能处理已有极化结果。
 - 默认绝缘性门控只对 `0.no-move` 执行一次普通 `--band`。
 - `zstar bec stat` 能识别完成、失败和恢复状态。
-- 新旧 PyATB 环境都能读取电子介电张量。
+- 新旧 PYATB 环境都能读取电子介电张量。
 
 ## 3. 更新中英文 README 与 PDF
 

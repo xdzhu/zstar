@@ -2,7 +2,7 @@
 
 ## Polarization and BEC
 
-Prepare a PyATB-backed finite-displacement tree:
+Prepare a PYATB-backed finite-displacement tree:
 
 ```bash
 zstar bec pre --calculator abacus --stru STRU --pyatb --method forward --dim 3 --force
