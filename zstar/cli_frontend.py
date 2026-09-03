@@ -307,6 +307,10 @@ def _run_config(arguments: Sequence[str]) -> None:
             for name, item in report["executables"].items():
                 state = "available" if item["available"] else "missing"
                 print(f"{name:<10} {state:<9} {item['command']}")
+            print("ABACUS assets")
+            for name, item in report.get("abacus_assets", {}).items():
+                state = "available" if item["available"] else "missing"
+                print(f"{name:<14} {state:<9} {item['path'] or '(not configured)'}")
 
 
 def _format_config(data: dict) -> str:

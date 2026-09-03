@@ -12,7 +12,7 @@ Set-Location $RepoRoot
 - `examples/` 是 GitHub 上公开的可复现实例库；它不打入 wheel，源码包是否
   包含它由构建清单决定，发布前应明确检查。
 - `dist/`、`build/` 和 `*.egg-info/` 是本地构建产物，不提交 GitHub。
-- `job_scripts/` 是正式项目内容，需要提交。
+- 调度脚本由 ZStar CLI 按系统自动生成；仓库不再维护站点专用的旧作业模板。
 - 开发和测试使用 `zstar-test` 环境。
 - 构建和上传可以使用安装了 `build` 与 `twine` 的独立发布环境。
 - PyPI 已发布的文件不可覆盖。
@@ -168,7 +168,7 @@ python (Join-Path $codexHome 'skills\.system\skill-creator\scripts\quick_validat
 
 ```powershell
 git add README.md README.zh-CN.md README_PYPI.md CHANGELOG.md pyproject.toml
-git add zstar tests docs job_scripts
+git add zstar tests docs README*.md MANIFEST.in
 git status --short
 git diff --cached --check
 ```

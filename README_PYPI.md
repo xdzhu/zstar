@@ -47,6 +47,22 @@ zstar config check
 zstar backend list --check
 ```
 
+For ABACUS cases whose pseudopotentials and numerical orbitals are stored in
+shared libraries, provide their directories during preparation:
+
+```bash
+zstar bec pre --stru STRU \
+  --pp /path/to/PSEUDO \
+  --orb /path/to/ORBITAL
+```
+
+Frequently used directories can be configured globally with
+`abacus.pseudo_dir` and `abacus.orbital_dir`.
+ZStar preserves the source `STRU`, writes a resolved copy to
+`.zstar/STRU.resolved`, records selected files and checksums in
+`.zstar/assets.json`, and stops with an actionable error when matching files
+are missing or ambiguous.
+
 ## Agent Skill
 
 Install the bundled Agent Skill and open a new agent session:

@@ -95,6 +95,7 @@ def load_config(root: str | Path = ".") -> dict[str, Any]:
     data: dict[str, Any] = {
         "executables": dict(DEFAULT_EXECUTABLES),
         "execution": {"system": "shell", "tasks": 1, "cpus_per_task": 1},
+        "abacus": {"pseudo_dir": "", "orbital_dir": ""},
     }
     _deep_merge(data, _read_toml(user_config_path()))
     _deep_merge(data, _read_toml(project_config_path(root)))
@@ -159,11 +160,20 @@ def config_report(root: str | Path = ".") -> dict[str, Any]:
             "available": available,
             "resolved": resolved,
         }
+    asset_checks = {}
+    for name in ("pseudo_dir", "orbital_dir"):
+        configured = str(data.get("abacus", {}).get(name, "") or "")
+        if configured:
+            path = Path(configured).expanduser().resolve()
+            asset_checks[name] = {"path": str(path), "available": path.is_dir()}
+        else:
+            asset_checks[name] = {"path": "", "available": False}
     return {
         "user_config": str(user_config_path()),
         "project_config": str(project_config_path(root)),
         "configuration": data,
         "executables": checks,
+        "abacus_assets": asset_checks,
     }
 
 
@@ -202,6 +212,7 @@ def initialize_config(*, root: str | Path = ".", user: bool = False, force: bool
         {
             "executables": DEFAULT_EXECUTABLES,
             "execution": {"system": "shell", "tasks": 1, "cpus_per_task": 1},
+            "abacus": {"pseudo_dir": "", "orbital_dir": ""},
         },
     )
 

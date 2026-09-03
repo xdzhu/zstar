@@ -58,9 +58,54 @@ Windows 位于 `%APPDATA%/zstar/config.toml`。`ZSTAR_CONFIG` 可指定其他用
 配置文件。
 
 环境变量使用 `ZSTAR_ABACUS_EXECUTABLE`、`ZSTAR_QE_PW_EXECUTABLE` 等名称。
-配置文件只保存计算软件可执行文件；ZStar 会为 shell/Torque 添加
+配置文件保存计算软件可执行文件及 ABACUS 的全局资源目录；ZStar 会为 shell/Torque 添加
 `mpirun -np N`，为 Slurm 添加 `srun --ntasks=N`。模块加载、conda 激活等环境
 初始化写在 `job --env-script` 指定的脚本中。
+
+## 集群资源与运行环境
+
+队列和资源参数属于某一次具体任务，因此在生成作业脚本时指定，不写入计算软件
+路径配置：
+
+```bash
+zstar bec job --root . --system slurm \
+  --nodes 1 --tasks 28 --cpus-per-task 1 \
+  --queue compute --account PROJECT --walltime 24:00:00 \
+  --env-script ./env.sh
+```
+
+`zstar phonon job` 和 `zstar spectra job` 也支持同样的资源选项。直接在本地节点
+运行使用 `--system shell`；Torque/PBS 使用 `--system torque` 或 `--system pbs`。
+生成的脚本包含相应的调度器指令，Slurm 使用 `srun`，shell/Torque 使用 `mpirun`。
+`env.sh` 中放置 `module load`、`conda activate` 及集群特有的环境变量。使用
+`--dry-run` 可以只检查生成脚本而不启动计算器。
+
+## ABACUS 赝势与数值轨道
+
+`zstar bec pre` 会在创建位移任务之前自动解析 ABACUS 的 `.upf` 和 `.orb`
+文件。对于某个案例需要覆盖默认目录时，可以直接指定：
+
+```bash
+zstar bec pre --stru STRU \
+  --pp /path/to/PSEUDO \
+  --orb /path/to/ORBITAL
+```
+
+常用目录可以写入用户全局配置：
+
+```bash
+zstar config set abacus.pseudo_dir /data/PSEUDO --user
+zstar config set abacus.orbital_dir /data/ORBITAL --user
+```
+
+ZStar 首先按照 `STRU` 中给出的精确文件名查找；精确文件名不存在时，只有在
+某元素的前缀匹配结果唯一时才会自动采用，例如 `Si_*.upf` 或 `Si_*.orb`。
+如果结果不唯一，命令会列出全部候选文件，并提示用户填写精确文件名或指定更
+窄的目录，绝不会静默选择第一个文件。
+
+原始 `STRU` 不会被修改。解析后的副本保存在 `.zstar/STRU.resolved`，实际选用
+的文件及其 SHA256 校验值保存在 `.zstar/assets.json`，并会被复制到每个生成的
+ABACUS 任务目录中。
 
 ## 代表性生命周期
 

@@ -17,6 +17,7 @@ use the installed zstar package modules and exposed as the `zstar` entry point.
 
 import argparse
 import os
+from pathlib import Path as PathLib
 import sys
 
 from . import __version__
@@ -233,6 +234,14 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
                             help="Force overwrite existing directories if they exist.",
                             default=False)
     parser_gen.add_argument('--stru', help='Path to the STRU file', default='STRU')
+    parser_gen.add_argument(
+        '--pp', dest='pp_dir', default=None,
+        help='Directory containing ABACUS pseudopotentials (.upf).',
+    )
+    parser_gen.add_argument(
+        '--orb', dest='orb_dir', default=None,
+        help='Directory containing ABACUS numerical orbitals (.orb).',
+    )
     parser_gen.add_argument('--symmprec', '--tol', type=float,
                             help='Symmetry precision of STRU, default is 1e-3',
                             default=1e-3)
@@ -2482,6 +2491,32 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
             return
 
         from .gen_polar import gen_polar as run_gen
+        from .abacus_assets import AbacusAssetError, prepare_stru_assets
+        from .configuration import load_config
+
+        # Resolve ABACUS assets before creating any displacement folder.  The
+        # source STRU remains untouched; generated folders use a normalized
+        # copy and ordinary staged files.
+        abacus_config = load_config(PathLib.cwd()).get('abacus', {})
+        pp_dir = args.pp_dir or abacus_config.get('pseudo_dir')
+        orb_dir = args.orb_dir or abacus_config.get('orbital_dir')
+        try:
+            prepared = prepare_stru_assets(
+                args.stru,
+                pp_dir=pp_dir,
+                orb_dir=orb_dir,
+                output_dir=PathLib.cwd() / '.zstar',
+            )
+        except AbacusAssetError as exc:
+            raise SystemExit(f"[ASSETS] ERROR: {exc}") from None
+        if prepared.changed:
+            print(f"[ASSETS] Prepared STRU: {prepared.path}")
+        input_sets = args.input_sets
+        if prepared.assets:
+            # Always stage resolved assets, even when the caller supplied
+            # additional input files through --input_sets.
+            extra = [] if input_sets is None else [input_sets]
+            input_sets = extra + [str(path) for path in prepared.assets]
 
         # Full x/y/z displacements are required for the hybrid 2D BEC tensor.
         if args.move is None or str(args.move).strip() == "":
@@ -2497,7 +2532,6 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
         nscf_calculator = 'abacus' if getattr(args, 'abacus', False) else (
                           'pyatb' if getattr(args, 'pyatb', False) else 'pyatb')
         input_mode = args.input_mode or nscf_calculator
-        input_sets = args.input_sets
 
         method = getattr(args, "method", "forward")
         if method in ["center", "central"]:
@@ -2510,7 +2544,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
             xc = 'pbe'
 
         run_gen(
-            f_stru=args.stru,
+            f_stru=str(prepared.path),
             symm_tol=args.symmprec,
             force_delete=args.force,
             atom_input=args.atom,

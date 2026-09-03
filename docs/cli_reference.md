@@ -62,7 +62,52 @@ override has the highest priority.
 Environment variables use names such as `ZSTAR_ABACUS_EXECUTABLE` and
 `ZSTAR_QE_PW_EXECUTABLE`. Store the calculator executable in configuration;
 ZStar adds `mpirun -np N` for shell/Torque jobs or `srun --ntasks=N` for Slurm.
-Environment setup belongs in the generated job's `--env-script`.
+Environment setup belongs in a small shell file passed with `--env-script`.
+
+### Cluster resources and environment
+
+Queue and resource values are properties of one generated job, so they are
+specified when the driver is created rather than stored in the calculator
+configuration:
+
+```bash
+zstar bec job --root . --system slurm \
+  --nodes 1 --tasks 28 --cpus-per-task 1 \
+  --queue compute --account PROJECT --walltime 24:00:00 \
+  --env-script ./env.sh
+```
+
+The same resource options are available for `zstar phonon job` and
+`zstar spectra job`.  Use `--system shell` for direct local execution and
+`--system torque` (or `--system pbs`) for Torque/PBS.  The generated driver
+contains the scheduler directives and uses `srun` for Slurm or `mpirun` for
+shell/Torque.  `env.sh` is the place for `module load`, `conda activate`, and
+cluster-specific environment variables.  Use `--dry-run` to inspect the
+driver without running the calculator.
+
+### ABACUS pseudopotentials and orbitals
+
+`zstar bec pre` resolves ABACUS resources before creating displacement folders.
+Use explicit directories for a case that differs from the user's defaults:
+
+```bash
+zstar bec pre --stru STRU \
+  --pp /path/to/PSEUDO \
+  --orb /path/to/ORBITAL
+```
+
+Otherwise configure the global defaults with:
+
+```bash
+zstar config set abacus.pseudo_dir /data/PSEUDO --user
+zstar config set abacus.orbital_dir /data/ORBITAL --user
+```
+
+ZStar first tries the exact filename from `STRU`, then accepts a unique
+element-prefix match such as `Si_*.upf` or `Si_*.orb`.  Ambiguous matches stop
+with a candidate list and explain how to select an exact file or narrower
+directory.  The input `STRU` is left unchanged; `.zstar/STRU.resolved` and
+`.zstar/assets.json` provide the generated copy and resource provenance.
 
 ## Representative lifecycles
 

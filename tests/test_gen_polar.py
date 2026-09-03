@@ -221,6 +221,55 @@ A
             zstar_cli(["gen", "--stru", "STRU"])
         self.assertEqual(run_gen.call_args.kwargs["xc"], "pbe")
 
+    def test_cli_resolves_abacus_assets_before_generation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "STRU"
+            source.write_text(
+                """ATOMIC_SPECIES
+Si 28.0855 Si.upf
+
+NUMERICAL_ORBITAL
+Si.orb
+
+LATTICE_CONSTANT
+1.0
+
+LATTICE_VECTORS
+1 0 0
+0 1 0
+0 0 1
+
+ATOMIC_POSITIONS
+Direct
+
+Si
+0
+1
+0 0 0
+""",
+                encoding="utf-8",
+            )
+            pp = root / "PSEUDO"
+            orb = root / "ORBITAL"
+            pp.mkdir()
+            orb.mkdir()
+            (pp / "Si_PBE.upf").write_text("pseudo", encoding="utf-8")
+            (orb / "Si_gga.orb").write_text("orbital", encoding="utf-8")
+            previous = Path.cwd()
+            try:
+                os.chdir(root)
+                with patch("zstar.gen_polar.gen_polar") as run_gen:
+                    zstar_cli([
+                        "gen", "--stru", "STRU", "--pp", str(pp), "--orb", str(orb)
+                    ])
+            finally:
+                os.chdir(previous)
+            kwargs = run_gen.call_args.kwargs
+            self.assertEqual(Path(kwargs["f_stru"]).name, "STRU.resolved")
+            self.assertIn(str(pp / "Si_PBE.upf"), kwargs["input_sets"])
+            self.assertIn(str(orb / "Si_gga.orb"), kwargs["input_sets"])
+
     def test_dim1_generation_requests_high_precision_charge_cube(self):
         with tempfile.TemporaryDirectory() as tmp:
             previous = Path.cwd()

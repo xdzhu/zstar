@@ -209,6 +209,32 @@ zstar bec pre --stru STRU --dim 1 --method central
 | `--dim 0\|1\|2\|3` | 分子、一维、二维或三维处理。 |
 | `--input-mode abacus\|pyatb\|hamgnn\|custom` | 输入文件准备方式。 |
 | `--input_sets FILES` | 复制到任务目录的附加文件或文件夹。 |
+| `--pp DIR` | ABACUS 赝势（`.upf`）目录。 |
+| `--orb DIR` | ABACUS 数值轨道（`.orb`）目录。 |
+
+```bash
+zstar bec pre --stru STRU \
+  --pp /path/to/PSEUDO \
+  --orb /path/to/ORBITAL
+```
+
+如果赝势和数值轨道不与案例放在一起，可以在生成任务前指定资源目录。ZStar
+会先按照 `STRU` 中的精确文件名查找；如果找不到，只有在元素前缀匹配结果唯一
+时才会自动选取文件。多个候选文件会使命令停止，并列出候选项以及如何填写精确
+文件名或指定更窄的目录。ZStar 不会修改原始 `STRU`，解析后的副本写入
+`.zstar/STRU.resolved`，资源来源和 SHA256 校验值写入 `.zstar/assets.json`。
+
+常用目录可以配置为全局默认值：
+
+```bash
+zstar config init --user
+zstar config set abacus.pseudo_dir /opt/abacus/PSEUDO --user
+zstar config set abacus.orbital_dir /opt/abacus/ORBITAL --user
+zstar config check
+```
+
+单次命令中的 `--pp` 和 `--orb` 优先于全局配置。原始 `STRU` 中的相对路径
+始终相对于 `STRU` 所在目录解析，而不是相对于偶然的 shell 当前目录。
 
 ### 2. 串行执行并支持断点续算
 
@@ -270,6 +296,20 @@ Torque/PBS：
 zstar bec job --root . --system torque \
   --queue batch --tasks 28 --cpus-per-task 1 --walltime 24:00:00
 ```
+
+队列、节点数、CPU 分配、墙钟时间、项目账号和集群模块都属于具体任务，应在生成
+作业脚本时指定，不要写入计算软件配置。`module load` 和 `conda activate` 等环境
+初始化放入 `--env-script` 指定的脚本：
+
+```bash
+zstar bec job --root . --system slurm \
+  --nodes 1 --tasks 28 --cpus-per-task 1 \
+  --queue compute --account PROJECT --walltime 24:00:00 \
+  --env-script ./env.sh
+```
+
+生成的驱动脚本会使用 Slurm 的 `srun`，或 shell/Torque 的 `mpirun`。`zstar phonon
+job` 和 `zstar spectra job` 使用相同方式；提交前可以用 `--dry-run` 检查脚本。
 
 后端默认启动命令会自动适配：shell/Torque 使用 `mpirun -np N`，Slurm
 使用 `srun --ntasks=N`。加入 `--dry-run` 可以在不启动计算的情况下检查
@@ -626,7 +666,7 @@ zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
 | `zstar spectra pre/run/job/stat/post` | 计算器感知的 IR 与 Raman 工作流。 |
 | `zstar dielectric static/freq/optics` | 静态、振动及电子介电响应。 |
 | `zstar backend list` | 列出能力，并可检查程序或插件。 |
-| `zstar config init/show/set/check` | 配置计算软件可执行文件路径。 |
+| `zstar config init/show/set/check` | 配置计算软件路径、运行时默认值和 ABACUS 全局资源目录。 |
 | `zstar response` | 校验并统一计算器无关响应数据。 |
 | `zstar density` | 生成电荷密度导出适配器和来源 sidecar。 |
 | `zstar stru convert/wyckoff` | 转换结构或检查 Wyckoff 位置。 |
@@ -641,7 +681,8 @@ zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
 - `examples/` 保存可直接运行的精简案例输入、参考结果和后端示例；大型
   求解器 scratch 输出仍保留在仓库之外，不提交到 GitHub。
 - `dist/` 与 `build/` 是本地构建产物，不提交。
-- `job_scripts/` 保存可复用任务模板，随代码提交。
+- 调度脚本由 `zstar bec job`、`zstar phonon job` 和 `zstar spectra job` 自动生成；
+  集群队列和环境设置通过生成命令及 `--env-script` 指定。
 - PyPI 更新流程见 [docs/how_to_update_pypi.md](docs/how_to_update_pypi.md)。
 
 私有 GitHub 仓库中的 README 可以使用相对路径 logo，因为已登录的仓库访问者能够读取图片；PyPI 无法访问私有仓库的图片地址。因此 `README_PYPI.md` 不引用私有相对图片。若希望 PyPI 展示 logo，必须提供长期稳定、无需登录即可访问的 HTTPS 图片地址。
