@@ -1,6 +1,6 @@
 # Publication revision and eight-system efficiency benchmark
 
-Status: agreed in-scope work complete; candidate 0.3.0rc1 prepared for version freeze.
+Status: agreed in-scope work complete; candidate 0.3.0rc1 frozen.
 Figure 1 artwork remains explicitly deferred to the author before submission.
 This checklist supersedes neither old measurements nor their
 provenance. No pending task is a completed validation result.
@@ -53,7 +53,8 @@ Figure 1 artwork remains deferred to the user. Preserve user-arranged figures.
    - [x] Synchronize code examples, bilingual manuals and paper.
 5. Release and submission checks (review 5, 17)
    - [x] Run full tests, example reproduction, build and package checks.
-   - [ ] Freeze a version/commit that actually contains the new framework.
+   - [x] Freeze a version/commit that actually contains the new framework:
+     implementation commit aa72dbc; immutable candidate tag v0.3.0rc1.
    - [x] Align installation, package metadata, citation and archive statements.
    - [x] Compile marked and clean PDFs from one source; inspect affected pages.
    - [x] Final code/claim/evidence cross-check; Figure 1 requires user artwork.
