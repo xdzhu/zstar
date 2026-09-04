@@ -1,6 +1,7 @@
 # 四方 HfO2：Unified BEC 与 Gamma 声子
 
-六原子四方晶胞，PBEsol、ONCV 赝势及所附 9-au 轨道，100 Ry，
+六原子四方晶胞，PBEsol、ONCV 赝势及所附 9-au 轨道
+（Hf: 6s3p3d2f1g；O: 2s2p1d），100 Ry，
 Gamma 中心的 10x10x7 网格，SCF 阈值 1e-8。
 
 配置 ABACUS/PYATB 后执行 `bash run.sh`。`run/` 是便携输入及赝势轨道，

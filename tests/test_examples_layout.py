@@ -21,6 +21,7 @@ def test_manifest_cases_are_self_describing():
         assert (case / "README.md").is_file(), record["id"]
         assert (case / "README.zh-CN.md").is_file(), record["id"]
         assert (case / "run").is_dir(), record["id"]
+        assert any(p.is_file() for p in (case / "run").rglob("*")), record["id"]
         assert (case / "results").is_dir(), record["id"]
         assert any((case / "results").rglob("*")), record["id"]
 

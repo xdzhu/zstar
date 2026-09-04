@@ -118,7 +118,7 @@ zstar bec stat --root .
 zstar bec post --root .
 ```
 
-`0.3.0rc1` 的 `zstar bec pre` 默认使用 ABACUS + PYATB 和 Phonopy 对称性适配的
+`0.3.0rc2` 的 `zstar bec pre` 默认使用 ABACUS + PYATB 和 Phonopy 对称性适配的
 BEC/Gamma 声子共用位移，自动选择所需正负位移。计算器和 `--pyatb` 开关仍可
 省略；切换后端时才指定 `--calculator cp2k`、`vasp` 或 `qe`。
 `--ensemble cartesian` 保留旧的原子/笛卡尔方向布局。完整说明见

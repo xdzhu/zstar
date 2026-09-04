@@ -189,6 +189,6 @@ class PhononPostTests(unittest.TestCase):
             finally:
                 os.chdir(previous)
             commands = [call.args[0] for call in run.call_args_list]
-            self.assertIn("disp-001\\vasprun.xml", commands[0][2])
+            self.assertEqual(Path(commands[0][2]), Path("disp-001") / "vasprun.xml")
             self.assertTrue(all("--vasp" in command for command in commands[1:]))
             self.assertEqual(report["calculator"], "vasp")

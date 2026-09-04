@@ -113,9 +113,9 @@ PNG/PDF/SVG 图片。
 
 ZStar 要求 Python 3.9 或更高版本。
 
-统一框架的投稿候选版本为 **0.3.0rc1**。八体系基准与新 header 功能需要
+统一框架的投稿候选版本为 **0.3.0rc2**。八体系基准与新 header 功能需要
 对应源码，旧 PyPI 0.2.1 不包含这些新增内容。在下方源码安装前执行
-`git checkout v0.3.0rc1`；参见[可复现基准](examples/Shared_Response/README.zh-CN.md)
+`git checkout v0.3.0rc2`；参见[可复现基准](examples/Shared_Response/README.zh-CN.md)
 及[本轮验证记录](docs/research/PUBLICATION_REVISION_20260904.md)。
 
 从 PyPI 安装：

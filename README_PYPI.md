@@ -26,11 +26,11 @@ ZStar is a Python workflow toolkit for polarization, Born effective charge (BEC)
 
 ## Installation
 
-The Unified framework described here is in the `0.3.0rc1` GitHub candidate.
+The Unified framework described here is in the `0.3.0rc2` GitHub candidate.
 It is not in the older PyPI `0.2.1` release. Install this exact candidate with:
 
 ```bash
-pip install "zstar @ git+https://github.com/xdzhu/zstar.git@v0.3.0rc1"
+pip install "zstar @ git+https://github.com/xdzhu/zstar.git@v0.3.0rc2"
 ```
 
 For the last stable PyPI release:

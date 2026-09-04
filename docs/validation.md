@@ -1,6 +1,6 @@
 # ZStar Validation Record
 
-The historical material checks below are supplemented by the 0.3.0rc1
+The historical material checks below are supplemented by the 0.3.0rc2
 [eight-system Unified benchmark](../examples/Shared_Response/README.md)
 and the [publication-revision audit](research/PUBLICATION_REVISION_20260904.md).
 The final candidate passes 319 tests with each of Phonopy 2.36.0 and 4.4.0.

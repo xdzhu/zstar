@@ -120,7 +120,7 @@ zstar bec stat --root .
 zstar bec post --root .
 ```
 
-In `0.3.0rc1`, `zstar bec pre` defaults to ABACUS + PYATB and
+In `0.3.0rc2`, `zstar bec pre` defaults to ABACUS + PYATB and
 Phonopy's symmetry-adapted Unified BEC/Gamma displacement ensemble, with
 automatic +/- selection. The calculator and `--pyatb` switch remain optional;
 specify `--calculator cp2k`, `vasp`, or `qe` only when changing backends.

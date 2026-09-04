@@ -1,6 +1,7 @@
 # Tetragonal HfO2: shared BEC and Gamma phonons
 
-Six-atom tetragonal cell; PBEsol, ONCV pseudopotentials and TZDP 9-au orbitals,
+Six-atom tetragonal cell; PBEsol, ONCV pseudopotentials and 9-au orbitals
+(Hf: 6s3p3d2f1g; O: 2s2p1d),
 100-Ry cutoff, Gamma-centered 10x10x7 mesh, SCF threshold 1e-8.
 
 Run `bash run.sh` after configuring ABACUS/PYATB. Inputs and included basis

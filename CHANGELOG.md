@@ -1,3 +1,14 @@
+## 0.3.0rc2 - 2026-09-04
+
+- Correct a platform-specific test assertion to use pathlib rather than a
+  Windows-only path separator. The response kernel is unchanged from rc1.
+- Track setup instructions inside the VASP SiC input directory so a clean Git
+  checkout retains it; the example still requires the declared local VASP files.
+- Describe the HfO2 numerical basis by its actual per-element orbital counts.
+- Retain the complete Unified workflow, eight measured benchmark pairs, header
+  selection and response-unit fixes described below. The initial rc1 GitHub
+  release was blocked by these repository/test checks and published no wheel.
+
 ## 0.3.0rc1 - 2026-09-04
 
 Submission candidate; this tag is a GitHub prerelease, not a PyPI publication.

@@ -121,9 +121,9 @@ effective charge, diagnostics, and PNG/PDF/SVG plots.
 
 ZStar requires Python 3.9 or newer.
 
-The unified-framework submission candidate is **0.3.0rc1**. Its eight-system
+The unified-framework submission candidate is **0.3.0rc2**. Its eight-system
 examples and revised headers require that tagged source, not the older PyPI
-0.2.1 release: `git checkout v0.3.0rc1` before installing the checkout below.
+0.2.1 release: `git checkout v0.3.0rc2` before installing the checkout below.
 See [the reproducible benchmarks](examples/Shared_Response/README.md) and
 [revision validation](docs/research/PUBLICATION_REVISION_20260904.md).
 

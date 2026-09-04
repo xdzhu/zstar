@@ -1,6 +1,6 @@
 # Publication revision and eight-system efficiency benchmark
 
-Status: agreed in-scope work complete; candidate 0.3.0rc1 frozen.
+Status: agreed in-scope work complete; candidate 0.3.0rc2 frozen.
 Figure 1 artwork remains explicitly deferred to the author before submission.
 This checklist supersedes neither old measurements nor their
 provenance. No pending task is a completed validation result.
@@ -54,7 +54,7 @@ Figure 1 artwork remains deferred to the user. Preserve user-arranged figures.
 5. Release and submission checks (review 5, 17)
    - [x] Run full tests, example reproduction, build and package checks.
    - [x] Freeze a version/commit that actually contains the new framework:
-     implementation commit aa72dbc; immutable candidate tag v0.3.0rc1.
+     implementation commit aa72dbc; immutable candidate tag v0.3.0rc2.
    - [x] Align installation, package metadata, citation and archive statements.
    - [x] Compile marked and clean PDFs from one source; inspect affected pages.
    - [x] Final code/claim/evidence cross-check; Figure 1 requires user artwork.
@@ -110,10 +110,19 @@ in ABACUS + PYATB cost, or count failed trials as production stages.
 - Figure 1 artwork is untouched and remains the user's final replacement.
   Manuscript units, header description, HSE interpretation, full APTs,
   spectral-reference limitations, eight-system table and data index are revised.
-  Candidate metadata is 0.3.0rc1; clean and blue-revision PDFs have 33 pages.
+  Candidate metadata is 0.3.0rc2; clean and blue-revision PDFs have 33 pages.
 - The PBEsol In2Se3 literature table now points to its own recovered archive,
   not the old PBE+D3(0) spectroscopy or the newer PBE efficiency dataset.
   Offline reconstruction from retained dipole observations agrees to 2.59e-7 e.
 - New archives retain byte-exact provenance through Git attributes. The
   candidate audit checks existing hashes before adding new checksum entries,
   portable STRU/PP/ORB resolution, run/results layout and absence of symlinks.
+
+## Linux release gate
+
+The first rc1 GitHub run found two repository/test portability issues: the
+VASP SiC input directory was empty and therefore absent from Git, and a VASP
+phonon test expected a Windows-only path separator. Release publication was
+blocked. Rc2 tracks the input-directory instructions, requires nonempty input
+directories in the layout test, and compares paths with pathlib. The response
+kernel and all eight measured results are unchanged; rc1 is not silently retagged.

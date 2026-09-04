@@ -24,7 +24,7 @@ for name in [*figures, 'zstar.bib', 'zstar-elsarticle-num.bst']:
     shutil.copy2(args.article/name, args.output/name)
 shutil.copy2(args.article/'zstar_CPC-clean-20260904.bbl', args.output/'zstar_CPC.bbl')
 (args.output/'BUILD.md').write_text(
-    '# ZStar CPC candidate 0.3.0rc1\n\n'
+    '# ZStar CPC candidate 0.3.0rc2\n\n'
     'Compile with `latexmk -pdf zstar_CPC.tex`. All figure paths are basenames.\n\n'
     '**Not yet submitted:** Figure 1 is retained unchanged at the author\'s request\n'
     'and still requires the final Unified-framework artwork. No other figure\n'

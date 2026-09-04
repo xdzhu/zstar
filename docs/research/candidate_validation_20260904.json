@@ -1,5 +1,5 @@
 {
-  "candidate": "0.3.0rc1",
+  "candidate": "0.3.0rc2",
   "test_runs": {
     "tests-phonopy236-final.xml": {
       "tests": 319,
@@ -84,7 +84,16 @@
     }
   },
   "version_freeze": {
-    "tag": "v0.3.0rc1",
+    "tag": "v0.3.0rc2",
     "source": "GitHub tag plus included benchmark and test records"
+  },
+  "rc1_linux_release_gate": {
+    "workflow_run": 33870368501,
+    "status": "blocked before artifact publication",
+    "issues": [
+      "empty VASP SiC run directory absent from Git checkout",
+      "Windows-only path separator in test assertion"
+    ],
+    "rc2_changes": "tracked setup README, nonempty-directory assertion, pathlib comparison; no response-kernel or measured-data changes"
   }
 }

@@ -1,6 +1,6 @@
 # Unified BEC and Gamma-phonon workflow
 
-Available in the 0.3.0rc1 source candidate, not in the older PyPI 0.2.1 release.
+Available in the 0.3.0rc2 source candidate, not in the older PyPI 0.2.1 release.
 See [direct validation](DIRECT_VALIDATION.md) for measured comparisons and
 their numerical-convergence qualifications.
 
