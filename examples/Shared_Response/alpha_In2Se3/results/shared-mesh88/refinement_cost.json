@@ -1,0 +1,86 @@
+{
+  "stages": 11,
+  "additional_reserved_core_hours": 5.73751850584522,
+  "per_stage": {
+    "0.no-move": {
+      "wall_seconds": 46.2929986580275,
+      "reserved_core_hours": 0.5143666517558612,
+      "mpi": 40,
+      "omp": 1,
+      "reused_diagnostic": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3/berry-mesh-88/atom-3/shared/0.no-move",
+      "worker_host": "cu24"
+    },
+    "disp-001": {
+      "wall_seconds": 46.39730543224141,
+      "reserved_core_hours": 0.5155256159137934,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-002": {
+      "wall_seconds": 47.10439373832196,
+      "reserved_core_hours": 0.5233821526480218,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-003": {
+      "wall_seconds": 46.94509476516396,
+      "reserved_core_hours": 0.5216121640573773,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-004": {
+      "wall_seconds": 47.03606760175899,
+      "reserved_core_hours": 0.5226229733528777,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-005": {
+      "wall_seconds": 47.01943167997524,
+      "reserved_core_hours": 0.5224381297775027,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-006": {
+      "wall_seconds": 47.11981564993039,
+      "reserved_core_hours": 0.5235535072214488,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-007": {
+      "wall_seconds": 47.07592141907662,
+      "reserved_core_hours": 0.5230657935452958,
+      "mpi": 40,
+      "omp": 1,
+      "reused_diagnostic": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3/berry-mesh-88/atom-3/shared/disp-007",
+      "worker_host": "cu24"
+    },
+    "disp-008": {
+      "wall_seconds": 47.246532971039414,
+      "reserved_core_hours": 0.5249614774559935,
+      "mpi": 40,
+      "omp": 1,
+      "reused_diagnostic": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3/berry-mesh-88/atom-3/shared/disp-008",
+      "worker_host": "cu24"
+    },
+    "disp-009": {
+      "wall_seconds": 47.165173881687224,
+      "reserved_core_hours": 0.5240574875743025,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-010": {
+      "wall_seconds": 46.973929728847,
+      "reserved_core_hours": 0.5219325525427444,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    }
+  }
+}

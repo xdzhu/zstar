@@ -1,0 +1,16 @@
+{
+  "status": "compared",
+  "max_BEC_difference_raw_e": 0.000845722465116161,
+  "max_BEC_difference_projected_e": 0.000587239803577333,
+  "max_Hessian_difference_eV_A2": 0.026734029646455326,
+  "relative_Hessian_Frobenius_difference": 0.0006229292573481402,
+  "max_frequency_difference_cm1": 0.4364225187341617,
+  "both_have_full_precision_polarization": true,
+  "max_group_oscillator_difference_e2_amu": 0.0005201114702413356,
+  "relative_group_oscillator_Frobenius_difference": 0.0004345622776599675,
+  "mode_group_pairing": "ascending frequency with equal degeneracies; within-group oscillator tensors are summed",
+  "max_phonon_static_difference": 9.793377543643178e-05,
+  "relative_phonon_static_Frobenius_difference": 0.0002094249039332614,
+  "static_unit": "Angstrom sheet phonon polarizability (Gaussian alpha_2D)",
+  "solver_speedup": 3.4689063197162326
+}

@@ -1,0 +1,104 @@
+{
+  "case": "CH4",
+  "dimension": 0,
+  "source": "/home/zhuxd/abacus/agent-runs/20260904-molecular-relaxed-efficiency/relaxed-seeds/CH4",
+  "protocol": "Cartesian central joint-response control versus Phonopy-auto unified response",
+  "scope": "BEC/APT and Gamma Hessian; not Raman or full dispersion",
+  "space_group_of_periodic_cell": "P-43m",
+  "symprec_angstrom": 1e-05,
+  "changes_to_source_input": {
+    "calculation": "scf",
+    "cal_force": "1",
+    "cal_stress": "0",
+    "gamma_only": "0",
+    "scf_thr": "1e-8",
+    "symmetry": "1",
+    "pseudo_dir": ".",
+    "orbital_dir": ".",
+    "init_chg": "auto",
+    "kspacing": "0"
+  },
+  "structure": {
+    "cell_angstrom": [
+      [
+        20.00000000372726,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        20.00000000372726,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        20.00000000372726
+      ]
+    ],
+    "positions_angstrom": [
+      [
+        10.00000000586363,
+        10.00000000586363,
+        10.00000000586363
+      ],
+      [
+        10.631969169981405,
+        10.631969169981405,
+        10.631969169981405
+      ],
+      [
+        10.631969169981405,
+        9.368030841745854,
+        9.368030841745854
+      ],
+      [
+        9.368030841745854,
+        10.631969169981405,
+        9.368030841745854
+      ],
+      [
+        9.368030841745854,
+        9.368030841745854,
+        10.631969169981405
+      ]
+    ],
+    "symbols": [
+      "C",
+      "H",
+      "H",
+      "H",
+      "H"
+    ]
+  },
+  "stages": {
+    "unified": 3,
+    "cartesian": 12
+  },
+  "seed_sha256": {
+    "INPUT": "ac9e677b1e65dff49e0ee7f0c70f82e6b119cfcb2f95f79ee3508abf89d96e19",
+    "INPUT.phonon": "1d4cf26415889e19f4e7926aee612a6633555e1e3668f2ef310b3c1db20c62b1",
+    "KPT": "91042b39ee493cb5c1bee648adc865a2e5935a29278eb405dc009f994db55ece",
+    "STRU": "64b37a8c086bc03d8ec0e8dc1a3803d2e5d6d0c669ad1c2768307ac2502a31be",
+    "C_gga_9au_100Ry_3s3p2d.orb": "357472063c9f249d7cfa74ee68901bab80b738b6502db9a2f52fe4e7e67ea264",
+    "H_gga_9au_100Ry_3s2p.orb": "7234ccdfeed67ab25561fec0d3bf48c0fbf1080f05b1ca6686fa029df49be9e9",
+    "C.upf": "a5b0fe8d6b63f703745b99d47e2dd47ed18efdb35a01ff410bc8e8d0af4e247f",
+    "H.upf": "8272fc45fbee2b45a490830c61ef9b2f2b894591b2c9a310fe4af152b76502a6",
+    "INPUT.source": "ac9e677b1e65dff49e0ee7f0c70f82e6b119cfcb2f95f79ee3508abf89d96e19",
+    "STRU.direct": "64b37a8c086bc03d8ec0e8dc1a3803d2e5d6d0c669ad1c2768307ac2502a31be"
+  },
+  "polarization_mp_density": 0.08,
+  "allocated_cores": 40,
+  "mpi_omp": {
+    "ABACUS": [
+      1,
+      40
+    ],
+    "PYATB": [
+      40,
+      1
+    ]
+  },
+  "timing": "monotonic seconds times allocated cores; successful solver calls only",
+  "completed": true
+}

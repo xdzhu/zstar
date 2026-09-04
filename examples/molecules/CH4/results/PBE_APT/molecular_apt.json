@@ -1,0 +1,392 @@
+{
+  "schema_version": 1,
+  "backend": "abacus-pyatb",
+  "dimensionality": 0,
+  "quantity": "atomic_polar_tensor",
+  "method": "central",
+  "displacement_angstrom": 0.01,
+  "natoms_total": 5,
+  "natoms_calculated": 2,
+  "tensor_convention": "rows=atomic displacement; columns=molecular dipole; molecular atomic polar tensor in units of e",
+  "raw_atoms": [
+    {
+      "index": 1,
+      "label": "C",
+      "tensor": [
+        [
+          -0.020984053344601905,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.020984053344601905,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -0.020984053344601905
+        ]
+      ],
+      "gapt": -0.020984053344601905
+    },
+    {
+      "index": 2,
+      "label": "H",
+      "tensor": [
+        [
+          0.004996203177286137,
+          -0.06694912257563407,
+          -0.06694912257563407
+        ],
+        [
+          -0.06694912257563407,
+          0.004996203177286137,
+          -0.06694912257563407
+        ],
+        [
+          -0.06694912257563407,
+          -0.06694912257563407,
+          0.004996203177286137
+        ]
+      ],
+      "gapt": 0.004996203177286137
+    }
+  ],
+  "atoms": [
+    {
+      "index": 1,
+      "label": "C",
+      "tensor": [
+        [
+          -0.020784199999999992,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.020784199999999992,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -0.020784199999999992
+        ]
+      ],
+      "gapt": -0.020784199999999992
+    },
+    {
+      "index": 2,
+      "label": "H",
+      "tensor": [
+        [
+          0.005196049999999998,
+          -0.06694911999999999,
+          -0.06694911999999999
+        ],
+        [
+          -0.06694911999999999,
+          0.005196049999999998,
+          -0.06694911999999999
+        ],
+        [
+          -0.06694911999999999,
+          -0.06694911999999999,
+          0.005196049999999998
+        ]
+      ],
+      "gapt": 0.005196049999999998
+    },
+    {
+      "index": 3,
+      "label": "H",
+      "tensor": [
+        [
+          0.005196049999999998,
+          -0.06694911999999999,
+          0.06694911999999999
+        ],
+        [
+          -0.06694911999999999,
+          0.005196049999999998,
+          0.06694911999999999
+        ],
+        [
+          0.06694911999999999,
+          0.06694911999999999,
+          0.005196049999999998
+        ]
+      ],
+      "gapt": 0.005196049999999998
+    },
+    {
+      "index": 4,
+      "label": "H",
+      "tensor": [
+        [
+          0.005196049999999998,
+          0.06694911999999999,
+          -0.06694911999999999
+        ],
+        [
+          0.06694911999999999,
+          0.005196049999999998,
+          0.06694911999999999
+        ],
+        [
+          -0.06694911999999999,
+          0.06694911999999999,
+          0.005196049999999998
+        ]
+      ],
+      "gapt": 0.005196049999999998
+    },
+    {
+      "index": 5,
+      "label": "H",
+      "tensor": [
+        [
+          0.005196049999999998,
+          0.06694911999999999,
+          0.06694911999999999
+        ],
+        [
+          0.06694911999999999,
+          0.005196049999999998,
+          -0.06694911999999999
+        ],
+        [
+          0.06694911999999999,
+          -0.06694911999999999,
+          0.005196049999999998
+        ]
+      ],
+      "gapt": 0.005196049999999998
+    }
+  ],
+  "raw_reduced_sum_tensor": [
+    [
+      -0.01598785016731577,
+      -0.06694912257563407,
+      -0.06694912257563407
+    ],
+    [
+      -0.06694912257563407,
+      -0.01598785016731577,
+      -0.06694912257563407
+    ],
+    [
+      -0.06694912257563407,
+      -0.06694912257563407,
+      -0.01598785016731577
+    ]
+  ],
+  "raw_acoustic_sum_tensor": [
+    [
+      -0.0009992499999999915,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      -0.0009992499999999915,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      -0.0009992499999999915
+    ]
+  ],
+  "acoustic_sum_tensor": [
+    [
+      -1.734723475976807e-18,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      -1.734723475976807e-18,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      -1.734723475976807e-18
+    ]
+  ],
+  "diagnostics": [
+    {
+      "method": "central",
+      "displacement_angstrom": 0.01,
+      "cell_volume_angstrom3": 7999.999989370764,
+      "reference_polarization": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/0.no-move/pyatb/Out/Polarization/polarization.dat",
+      "directions": {
+        "x": {
+          "plus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/1.C/x+/pyatb/Out/Polarization/polarization.dat",
+          "minus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/1.C/x-/pyatb/Out/Polarization/polarization.dat",
+          "delta_polarization_C_m2": [
+            -8.405040000000074e-07,
+            0.0,
+            0.0
+          ],
+          "branch_shifts": [
+            0,
+            0,
+            0
+          ],
+          "plus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ],
+          "minus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ]
+        },
+        "y": {
+          "plus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/1.C/y+/pyatb/Out/Polarization/polarization.dat",
+          "minus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/1.C/y-/pyatb/Out/Polarization/polarization.dat",
+          "delta_polarization_C_m2": [
+            0.0,
+            -8.405040000000074e-07,
+            0.0
+          ],
+          "branch_shifts": [
+            0,
+            0,
+            0
+          ],
+          "plus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ],
+          "minus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ]
+        },
+        "z": {
+          "plus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/1.C/z+/pyatb/Out/Polarization/polarization.dat",
+          "minus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/1.C/z-/pyatb/Out/Polarization/polarization.dat",
+          "delta_polarization_C_m2": [
+            0.0,
+            0.0,
+            -8.405040000000074e-07
+          ],
+          "branch_shifts": [
+            0,
+            0,
+            0
+          ],
+          "plus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ],
+          "minus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ]
+        }
+      },
+      "index": 1,
+      "label": "C"
+    },
+    {
+      "method": "central",
+      "displacement_angstrom": 0.01,
+      "cell_volume_angstrom3": 7999.999989370764,
+      "reference_polarization": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/0.no-move/pyatb/Out/Polarization/polarization.dat",
+      "directions": {
+        "x": {
+          "plus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/2.H/x+/pyatb/Out/Polarization/polarization.dat",
+          "minus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/2.H/x-/pyatb/Out/Polarization/polarization.dat",
+          "delta_polarization_C_m2": [
+            2.001200000000005e-07,
+            -2.681608e-06,
+            -2.681608e-06
+          ],
+          "branch_shifts": [
+            0,
+            0,
+            0
+          ],
+          "plus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ],
+          "minus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ]
+        },
+        "y": {
+          "plus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/2.H/y+/pyatb/Out/Polarization/polarization.dat",
+          "minus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/2.H/y-/pyatb/Out/Polarization/polarization.dat",
+          "delta_polarization_C_m2": [
+            -2.681608e-06,
+            2.001200000000005e-07,
+            -2.681608e-06
+          ],
+          "branch_shifts": [
+            0,
+            0,
+            0
+          ],
+          "plus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ],
+          "minus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ]
+        },
+        "z": {
+          "plus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/2.H/z+/pyatb/Out/Polarization/polarization.dat",
+          "minus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/2.H/z-/pyatb/Out/Polarization/polarization.dat",
+          "delta_polarization_C_m2": [
+            -2.681608e-06,
+            -2.681608e-06,
+            2.001200000000005e-07
+          ],
+          "branch_shifts": [
+            0,
+            0,
+            0
+          ],
+          "plus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ],
+          "minus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ]
+        }
+      },
+      "index": 2,
+      "label": "H"
+    }
+  ],
+  "files": {
+    "raw_reduced": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/Z-BORN-reduced.out",
+    "raw_all": null,
+    "symmetry_corrected": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/Z-BORN-symm.out",
+    "symmetry_report": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/molecular_apt_symmetry_report.json"
+  }
+}

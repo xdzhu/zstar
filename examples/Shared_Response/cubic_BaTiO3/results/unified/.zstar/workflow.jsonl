@@ -1,0 +1,14 @@
+{"dry_run": false, "event": "start", "pyatb": {"detection": "console-script environment", "executable": "/home/zhuxd/Software/anaconda3/envs/icu_copy/bin/pyatb", "static_dielectric_only": true, "version": "1.1.2.dev0+2ad34bc"}, "root": "/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/unified", "stage": "workflow", "stages": 4, "time": "2026-09-04T07:43:16.164793+00:00"}
+{"event": "stage-start", "path": "/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/unified/0.no-move", "stage": "0.no-move", "time": "2026-09-04T07:43:16.167084+00:00"}
+{"event": "band-gap", "gap_eV": 1.6859303599999986, "insulating": true, "sampling": "path", "stage": "0.no-move", "threshold_eV": 0.01, "time": "2026-09-04T07:43:46.035869+00:00"}
+{"event": "stage-complete", "stage": "0.no-move", "status": "completed", "time": "2026-09-04T07:44:27.838193+00:00"}
+{"event": "stage-start", "path": "/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/unified/disp-001", "stage": "disp-001", "time": "2026-09-04T07:44:27.841354+00:00"}
+{"event": "charge-reused", "files": ["/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/unified/disp-001/OUT.POLAR/POLAR-CHARGE-DENSITY.restart", "/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/unified/disp-001/OUT.POLAR/SPIN1_CHG.cube"], "stage": "disp-001", "time": "2026-09-04T07:44:27.861693+00:00"}
+{"event": "stage-complete", "stage": "disp-001", "status": "completed", "time": "2026-09-04T07:45:16.887964+00:00"}
+{"event": "stage-start", "path": "/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/unified/disp-002", "stage": "disp-002", "time": "2026-09-04T07:45:16.891213+00:00"}
+{"event": "charge-reused", "files": ["/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/unified/disp-002/OUT.POLAR/POLAR-CHARGE-DENSITY.restart", "/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/unified/disp-002/OUT.POLAR/SPIN1_CHG.cube"], "stage": "disp-002", "time": "2026-09-04T07:45:16.907835+00:00"}
+{"event": "stage-complete", "stage": "disp-002", "status": "completed", "time": "2026-09-04T07:46:05.543853+00:00"}
+{"event": "stage-start", "path": "/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/unified/disp-003", "stage": "disp-003", "time": "2026-09-04T07:46:05.547694+00:00"}
+{"event": "charge-reused", "files": ["/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/unified/disp-003/OUT.POLAR/POLAR-CHARGE-DENSITY.restart", "/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/unified/disp-003/OUT.POLAR/SPIN1_CHG.cube"], "stage": "disp-003", "time": "2026-09-04T07:46:05.563805+00:00"}
+{"event": "stage-complete", "stage": "disp-003", "status": "completed", "time": "2026-09-04T07:47:08.464102+00:00"}
+{"completed": 4, "event": "finish", "stage": "workflow", "time": "2026-09-04T07:47:08.465767+00:00"}

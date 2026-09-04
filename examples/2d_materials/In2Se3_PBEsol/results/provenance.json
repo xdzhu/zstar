@@ -1,0 +1,11 @@
+{
+  "source": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec",
+  "functional": "PBEsol",
+  "vdw_method": "d3_0",
+  "source_stage_count": 16,
+  "omitted": [
+    "Hamiltonian scratch",
+    "charge-density cubes"
+  ],
+  "reproduction": "Clean inputs regenerate SCFs and cubes; compact archived dipole observations permit offline tensor reconstruction."
+}

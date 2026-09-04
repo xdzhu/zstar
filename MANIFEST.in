@@ -6,5 +6,7 @@ recursive-include docs *.json *.yaml *.csv *.dat *.npy *.out
 recursive-include zstar/agent_skills *
 prune zstar/agent_skills/run-zstar-workflows/scripts/__pycache__
 prune examples
+# Repository tests use the separately distributed example library.
+prune tests
 prune tmp
 global-exclude *.py[cod]

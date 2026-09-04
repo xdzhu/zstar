@@ -1,4 +1,10 @@
-# ZStar 0.2.1 数值验证记录
+# ZStar 数值验证记录
+
+下列历史材料验证由 0.3.0rc1 的[八体系 Unified 基准](../examples/Shared_Response/README.zh-CN.md)
+和[投稿修订审计](research/PUBLICATION_REVISION_20260904.md)补充。
+候选版本在 Phonopy 2.36.0 与 4.4.0 下均通过 319 项测试。
+另外在不继承工作站 ZStar/pymatgen 的全新 wheel 环境中，NumPy 2.2.6 与
+两个 Phonopy 版本均通过 319 项测试（另有 47 个子测试）及 `pip check`。
 
 [English](validation.md)
 

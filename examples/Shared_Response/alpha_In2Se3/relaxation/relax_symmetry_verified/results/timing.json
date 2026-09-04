@@ -1,0 +1,20 @@
+{
+  "stage": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/relax_symmetry_verified",
+  "host": "cu23",
+  "mpi": 1,
+  "omp": 40,
+  "allocated_cores": 40,
+  "command": [
+    "mpirun",
+    "-np",
+    "1",
+    "/home/zhuxd/Software/abacus/INSTALL/3.10.0-LTS/bin/abacus"
+  ],
+  "started_utc": "2026-09-04T02:51:10.674654+00:00",
+  "pid": 94143,
+  "status": "process_finished",
+  "returncode": 0,
+  "wall_seconds": 32.66660181991756,
+  "allocated_core_hours": 0.3629622424435284,
+  "finished_utc": "2026-09-04T02:51:43.341787+00:00"
+}

@@ -8,13 +8,14 @@ ZStar is a Python workflow toolkit for polarization, Born effective charge (BEC)
 
 ## Highlights
 
-- Forward or central finite-difference BECs.
+- Unified symmetry-adapted BEC/APT and Gamma force-constant reconstruction
+  from the same displaced SCFs; legacy Cartesian differences remain available.
 - Molecular atomic polar tensors (APT) from ABACUS + PYATB or CP2K dipoles.
 - Symmetry reduction, full-cell reconstruction, and acoustic-sum-rule correction.
 - Serial and resumable `0.no-move -> displacements` execution.
 - Reuse of the converged reference charge density.
 - A one-time insulating-state gate using a normal band path by default.
-- Shell, Slurm, and Torque/PBS driver generation.
+- Shell, Slurm, and Torque/PBS drivers with Specified, Current, or Global headers.
 - Legacy and direct-static-response PYATB compatibility.
 - Hybrid 1D BECs: transverse charge-density dipoles plus longitudinal Berry polarization.
 - Hybrid 2D BECs: Berry-phase in-plane response plus cube-integrated out-of-plane dipole.
@@ -25,12 +26,23 @@ ZStar is a Python workflow toolkit for polarization, Born effective charge (BEC)
 
 ## Installation
 
+The Unified framework described here is in the `0.3.0rc1` GitHub candidate.
+It is not in the older PyPI `0.2.1` release. Install this exact candidate with:
+
+```bash
+pip install "zstar @ git+https://github.com/xdzhu/zstar.git@v0.3.0rc1"
+```
+
+For the last stable PyPI release:
+
 ```bash
 pip install -U zstar
 zstar --version
 ```
 
-Python 3.9 or newer is required. ABACUS, PYATB, and Phonopy are external programs used only by the corresponding workflows. The core installation uses `spglib` for symmetry and does not require `pymatgen`.
+Python 3.9 or newer is required. Phonopy is installed as a Python dependency;
+ABACUS and PYATB must be available for workflows that use them. The core
+installation uses `spglib` for symmetry and does not require `pymatgen`.
 
 For VASP `vasprun.xml`, `CHGCAR/POTCAR`, or legacy smodes/Wyckoff adapters, install the optional extra:
 
@@ -43,6 +55,8 @@ Configure external executables in `.zstar/config.toml` and verify them:
 ```bash
 zstar config init
 zstar config set executables.abacus /opt/abacus/bin/abacus
+zstar config set execution.mpi 1
+zstar config set execution.omp 20
 zstar config check
 zstar backend list --check
 ```
@@ -81,12 +95,10 @@ upgrading the package.
 
 ```bash
 # Generate 0.no-move and displacement folders
-zstar bec pre --calculator abacus --stru STRU --pyatb --method forward --force
+zstar bec pre --stru STRU
 
 # Run one resumable serial chain
-zstar bec run --root . \
-  --abacus-command "mpirun -np 1 abacus" \
-  --pyatb-command "mpirun -np 1 pyatb"
+zstar bec run
 
 # Inspect progress
 zstar bec stat --root .

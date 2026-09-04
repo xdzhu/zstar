@@ -24,18 +24,36 @@ jobs:
 
       - name: Build distributions
         run: |
-          python -m pip install --upgrade build
+          python -m pip install --upgrade build twine
+          python -m pip install -e . pytest "phonopy==4.4.0"
+          python -m pytest -q
           python -m build
+          python -m twine check dist/*
+
+      - name: Read versioned change summary
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          tag = os.environ['RELEASE_TAG']
+          version = tag.removeprefix('v')
+          lines = Path('CHANGELOG.md').read_text().splitlines()
+          start = next(i for i, line in enumerate(lines) if line.startswith(f'## {version} -'))
+          end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith('## ')), len(lines))
+          notes = '\n'.join(lines[start + 1:end]).strip()
+          Path('release-notes.md').write_text(
+              f'Artifacts built and tested from `{tag}`. Examples are in the tagged source repository, not the wheel.\n\n{notes}\n')
+          PY
 
       - name: Create GitHub release and upload artifacts
         uses: softprops/action-gh-release@v2
         with:
           name: ZStar ${{ github.ref_name }}
           generate_release_notes: true
-          body: |
-            Automated release for `${{ github.ref_name }}`.
-
-            GitHub generated the change summary below from commits and pull requests since the previous release. The attached wheel and source distribution were built from this tag.
+          prerelease: ${{ contains(github.ref_name, 'rc') || contains(github.ref_name, 'a') || contains(github.ref_name, 'b') }}
+          body_path: release-notes.md
           files: |
             dist/*.whl
             dist/*.tar.gz

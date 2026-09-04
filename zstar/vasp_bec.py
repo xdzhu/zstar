@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import re
 import shlex
@@ -14,7 +15,7 @@ from typing import Iterable, Optional
 
 import numpy as np
 
-from .configuration import normalize_execution_system
+from .configuration import normalize_execution_system, resolve_parallelism
 
 
 _NUMBER = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
@@ -281,12 +282,16 @@ def run_vasp_bec(
     root: str | Path,
     *,
     vasp_command: str = "vasp_std",
+    omp_threads: int | None = None,
     min_gap_eV: float = 0.01,
     dry_run: bool = False,
 ) -> list[VaspStageState]:
     """Run reference and response stages serially with an insulating gap gate."""
 
     root_path, manifest = _load_manifest(root)
+    _, omp_threads = resolve_parallelism(root_path, cpus_per_task=omp_threads)
+    environment = os.environ.copy()
+    environment['OMP_NUM_THREADS'] = str(omp_threads)
     state_path = root_path / ".zstar" / "vasp_bec_state.json"
     old: dict[str, dict] = {}
     if state_path.is_file():
@@ -348,6 +353,7 @@ def run_vasp_bec(
                     subprocess.run(
                         vasp_command,
                         cwd=directory,
+                        env=environment,
                         shell=True,
                         check=True,
                         stdout=log,
@@ -425,17 +431,20 @@ def generate_vasp_backend_script(
     output: str | Path | None = None,
     job_name: str = "zstar-vasp-bec",
     nodes: int = 1,
-    tasks: int = 1,
-    cpus_per_task: int = 1,
+    tasks: int | None = None,
+    cpus_per_task: int | None = None,
     walltime: str = "24:00:00",
     queue: str | None = None,
     account: str | None = None,
     env_script: str | Path | None = None,
+    header_file: str | Path | None = None,
     vasp_command: str | None = None,
     min_gap_eV: float = 0.01,
 ) -> Path:
     """Generate one local, Slurm, or Torque driver for the serial workflow."""
-
+    from .configuration import launcher_command, resolve_parallelism
+    from .job_headers import compose_job_script, torque_ppn
+    tasks, cpus_per_task = resolve_parallelism(root, tasks=tasks, cpus_per_task=cpus_per_task)
     backend_key = normalize_execution_system(backend)
     if min(nodes, tasks, cpus_per_task) < 1:
         raise ValueError("nodes, tasks, and cpus_per_task must be positive")
@@ -446,11 +455,7 @@ def generate_vasp_backend_script(
     else:
         target = Path(output).resolve()
     if vasp_command is None:
-        vasp_command = (
-            f"srun --ntasks={tasks} vasp_std"
-            if backend_key == "slurm"
-            else f"mpirun -np {tasks} vasp_std"
-        )
+        vasp_command = launcher_command('vasp', root=root, system=backend_key, tasks=tasks)
 
     header = [
         "#!/usr/bin/env bash",
@@ -476,7 +481,7 @@ def generate_vasp_backend_script(
         header.extend(
             [
                 f"#PBS -N {job_name}",
-                f"#PBS -l nodes={nodes}:ppn={tasks * cpus_per_task}",
+                f"#PBS -l nodes={nodes}:ppn={torque_ppn(nodes, tasks, cpus_per_task)}",
                 f"#PBS -l walltime={walltime}",
                 f"#PBS -o {root_path}/.zstar/torque.out",
                 f"#PBS -e {root_path}/.zstar/torque.err",
@@ -498,12 +503,13 @@ def generate_vasp_backend_script(
     body.extend(
         [
             f"export OMP_NUM_THREADS={cpus_per_task}",
-            f"zstar vasp-bec run --root \"$ROOT\" --vasp-command {shlex.quote(vasp_command)} "
+            f"zstar vasp-bec run --root \"$ROOT\" --omp-threads {cpus_per_task} --vasp-command {shlex.quote(vasp_command)} "
             f"--min-gap {min_gap_eV:.10g} 2>&1 | tee -a \"$ROOT/.zstar/workflow.log\"",
         ]
     )
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text("\n".join(header + [""] + body) + "\n", encoding="utf-8", newline="\n")
+    target.write_text(compose_job_script(root_path, backend_key, header, body, specified=header_file),
+                      encoding="utf-8", newline="\n")
     if target.exists() and hasattr(target, "chmod"):
         target.chmod(target.stat().st_mode | 0o111)
     return target

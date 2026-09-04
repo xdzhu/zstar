@@ -1,0 +1,230 @@
+{
+  "stages": 31,
+  "additional_reserved_core_hours": 16.33073645269809,
+  "per_stage": {
+    "0.no-move": {
+      "wall_seconds": 47.085446055047214,
+      "reserved_core_hours": 0.523171622833858,
+      "mpi": 40,
+      "omp": 1,
+      "reused_diagnostic": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3/berry-mesh-88/atom-3/cartesian/0.no-move",
+      "worker_host": "cu23"
+    },
+    "disp-001": {
+      "wall_seconds": 47.06924637127668,
+      "reserved_core_hours": 0.5229916263475186,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-002": {
+      "wall_seconds": 47.54093193355948,
+      "reserved_core_hours": 0.5282325770395497,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-003": {
+      "wall_seconds": 48.27896989416331,
+      "reserved_core_hours": 0.5364329988240368,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-004": {
+      "wall_seconds": 47.68856488354504,
+      "reserved_core_hours": 0.5298729431505005,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-005": {
+      "wall_seconds": 47.679555150680244,
+      "reserved_core_hours": 0.5297728350075582,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-006": {
+      "wall_seconds": 48.032938291318715,
+      "reserved_core_hours": 0.5336993143479857,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-007": {
+      "wall_seconds": 47.98557691741735,
+      "reserved_core_hours": 0.5331730768601928,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-008": {
+      "wall_seconds": 47.642605918459594,
+      "reserved_core_hours": 0.5293622879828844,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-009": {
+      "wall_seconds": 47.660923016257584,
+      "reserved_core_hours": 0.529565811291751,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-010": {
+      "wall_seconds": 47.59974319674075,
+      "reserved_core_hours": 0.5288860355193417,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-011": {
+      "wall_seconds": 47.78956876602024,
+      "reserved_core_hours": 0.530995208511336,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-012": {
+      "wall_seconds": 47.769645628519356,
+      "reserved_core_hours": 0.5307738403168817,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-013": {
+      "wall_seconds": 47.93744292668998,
+      "reserved_core_hours": 0.5326382547409998,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-014": {
+      "wall_seconds": 47.89563366770744,
+      "reserved_core_hours": 0.5321737074189716,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-015": {
+      "wall_seconds": 48.02032115776092,
+      "reserved_core_hours": 0.5335591239751213,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-016": {
+      "wall_seconds": 46.963735308963805,
+      "reserved_core_hours": 0.521819281210709,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-017": {
+      "wall_seconds": 46.9602877041325,
+      "reserved_core_hours": 0.5217809744903611,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-018": {
+      "wall_seconds": 47.07580864895135,
+      "reserved_core_hours": 0.5230645405439039,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-019": {
+      "wall_seconds": 47.24123459169641,
+      "reserved_core_hours": 0.5249026065744046,
+      "mpi": 40,
+      "omp": 1,
+      "reused_diagnostic": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3/berry-mesh-88/atom-3/cartesian/disp-019",
+      "worker_host": "cu24"
+    },
+    "disp-020": {
+      "wall_seconds": 47.07313776016235,
+      "reserved_core_hours": 0.5230348640018039,
+      "mpi": 40,
+      "omp": 1,
+      "reused_diagnostic": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3/berry-mesh-88/atom-3/cartesian/disp-020",
+      "worker_host": "cu24"
+    },
+    "disp-021": {
+      "wall_seconds": 47.12479827180505,
+      "reserved_core_hours": 0.5236088696867227,
+      "mpi": 40,
+      "omp": 1,
+      "reused_diagnostic": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3/berry-mesh-88/atom-3/cartesian/disp-021",
+      "worker_host": "cu24"
+    },
+    "disp-022": {
+      "wall_seconds": 46.96927094692364,
+      "reserved_core_hours": 0.5218807882991516,
+      "mpi": 40,
+      "omp": 1,
+      "reused_diagnostic": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3/berry-mesh-88/atom-3/cartesian/disp-022",
+      "worker_host": "cu24"
+    },
+    "disp-023": {
+      "wall_seconds": 47.139458778779954,
+      "reserved_core_hours": 0.5237717642086661,
+      "mpi": 40,
+      "omp": 1,
+      "reused_diagnostic": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3/berry-mesh-88/atom-3/cartesian/disp-023",
+      "worker_host": "cu24"
+    },
+    "disp-024": {
+      "wall_seconds": 47.10205220384523,
+      "reserved_core_hours": 0.5233561355982803,
+      "mpi": 40,
+      "omp": 1,
+      "reused_diagnostic": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3/berry-mesh-88/atom-3/cartesian/disp-024",
+      "worker_host": "cu24"
+    },
+    "disp-025": {
+      "wall_seconds": 47.02079190313816,
+      "reserved_core_hours": 0.5224532433682018,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-026": {
+      "wall_seconds": 47.25187873095274,
+      "reserved_core_hours": 0.5250208747883638,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-027": {
+      "wall_seconds": 46.99033370381221,
+      "reserved_core_hours": 0.5221148189312468,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-028": {
+      "wall_seconds": 47.07504088105634,
+      "reserved_core_hours": 0.5230560097895148,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-029": {
+      "wall_seconds": 47.05738699855283,
+      "reserved_core_hours": 0.5228598555394759,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    },
+    "disp-030": {
+      "wall_seconds": 47.04395053489134,
+      "reserved_core_hours": 0.5227105614987926,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu24"
+    }
+  }
+}

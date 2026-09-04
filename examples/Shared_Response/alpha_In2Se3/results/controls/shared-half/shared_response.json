@@ -1,0 +1,196 @@
+{
+  "schema": "zstar-shared-response",
+  "version": 1,
+  "calculator": "abacus",
+  "dimension": 2,
+  "scope": "Gamma",
+  "displacement_scheme": "phonopy",
+  "method": "auto",
+  "nominal_distance_A": 0.00529177210903,
+  "symprec_A": 1e-05,
+  "length_unit": "angstrom",
+  "force_unit": "eV/angstrom",
+  "operation_count": 6,
+  "stages": [
+    {
+      "name": "disp-001",
+      "atom": 0,
+      "displacement_A": [
+        0.0007172150602361877,
+        0.0,
+        0.005242943315662662
+      ],
+      "distance_A": 0.0052917721090275024
+    },
+    {
+      "name": "disp-002",
+      "atom": 0,
+      "displacement_A": [
+        -0.0007172150602361877,
+        0.0,
+        -0.005242943315665992
+      ],
+      "distance_A": 0.005291772109030803
+    },
+    {
+      "name": "disp-003",
+      "atom": 1,
+      "displacement_A": [
+        0.0007172150602358434,
+        0.0,
+        0.005242943315664327
+      ],
+      "distance_A": 0.005291772109029106
+    },
+    {
+      "name": "disp-004",
+      "atom": 1,
+      "displacement_A": [
+        -0.000717215060236299,
+        0.0,
+        -0.005242943315667658
+      ],
+      "distance_A": 0.005291772109032467
+    },
+    {
+      "name": "disp-005",
+      "atom": 2,
+      "displacement_A": [
+        0.0007172150602360712,
+        0.0,
+        0.005242943315662662
+      ],
+      "distance_A": 0.005291772109027487
+    },
+    {
+      "name": "disp-006",
+      "atom": 2,
+      "displacement_A": [
+        -0.0007172150602360712,
+        0.0,
+        -0.005242943315665992
+      ],
+      "distance_A": 0.005291772109030787
+    },
+    {
+      "name": "disp-007",
+      "atom": 3,
+      "displacement_A": [
+        0.0007172150602358434,
+        0.0,
+        0.005242943315662662
+      ],
+      "distance_A": 0.005291772109027456
+    },
+    {
+      "name": "disp-008",
+      "atom": 3,
+      "displacement_A": [
+        -0.000717215060236299,
+        0.0,
+        -0.005242943315665992
+      ],
+      "distance_A": 0.0052917721090308175
+    },
+    {
+      "name": "disp-009",
+      "atom": 4,
+      "displacement_A": [
+        0.0007172150602360712,
+        0.0,
+        0.005242943315664327
+      ],
+      "distance_A": 0.0052917721090291366
+    },
+    {
+      "name": "disp-010",
+      "atom": 4,
+      "displacement_A": [
+        -0.0007172150602360712,
+        0.0,
+        -0.005242943315664327
+      ],
+      "distance_A": 0.0052917721090291366
+    }
+  ],
+  "input_hashes": {
+    "0.no-move/STRU": "92cee4213a60cf3a943f0afb32e9ff813a7a8370679ea4962959f5787087bfdc",
+    "0.no-move/INPUT-scf": "1a5b59bb1330dbcd7eb34363e35e5ccbdbce180d8699d2c65af62cf6bf48d3c6",
+    "0.no-move/KPT": "05a733a9c1d13b4fe7c347c8db5c6d5b72ed5dbf37a24302e53d451562c01c1b",
+    "0.no-move/In_ONCV_PBE_FR-1.0.upf": "cf25476a6ce8d5e642031e56bfd5df1c47d70cdb5ee4d14ab0c7303c39536723",
+    "0.no-move/Se_ONCV_PBE_FR-1.1.upf": "a9ad4b05bd0141a2d2cea708691d00540d7d43c95ed36a9a295b527928df620e",
+    "0.no-move/In_gga_10au_100Ry_2s2p2d1f.orb": "b5c5225034f3c24de8ae0a52f90c1759fb423650fced5483c15d4eb9c0c506cf",
+    "0.no-move/Se_gga_10au_100Ry_2s2p1d.orb": "c901084e499d2a7cbb3115073a2c4f504888e0908068a76861e8d7a385acde36",
+    "disp-001/STRU": "c299f2eaf78bd8f38a7a84fa017e62e03cfb8ceba249fe84c34169d955a62f1a",
+    "disp-001/INPUT-scf": "45b60552bc793c2873e59738da7a26350d4629c77d35f9af7e6f83c8533f9c5e",
+    "disp-001/KPT": "05a733a9c1d13b4fe7c347c8db5c6d5b72ed5dbf37a24302e53d451562c01c1b",
+    "disp-001/In_ONCV_PBE_FR-1.0.upf": "cf25476a6ce8d5e642031e56bfd5df1c47d70cdb5ee4d14ab0c7303c39536723",
+    "disp-001/Se_ONCV_PBE_FR-1.1.upf": "a9ad4b05bd0141a2d2cea708691d00540d7d43c95ed36a9a295b527928df620e",
+    "disp-001/In_gga_10au_100Ry_2s2p2d1f.orb": "b5c5225034f3c24de8ae0a52f90c1759fb423650fced5483c15d4eb9c0c506cf",
+    "disp-001/Se_gga_10au_100Ry_2s2p1d.orb": "c901084e499d2a7cbb3115073a2c4f504888e0908068a76861e8d7a385acde36",
+    "disp-002/STRU": "348797812a52696235816742732253b32a3b47725b0f71c5780de5c41b7bac79",
+    "disp-002/INPUT-scf": "45b60552bc793c2873e59738da7a26350d4629c77d35f9af7e6f83c8533f9c5e",
+    "disp-002/KPT": "05a733a9c1d13b4fe7c347c8db5c6d5b72ed5dbf37a24302e53d451562c01c1b",
+    "disp-002/In_ONCV_PBE_FR-1.0.upf": "cf25476a6ce8d5e642031e56bfd5df1c47d70cdb5ee4d14ab0c7303c39536723",
+    "disp-002/Se_ONCV_PBE_FR-1.1.upf": "a9ad4b05bd0141a2d2cea708691d00540d7d43c95ed36a9a295b527928df620e",
+    "disp-002/In_gga_10au_100Ry_2s2p2d1f.orb": "b5c5225034f3c24de8ae0a52f90c1759fb423650fced5483c15d4eb9c0c506cf",
+    "disp-002/Se_gga_10au_100Ry_2s2p1d.orb": "c901084e499d2a7cbb3115073a2c4f504888e0908068a76861e8d7a385acde36",
+    "disp-003/STRU": "2ef8e6e30af3d2d1f85775035f31720f3bc72ce7827436d7896fb67bb2df86b9",
+    "disp-003/INPUT-scf": "45b60552bc793c2873e59738da7a26350d4629c77d35f9af7e6f83c8533f9c5e",
+    "disp-003/KPT": "05a733a9c1d13b4fe7c347c8db5c6d5b72ed5dbf37a24302e53d451562c01c1b",
+    "disp-003/In_ONCV_PBE_FR-1.0.upf": "cf25476a6ce8d5e642031e56bfd5df1c47d70cdb5ee4d14ab0c7303c39536723",
+    "disp-003/Se_ONCV_PBE_FR-1.1.upf": "a9ad4b05bd0141a2d2cea708691d00540d7d43c95ed36a9a295b527928df620e",
+    "disp-003/In_gga_10au_100Ry_2s2p2d1f.orb": "b5c5225034f3c24de8ae0a52f90c1759fb423650fced5483c15d4eb9c0c506cf",
+    "disp-003/Se_gga_10au_100Ry_2s2p1d.orb": "c901084e499d2a7cbb3115073a2c4f504888e0908068a76861e8d7a385acde36",
+    "disp-004/STRU": "25454559860de755759d6ac7247e40df8709b2bfbf6e06f573cbb798132ff594",
+    "disp-004/INPUT-scf": "45b60552bc793c2873e59738da7a26350d4629c77d35f9af7e6f83c8533f9c5e",
+    "disp-004/KPT": "05a733a9c1d13b4fe7c347c8db5c6d5b72ed5dbf37a24302e53d451562c01c1b",
+    "disp-004/In_ONCV_PBE_FR-1.0.upf": "cf25476a6ce8d5e642031e56bfd5df1c47d70cdb5ee4d14ab0c7303c39536723",
+    "disp-004/Se_ONCV_PBE_FR-1.1.upf": "a9ad4b05bd0141a2d2cea708691d00540d7d43c95ed36a9a295b527928df620e",
+    "disp-004/In_gga_10au_100Ry_2s2p2d1f.orb": "b5c5225034f3c24de8ae0a52f90c1759fb423650fced5483c15d4eb9c0c506cf",
+    "disp-004/Se_gga_10au_100Ry_2s2p1d.orb": "c901084e499d2a7cbb3115073a2c4f504888e0908068a76861e8d7a385acde36",
+    "disp-005/STRU": "e9dfa21b70b79219d232f91e22bb1c39390e2e42b05b2ce82096ca90fe1a15b4",
+    "disp-005/INPUT-scf": "45b60552bc793c2873e59738da7a26350d4629c77d35f9af7e6f83c8533f9c5e",
+    "disp-005/KPT": "05a733a9c1d13b4fe7c347c8db5c6d5b72ed5dbf37a24302e53d451562c01c1b",
+    "disp-005/In_ONCV_PBE_FR-1.0.upf": "cf25476a6ce8d5e642031e56bfd5df1c47d70cdb5ee4d14ab0c7303c39536723",
+    "disp-005/Se_ONCV_PBE_FR-1.1.upf": "a9ad4b05bd0141a2d2cea708691d00540d7d43c95ed36a9a295b527928df620e",
+    "disp-005/In_gga_10au_100Ry_2s2p2d1f.orb": "b5c5225034f3c24de8ae0a52f90c1759fb423650fced5483c15d4eb9c0c506cf",
+    "disp-005/Se_gga_10au_100Ry_2s2p1d.orb": "c901084e499d2a7cbb3115073a2c4f504888e0908068a76861e8d7a385acde36",
+    "disp-006/STRU": "8819ef7954bdc200b406256b3f7527223751b2b7d48c1e17f5a1ac794ef7ad13",
+    "disp-006/INPUT-scf": "45b60552bc793c2873e59738da7a26350d4629c77d35f9af7e6f83c8533f9c5e",
+    "disp-006/KPT": "05a733a9c1d13b4fe7c347c8db5c6d5b72ed5dbf37a24302e53d451562c01c1b",
+    "disp-006/In_ONCV_PBE_FR-1.0.upf": "cf25476a6ce8d5e642031e56bfd5df1c47d70cdb5ee4d14ab0c7303c39536723",
+    "disp-006/Se_ONCV_PBE_FR-1.1.upf": "a9ad4b05bd0141a2d2cea708691d00540d7d43c95ed36a9a295b527928df620e",
+    "disp-006/In_gga_10au_100Ry_2s2p2d1f.orb": "b5c5225034f3c24de8ae0a52f90c1759fb423650fced5483c15d4eb9c0c506cf",
+    "disp-006/Se_gga_10au_100Ry_2s2p1d.orb": "c901084e499d2a7cbb3115073a2c4f504888e0908068a76861e8d7a385acde36",
+    "disp-007/STRU": "2136f9186c37a40bea64bd575d27edcdc5423bbc1ee229878031bbeaa22b3bf0",
+    "disp-007/INPUT-scf": "45b60552bc793c2873e59738da7a26350d4629c77d35f9af7e6f83c8533f9c5e",
+    "disp-007/KPT": "05a733a9c1d13b4fe7c347c8db5c6d5b72ed5dbf37a24302e53d451562c01c1b",
+    "disp-007/In_ONCV_PBE_FR-1.0.upf": "cf25476a6ce8d5e642031e56bfd5df1c47d70cdb5ee4d14ab0c7303c39536723",
+    "disp-007/Se_ONCV_PBE_FR-1.1.upf": "a9ad4b05bd0141a2d2cea708691d00540d7d43c95ed36a9a295b527928df620e",
+    "disp-007/In_gga_10au_100Ry_2s2p2d1f.orb": "b5c5225034f3c24de8ae0a52f90c1759fb423650fced5483c15d4eb9c0c506cf",
+    "disp-007/Se_gga_10au_100Ry_2s2p1d.orb": "c901084e499d2a7cbb3115073a2c4f504888e0908068a76861e8d7a385acde36",
+    "disp-008/STRU": "ae7878f2950a86c8113ab918b30a0228d8ca750107f2795432644ee06ce96997",
+    "disp-008/INPUT-scf": "45b60552bc793c2873e59738da7a26350d4629c77d35f9af7e6f83c8533f9c5e",
+    "disp-008/KPT": "05a733a9c1d13b4fe7c347c8db5c6d5b72ed5dbf37a24302e53d451562c01c1b",
+    "disp-008/In_ONCV_PBE_FR-1.0.upf": "cf25476a6ce8d5e642031e56bfd5df1c47d70cdb5ee4d14ab0c7303c39536723",
+    "disp-008/Se_ONCV_PBE_FR-1.1.upf": "a9ad4b05bd0141a2d2cea708691d00540d7d43c95ed36a9a295b527928df620e",
+    "disp-008/In_gga_10au_100Ry_2s2p2d1f.orb": "b5c5225034f3c24de8ae0a52f90c1759fb423650fced5483c15d4eb9c0c506cf",
+    "disp-008/Se_gga_10au_100Ry_2s2p1d.orb": "c901084e499d2a7cbb3115073a2c4f504888e0908068a76861e8d7a385acde36",
+    "disp-009/STRU": "1288f20782336f85fca782a5f0463ab3141c6b5e480daeb6fff7ddf301ad9a1e",
+    "disp-009/INPUT-scf": "45b60552bc793c2873e59738da7a26350d4629c77d35f9af7e6f83c8533f9c5e",
+    "disp-009/KPT": "05a733a9c1d13b4fe7c347c8db5c6d5b72ed5dbf37a24302e53d451562c01c1b",
+    "disp-009/In_ONCV_PBE_FR-1.0.upf": "cf25476a6ce8d5e642031e56bfd5df1c47d70cdb5ee4d14ab0c7303c39536723",
+    "disp-009/Se_ONCV_PBE_FR-1.1.upf": "a9ad4b05bd0141a2d2cea708691d00540d7d43c95ed36a9a295b527928df620e",
+    "disp-009/In_gga_10au_100Ry_2s2p2d1f.orb": "b5c5225034f3c24de8ae0a52f90c1759fb423650fced5483c15d4eb9c0c506cf",
+    "disp-009/Se_gga_10au_100Ry_2s2p1d.orb": "c901084e499d2a7cbb3115073a2c4f504888e0908068a76861e8d7a385acde36",
+    "disp-010/STRU": "19927377969219504bde865c93af3c04c0cb20256aec8c55f1a9268e01dfaec1",
+    "disp-010/INPUT-scf": "45b60552bc793c2873e59738da7a26350d4629c77d35f9af7e6f83c8533f9c5e",
+    "disp-010/KPT": "05a733a9c1d13b4fe7c347c8db5c6d5b72ed5dbf37a24302e53d451562c01c1b",
+    "disp-010/In_ONCV_PBE_FR-1.0.upf": "cf25476a6ce8d5e642031e56bfd5df1c47d70cdb5ee4d14ab0c7303c39536723",
+    "disp-010/Se_ONCV_PBE_FR-1.1.upf": "a9ad4b05bd0141a2d2cea708691d00540d7d43c95ed36a9a295b527928df620e",
+    "disp-010/In_gga_10au_100Ry_2s2p2d1f.orb": "b5c5225034f3c24de8ae0a52f90c1759fb423650fced5483c15d4eb9c0c506cf",
+    "disp-010/Se_gga_10au_100Ry_2s2p1d.orb": "c901084e499d2a7cbb3115073a2c4f504888e0908068a76861e8d7a385acde36",
+    "phonopy_disp.yaml": "801afcdf876a70c163003894f6a51c843eba122aa6d343a7f580f9004101b29e"
+  }
+}

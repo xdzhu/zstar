@@ -1,0 +1,56 @@
+q-position: [    0.0000000,    0.0000000,    0.0000000 ]
+point_group: mm2
+transformation_matrix:
+- [  1.0000000,  0.0000000,  0.0000000 ]
+- [  0.0000000,  1.0000000,  0.0000000 ]
+- [  0.0000000,  0.0000000,  1.0000000 ]
+rotations:
+- matrix:
+  - [  1,  0,  0 ]
+  - [  0,  1,  0 ]
+  - [  0,  0,  1 ]
+  symbol: E
+- matrix:
+  - [ -1,  0,  0 ]
+  - [  0, -1,  0 ]
+  - [  0,  0,  1 ]
+  symbol: C2
+- matrix:
+  - [ -1,  0,  0 ]
+  - [  0,  1,  0 ]
+  - [  0,  0,  1 ]
+  symbol: sgvyz
+- matrix:
+  - [  1,  0,  0 ]
+  - [  0, -1,  0 ]
+  - [  0,  0,  1 ]
+  symbol: sgvxz
+normal_modes:
+- band_indices: [ 1 ]
+  frequency: -2.0345578618  
+  ir_label: B1
+  characters: [ [  1,   0.0 ], [  1, 180.0 ], [  1, 180.0 ], [  1,   0.0 ] ]
+- band_indices: [ 2 ]
+  frequency: -1.2531445877  
+  ir_label: A2
+  characters: [ [  1,   0.0 ], [  1,   0.0 ], [  1, 180.0 ], [  1, 180.0 ] ]
+- band_indices: [ 3 ]
+  frequency: -0.9953327566  
+  ir_label: B2
+  characters: [ [  1,   0.0 ], [  1, 180.0 ], [  1,   0.0 ], [  1, 180.0 ] ]
+- band_indices: [ 4, 5, 6 ]
+  frequency: -0.0000018180  
+  ir_label: None
+  characters: [ [  3,   0.0 ], [  1, 180.0 ], [  1,   0.0 ], [  1,   0.0 ] ]
+- band_indices: [ 7 ]
+  frequency: 48.1222046329  
+  ir_label: A1
+  characters: [ [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ] ]
+- band_indices: [ 8 ]
+  frequency: 111.1931801843 
+  ir_label: A1
+  characters: [ [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ] ]
+- band_indices: [ 9 ]
+  frequency: 114.8422694135 
+  ir_label: B2
+  characters: [ [  1,   0.0 ], [  1, 180.0 ], [  1,   0.0 ], [  1, 180.0 ] ]

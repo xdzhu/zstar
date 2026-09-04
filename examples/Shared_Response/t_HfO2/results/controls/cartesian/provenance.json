@@ -1,0 +1,35 @@
+{
+  "source": "/home/zhuxd/abacus/zstar_validation/hfo2_pbesol_tzdp9_20260901/bec/0.no-move",
+  "structure": "/home/zhuxd/abacus/zstar_validation/hfo2_pbesol_tzdp9_20260901/bec/0.no-move/STRU",
+  "structure_sha256": "e632447ad1d0d57133a0ef203d957a55df425935817b7e02bf0e8e44a828890c",
+  "space_group": "P4_2/nmc",
+  "symprec_A": 1e-05,
+  "cell_A": [
+    [
+      3.556518502450728,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      3.556518502450728,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      5.134866774260045
+    ]
+  ],
+  "symbols": [
+    "Hf",
+    "Hf",
+    "O",
+    "O",
+    "O",
+    "O"
+  ],
+  "host": "cu25",
+  "control": "cartesian",
+  "comparison": "same-inputs force-and-polarization SCFs; Cartesian central vs Phonopy auto"
+}

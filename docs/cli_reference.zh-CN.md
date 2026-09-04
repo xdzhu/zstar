@@ -60,25 +60,25 @@ Windows 位于 `%APPDATA%/zstar/config.toml`。`ZSTAR_CONFIG` 可指定其他用
 环境变量使用 `ZSTAR_ABACUS_EXECUTABLE`、`ZSTAR_QE_PW_EXECUTABLE` 等名称。
 配置文件保存计算软件可执行文件及 ABACUS 的全局资源目录；ZStar 会为 shell/Torque 添加
 `mpirun -np N`，为 Slurm 添加 `srun --ntasks=N`。模块加载、conda 激活等环境
-初始化写在 `job --env-script` 指定的脚本中。
+初始化写在选中的 header 中。
 
 ## 集群资源与运行环境
 
-队列和资源参数属于某一次具体任务，因此在生成作业脚本时指定，不写入计算软件
-路径配置：
+队列、资源、时限、账号及 module/source 命令放在一个 header 中。按
+**Specified** `--header FILE`、**Current** 工作流根目录的 `header.sh`、
+**Global** `~/.zstar/header.sh` 的顺序选择；不合并，不向上搜索。
+没有 header 时生成可编辑的默认模板。软件路径及 MPI/OMP 留在配置中：
 
 ```bash
-zstar bec job --root . --system slurm \
-  --nodes 1 --tasks 28 --cpus-per-task 1 \
-  --queue compute --account PROJECT --walltime 24:00:00 \
-  --env-script ./env.sh
+zstar config set execution.mpi 1
+zstar config set execution.omp 40
+zstar bec job --system slurm --header /path/to/header.sh
 ```
 
-`zstar phonon job` 和 `zstar spectra job` 也支持同样的资源选项。直接在本地节点
-运行使用 `--system shell`；Torque/PBS 使用 `--system torque` 或 `--system pbs`。
-生成的脚本包含相应的调度器指令，Slurm 使用 `srun`，shell/Torque 使用 `mpirun`。
-`env.sh` 中放置 `module load`、`conda activate` 及集群特有的环境变量。使用
-`--dry-run` 可以只检查生成脚本而不启动计算器。
+`zstar phonon job` 和 `zstar spectra job` 使用相同选择规则。header 内容嵌入脚本，
+哈希和选中层级保存在 `.zstar/job_header.json`。MPI/OMP 须与申请的资源相符。
+旧资源参数及 `--env-script` 继续兼容。完整示例与断点续算说明见
+[header 教程](job_headers.zh-CN.md)。
 
 ## ABACUS 赝势与数值轨道
 
@@ -113,16 +113,19 @@ ABACUS 任务目录中。
 
 ```bash
 zstar bec pre --stru STRU
-zstar bec job --root . --system slurm --tasks 28 --env-script env.sh
+zstar bec job --system slurm --header header.sh
 zstar bec stat --root .
 zstar bec post --root .
 ```
 
-`zstar bec pre` 默认使用 ABACUS + PYATB 和 forward 前向有限差分，因此规范示例
-省略计算器和 `--pyatb` 开关。只有切换后端时才指定 `--calculator cp2k`、`vasp`
-或 `qe`。
+`0.3.0rc1` 的 `zstar bec pre` 默认使用 ABACUS + PYATB 和 Phonopy 对称性适配的
+BEC/Gamma 声子共用位移，自动选择所需正负位移。计算器和 `--pyatb` 开关仍可
+省略；切换后端时才指定 `--calculator cp2k`、`vasp` 或 `qe`。
+`--ensemble cartesian` 保留旧的原子/笛卡尔方向布局。完整说明见
+[共用位移教程](research/shared_response/USAGE.zh-CN.md)。
 
-声子与模式分类：
+共用 Gamma 流程的 `zstar bec post` 已同时生成声子结果。有限波矢/扩胞声子
+请在另一个独立目录中准备：
 
 ```bash
 zstar phonon pre --stru STRU --dim "2 2 2"
@@ -147,6 +150,12 @@ zstar spectra post
 zstar dielectric static
 zstar dielectric freq
 ```
+
+低维结果默认采用文档中约定的源电场归一化。只有输入已经包含屏蔽效应的宏观
+超胞响应时，才使用 `--slab-boundary macroscopic` 与 `--thickness`，对总张量
+进行面内直接、面外逆响应转换。该选项不能给 PYATB 结果补上缺失的局域场物理。
+详见[响应定义与单位](response_conventions.md)及
+[八体系效率基准](../examples/Shared_Response/README.zh-CN.md)。
 
 ## 静电势能力闭环
 

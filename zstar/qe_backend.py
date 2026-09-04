@@ -670,16 +670,20 @@ def generate_qe_backend_script(
     output: str | Path | None = None,
     job_name: str = "zstar-qe-response",
     nodes: int = 1,
-    tasks: int = 1,
-    cpus_per_task: int = 1,
+    tasks: int | None = None,
+    cpus_per_task: int | None = None,
     walltime: str = "24:00:00",
     queue: str | None = None,
     account: str | None = None,
     env_script: str | Path | None = None,
+    header_file: str | Path | None = None,
     pw_command: str | None = None,
     ph_command: str | None = None,
     dynmat_command: str | None = None,
 ) -> Path:
+    from .configuration import launcher_command, resolve_parallelism
+    from .job_headers import compose_job_script, torque_ppn
+    tasks, cpus_per_task = resolve_parallelism(root, tasks=tasks, cpus_per_task=cpus_per_task)
     backend_key = normalize_execution_system(backend)
     if min(nodes, tasks, cpus_per_task) < 1:
         raise ValueError("nodes, tasks, and cpus_per_task must be positive")
@@ -689,10 +693,9 @@ def generate_qe_backend_script(
         target = root_path / f"run_qe_response.{suffix}"
     else:
         target = Path(output).resolve()
-    launcher = f"srun --ntasks={tasks}" if backend_key == "slurm" else f"mpirun -np {tasks}"
-    pw_command = pw_command or f"{launcher} pw.x"
-    ph_command = ph_command or f"{launcher} ph.x"
-    dynmat_command = dynmat_command or f"{launcher} dynmat.x"
+    pw_command = pw_command or launcher_command('qe_pw', root=root, system=backend_key, tasks=tasks)
+    ph_command = ph_command or launcher_command('qe_ph', root=root, system=backend_key, tasks=tasks)
+    dynmat_command = dynmat_command or launcher_command('qe_dynmat', root=root, system=backend_key, tasks=tasks)
     header = ["#!/usr/bin/env bash", f"# ZStar QE response backend: {backend_key}"]
     if backend_key == "slurm":
         header.extend([
@@ -706,7 +709,7 @@ def generate_qe_backend_script(
             header.append(f"#SBATCH --account={account}")
     elif backend_key == "torque":
         header.extend([
-            f"#PBS -N {job_name}", f"#PBS -l nodes={nodes}:ppn={tasks * cpus_per_task}",
+            f"#PBS -N {job_name}", f"#PBS -l nodes={nodes}:ppn={torque_ppn(nodes, tasks, cpus_per_task)}",
             f"#PBS -l walltime={walltime}", f"#PBS -o {root_path}/.zstar/torque.out",
             f"#PBS -e {root_path}/.zstar/torque.err",
         ])
@@ -727,6 +730,8 @@ def generate_qe_backend_script(
         f"--omp-threads {cpus_per_task} 2>&1 | tee -a \"$ROOT/.zstar/workflow.log\"",
         'zstar qe-bec collect --root "$ROOT" 2>&1 | tee -a "$ROOT/.zstar/workflow.log"',
     ])
-    target.write_text("\n".join(header + [""] + body) + "\n", encoding="utf-8", newline="\n")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(compose_job_script(root_path, backend_key, header, body, specified=header_file),
+                      encoding="utf-8", newline="\n")
     target.chmod(target.stat().st_mode | 0o111)
     return target

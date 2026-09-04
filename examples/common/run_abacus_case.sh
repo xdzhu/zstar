@@ -91,8 +91,8 @@ DRY RUN: no files will be generated and no external solver will be started.
 3. zstar workflow run --root . --dimensionality $dim --omp-threads $omp_threads \\
      --abacus-command "$abacus_command" --pyatb-command "$pyatb_command"
 4. zstar bec post --root .
-5. zstar ph --stru STRU --dim "$phonon_dim"
-   (INPUT.phonon replaces INPUT first when the case provides it.)
+5. Reuse shared Gamma forces for --phonon-dim "1 1 1"; otherwise prepare
+   a separate phonon/ directory, using INPUT.phonon when provided.
 EOF
     exit 0
 fi
@@ -121,15 +121,31 @@ zstar workflow status --root .
 zstar bec post --root .
 
 if [[ "$stage" == "all" ]]; then
-    if [[ -f "$input_dir/INPUT.phonon" ]]; then
-        cp "$input_dir/INPUT.phonon" INPUT
+    if [[ -f shared_response.json && "$phonon_dim" == "1 1 1" ]]; then
+        zstar phonon post --stru STRU --physical-dim "$dim"
+        echo "Reused the shared BEC/Gamma response ensemble."
+    else
+        # Keep supercell force files out of a shared Gamma ensemble.
+        if [[ -f shared_response.json ]]; then
+            mkdir -p phonon
+            if [[ ! -f phonon/phonopy_disp.yaml ]]; then
+                cp STRU phonon/STRU
+                cp -a assets phonon/
+                [[ ! -f KPT ]] || cp KPT phonon/KPT
+                cp INPUT phonon/INPUT
+            fi
+            cd phonon
+        fi
+        if [[ -f "$input_dir/INPUT.phonon" ]]; then
+            cp "$input_dir/INPUT.phonon" INPUT
+        fi
+        if [[ ! -f phonopy_disp.yaml ]]; then
+            zstar ph --stru STRU --dim "$phonon_dim"
+        fi
+        zstar phonon run --root . --command "$abacus_command" --omp-threads "$omp_threads"
+        zstar postph --stru STRU --physical-dim "$dim"
+        zstar phonon stat --root . || true
     fi
-    if [[ ! -f qpoints.yaml ]]; then
-        zstar ph --stru STRU --dim "$phonon_dim"
-    fi
-    zstar phonon run --root . --command "$abacus_command" --omp-threads "$omp_threads"
-    zstar postph --stru STRU --physical-dim "$dim"
-    zstar phonon stat --root . || true
 fi
 
 echo "ZStar example stage '$stage' completed or resumed successfully."

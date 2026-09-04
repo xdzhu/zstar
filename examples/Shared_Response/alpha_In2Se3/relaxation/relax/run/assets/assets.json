@@ -1,0 +1,35 @@
+{
+  "source_stru": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/relax/STRU",
+  "prepared_stru": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/export/alpha_In2Se3/relaxation/relax/run/assets/STRU.resolved",
+  "changed": true,
+  "assets": [
+    {
+      "kind": "pseudopotential",
+      "element": "In",
+      "source": "/home/zhuxd/abacus/8.dielec/4.In2Se3/pporb/In_ONCV_PBE_FR-1.0.upf",
+      "name_in_stru": "In_ONCV_PBE_FR-1.0.upf",
+      "sha256": "cf25476a6ce8d5e642031e56bfd5df1c47d70cdb5ee4d14ab0c7303c39536723"
+    },
+    {
+      "kind": "pseudopotential",
+      "element": "Se",
+      "source": "/home/zhuxd/abacus/8.dielec/4.In2Se3/pporb/Se_ONCV_PBE_FR-1.1.upf",
+      "name_in_stru": "Se_ONCV_PBE_FR-1.1.upf",
+      "sha256": "a9ad4b05bd0141a2d2cea708691d00540d7d43c95ed36a9a295b527928df620e"
+    },
+    {
+      "kind": "orbital",
+      "element": "In",
+      "source": "/home/zhuxd/abacus/8.dielec/4.In2Se3/pporb/In_gga_10au_100Ry_2s2p2d1f.orb",
+      "name_in_stru": "In_gga_10au_100Ry_2s2p2d1f.orb",
+      "sha256": "b5c5225034f3c24de8ae0a52f90c1759fb423650fced5483c15d4eb9c0c506cf"
+    },
+    {
+      "kind": "orbital",
+      "element": "Se",
+      "source": "/home/zhuxd/abacus/8.dielec/4.In2Se3/pporb/Se_gga_10au_100Ry_2s2p1d.orb",
+      "name_in_stru": "Se_gga_10au_100Ry_2s2p1d.orb",
+      "sha256": "c901084e499d2a7cbb3115073a2c4f504888e0908068a76861e8d7a385acde36"
+    }
+  ]
+}

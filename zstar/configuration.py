@@ -120,12 +120,13 @@ def launcher_command(
     *,
     root: str | Path = ".",
     system: str = "shell",
-    tasks: int = 1,
+    tasks: int | None = None,
     override: str | None = None,
 ) -> str:
     """Build an MPI launcher around a configured executable."""
 
     executable = shlex.quote(resolve_executable(name, root=root, override=override))
+    tasks, _ = resolve_parallelism(root, tasks=tasks)
     if int(tasks) < 1:
         raise ValueError("tasks must be positive")
     system_key = normalize_execution_system(system)
@@ -134,6 +135,17 @@ def launcher_command(
     if system_key in {"shell", "torque"}:
         return f"mpirun -np {int(tasks)} {executable}"
     raise AssertionError("normalize_execution_system returned an invalid system")
+
+
+def resolve_parallelism(root='.', *, tasks=None, cpus_per_task=None):
+    execution = load_config(root).get('execution', {})
+    mpi = execution.get('mpi', execution.get('tasks', 1)) if tasks is None else tasks
+    omp = execution.get('omp', execution.get('cpus_per_task', 1)) if cpus_per_task is None else cpus_per_task
+    if isinstance(mpi, bool) or isinstance(omp, bool) or int(mpi) != float(mpi) or int(omp) != float(omp):
+        raise ValueError('MPI ranks and OMP threads must be positive integers')
+    if min(int(mpi), int(omp)) < 1:
+        raise ValueError('MPI ranks and OMP threads must be positive integers')
+    return int(mpi), int(omp)
 
 
 def executable_available(command: str) -> tuple[bool, str | None]:
@@ -151,6 +163,7 @@ def executable_available(command: str) -> tuple[bool, str | None]:
 
 
 def config_report(root: str | Path = ".") -> dict[str, Any]:
+    from .job_headers import header_locations
     data = load_config(root)
     checks = {}
     for name, command in data["executables"].items():
@@ -174,6 +187,7 @@ def config_report(root: str | Path = ".") -> dict[str, Any]:
         "configuration": data,
         "executables": checks,
         "abacus_assets": asset_checks,
+        "job_headers": header_locations(root),
     }
 
 
@@ -211,7 +225,7 @@ def initialize_config(*, root: str | Path = ".", user: bool = False, force: bool
         target,
         {
             "executables": DEFAULT_EXECUTABLES,
-            "execution": {"system": "shell", "tasks": 1, "cpus_per_task": 1},
+            "execution": {"system": "shell", "mpi": 1, "omp": 1},
             "abacus": {"pseudo_dir": "", "orbital_dir": ""},
         },
     )

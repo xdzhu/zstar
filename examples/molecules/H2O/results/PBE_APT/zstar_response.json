@@ -1,0 +1,126 @@
+{
+  "schema": "zstar-response",
+  "schema_version": "1.0",
+  "created_at": "2026-08-26T14:25:43.730748+00:00",
+  "backend": "abacus-pyatb",
+  "dimensionality": {
+    "value": 0,
+    "label": "molecule",
+    "periodic_axes": [],
+    "nonperiodic_axes": [
+      "x",
+      "y",
+      "z"
+    ],
+    "intrinsic_response_kind": "molecular polarizability",
+    "intrinsic_response_unit": "angstrom^3"
+  },
+  "structure": null,
+  "quantities": [
+    {
+      "name": "atomic_polar_tensor",
+      "values": [
+        [
+          [
+            -0.6375155266666667,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -0.4763047,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -0.32775092666666666
+          ]
+        ],
+        [
+          [
+            0.31875776333333333,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.23815235,
+            0.08693394
+          ],
+          [
+            0.0,
+            0.0639514,
+            0.16387546333333333
+          ]
+        ],
+        [
+          [
+            0.31875776333333333,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.23815235,
+            -0.08693394
+          ],
+          [
+            0.0,
+            -0.0639514,
+            0.16387546333333333
+          ]
+        ]
+      ],
+      "shape": [
+        3,
+        3,
+        3
+      ],
+      "unit": "e",
+      "normalization": "per_atom",
+      "axes": [
+        "atom",
+        "displacement",
+        "polarization"
+      ],
+      "convention": "rows=atomic displacement; columns=molecular dipole; molecular atomic polar tensor in units of e",
+      "source": "abacus-pyatb",
+      "metadata": {
+        "labels": [
+          "O",
+          "H",
+          "H"
+        ]
+      }
+    }
+  ],
+  "provenance": {
+    "collector": "zstar.molecular_bec.collect_molecular_apts",
+    "source": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o",
+    "legacy_result": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/molecular_apt.json",
+    "backend_result_schema_version": 1,
+    "source_backend": "abacus-pyatb"
+  },
+  "metadata": {
+    "method": "central",
+    "sum_scope": null,
+    "acoustic_sum_tensor": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ]
+  }
+}

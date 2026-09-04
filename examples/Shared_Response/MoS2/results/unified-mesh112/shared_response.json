@@ -1,0 +1,78 @@
+{
+  "schema": "zstar-shared-response",
+  "version": 1,
+  "calculator": "abacus",
+  "dimension": 2,
+  "scope": "Gamma",
+  "displacement_scheme": "phonopy",
+  "method": "auto",
+  "nominal_distance_A": 0.01058354421806,
+  "symprec_A": 1e-05,
+  "length_unit": "angstrom",
+  "force_unit": "eV/angstrom",
+  "operation_count": 12,
+  "stages": [
+    {
+      "name": "disp-001",
+      "atom": 0,
+      "displacement_A": [
+        0.0004887582694356445,
+        -0.0008465541552817459,
+        0.010538304874687977
+      ],
+      "distance_A": 0.01058354421806036
+    },
+    {
+      "name": "disp-002",
+      "atom": 1,
+      "displacement_A": [
+        0.0004887582694354669,
+        -0.0008465541552817458,
+        0.0105383048746875
+      ],
+      "distance_A": 0.010583544218059878
+    },
+    {
+      "name": "disp-003",
+      "atom": 1,
+      "displacement_A": [
+        -0.0004887582694359996,
+        0.0008465541552814384,
+        -0.010538304874687737
+      ],
+      "distance_A": 0.010583544218060114
+    }
+  ],
+  "input_hashes": {
+    "0.no-move/STRU": "c70106d28f25f6378ea131a83cf7166de5777a48f8ef466931e6847aa5d728d9",
+    "0.no-move/INPUT-scf": "fff4d4ba8aa99f8d6ae5c85e9095ef40493caf79e98aa4f074cc8c60ccb536e2",
+    "0.no-move/KPT": "152c4570c7e5149c88ff387d3f26c4b02293ca3eaa28295626c9fcfaabd10652",
+    "0.no-move/Mo.upf": "b5a929dee3378934d30b33a8f510c8a715450d22b4f1a3469276569ac47ab29d",
+    "0.no-move/S.upf": "47dc390784fa31acb520275f817fbe0bb42219399f641ecbcfb97ca9a1f947fa",
+    "0.no-move/Mo_gga_7au_100Ry_4s2p2d1f.orb": "40815a5d260af9590f9ec749eeff4aaa1ac4462ffcb8786c7041be0bbcf61fd6",
+    "0.no-move/S_gga_6au_100Ry_2s2p1d.orb": "5e2628093932604fe3e7857c021ef3fd29b5bbc376a8e9d5dc7dc97764fdbd22",
+    "disp-001/STRU": "522f99be575d1e491622a717cc907a08f5cc5f1b6cb0bedba121b6a898b6ff07",
+    "disp-001/INPUT-scf": "512de7900b9ff6a673705b7be63b4f5a7cad7137b467aaefb15fc70857ea2ec6",
+    "disp-001/KPT": "152c4570c7e5149c88ff387d3f26c4b02293ca3eaa28295626c9fcfaabd10652",
+    "disp-001/Mo.upf": "b5a929dee3378934d30b33a8f510c8a715450d22b4f1a3469276569ac47ab29d",
+    "disp-001/S.upf": "47dc390784fa31acb520275f817fbe0bb42219399f641ecbcfb97ca9a1f947fa",
+    "disp-001/Mo_gga_7au_100Ry_4s2p2d1f.orb": "40815a5d260af9590f9ec749eeff4aaa1ac4462ffcb8786c7041be0bbcf61fd6",
+    "disp-001/S_gga_6au_100Ry_2s2p1d.orb": "5e2628093932604fe3e7857c021ef3fd29b5bbc376a8e9d5dc7dc97764fdbd22",
+    "disp-002/STRU": "41cb737a715c108c7498c3ee796882f5b9c40edebbf578b9c05eb72dd737b0a9",
+    "disp-002/INPUT-scf": "512de7900b9ff6a673705b7be63b4f5a7cad7137b467aaefb15fc70857ea2ec6",
+    "disp-002/KPT": "152c4570c7e5149c88ff387d3f26c4b02293ca3eaa28295626c9fcfaabd10652",
+    "disp-002/Mo.upf": "b5a929dee3378934d30b33a8f510c8a715450d22b4f1a3469276569ac47ab29d",
+    "disp-002/S.upf": "47dc390784fa31acb520275f817fbe0bb42219399f641ecbcfb97ca9a1f947fa",
+    "disp-002/Mo_gga_7au_100Ry_4s2p2d1f.orb": "40815a5d260af9590f9ec749eeff4aaa1ac4462ffcb8786c7041be0bbcf61fd6",
+    "disp-002/S_gga_6au_100Ry_2s2p1d.orb": "5e2628093932604fe3e7857c021ef3fd29b5bbc376a8e9d5dc7dc97764fdbd22",
+    "disp-003/STRU": "68a96640dce99f0499c1e6a95d87ace1d278309429a6459c8d99392880ea70e6",
+    "disp-003/INPUT-scf": "512de7900b9ff6a673705b7be63b4f5a7cad7137b467aaefb15fc70857ea2ec6",
+    "disp-003/KPT": "152c4570c7e5149c88ff387d3f26c4b02293ca3eaa28295626c9fcfaabd10652",
+    "disp-003/Mo.upf": "b5a929dee3378934d30b33a8f510c8a715450d22b4f1a3469276569ac47ab29d",
+    "disp-003/S.upf": "47dc390784fa31acb520275f817fbe0bb42219399f641ecbcfb97ca9a1f947fa",
+    "disp-003/Mo_gga_7au_100Ry_4s2p2d1f.orb": "40815a5d260af9590f9ec749eeff4aaa1ac4462ffcb8786c7041be0bbcf61fd6",
+    "disp-003/S_gga_6au_100Ry_2s2p1d.orb": "5e2628093932604fe3e7857c021ef3fd29b5bbc376a8e9d5dc7dc97764fdbd22",
+    "phonopy_disp.yaml": "f8db2ca6b9bae20beefab85692d177a0939359f758ce829f9e9360c17b882758",
+    "STRU": "09b4e204b35f3b2da8e2ed53937b82715ed90c1d22be94602724c2ef4c5e9910"
+  }
+}

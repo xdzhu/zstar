@@ -1,0 +1,41 @@
+{
+  "shell": {
+    "bash_syntax": "passed",
+    "embedded_environment": "passed",
+    "setup_failure_stops_execution": "passed",
+    "scheduler_submission": "not performed",
+    "DFT_execution": "mocked",
+    "canonical_spectra": {
+      "abacus": "syntax and mocked execution passed",
+      "vasp": "syntax and mocked execution passed",
+      "cp2k": "syntax and mocked execution passed",
+      "qe": "syntax and mocked execution passed"
+    }
+  },
+  "slurm": {
+    "bash_syntax": "passed",
+    "embedded_environment": "passed",
+    "setup_failure_stops_execution": "passed",
+    "scheduler_submission": "not performed",
+    "DFT_execution": "mocked",
+    "canonical_spectra": {
+      "abacus": "syntax and mocked execution passed",
+      "vasp": "syntax and mocked execution passed",
+      "cp2k": "syntax and mocked execution passed",
+      "qe": "syntax and mocked execution passed"
+    }
+  },
+  "torque": {
+    "bash_syntax": "passed",
+    "embedded_environment": "passed",
+    "setup_failure_stops_execution": "passed",
+    "scheduler_submission": "not performed",
+    "DFT_execution": "mocked",
+    "canonical_spectra": {
+      "abacus": "syntax and mocked execution passed",
+      "vasp": "syntax and mocked execution passed",
+      "cp2k": "syntax and mocked execution passed",
+      "qe": "syntax and mocked execution passed"
+    }
+  }
+}

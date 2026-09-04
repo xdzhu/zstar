@@ -1,0 +1,1675 @@
+                                                                                     
+                              ABACUS v3.10.0
+
+               Atomic-orbital Based Ab-initio Computation at UStc                    
+
+                     Website: http://abacus.ustc.edu.cn/                             
+               Documentation: https://abacus.deepmodeling.com/                       
+                  Repository: https://github.com/abacusmodeling/abacus-develop       
+                              https://github.com/deepmodeling/abacus-develop         
+                      Commit: e84abb4 (Sat Jun 28 13:06:46 2025 +0800)
+
+    Start Time is Wed Sep  2 21:25:26 2026
+                                                                                     
+ ------------------------------------------------------------------------------------
+
+ READING GENERAL INFORMATION
+                           global_out_dir = OUT.MOLAPT_HSE/
+                           global_in_card = INPUT
+                               pseudo_dir = ./
+                              orbital_dir = ./
+                                    DRANK = 1
+                                    DSIZE = 1
+                                   DCOLOR = 1
+                                    GRANK = 1
+                                    GSIZE = 1
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Reading atom information in unitcell:                              |
+ | From the input file and the structure file we know the number of   |
+ | different elments in this unitcell, then we list the detail        |
+ | information for each element, especially the zeta and polar atomic |
+ | orbital number for each element. The total atom number is counted. |
+ | We calculate the nearest atom distance for each atom and show the  |
+ | Cartesian and Direct coordinates for each atom. We list the file   |
+ | address for atomic orbitals. The volume and the lattice vectors    |
+ | in real and reciprocal space is also shown.                        |
+ |                                                                    |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+ READING UNITCELL INFORMATION
+                                    ntype = 2
+                  lattice constant (Bohr) = 1.88973
+              lattice constant (Angstrom) = 1
+
+ READING ATOM TYPE 1
+                               atom label = O
+                      L=0, number of zeta = 3
+                      L=1, number of zeta = 3
+                      L=2, number of zeta = 2
+             number of atom for this type = 1
+
+ READING ATOM TYPE 2
+                               atom label = H
+                      L=0, number of zeta = 3
+                      L=1, number of zeta = 2
+             number of atom for this type = 2
+
+                        TOTAL ATOM NUMBER = 3
+DIRECT COORDINATES
+    atom                   x                   y                   z     mag                  vx                  vy                  vz
+taud_O1            0.5000000000        0.5000000000        0.5058895000  0.0000        0.0000000000        0.0000000000        0.0000000000
+taud_H1            0.5000000000        0.5372726500        0.4764419500  0.0000        0.0000000000        0.0000000000        0.0000000000
+taud_H2            0.5000000000        0.4622273500        0.4764419500  0.0000        0.0000000000        0.0000000000        0.0000000000
+
+
+
+                          Volume (Bohr^3) = 53986.7
+                             Volume (A^3) = 7999.99
+
+ Lattice vectors: (Cartesian coordinate: in unit of a_0)
+                  +20                  +0                  +0
+                   +0                 +20                  +0
+                   +0                  +0                 +20
+ Reciprocal vectors: (Cartesian coordinate: in unit of 2 pi/a_0)
+                +0.05                  -0                  +0
+                   -0               +0.05                  -0
+                   +0                  -0               +0.05
+ The esolver type has been set to : ksdft_lcao
+
+ RUNNING WITH DEVICE  : CPU / Intel(R) Xeon(R) Gold 6248 CPU @ 2.50GHz
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Reading pseudopotentials files:                                    |
+ | The pseudopotential file is in UPF format. The 'NC' indicates that |
+ | the type of pseudopotential is 'norm conserving'. Functional of    |
+ | exchange and correlation is decided by 4 given parameters in UPF   |
+ | file.  We also read in the 'core correction' if there exists.      |
+ | Also we can read the valence electrons number and the maximal      |
+ | angular momentum used in this pseudopotential. We also read in the |
+ | trail wave function, trail atomic density and local-pseudopotential|
+ | on logrithmic grid. The non-local pseudopotential projector is also|
+ | read in if there is any.                                           |
+ |                                                                    |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+                PAO radial cut off (Bohr) = 15
+
+ Read in pseudopotential file is O.upf
+                     pseudopotential type = NC
+          exchange-correlation functional = PBE
+                 nonlocal core correction = 1
+                        valence electrons = 6
+                                     lmax = 2
+                           number of zeta = 2
+                     number of projectors = 5
+                           L of projector = 0
+                           L of projector = 0
+                           L of projector = 1
+                           L of projector = 1
+                           L of projector = 2
+ XC functional updated to : hse
+          exchange-correlation functional = HSE
+                PAO radial cut off (Bohr) = 15
+
+ Read in pseudopotential file is H.upf
+                     pseudopotential type = NC
+          exchange-correlation functional = PBE
+                 nonlocal core correction = 0
+                        valence electrons = 1
+                                     lmax = 1
+                           number of zeta = 1
+                     number of projectors = 3
+                           L of projector = 0
+                           L of projector = 0
+                           L of projector = 1
+ XC functional updated to : hse
+          exchange-correlation functional = HSE
+     initial pseudo atomic orbital number = 6
+
+ SETUP THE ELECTRONS NUMBER
+             electron number of element O = 6
+       total electron number of element O = 6
+             electron number of element H = 1
+       total electron number of element H = 2
+            AUTOSET number of electrons:  = 8
+                           occupied bands = 4
+                                   NLOCAL = 40
+                                   NBANDS = 14
+                                   NBANDS = 14
+                                   NLOCAL = 40
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Setup plane waves of charge/potential:                             |
+ | Use the energy cutoff and the lattice vectors to generate the      |
+ | dimensions of FFT grid. The number of FFT grid on each processor   |
+ | is 'nrxx'. The number of plane wave basis in reciprocal space is   |
+ | different for charege/potential and wave functions. We also set    |
+ | the 'sticks' for the parallel of FFT. The number of plane waves    |
+ | is 'npw' in each processor.                                        |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+
+ SETUP THE PLANE WAVE BASIS
+ energy cutoff for charge/potential (unit:Ry) = 400
+            fft grid for charge/potential = [ 243, 243, 243 ]
+                        fft grid division = [ 3, 3, 3 ]
+        big fft grid for charge/potential = [ 81, 81, 81 ]
+                                     nbxx = 531441
+                                     nrxx = 14348907
+
+ SETUP PLANE WAVES FOR CHARGE/POTENTIAL
+                    number of plane waves = 7292125
+                         number of sticks = 45461
+
+ PARALLEL PW FOR CHARGE/POTENTIAL
+     PROC   COLUMNS(POT)             PW
+        1          45461        7292125
+ --------------- sum -------------------
+        1          45461        7292125
+                            number of |g| = 12063
+                                  max |g| = 36.18
+                                  min |g| = 0
+ DONE : SETUP UNITCELL Time : 2.39554 (SEC)
+
+
+----------- Double Check Mixing Parameters Begin ------------
+mixing_type: pulay
+mixing_beta: 0.4
+mixing_gg0: 1
+mixing_gg0_min: 0.1
+mixing_ndim: 20
+----------- Double Check Mixing Parameters End ------------
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Setup K-points                                                     |
+ | We setup the k-points according to input parameters.               |
+ | The reduced k-points are set according to symmetry operations.     |
+ | We treat the spin as another set of k-points.                      |
+ |                                                                    |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+
+ SETUP K-POINTS
+                                    nspin = 1
+                   Input type of k points = Monkhorst-Pack(Gamma)
+                                   nkstot = 1
+                               nkstot_ibz = 1
+K-POINTS REDUCTION ACCORDING TO SYMMETRY
+     IBZ    DIRECT_X    DIRECT_Y    DIRECT_Z  WEIGHT  ibz2bz
+       1  0.00000000  0.00000000  0.00000000  1.0000       0
+
+                               nkstot now = 1
+K-POINTS DIRECT COORDINATES
+ KPOINTS    DIRECT_X    DIRECT_Y    DIRECT_Z  WEIGHT
+       1  0.00000000  0.00000000  0.00000000  1.0000
+
+
+           k-point number in this process = 1
+       minimum distributed K point number = 1
+
+K-POINTS CARTESIAN COORDINATES
+ KPOINTS CARTESIAN_X CARTESIAN_Y CARTESIAN_Z  WEIGHT
+       1  0.00000000  0.00000000  0.00000000  2.0000
+
+
+K-POINTS DIRECT COORDINATES
+ KPOINTS    DIRECT_X    DIRECT_Y    DIRECT_Z  WEIGHT
+       1  0.00000000  0.00000000  0.00000000  2.0000
+
+ DONE : INIT K-POINTS Time : 2.39947 (SEC)
+
+
+ Warning_Memory_Consuming allocated:  PW_B_K::gk2 6.95734 MB
+
+ Warning_Memory_Consuming allocated:  PW_B_K::gcar 20.872 MB
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Setup plane waves of wave functions:                               |
+ | Use the energy cutoff and the lattice vectors to generate the      |
+ | dimensions of FFT grid. The number of FFT grid on each processor   |
+ | is 'nrxx'. The number of plane wave basis in reciprocal space is   |
+ | different for charege/potential and wave functions. We also set    |
+ | the 'sticks' for the parallel of FFT. The number of plane wave of  |
+ | each k-point is 'npwk[ik]' in each processor                       |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+
+ SETUP PLANE WAVES FOR WAVE FUNCTIONS
+     energy cutoff for wavefunc (unit:Ry) = 100
+              fft grid for wave functions = [ 243, 243, 243 ]
+                    number of plane waves = 911913
+                         number of sticks = 11369
+
+ PARALLEL PW FOR WAVE FUNCTIONS
+     PROC   COLUMNS(POT)             PW
+        1          11369         911913
+ --------------- sum -------------------
+        1          11369         911913
+ DONE : INIT PLANEWAVE Time : 2.55611 (SEC)
+
+
+ Warning_Memory_Consuming allocated:  SF::strucFac 222.538 MB
+ SET NONLOCAL PSEUDOPOTENTIAL PROJECTORS
+ SET NONLOCAL PSEUDOPOTENTIAL PROJECTORS
+ max number of nonlocal projetors among all species is 5
+
+ Warning_Memory_Consuming allocated:  ORB::Jl(x) 921.868 MB
+ Auxiliary basis functions
+		O		9 s		7 p		7 d		5 f		3 g		
+		H		6 s		4 p		3 d		
+
+ Warning_Memory_Consuming allocated:  ORB::Jl(x) 5063.37 MB
+ DONE : LOCAL POTENTIAL Time : 64.2009 (SEC)
+
+
+ Warning_Memory_Consuming allocated:  Chg::rho 109.473 MB
+
+ Warning_Memory_Consuming allocated:  Chg::rho_save 109.473 MB
+
+ Warning_Memory_Consuming allocated:  Chg::rhog 55.6345 MB
+
+ Warning_Memory_Consuming allocated:  Chg::rhog_save 55.6345 MB
+
+ Warning_Memory_Consuming allocated:  Chg::rho_core 109.473 MB
+
+ Warning_Memory_Consuming allocated:  Chg::rhog_core 55.6345 MB
+
+ Warning_Memory_Consuming allocated:  Pot::veff_fix 109.473 MB
+
+ Warning_Memory_Consuming allocated:  Pot::veff 109.473 MB
+
+ Warning_Memory_Consuming allocated:  Pot::veff_smooth 109.473 MB
+
+ -------------------------------------------
+ SELF-CONSISTENT
+ -------------------------------------------
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Search adjacent atoms:                                             |
+ | Set the adjacent atoms for each atom and set the periodic boundary |
+ | condition for the atoms on real space FFT grid. For k-dependent    |
+ | algorithm, we also need to set the sparse H and S matrix element   |
+ | for each atom.                                                     |
+ |                                                                    |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+
+ SETUP SEARCHING RADIUS FOR PROGRAM TO SEARCH ADJACENT ATOMS
+                  longest orb rcut (Bohr) = 9
+   longest nonlocal projector rcut (Bohr) = 1.5
+                     search radius (Bohr) = 21
+              searching radius is (Bohr)) = 21
+         searching radius unit is (Bohr)) = 1.89
+                         PeriodicBoundary = 1
+                        Radius(unit:lat0) = 11.1
+                                   glayer = [ 2, 2, 2 ]
+                             glayer_minus = [ 1, 1, 1 ]
+
+Find the coordinate range of the input atom(unit:lat0).
+                                  min_tau = [ -10, -10.8, -10.5 ]
+                                  max_tau = [ 30, 30.7, 30.1 ]
+                                BoxNumber = [ 3, 3, 3 ]
+
+ SETUP EXTENDED REAL SPACE GRID FOR GRID INTEGRATION
+                          real space grid = [ 243, 243, 243 ]
+                 big cell numbers in grid = [ 81, 81, 81 ]
+             meshcell numbers in big cell = [ 3, 3, 3 ]
+                        extended fft grid = [ 20, 20, 20 ]
+                dimension of extened grid = [ 122, 122, 122 ]
+                            UnitCellTotal = 27
+
+ Warning_Memory_Consuming allocated:  GT::ind_bigcell 6.93 MB
+
+ Warning_Memory_Consuming allocated:  GT::in_this_processor 6.93 MB
+
+ Warning_Memory_Consuming allocated:  GT::index2normal 6.93 MB
+
+ Warning_Memory_Consuming allocated:  GT::index2ucell 6.93 MB
+              Atom number in sub-FFT-grid = 3
+    Local orbitals number in sub-FFT-grid = 40
+                                ParaV.nnr = 1600
+                                 init_chg = file
+ try to read charge from file
+ Read in the charge density: OUT.MOLAPT_HSE//MOLAPT_HSE-CHARGE-DENSITY.restart
+ DONE : INIT SCF Time : 68.6373 (SEC)
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   1--------------------------------
+
+ Density error is 0.010246034694
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268339119       -482.0068033012      
+ E_Harris       -35.4053181206       -481.7140659425      
+ E_Fermi        -0.5263588610        -7.1614797027        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   2--------------------------------
+
+ Density error is 0.00602987695542
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268256488       -482.0066908767      
+ E_Harris       -35.4651748917       -482.5284590941      
+ E_Fermi        -0.5244579359        -7.1356162892        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   3--------------------------------
+
+ Density error is 0.0025529219711
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268259684       -482.0066952239      
+ E_Harris       -35.4475709142       -482.2889446929      
+ E_Fermi        -0.5265863578        -7.1645749550        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   4--------------------------------
+
+ Density error is 0.00121340251968
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268274997       -482.0067160591      
+ E_Harris       -35.4370796971       -482.1462043604      
+ E_Fermi        -0.5278644144        -7.1819638078        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   5--------------------------------
+
+ Density error is 0.000808902403224
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268267510       -482.0067058724      
+ E_Harris       -35.4322519121       -482.0805189760      
+ E_Fermi        -0.5283942954        -7.1891732080        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   6--------------------------------
+
+ Density error is 0.000514833853252
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268252207       -482.0066850522      
+ E_Harris       -35.4293036716       -482.0404061058      
+ E_Fermi        -0.5287324245        -7.1937736900        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   7--------------------------------
+
+ Density error is 0.000351124096813
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268245297       -482.0066756501      
+ E_Harris       -35.4279579965       -482.0220972575      
+ E_Fermi        -0.5288776816        -7.1957500152        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   8--------------------------------
+
+ Density error is 0.000273949257753
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268236953       -482.0066642978      
+ E_Harris       -35.4276762558       -482.0182639787      
+ E_Fermi        -0.5289134024        -7.1962360205        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   9--------------------------------
+
+ Density error is 0.000159061384704
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268234564       -482.0066610476      
+ E_Harris       -35.4271595617       -482.0112339946      
+ E_Fermi        -0.5289663030        -7.1969557711        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  10--------------------------------
+
+ Density error is 9.27607270281e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268233803       -482.0066600121      
+ E_Harris       -35.4269579943       -482.0084915291      
+ E_Fermi        -0.5289868818        -7.1972357604        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  11--------------------------------
+
+ Density error is 6.33744310552e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268233333       -482.0066593724      
+ E_Harris       -35.4269105141       -482.0078455277      
+ E_Fermi        -0.5289918679        -7.1973035992        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  12--------------------------------
+
+ Density error is 3.39596483329e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268233287       -482.0066593102      
+ E_Harris       -35.4268605459       -482.0071656754      
+ E_Fermi        -0.5289969458        -7.1973726870        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  13--------------------------------
+
+ Density error is 1.75389448259e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268233270       -482.0066592859      
+ E_Harris       -35.4268427047       -482.0069229333      
+ E_Fermi        -0.5289989967        -7.1974005918        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  14--------------------------------
+
+ Density error is 9.55450157572e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268233249       -482.0066592574      
+ E_Harris       -35.4268308614       -482.0067617974      
+ E_Fermi        -0.5290002369        -7.1974174656        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  15--------------------------------
+
+ Density error is 3.33879547287e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268233236       -482.0066592396      
+ E_Harris       -35.4268245983       -482.0066765831      
+ E_Fermi        -0.5290009096        -7.1974266179        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  16--------------------------------
+
+ Density error is 1.24465954618e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268233234       -482.0066592376      
+ E_Harris       -35.4268240442       -482.0066690446      
+ E_Fermi        -0.5290009921        -7.1974277404        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  17--------------------------------
+
+ Density error is 7.60702535321e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268233235       -482.0066592388      
+ E_Harris       -35.4268238665       -482.0066666262      
+ E_Fermi        -0.5290010120        -7.1974280106        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  18--------------------------------
+
+ Density error is 3.98960495447e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268233235       -482.0066592391      
+ E_Harris       -35.4268234610       -482.0066611103      
+ E_Fermi        -0.5290010522        -7.1974285575        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  19--------------------------------
+
+ Density error is 1.5350267875e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268233235       -482.0066592392      
+ E_Harris       -35.4268233895       -482.0066601363      
+ E_Fermi        -0.5290010602        -7.1974286673        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  20--------------------------------
+
+ Density error is 8.97608121286e-08
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.4268233235       -482.0066592394      
+ E_KS(sigma->0) -35.4268233235       -482.0066592394      
+ E_Harris       -35.4268233253       -482.0066592627      
+ E_band         -8.1203467306        -110.4829852712      
+ E_one_elec     -72.7824179660       -990.2555985558      
+ E_Hartree      37.9119750953        515.8188837305       
+ E_xc           -9.7739163864        -132.9809546306      
+ E_Ewald        9.2175359336         125.4110102165       
+ E_entropy(-TS) 0.0000000000         0.0000000000         
+ E_descf        0.0000000000         0.0000000000         
+ E_exx          0.0000000000         0.0000000000         
+ E_Fermi        -0.5290010669        -7.1974287582        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   1--------------------------------
+
+ Density error is 0.0999413849522
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.0002263474       -476.2025096145      
+ E_Harris       -36.2029800461       -492.5668132074      
+ E_Fermi        -0.9435317086        -12.8374074808       
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   2--------------------------------
+
+ Density error is 0.0960608570641
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1183927479       -477.8102459733      
+ E_Harris       -37.2471965123       -506.7741070926      
+ E_Fermi        -0.5307035936        -7.2205928215        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   3--------------------------------
+
+ Density error is 0.0500900043306
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1132686012       -477.7405283805      
+ E_Harris       -36.1946157225       -492.4530107469      
+ E_Fermi        -0.5787368762        -7.8741191593        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   4--------------------------------
+
+ Density error is 0.0173525854598
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1144835433       -477.7570585162      
+ E_Harris       -35.4741913281       -482.6511340038      
+ E_Fermi        -0.6139251647        -8.3528803855        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   5--------------------------------
+
+ Density error is 0.00713781701442
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1144548660       -477.7566683412      
+ E_Harris       -35.2535581595       -479.6492657431      
+ E_Fermi        -0.6248336841        -8.5012984063        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   6--------------------------------
+
+ Density error is 0.000754014960173
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145518652       -477.7579880838      
+ E_Harris       -35.1088321378       -477.6801671993      
+ E_Fermi        -0.6321760422        -8.6011963129        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   7--------------------------------
+
+ Density error is 0.000474961399845
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145525219       -477.7579970178      
+ E_Harris       -35.1138855886       -477.7489229248      
+ E_Fermi        -0.6318882755        -8.5972810467        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   8--------------------------------
+
+ Density error is 0.000388561371879
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145530190       -477.7580037809      
+ E_Harris       -35.1115846338       -477.7176168291      
+ E_Fermi        -0.6319814897        -8.5985492910        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   9--------------------------------
+
+ Density error is 0.000288630578024
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145537919       -477.7580142976      
+ E_Harris       -35.1142765562       -477.7542423115      
+ E_Fermi        -0.6318281858        -8.5964634844        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  10--------------------------------
+
+ Density error is 0.000157654170998
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145542404       -477.7580203992      
+ E_Harris       -35.1144176835       -477.7561624469      
+ E_Fermi        -0.6317940600        -8.5959991786        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  11--------------------------------
+
+ Density error is 8.07484183331e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145543715       -477.7580221826      
+ E_Harris       -35.1143256986       -477.7549109287      
+ E_Fermi        -0.6317878269        -8.5959143733        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  12--------------------------------
+
+ Density error is 5.39861311536e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145544968       -477.7580238874      
+ E_Harris       -35.1144203312       -477.7561984714      
+ E_Fermi        -0.6317807806        -8.5958185036        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  13--------------------------------
+
+ Density error is 2.72211467779e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145545274       -477.7580243046      
+ E_Harris       -35.1145891997       -477.7584960445      
+ E_Fermi        -0.6317698786        -8.5956701736        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  14--------------------------------
+
+ Density error is 1.16250609355e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145545370       -477.7580244348      
+ E_Harris       -35.1145226535       -477.7575906380      
+ E_Fermi        -0.6317723227        -8.5957034271        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  15--------------------------------
+
+ Density error is 5.49577584872e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145545415       -477.7580244966      
+ E_Harris       -35.1145438552       -477.7578791012      
+ E_Fermi        -0.6317709647        -8.5956849510        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  16--------------------------------
+
+ Density error is 3.08075309227e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145545415       -477.7580244965      
+ E_Harris       -35.1145480002       -477.7579354972      
+ E_Fermi        -0.6317706106        -8.5956801326        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  17--------------------------------
+
+ Density error is 1.31365427293e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145545405       -477.7580244827      
+ E_Harris       -35.1145586119       -477.7580798765      
+ E_Fermi        -0.6317699867        -8.5956716445        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  18--------------------------------
+
+ Density error is 6.02821857816e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145545405       -477.7580244828      
+ E_Harris       -35.1145545744       -477.7580249444      
+ E_Fermi        -0.6317701617        -8.5956740259        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  19--------------------------------
+
+ Density error is 3.93439725531e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145545410       -477.7580244896      
+ E_Harris       -35.1145538691       -477.7580153471      
+ E_Fermi        -0.6317701899        -8.5956744090        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  20--------------------------------
+
+ Density error is 1.908308597e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145545410       -477.7580244896      
+ E_Harris       -35.1145542029       -477.7580198888      
+ E_Fermi        -0.6317701674        -8.5956741024        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  21--------------------------------
+
+ Density error is 9.85689893914e-08
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1145545415       -477.7580244965      
+ E_KS(sigma->0) -35.1145545415       -477.7580244965      
+ E_Harris       -35.1145547000       -477.7580266533      
+ E_band         -9.1413889952        -124.3749779689      
+ E_one_elec     -72.8382237486       -991.0148751798      
+ E_Hartree      37.9711175439        516.6235580247       
+ E_xc           -7.7457358644        -105.3861429581      
+ E_Ewald        9.2175359336         125.4110102165       
+ E_entropy(-TS) 0.0000000000         0.0000000000         
+ E_descf        0.0000000000         0.0000000000         
+ E_exx          -1.7192484061        -23.3915745998       
+ E_Fermi        -0.6317701404        -8.5956737358        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   1--------------------------------
+
+ Density error is 0.000585709294582
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146438736       -477.7592399215      
+ E_Harris       -35.1174909151       -477.7979759088      
+ E_Fermi        -0.6326193926        -8.6072284051        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   2--------------------------------
+
+ Density error is 0.000360920130132
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146437828       -477.7592386866      
+ E_Harris       -35.1113985741       -477.7150853563      
+ E_Fermi        -0.6324315592        -8.6046728004        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   3--------------------------------
+
+ Density error is 8.70552230176e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146435254       -477.7592351840      
+ E_Harris       -35.1138268041       -477.7481231204      
+ E_Fermi        -0.6321597723        -8.6009749499        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   4--------------------------------
+
+ Density error is 6.355250154e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146433040       -477.7592321723      
+ E_Harris       -35.1140081783       -477.7505908433      
+ E_Fermi        -0.6321360443        -8.6006521137        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   5--------------------------------
+
+ Density error is 4.7574060662e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146430073       -477.7592281354      
+ E_Harris       -35.1142648970       -477.7540836810      
+ E_Fermi        -0.6321070238        -8.6002572694        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   6--------------------------------
+
+ Density error is 3.09869381788e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146429137       -477.7592268622      
+ E_Harris       -35.1144718888       -477.7568999489      
+ E_Fermi        -0.6320821415        -8.5999187284        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   7--------------------------------
+
+ Density error is 1.92325776212e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146429401       -477.7592272207      
+ E_Harris       -35.1145847418       -477.7584353926      
+ E_Fermi        -0.6320695042        -8.5997467896        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   8--------------------------------
+
+ Density error is 1.68698578385e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146429978       -477.7592280060      
+ E_Harris       -35.1145816692       -477.7583935870      
+ E_Fermi        -0.6320696630        -8.5997489494        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   9--------------------------------
+
+ Density error is 8.36886607417e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146430443       -477.7592286390      
+ E_Harris       -35.1146254860       -477.7589897451      
+ E_Fermi        -0.6320651429        -8.5996874507        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  10--------------------------------
+
+ Density error is 4.00082566224e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146430519       -477.7592287419      
+ E_Harris       -35.1146361566       -477.7591349261      
+ E_Fermi        -0.6320641449        -8.5996738721        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  11--------------------------------
+
+ Density error is 2.95532159896e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146430584       -477.7592288310      
+ E_Harris       -35.1146383236       -477.7591644106      
+ E_Fermi        -0.6320639264        -8.5996708996        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  12--------------------------------
+
+ Density error is 1.41976564069e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146430589       -477.7592288378      
+ E_Harris       -35.1146409250       -477.7591998042      
+ E_Fermi        -0.6320636361        -8.5996669501        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  13--------------------------------
+
+ Density error is 8.01931446312e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146430584       -477.7592288310      
+ E_Harris       -35.1146420604       -477.7592152520      
+ E_Fermi        -0.6320635098        -8.5996652317        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  14--------------------------------
+
+ Density error is 4.28133934968e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146430584       -477.7592288310      
+ E_Harris       -35.1146426397       -477.7592231335      
+ E_Fermi        -0.6320634452        -8.5996643521        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  15--------------------------------
+
+ Density error is 2.02287142539e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146430589       -477.7592288378      
+ E_Harris       -35.1146429217       -477.7592269712      
+ E_Fermi        -0.6320634139        -8.5996639264        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  16--------------------------------
+
+ Density error is 1.01627125607e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146430595       -477.7592288447      
+ E_Harris       -35.1146430303       -477.7592284480      
+ E_Fermi        -0.6320634036        -8.5996637869        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  17--------------------------------
+
+ Density error is 6.04862969394e-08
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146430595       -477.7592288447      
+ E_KS(sigma->0) -35.1146430595       -477.7592288447      
+ E_Harris       -35.1146430436       -477.7592286296      
+ E_band         -9.1412800785        -124.3734960821      
+ E_one_elec     -72.8382246559       -991.0148875243      
+ E_Hartree      37.9754835206        516.6829601852       
+ E_xc           -7.7462118062        -105.3926184797      
+ E_Ewald        9.2175359336         125.4110102165       
+ E_entropy(-TS) 0.0000000000         0.0000000000         
+ E_descf        0.0000000000         0.0000000000         
+ E_exx          -1.7232260515        -23.4456932423       
+ E_Fermi        -0.6320634041        -8.5996637935        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   1--------------------------------
+
+ Density error is 4.64921730708e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434875       -477.7592346683      
+ E_Harris       -35.1148038736       -477.7614168334      
+ E_Fermi        -0.6321400745        -8.6007069476        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   2--------------------------------
+
+ Density error is 2.82193427527e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434917       -477.7592347252      
+ E_Harris       -35.1143991113       -477.7559097592      
+ E_Fermi        -0.6321239711        -8.6004878492        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   3--------------------------------
+
+ Density error is 6.71206074621e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434737       -477.7592344812      
+ E_Harris       -35.1145795462       -477.7583647032      
+ E_Fermi        -0.6321036266        -8.6002110489        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   4--------------------------------
+
+ Density error is 4.91939782515e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434637       -477.7592343446      
+ E_Harris       -35.1145928936       -477.7585463031      
+ E_Fermi        -0.6321017695        -8.6001857807        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   5--------------------------------
+
+ Density error is 3.57403122365e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434441       -477.7592340780      
+ E_Harris       -35.1146144672       -477.7588398274      
+ E_Fermi        -0.6320994033        -8.6001535878        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   6--------------------------------
+
+ Density error is 2.32195372802e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434345       -477.7592339482      
+ E_Harris       -35.1146295912       -477.7590455992      
+ E_Fermi        -0.6320975680        -8.6001286166        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   7--------------------------------
+
+ Density error is 1.64545247337e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434351       -477.7592339551      
+ E_Harris       -35.1146377659       -477.7591568224      
+ E_Fermi        -0.6320966800        -8.6001165349        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   8--------------------------------
+
+ Density error is 1.27053056691e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434361       -477.7592339689      
+ E_Harris       -35.1146390089       -477.7591737337      
+ E_Fermi        -0.6320965104        -8.6001142275        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   9--------------------------------
+
+ Density error is 7.30737427419e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434376       -477.7592339895      
+ E_Harris       -35.1146412706       -477.7592045057      
+ E_Fermi        -0.6320962557        -8.6001107618        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  10--------------------------------
+
+ Density error is 5.20552972043e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434391       -477.7592340100      
+ E_Harris       -35.1146423552       -477.7592192627      
+ E_Fermi        -0.6320961489        -8.6001093094        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  11--------------------------------
+
+ Density error is 2.77028752041e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434391       -477.7592340100      
+ E_Harris       -35.1146429611       -477.7592275069      
+ E_Fermi        -0.6320960879        -8.6001084796        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  12--------------------------------
+
+ Density error is 2.23296778699e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434401       -477.7592340237      
+ E_Harris       -35.1146430935       -477.7592293086      
+ E_Fermi        -0.6320960731        -8.6001082772        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  13--------------------------------
+
+ Density error is 1.03452818221e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434401       -477.7592340237      
+ E_Harris       -35.1146432956       -477.7592320579      
+ E_Fermi        -0.6320960531        -8.6001080054        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  14--------------------------------
+
+ Density error is 1.00401710247e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434401       -477.7592340237      
+ E_Harris       -35.1146432978       -477.7592320878      
+ E_Fermi        -0.6320960526        -8.6001079991        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  15--------------------------------
+
+ Density error is 3.6433051504e-08
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434401       -477.7592340237      
+ E_KS(sigma->0) -35.1146434401       -477.7592340237      
+ E_Harris       -35.1146433946       -477.7592334040      
+ E_band         -9.1412339770        -124.3728688385      
+ E_one_elec     -72.8382403196       -991.0151006400      
+ E_Hartree      37.9758338748        516.6877269989       
+ E_xc           -7.7462597095        -105.3932702370      
+ E_Ewald        9.2175359336         125.4110102165       
+ E_entropy(-TS) 0.0000000000         0.0000000000         
+ E_descf        0.0000000000         0.0000000000         
+ E_exx          -1.7235132194        -23.4496003622       
+ E_Fermi        -0.6320960410        -8.6001078410        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   1--------------------------------
+
+ Density error is 5.18904453992e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434453       -477.7592340949      
+ E_Harris       -35.1146591982       -477.7594484232      
+ E_Fermi        -0.6321042802        -8.6002199404        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   2--------------------------------
+
+ Density error is 3.10378437859e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434458       -477.7592341015      
+ E_Harris       -35.1146226669       -477.7589513893      
+ E_Fermi        -0.6321029948        -8.6002024517        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   3--------------------------------
+
+ Density error is 6.20097316009e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434448       -477.7592340879      
+ E_Harris       -35.1146377054       -477.7591559989      
+ E_Fermi        -0.6321012076        -8.6001781360        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   4--------------------------------
+
+ Density error is 3.76446951631e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434438       -477.7592340742      
+ E_Harris       -35.1146401387       -477.7591891059      
+ E_Fermi        -0.6321009323        -8.6001743907        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   5--------------------------------
+
+ Density error is 3.02580031769e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434418       -477.7592340467      
+ E_Harris       -35.1146410795       -477.7592019057      
+ E_Fermi        -0.6321008246        -8.6001729251        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   6--------------------------------
+
+ Density error is 1.95492135844e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434418       -477.7592340468      
+ E_Harris       -35.1146423291       -477.7592189082      
+ E_Fermi        -0.6321006766        -8.6001709114        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   7--------------------------------
+
+ Density error is 1.33642541773e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434413       -477.7592340399      
+ E_Harris       -35.1146428445       -477.7592259197      
+ E_Fermi        -0.6321006182        -8.6001701164        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   8--------------------------------
+
+ Density error is 1.1038313983e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434403       -477.7592340262      
+ E_Harris       -35.1146429618       -477.7592275160      
+ E_Fermi        -0.6321006012        -8.6001698856        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   9--------------------------------
+
+ Density error is 7.79101008797e-08
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434408       -477.7592340331      
+ E_KS(sigma->0) -35.1146434408       -477.7592340331      
+ E_Harris       -35.1146431498       -477.7592300733      
+ E_band         -9.1412296219        -124.3728095836      
+ E_one_elec     -72.8382413930       -991.0151152446      
+ E_Hartree      37.9758640108        516.6881370196       
+ E_xc           -7.7462648574        -105.3933402779      
+ E_Ewald        9.2175359336         125.4110102165       
+ E_entropy(-TS) 0.0000000000         0.0000000000         
+ E_descf        0.0000000000         0.0000000000         
+ E_exx          -1.7235371347        -23.4499257467       
+ E_Fermi        -0.6321005757        -8.6001695386        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   1--------------------------------
+
+ Density error is 7.45362281909e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434414       -477.7592340408      
+ E_Harris       -35.1146458413       -477.7592666943      
+ E_Fermi        -0.6321015656        -8.6001830070        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   2--------------------------------
+
+ Density error is 4.47755143455e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434414       -477.7592340407      
+ E_Harris       -35.1146414222       -477.7592065686      
+ E_Fermi        -0.6321014786        -8.6001818236        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   3--------------------------------
+
+ Density error is 7.84782496952e-08
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434409       -477.7592340339      
+ E_KS(sigma->0) -35.1146434409       -477.7592340339      
+ E_Harris       -35.1146428079       -477.7592254227      
+ E_band         -9.1412295673        -124.3728088419      
+ E_one_elec     -72.8382413881       -991.0151151776      
+ E_Hartree      37.9758669042        516.6881763866       
+ E_xc           -7.7462654769        -105.3933487068      
+ E_Ewald        9.2175359336         125.4110102165       
+ E_entropy(-TS) 0.0000000000         0.0000000000         
+ E_descf        0.0000000000         0.0000000000         
+ E_exx          -1.7235394136        -23.4499567527       
+ E_Fermi        -0.6321012943        -8.6001793157        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   1--------------------------------
+
+ Density error is 1.15225071383e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434409       -477.7592340339      
+ E_Harris       -35.1146441020       -477.7592430290      
+ E_Fermi        -0.6321013534        -8.6001801198        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   2--------------------------------
+
+ Density error is 7.01018825605e-08
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434409       -477.7592340340      
+ E_KS(sigma->0) -35.1146434409       -477.7592340340      
+ E_Harris       -35.1146432440       -477.7592313553      
+ E_band         -9.1412291979        -124.3728038158      
+ E_one_elec     -72.8382412631       -991.0151134769      
+ E_Hartree      37.9758671021        516.6881790792       
+ E_xc           -7.7462655462        -105.3933496493      
+ E_Ewald        9.2175359336         125.4110102165       
+ E_entropy(-TS) 0.0000000000         0.0000000000         
+ E_descf        0.0000000000         0.0000000000         
+ E_exx          -1.7235396672        -23.4499602035       
+ E_Fermi        -0.6321013609        -8.6001802217        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   1--------------------------------
+
+ Density error is 1.21661039017e-08
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -35.1146434409       -477.7592340339      
+ E_KS(sigma->0) -35.1146434409       -477.7592340339      
+ E_Harris       -35.1146435409       -477.7592353952      
+ E_band         -9.1412289848        -124.3728009164      
+ E_one_elec     -72.8382411910       -991.0151124958      
+ E_Hartree      37.9758670544        516.6881784298       
+ E_xc           -7.7462655426        -105.3933496007      
+ E_Ewald        9.2175359336         125.4110102165       
+ E_entropy(-TS) 0.0000000000         0.0000000000         
+ E_descf        0.0000000000         0.0000000000         
+ E_exx          -1.7235396952        -23.4499605838       
+ E_Fermi        -0.6321013517        -8.6001800972        
+----------------------------------------------------------
+
+
+ charge density convergence is achieved
+ final etot is -477.75923403 eV
+ EFERMI = -8.6001800972 eV
+
+ STATE ENERGY(eV) AND OCCUPATIONS    NSPIN == 1
+ 1/1 kpoint (Cartesian) = 0.0000 0.0000 0.0000 (911913 pws)
+       1       -28.1450        2.00000
+       2       -14.6577        2.00000
+       3       -10.7835        2.00000
+       4       -8.60018        2.00000
+       5      0.0166498        0.00000
+       6        1.79509        0.00000
+       7        3.07234        0.00000
+       8        3.28193        0.00000
+       9        5.87743        0.00000
+      10        6.29955        0.00000
+      11        7.65793        0.00000
+      12        10.2304        0.00000
+      13        10.4603        0.00000
+      14        13.1888        0.00000
+
+
+
+ --------------------------------------------
+ !FINAL_ETOT_IS -477.7592340339123 eV
+ --------------------------------------------
+
+
+TIME STATISTICS
+--------------------------------------------------------------------------------------
+     CLASS_NAME                     NAME                TIME/s  CALLS   AVG/s  PER/%  
+--------------------------------------------------------------------------------------
+                     total                              452.07 11       41.10  100.00 
+ Driver              reading                            0.03   1        0.03   0.01   
+ Input_Conv          Convert                            0.00   1        0.00   0.00   
+ Driver              driver_line                        452.04 1        452.04 99.99  
+ UnitCell            check_tau                          0.00   1        0.00   0.00   
+ ESolver_KS_LCAO     before_all_runners                 64.68  1        64.68  14.31  
+ PW_Basis_Sup        setuptransform                     0.09   1        0.09   0.02   
+ PW_Basis_Sup        distributeg                        0.08   1        0.08   0.02   
+ mymath              heapsort                           1.42   3        0.47   0.31   
+ Charge_Mixing       init_mixing                        0.00   1        0.00   0.00   
+ PW_Basis_K          setuptransform                     0.08   1        0.08   0.02   
+ PW_Basis_K          distributeg                        0.06   1        0.06   0.01   
+ PW_Basis            setup_struc_factor                 0.23   1        0.23   0.05   
+ NOrbital_Lm         extra_uniform                      3.43   14339    0.00   0.76   
+ Mathzone_Add1       SplineD2                           0.25   14339    0.00   0.05   
+ Mathzone_Add1       Cubic_Spline_Interpolation         0.63   14339    0.00   0.14   
+ Exx_LRI             init                               61.27  1        61.27  13.55  
+ Matrix_Orbs21       init                               2.42   2        1.21   0.54   
+ ORB_gaunt_table     init_Gaunt_CH                      0.15   3        0.05   0.03   
+ ORB_gaunt_table     Calc_Gaunt_CH                      0.08   82305    0.00   0.02   
+ ORB_gaunt_table     init_Gaunt                         1.46   3        0.49   0.32   
+ ORB_gaunt_table     Get_Gaunt_SH                       27.62  3635313  0.00   6.11   
+ Matrix_Orbs21       init_radial                        0.00   2        0.00   0.00   
+ Matrix_Orbs21       init_radial_table                  26.55  2        13.28  5.87   
+ Center2_Orb         cal_ST_Phi12_R                     43.96  25523    0.00   9.72   
+ LRI_CV              set_orbitals                       49.78  1        49.78  11.01  
+ Matrix_Orbs11       init                               2.50   1        2.50   0.55   
+ Matrix_Orbs11       init_radial                        0.00   1        0.00   0.00   
+ Matrix_Orbs11       init_radial_table                  26.81  1        26.81  5.93   
+ ppcell_vl           init_vloc                          0.01   1        0.01   0.00   
+ Ions                opt_ions                           386.82 1        386.82 85.57  
+ ESolver_KS_LCAO     runner                             386.82 1        386.82 85.57  
+ ESolver_KS_LCAO     before_scf                         3.92   1        3.92   0.87   
+ atom_arrange        search                             0.00   1        0.00   0.00   
+ atom_arrange        grid_d.init                        0.00   1        0.00   0.00   
+ Grid                Construct_Adjacent_expand          0.00   1        0.00   0.00   
+ Grid                Construct_Adjacent_expand_periodic 0.00   3        0.00   0.00   
+ Grid_Technique      init                               0.10   1        0.10   0.02   
+ Grid_BigCell        grid_expansion_index               0.04   2        0.02   0.01   
+ Grid_Driver         Find_atom                          0.00   18       0.00   0.00   
+ Record_adj          for_2d                             0.00   1        0.00   0.00   
+ LCAO_domain         grid_prepare                       0.00   1        0.00   0.00   
+ Veff                initialize_HR                      0.00   1        0.00   0.00   
+ OverlapNew          initialize_SR                      0.00   1        0.00   0.00   
+ EkineticNew         initialize_HR                      0.00   1        0.00   0.00   
+ NonlocalNew         initialize_HR                      0.00   1        0.00   0.00   
+ Exx_LRI             cal_exx_ions                       0.19   1        0.19   0.04   
+ LRI_CV              cal_datas                          0.13   2        0.07   0.03   
+ Charge              set_rho_core                       0.28   1        0.28   0.06   
+ PW_Basis_Sup        recip2real                         21.53  529      0.04   4.76   
+ PW_Basis_Sup        gathers_scatterp                   4.35   529      0.01   0.96   
+ ModuleIO            read_rhog                          0.97   1        0.97   0.21   
+ Potential           init_pot                           1.93   1        1.93   0.43   
+ Potential           update_from_charge                 292.33 89       3.28   64.66  
+ Potential           cal_fixed_v                        0.20   1        0.20   0.04   
+ PotLocal            cal_fixed_v                        0.19   1        0.19   0.04   
+ Potential           cal_v_eff                          289.82 89       3.26   64.11  
+ H_Hartree_pw        v_hartree                          28.53  89       0.32   6.31   
+ PW_Basis_Sup        real2recip                         18.19  555      0.03   4.02   
+ PW_Basis_Sup        gatherp_scatters                   2.44   555      0.00   0.54   
+ PotXC               cal_v_eff                          254.98 89       2.86   56.40  
+ XC_Functional       v_xc                               190.58 55       3.47   42.16  
+ Potential           interpolate_vrs                    2.31   89       0.03   0.51   
+ H_Ewald_pw          compute_ewald                      0.30   1        0.30   0.07   
+ HSolverLCAO         solve                              18.58  88       0.21   4.11   
+ HamiltLCAO          updateHk                           3.47   88       0.04   0.77   
+ OperatorLCAO        init                               3.47   352      0.01   0.77   
+ Veff                contributeHR                       3.46   88       0.04   0.76   
+ Gint_interface      cal_gint                           10.46  176      0.06   2.31   
+ Gint_interface      cal_gint_vlocal                    3.45   88       0.04   0.76   
+ Gint_Tools          cal_psir_ylm                       4.60   155858   0.00   1.02   
+ Gint_k              transfer_pvpR                      0.00   88       0.00   0.00   
+ OverlapNew          calculate_SR                       0.00   1        0.00   0.00   
+ OverlapNew          contributeHk                       0.00   88       0.00   0.00   
+ EkineticNew         contributeHR                       0.00   88       0.00   0.00   
+ EkineticNew         calculate_HR                       0.00   1        0.00   0.00   
+ NonlocalNew         contributeHR                       0.00   88       0.00   0.00   
+ NonlocalNew         calculate_HR                       0.00   1        0.00   0.00   
+ OperatorLCAO        contributeHk                       0.00   88       0.00   0.00   
+ HSolverLCAO         hamiltSolvePsiK                    0.24   88       0.00   0.05   
+ DiagoElpa           elpa_solve                         0.21   88       0.00   0.05   
+ elecstate           cal_dm                             0.00   88       0.00   0.00   
+ psiMulPsiMpi        pdgemm                             0.00   88       0.00   0.00   
+ DensityMatrix       cal_DMR                            0.00   88       0.00   0.00   
+ ElecStateLCAO       psiToRho                           14.86  88       0.17   3.29   
+ Gint                transfer_DMR                       0.01   88       0.00   0.00   
+ Gint_interface      cal_gint_rho                       7.00   88       0.08   1.55   
+ Charge_Mixing       get_drho                           0.33   88       0.00   0.07   
+ Charge              mix_rho                            38.69  80       0.48   8.56   
+ Charge              Pulay_mixing                       2.28   80       0.03   0.50   
+ ModuleIO            write_rhog                         8.57   8        1.07   1.90   
+ RI_2D_Comm          split_m2D_ktoR                     0.00   7        0.00   0.00   
+ Exx_LRI             cal_exx_elec                       0.74   7        0.11   0.16   
+ RI_2D_Comm          add_HexxR                          0.00   68       0.00   0.00   
+ XC_Functional_Libxc v_xc_libxc                         222.42 68       3.27   49.20  
+ ESolver_KS_LCAO     after_scf                          4.56   1        4.56   1.01   
+ Charge              atomic_rho                         0.27   1        0.27   0.06   
+ ModuleIO            save_sparse                        0.00   1        0.00   0.00   
+ ESolver_KS_LCAO     after_all_runners                  0.00   1        0.00   0.00   
+ ModuleIO            write_istate_info                  0.00   1        0.00   0.00   
+--------------------------------------------------------------------------------------
+
+
+ NAME-------------------------|MEMORY(MB)--------
+                         total          6186.
+                    ORB::Jl(x)          5063.
+                  SF::strucFac          222.5
+                      Chg::rho          109.5
+                 Chg::rho_save          109.5
+                 Chg::rho_core          109.5
+                 Pot::veff_fix          109.5
+                     Pot::veff          109.5
+              Pot::veff_smooth          109.5
+                     Chg::rhog          55.63
+                Chg::rhog_save          55.63
+                Chg::rhog_core          55.63
+                  PW_B_K::gcar          20.87
+                   PW_B_K::gk2          6.957
+               GT::ind_bigcell          6.927
+         GT::in_this_processor          6.927
+              GT::index2normal          6.927
+               GT::index2ucell          6.927
+       TwoCenterTable: Kinetic          3.071
+       TwoCenterTable: Overlap          3.071
+                 GT::start_ind          2.027
+            GT::how_many_atoms          2.027
+               GT::bcell_start          2.027
+            GT::how many atoms          2.027
+      TwoCenterTable: Nonlocal          1.857
+      GT::bigcell_on_processor          1.732
+ -------------   < 1.0 MB has been ignored ----------------
+ ----------------------------------------------------------
+
+ Start  Time  : Wed Sep  2 21:25:26 2026
+ Finish Time  : Wed Sep  2 21:32:58 2026
+ Total  Time  : 0 h 7 mins 32 secs 

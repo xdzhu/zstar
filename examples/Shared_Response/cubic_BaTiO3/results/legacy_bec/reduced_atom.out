@@ -1,0 +1,12 @@
+# ZStar symmetry reduction
+engine = spglib
+dimensionality = 3
+space_group = Pm-3m
+hall_number = 517
+# one-based atom index, element, equivalent-atom representative (zero-based)
+   1 Ba      0
+   2 Ti      1
+   3 O       2
+   4 O       2
+   5 O       2
+representatives = 1 2 3

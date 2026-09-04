@@ -1,0 +1,280 @@
+{
+  "schema": "zstar-response",
+  "schema_version": "1.0",
+  "created_at": "2026-09-04T08:32:46.222402+00:00",
+  "backend": "abacus",
+  "dimensionality": {
+    "value": 2,
+    "label": "2d",
+    "periodic_axes": [
+      "x",
+      "y"
+    ],
+    "nonperiodic_axes": [
+      "z"
+    ],
+    "intrinsic_response_kind": "sheet polarizability",
+    "intrinsic_response_unit": "angstrom"
+  },
+  "structure": {
+    "symbols": [
+      "N",
+      "B"
+    ],
+    "cell_angstrom": [
+      [
+        2.5106132161272625,
+        0.0,
+        0.0
+      ],
+      [
+        -1.2553066081136308,
+        2.174254824309804,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        29.999998021526476
+      ]
+    ],
+    "scaled_positions": [
+      [
+        0.333333343,
+        0.666666687,
+        0.5
+      ],
+      [
+        0.666666627,
+        0.333333313,
+        0.5
+      ]
+    ]
+  },
+  "quantities": [
+    {
+      "name": "born_effective_charge",
+      "values": [
+        [
+          [
+            -2.7016255245929157,
+            6.212703673952203e-11,
+            1.6434602192104414e-32
+          ],
+          [
+            6.212707842165442e-11,
+            -2.7016255247585317,
+            -1.6434602192104412e-32
+          ],
+          [
+            6.41976648129078e-35,
+            -2.5679065925163143e-34,
+            -0.341271354323174
+          ]
+        ],
+        [
+          [
+            2.7016255245929157,
+            -6.212703673952203e-11,
+            -1.6434602192104412e-32
+          ],
+          [
+            -6.212707842165442e-11,
+            2.7016255247585317,
+            1.6434602192104412e-32
+          ],
+          [
+            -6.419766481290789e-35,
+            2.5679065925163143e-34,
+            0.341271354323174
+          ]
+        ]
+      ],
+      "shape": [
+        2,
+        3,
+        3
+      ],
+      "unit": "e",
+      "normalization": "per_atom",
+      "axes": [
+        "atom",
+        "displacement",
+        "polarization"
+      ],
+      "convention": "rows=displacement; columns=polarization",
+      "source": "abacus",
+      "metadata": {
+        "labels": [
+          "N",
+          "B"
+        ]
+      }
+    },
+    {
+      "name": "supercell_electronic_dielectric",
+      "values": [
+        [
+          1.408043,
+          -5.275561e-08,
+          -6.703934e-10
+        ],
+        [
+          -5.275561e-08,
+          1.408043,
+          -3.610212e-09
+        ],
+        [
+          -6.703934e-10,
+          -3.610212e-09,
+          1.147124
+        ]
+      ],
+      "shape": [
+        3,
+        3
+      ],
+      "unit": "1",
+      "normalization": "cell_volume",
+      "axes": [
+        "field",
+        "polarization"
+      ],
+      "convention": "",
+      "source": "abacus",
+      "metadata": {
+        "intrinsic_low_dimensional_response_required": true
+      }
+    },
+    {
+      "name": "force_constants",
+      "values": [
+        [
+          [
+            [
+              41.18062731527547,
+              -9.469973156406829e-10,
+              2.9376851418386623e-31
+            ],
+            [
+              -9.469973156406829e-10,
+              41.18062731779994,
+              1.3250398017384178e-31
+            ],
+            [
+              2.9376851418386627e-31,
+              1.3250398017384178e-31,
+              15.2784808071786
+            ]
+          ],
+          [
+            [
+              -41.18062731527547,
+              9.469973156406829e-10,
+              -2.9376851418386627e-31
+            ],
+            [
+              9.469973156406829e-10,
+              -41.18062731779994,
+              -1.325039801738418e-31
+            ],
+            [
+              -2.9376851418386645e-31,
+              -1.3250398017384185e-31,
+              -15.2784808071786
+            ]
+          ]
+        ],
+        [
+          [
+            [
+              -41.18062731527547,
+              9.469973156406829e-10,
+              -2.9376851418386645e-31
+            ],
+            [
+              9.469973156406829e-10,
+              -41.18062731779994,
+              -1.3250398017384185e-31
+            ],
+            [
+              -2.9376851418386627e-31,
+              -1.325039801738418e-31,
+              -15.2784808071786
+            ]
+          ],
+          [
+            [
+              41.18062731527548,
+              -9.46997315640683e-10,
+              2.937685141838665e-31
+            ],
+            [
+              -9.46997315640683e-10,
+              41.18062731779994,
+              1.3250398017384185e-31
+            ],
+            [
+              2.9376851418386645e-31,
+              1.3250398017384187e-31,
+              15.2784808071786
+            ]
+          ]
+        ]
+      ],
+      "shape": [
+        2,
+        2,
+        3,
+        3
+      ],
+      "unit": "eV/angstrom^2",
+      "normalization": "Gamma_cell",
+      "axes": [
+        "atom",
+        "atom",
+        "force",
+        "displacement"
+      ],
+      "convention": "",
+      "source": "",
+      "metadata": {}
+    }
+  ],
+  "provenance": {
+    "ensemble_manifest": "shared_response.json",
+    "manifest_sha256": "eb080c1a2208fad3d0b06989db69d16dea605148a8baa4b9eca35d079458b3a2",
+    "result": "shared_response_result.json"
+  },
+  "metadata": {
+    "raw_diagnostics": {
+      "site_fits": [
+        {
+          "atom": 0,
+          "rank": 3,
+          "condition_number": 16.898821292280186,
+          "dipole_fit_max_e_A": 1.7950047462697758e-06,
+          "force_fit_max_eV_A": 4.690690000000283e-05,
+          "observations": 12
+        },
+        {
+          "atom": 1,
+          "rank": 3,
+          "condition_number": 16.89882129227485,
+          "dipole_fit_max_e_A": 1.796122423277761e-06,
+          "force_fit_max_eV_A": 4.7011700000005464e-05,
+          "observations": 12
+        }
+      ],
+      "born_asr_max_e": 0.0005213616858026349,
+      "hessian_reciprocity_max_eV_A2": 0.0002635332857892081,
+      "hessian_reciprocity_relative_Frobenius": 4.411770995233447e-06,
+      "force_asr_max_eV_A2": 0.0002635332857892081,
+      "total_force_derivative_max_eV_A2": 7.888609052210118e-31,
+      "reference_force_max_eV_A": 0.0,
+      "constraints_applied": false
+    },
+    "scope": "Gamma",
+    "asr_projected": true
+  }
+}

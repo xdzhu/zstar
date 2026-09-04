@@ -11,11 +11,19 @@ ZStar 将 Born 有效电荷（BEC）张量与 Gamma 点声子本征矢收缩，�
 | 3 | 相对介电张量 | 无量纲 |
 | 2 | 片层极化率除以真空介电常数 | Angstrom |
 | 1 | 线极化率除以真空介电常数 | Angstrom^2 |
-| 0 | 分子极化率 | Angstrom^3 |
+| 0 | Gaussian 分子极化率 alpha/(4 pi epsilon_0) | Angstrom^3 |
 
 对于 `dim=1` 和 `dim=2`，ZStar 不会把依赖真空层大小的超胞介电张量冒充
 材料本征介电常数。只有用户明确给出厚度或横截面约定时，程序才换算等效
-三维张量。
+三维归一化张量，但仍保留源数据的电场约定。若要转换薄层面外本征介电
+常数，必须提供相容且包含屏蔽的宏观超胞响应，并通过
+`--slab-boundary macroscopic` 选择逆响应转换。详见
+[电场定义与 Raman 单位](response_conventions.md)；该选项不会补上 PYATB
+源数据中缺失的微观局域场屏蔽。
+
+分子固定取向振动响应应排除整体平移和转动，不能用普通低频截断代替此项
+检查。[分子 Unified 基准](../examples/Shared_Response/README.zh-CN.md)
+提供独立的质量加权内部子空间核验。
 
 ## 所需文件
 

@@ -1,0 +1,35 @@
+{
+  "source_stru": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/hfo2/shared/0.no-move/STRU",
+  "prepared_stru": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/hfo2/shared/0.no-move/STRU",
+  "changed": false,
+  "assets": [
+    {
+      "kind": "pseudopotential",
+      "element": "Hf",
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/hfo2/shared/0.no-move/Hf.upf",
+      "name_in_stru": "Hf.upf",
+      "sha256": "7c516a68310c779a4f572c9ea6b3a73f27ca3a61908b9ade0da3db6db727c8a5"
+    },
+    {
+      "kind": "pseudopotential",
+      "element": "O",
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/hfo2/shared/0.no-move/O.upf",
+      "name_in_stru": "O.upf",
+      "sha256": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6"
+    },
+    {
+      "kind": "orbital",
+      "element": "Hf",
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/hfo2/shared/0.no-move/Hf_gga_9au_100Ry_6s3p3d2f1g.orb",
+      "name_in_stru": "Hf_gga_9au_100Ry_6s3p3d2f1g.orb",
+      "sha256": "a6cb4c79bb1245a4ca4fd4e8cd909aae8179bbedb6174d40e336f50e50df547f"
+    },
+    {
+      "kind": "orbital",
+      "element": "O",
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/hfo2/shared/0.no-move/O_gga_9au_100Ry_2s2p1d.orb",
+      "name_in_stru": "O_gga_9au_100Ry_2s2p1d.orb",
+      "sha256": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610"
+    }
+  ]
+}

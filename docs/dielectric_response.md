@@ -12,12 +12,21 @@ quantity follows the physical dimensionality of the system:
 | 3 | relative dielectric tensor | dimensionless |
 | 2 | sheet polarizability divided by vacuum permittivity | Angstrom |
 | 1 | line polarizability divided by vacuum permittivity | Angstrom^2 |
-| 0 | molecular polarizability | Angstrom^3 |
+| 0 | molecular Gaussian polarizability, alpha/(4 pi epsilon_0) | Angstrom^3 |
 
 For `dim=1` and `dim=2`, ZStar does not present the vacuum-dependent
 supercell dielectric tensor as an intrinsic material constant. An effective
-3D tensor is generated only when the user supplies an explicit thickness or
-cross-sectional convention.
+3D normalization requires an explicit thickness or cross-sectional convention.
+It still retains the source electric-field definition. A slab's perpendicular
+intrinsic permittivity needs compatible screened macroscopic input and the
+inverse-response conversion selected by `--slab-boundary macroscopic`.
+See [field definitions and Raman units](response_conventions.md); this option
+does not supply microscopic local-field screening missing from a PYATB input.
+
+For isolated molecules, separate rigid translations and rotations before
+interpreting a fixed-orientation vibrational response. A generic low-frequency
+cutoff is not a substitute for that check. The [molecular Unified benchmarks](../examples/Shared_Response/README.md)
+include an independent mass-weighted internal-subspace audit.
 
 ## Required files
 

@@ -1,0 +1,25 @@
+INPUT_PARAMETERS
+suffix                  ABACUS
+calculation         scf
+basis_type              lcao
+ecutwfc                 100
+scf_thr                 1e-8
+scf_nmax                200
+smearing_method         gauss
+smearing_sigma          0.001
+mixing_type             pulay
+mixing_beta             0.4
+kspacing           0.1 0.1 1
+dft_functional       pbesol
+vdw_method         d3_0
+vdw_s6                  1.0
+vdw_s8                  1.442
+vdw_a1                  1.370
+vdw_a2                  1.0
+cal_force               1
+cal_stress              1
+symmetry            1
+out_chg             1 10
+init_chg            file
+out_mat_hs2         1
+out_mat_r           1

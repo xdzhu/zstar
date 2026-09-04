@@ -1,0 +1,336 @@
+{
+    "INPUT_PARAMETERS": {
+        "nspin": 1,
+        "package": "ABACUS",
+        "fermi_energy": -1.9897808096,
+        "fermi_energy_unit": "eV",
+        "max_kpoint_num": 800,
+        "sparse_format": 0,
+        "HR_route": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/z+/OUT.ABACUS/data-HR-sparse_SPIN0.csr",
+        "SR_route": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/z+/OUT.ABACUS/data-SR-sparse_SPIN0.csr",
+        "rR_route": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/z+/OUT.ABACUS/data-rR-sparse.csr",
+        "binary": 0,
+        "HR_unit": "Ry",
+        "rR_unit": "Bohr"
+    },
+    "LATTICE": {
+        "lattice_constant": 1.0,
+        "lattice_constant_unit": "Angstrom",
+        "lattice_vector": [
+            [
+                3.979198319044809,
+                -0.0,
+                -0.0
+            ],
+            [
+                -1.9895991595224045,
+                3.446086831041841,
+                -0.0
+            ],
+            [
+                0.0,
+                0.0,
+                36.36676898157167
+            ]
+        ]
+    },
+    "BAND_STRUCTURE": {
+        "wf_collect": false,
+        "band_range": [
+            -1,
+            -1
+        ],
+        "kpoint_mode": null
+    },
+    "BANDUNFOLDING": {
+        "stru_file": null,
+        "ecut": 10,
+        "band_range": null,
+        "m_matrix": null,
+        "kpoint_mode": null
+    },
+    "BANDUNFOLDING_SPIN_TEXTURE": {
+        "stru_file": null,
+        "ecut": 10,
+        "band_range": null,
+        "m_matrix": null,
+        "kpoint_mode": null
+    },
+    "FAT_BAND": {
+        "band_range": null,
+        "stru_file": null,
+        "kpoint_mode": null
+    },
+    "FERMI_ENERGY": {
+        "temperature": 0.0,
+        "electron_num": null,
+        "grid": [
+            10,
+            10,
+            10
+        ],
+        "epsilon": 0.001
+    },
+    "FIND_NODES": {
+        "energy_range": [
+            0.0,
+            0.0
+        ],
+        "initial_grid": [
+            10,
+            10,
+            10
+        ],
+        "initial_threshold": 0.1,
+        "adaptive_grid": [
+            20,
+            20,
+            20
+        ],
+        "adaptive_threshold": 0.001,
+        "k_start": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "k_vect1": [
+            1.0,
+            0.0,
+            0.0
+        ],
+        "k_vect2": [
+            0.0,
+            1.0,
+            0.0
+        ],
+        "k_vect3": [
+            0.0,
+            0.0,
+            1.0
+        ]
+    },
+    "BERRY_CURVATURE": {
+        "method": 0,
+        "occ_band": -1,
+        "kpoint_mode": null
+    },
+    "CHERN_NUMBER": {
+        "method": 0,
+        "occ_band": -1,
+        "k_start": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "k_vect1": [
+            1.0,
+            0.0,
+            0.0
+        ],
+        "k_vect2": [
+            0.0,
+            1.0,
+            0.0
+        ],
+        "integrate_mode": null
+    },
+    "AHC": {
+        "method": 0,
+        "integrate_mode": null
+    },
+    "ANC": {
+        "fermi_range": [
+            -1.0,
+            1.0
+        ],
+        "de": 0.01,
+        "eta": 0.01,
+        "integrate_grid": [
+            4,
+            4,
+            4
+        ]
+    },
+    "OPTICAL_CONDUCTIVITY": {
+        "occ_band": -1,
+        "omega": null,
+        "domega": null,
+        "eta": 0.01,
+        "grid": null,
+        "method": 1
+    },
+    "ORBITAL_MAGNETIZATION": {
+        "fermi_energy": null,
+        "fermi_range": [
+            -2.0,
+            2.0
+        ],
+        "de": 0.05,
+        "eta": 0.01,
+        "grid": null
+    },
+    "POLARIZATION": {
+        "occ_band": 22,
+        "nk1": 18,
+        "nk2": 18,
+        "nk3": 1,
+        "atom_type": 2,
+        "stru_file": "STRU",
+        "valence_e": [
+            13,
+            6
+        ]
+    },
+    "WILSON_LOOP": {
+        "occ_band": null,
+        "k_start": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "k_vect1": [
+            1.0,
+            0.0,
+            0.0
+        ],
+        "k_vect2": [
+            0.0,
+            1.0,
+            0.0
+        ],
+        "nk1": 100,
+        "nk2": 100
+    },
+    "SHIFT_CURRENT": {
+        "occ_band": null,
+        "omega": null,
+        "domega": null,
+        "smearing_method": 1,
+        "eta": 0.01,
+        "grid": null,
+        "method": 1,
+        "n_occ": -1,
+        "m_unocc": -1
+    },
+    "FERMI_SURFACE": {
+        "bar": 0.001,
+        "nbands": [
+            0,
+            0
+        ],
+        "kpoint_mode": null
+    },
+    "JDOS": {
+        "occ_band": null,
+        "omega": null,
+        "domega": null,
+        "eta": 0.01,
+        "grid": null
+    },
+    "PDOS": {
+        "stru_file": null,
+        "e_range": null,
+        "de": 0.01,
+        "sigma": 0.001,
+        "kpoint_mode": null
+    },
+    "SPIN_TEXTURE": {
+        "band_range": null,
+        "kpoint_mode": null
+    },
+    "BERRY_CURVATURE_DIPOLE": {
+        "omega": null,
+        "domega": null,
+        "grid": null
+    },
+    "CHIRALITY": {
+        "method": 0,
+        "occ_band": -1,
+        "k_vect": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "radius": 0.01,
+        "point_num": 1000
+    },
+    "SURFACE_STATE": {
+        "cal_surface_method": "green_fun",
+        "surface_direction": "c",
+        "energy_windows": [
+            -1.0,
+            1.0
+        ],
+        "de": 0.01,
+        "eta": 0.01,
+        "coupling_layers": null,
+        "calculate_layer": 1,
+        "kpoint_mode": null
+    },
+    "CPGE": {
+        "omega": null,
+        "domega": null,
+        "integrate_mode": null
+    },
+    "DRUDE_WEIGHT": {
+        "omega": null,
+        "domega": null,
+        "integrate_mode": null
+    },
+    "REDUCE_BASIS": {
+        "e_range": null,
+        "threshold": 0.02,
+        "band_index_range": null,
+        "kpoint_mode": null
+    },
+    "SHC": {
+        "alpha": "x",
+        "beta": "y",
+        "gamma": "z",
+        "fermi_range": [
+            -1.0,
+            1.0
+        ],
+        "de": 0.01,
+        "eta": 0.01,
+        "integrate_grid": [
+            4,
+            4,
+            4
+        ]
+    },
+    "SHG": {
+        "method": 0,
+        "eta": 0.05,
+        "omega": null,
+        "domega": null,
+        "grid": null
+    },
+    "POCKELS": {
+        "omega1": 0,
+        "omega": null,
+        "domega": null,
+        "grid": null
+    },
+    "BOLTZ_TRANSPORT": {
+        "transport_coeff_cal": 1,
+        "effective_mass_cal": 0,
+        "transport_method": "CRTA",
+        "electron_num": null,
+        "grid": null,
+        "delta_mu_range": [
+            -5.0,
+            5.0
+        ],
+        "mu_step": 0.1,
+        "temperature_range": [
+            300,
+            300
+        ],
+        "temperature_step": 50,
+        "eta": 0.1,
+        "relax_time": 10,
+        "def_pot": 2,
+        "young_mod": 240
+    }
+}

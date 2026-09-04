@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+from zstar.abacus_assets import prepare_stru_assets
+
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = ROOT / "examples"
@@ -23,17 +25,22 @@ def test_manifest_cases_are_self_describing():
         assert any((case / "results").rglob("*")), record["id"]
 
 
-def test_abacus_cases_ship_matching_assets():
+def test_abacus_cases_ship_matching_assets(tmp_path):
     for record in _manifest_cases():
         if not record["calculator"].startswith("ABACUS"):
             continue
         case = EXAMPLES / record["path"]
         if record.get("assets_required") is False:
             continue
-        assets = case / "run" / "assets"
-        asset_root = assets if assets.is_dir() else case / "run"
-        assert list(asset_root.rglob("*.upf")), record["id"]
-        assert list(asset_root.rglob("*.orb")), record["id"]
+        run = case / "run"
+        assets = run / "assets"
+        asset_root = assets if any(assets.glob("*.upf")) else run
+        prepared = prepare_stru_assets(
+            run / "STRU", pp_dir=asset_root, orb_dir=asset_root,
+            output_dir=tmp_path / record["id"],
+        )
+        assert any(p.suffix.lower() == ".upf" for p in prepared.assets), record["id"]
+        assert any(p.suffix.lower() == ".orb" for p in prepared.assets), record["id"]
 
 
 def test_backend_cases_declare_external_asset_boundary():

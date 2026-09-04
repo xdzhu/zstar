@@ -8,6 +8,8 @@ import shutil
 import subprocess
 from typing import Optional
 
+import numpy as np
+
 
 _ABACUS_SECTION_HEADERS = {
     "ATOMIC_SPECIES",
@@ -135,6 +137,18 @@ def run_phonopy_and_process_files(
     structure = Path(f_stru).resolve()
     if not structure.is_file():
         raise FileNotFoundError(f"Structure file not found: {structure}")
+    from .shared_abacus import MANIFEST, load_manifest
+    if Path(MANIFEST).is_file():
+        from .shared_response import read_structure
+        metadata = load_manifest('.')
+        if [int(n) for n in str(dim).split()] != [1, 1, 1]:
+            raise ValueError('Prepare finite-q/supercell phonons in a separate directory; this directory contains a shared Gamma ensemble')
+        given = read_structure(structure)
+        reference = read_structure('0.no-move/STRU')
+        if given.symbols != reference.symbols or not np.allclose(given.cell, reference.cell, atol=1e-8, rtol=0) or not np.allclose(given.positions, reference.positions, atol=1e-8, rtol=0):
+            raise ValueError('The supplied STRU differs from the shared Gamma reference')
+        print('[SHARED] Reusing existing displacements. Run zstar bec run, then zstar phonon post.')
+        return [s['name'] for s in metadata['stages']]
     structure_text = structure.read_text(encoding="utf-8", errors="ignore")
     is_abacus = "ATOMIC_SPECIES" in structure_text
     if is_abacus:

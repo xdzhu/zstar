@@ -1,0 +1,97 @@
+{
+  "stages": 13,
+  "additional_reserved_core_hours": 3.4591423430066137,
+  "per_stage": {
+    "0.no-move": {
+      "wall_seconds": 23.89332932420075,
+      "reserved_core_hours": 0.26548143693556386,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-001": {
+      "wall_seconds": 23.99937246646732,
+      "reserved_core_hours": 0.26665969407185913,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-002": {
+      "wall_seconds": 24.114457671530545,
+      "reserved_core_hours": 0.2679384185725616,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-003": {
+      "wall_seconds": 24.040638624690473,
+      "reserved_core_hours": 0.26711820694100524,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-004": {
+      "wall_seconds": 24.094818742014468,
+      "reserved_core_hours": 0.2677202082446052,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-005": {
+      "wall_seconds": 23.870848439633846,
+      "reserved_core_hours": 0.26523164932926496,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-006": {
+      "wall_seconds": 23.90458910819143,
+      "reserved_core_hours": 0.26560654564657143,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-007": {
+      "wall_seconds": 23.818801169283688,
+      "reserved_core_hours": 0.2646533463253743,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-008": {
+      "wall_seconds": 23.918613119982183,
+      "reserved_core_hours": 0.265762367999802,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-009": {
+      "wall_seconds": 23.96680949162692,
+      "reserved_core_hours": 0.26629788324029907,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-010": {
+      "wall_seconds": 23.884446046315134,
+      "reserved_core_hours": 0.2653827338479459,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-011": {
+      "wall_seconds": 23.89233156107366,
+      "reserved_core_hours": 0.26547035067859626,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    },
+    "disp-012": {
+      "wall_seconds": 23.92375510558486,
+      "reserved_core_hours": 0.2658195011731651,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu23"
+    }
+  }
+}

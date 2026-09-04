@@ -1,0 +1,90 @@
+{
+  "candidate": "0.3.0rc1",
+  "test_runs": {
+    "tests-phonopy236-final.xml": {
+      "tests": 319,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tests-phonopy44-final.xml": {
+      "tests": 319,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tests-research-final.xml": {
+      "tests": 50,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "runtime": {
+    "python": "3.10.9 | packaged by Anaconda, Inc. | (main, Mar  1 2023, 18:18:15) [MSC v.1916 64 bit (AMD64)]",
+    "numpy": "1.23.5",
+    "spglib": "2.7.0",
+    "phonopy": "4.4.0"
+  },
+  "offline_examples": "All eight; MoS2 mesh112 both routes; In2Se3 mesh88; independent PBEsol In2Se3 observations",
+  "headers": "shell/slurm/torque syntax and mocked execution; no new native scheduler submission",
+  "wheel_smoke": "isolated --target import, CLI version, spectra job help, packaged skill and response-units checks passed",
+  "remaining_author_action": "Figure 1 artwork replacement explicitly deferred",
+  "publication": "GitHub candidate only; no PyPI/CPC/arXiv submission",
+  "isolated_wheel_profile": {
+    "python": "3.10.9",
+    "numpy": "2.2.6",
+    "scipy": "1.15.3",
+    "phonopy": "4.4.0",
+    "pytest": "9.1.1",
+    "pip_check": "passed",
+    "package_tests": 319,
+    "subtests": 47,
+    "junit": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "366",
+      "time": "24.276",
+      "timestamp": "2026-09-04T19:27:31.649101+08:00",
+      "hostname": "Aero"
+    }
+  },
+  "staged_archive_integrity": {
+    "structures_cubes_timing_ledgers_sha256_verified": 103,
+    "symlinks": 0
+  },
+  "pdf_check": {
+    "clean_pages": 33,
+    "revision_pages": 33,
+    "source_bundle_recompiled": true,
+    "bundle_text_matches_clean_pdf": true,
+    "undefined_citations_or_references": 0,
+    "remaining_warning": "pre-existing 1.9-pt Elsevier title-page output box; no visible clipping"
+  },
+  "isolated_minimum_phonopy_profile": {
+    "python": "3.10.9",
+    "numpy": "2.2.6",
+    "scipy": "1.15.3",
+    "phonopy": "2.36.0",
+    "pytest": "9.1.1",
+    "pip_check": "passed",
+    "package_tests": 319,
+    "subtests": 47,
+    "junit": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "366",
+      "time": "15.705",
+      "timestamp": "2026-09-04T19:30:22.404135+08:00",
+      "hostname": "Aero"
+    }
+  },
+  "version_freeze": {
+    "tag": "v0.3.0rc1",
+    "source": "GitHub tag plus included benchmark and test records"
+  }
+}

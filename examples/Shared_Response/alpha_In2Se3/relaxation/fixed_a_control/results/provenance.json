@@ -1,0 +1,44 @@
+{
+  "reference_doi": "10.1038/ncomms14956",
+  "seed": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/relax-explicit-d3/STRU",
+  "seed_sha256": "324ee0cbd83b04dc8c8a8e50c9bbafca60786325c9628e6891fef7e97f84c8f4",
+  "in_plane_lattice_A": 4.106,
+  "cell_height_A": 30.0,
+  "vacuum_gap_A": 23.200023494753417,
+  "stacking_bottom_to_top": [
+    [
+      0.3333333333333333,
+      0.6666666666666665
+    ],
+    [
+      0.6666666666666667,
+      0.3333333333333334
+    ],
+    [
+      0.6666666666666667,
+      0.3333333333333334
+    ],
+    [
+      0.0,
+      0.0
+    ],
+    [
+      0.3333333333333333,
+      0.6666666666666665
+    ]
+  ],
+  "relaxation_complete": false,
+  "matched": [
+    "PBE",
+    "Gamma 12x12x1",
+    "vacuum >15 A",
+    "dipole correction",
+    "force <0.005 eV/A"
+  ],
+  "different_from_paper": [
+    "ABACUS LCAO rather than VASP PAW",
+    "ONCV potentials and localized orbitals",
+    "100 Ry density cutoff",
+    "smearing 0.005 Ry (not specified in paper)"
+  ]
+}

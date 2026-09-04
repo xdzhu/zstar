@@ -1,0 +1,31 @@
+{
+  "source": "/home/zhuxd/abacus/agent-runs/20260903-spectra-backend-benchmark/sic_abacus/workflow/0.no-move",
+  "structure": "/home/zhuxd/abacus/agent-runs/20260903-spectra-backend-benchmark/sic_abacus/workflow/0.no-move/STRU",
+  "structure_sha256": "c8f3e355a49c78b40a837b8962f8890a284e5310bf264371f305e337c926f835",
+  "space_group": "F-43m",
+  "symprec_A": 1e-05,
+  "cell_A": [
+    [
+      3.1068804845373124,
+      -0.0,
+      -0.0
+    ],
+    [
+      1.5534402423186564,
+      2.690637426144749,
+      -0.0
+    ],
+    [
+      1.5534402423186564,
+      0.8968791420149164,
+      2.5367572929735607
+    ]
+  ],
+  "symbols": [
+    "Si",
+    "C"
+  ],
+  "host": "cu25",
+  "control": "cartesian",
+  "comparison": "same-inputs force-and-polarization SCFs; Cartesian central vs Phonopy auto"
+}

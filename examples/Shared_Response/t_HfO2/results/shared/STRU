@@ -1,0 +1,32 @@
+ATOMIC_SPECIES
+Hf 178.4900 /home/zhuxd/abacus/PSEUDO/ABACUS-orbitals/TZDP_9au/Hf.upf upf201
+O  15.9990 /home/zhuxd/abacus/PSEUDO/ABACUS-orbitals/TZDP_9au/O.upf upf201
+
+NUMERICAL_ORBITAL
+/home/zhuxd/abacus/PSEUDO/ABACUS-orbitals/TZDP_9au/Hf_gga_9au_100Ry_6s3p3d2f1g.orb
+/home/zhuxd/abacus/PSEUDO/ABACUS-orbitals/TZDP_9au/O_gga_9au_100Ry_2s2p1d.orb
+
+LATTICE_CONSTANT
+1.8897260000
+
+LATTICE_VECTORS
+        3.5565187370        0.0000000000        0.0000000000
+        0.0000000000        3.5565187370        0.0000000000
+        0.0000000000        0.0000000000        5.1348671129
+
+ATOMIC_POSITIONS
+Direct
+
+Hf #label
+0.0000   #magnetism
+2 #number of atoms
+        0.0000000000        0.0000000000        0.0000000000 m 1 1 1
+        0.5000000000        0.5000000000        0.5000000000 m 1 1 1
+
+O #label
+0.0000   #magnetism
+4 #number of atoms
+        0.5000000000        0.0000000000        0.2973821282 m 1 1 1
+        0.5000000000        0.0000000000        0.7973821282 m 1 1 1
+        0.0000000000        0.5000000000        0.2026178718 m 1 1 1
+        0.0000000000        0.5000000000        0.7026178718 m 1 1 1

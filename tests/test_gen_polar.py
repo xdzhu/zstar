@@ -203,14 +203,14 @@ A
 
     def test_cli_preserves_input_functional_without_explicit_xc(self):
         with patch("zstar.gen_polar.gen_polar") as run_gen:
-            zstar_cli(["gen", "-i", "INPUT.seed", "--stru", "STRU"])
+            zstar_cli(["gen", "--ensemble", "cartesian", "-i", "INPUT.seed", "--stru", "STRU"])
         self.assertIsNone(run_gen.call_args.kwargs["xc"])
 
     def test_cli_explicit_xc_overrides_input_functional(self):
         with patch("zstar.gen_polar.gen_polar") as run_gen:
             zstar_cli(
                 [
-                    "gen", "-i", "INPUT.seed", "--stru", "STRU",
+                    "gen", "--ensemble", "cartesian", "-i", "INPUT.seed", "--stru", "STRU",
                     "--xc", "pbesol",
                 ]
             )
@@ -218,7 +218,7 @@ A
 
     def test_cli_defaults_generated_input_to_pbe(self):
         with patch("zstar.gen_polar.gen_polar") as run_gen:
-            zstar_cli(["gen", "--stru", "STRU"])
+            zstar_cli(["gen", "--ensemble", "cartesian", "--stru", "STRU"])
         self.assertEqual(run_gen.call_args.kwargs["xc"], "pbe")
 
     def test_cli_resolves_abacus_assets_before_generation(self):
@@ -261,7 +261,7 @@ Si
                 os.chdir(root)
                 with patch("zstar.gen_polar.gen_polar") as run_gen:
                     zstar_cli([
-                        "gen", "--stru", "STRU", "--pp", str(pp), "--orb", str(orb)
+                        "gen", "--ensemble", "cartesian", "--stru", "STRU", "--pp", str(pp), "--orb", str(orb)
                     ])
             finally:
                 os.chdir(previous)

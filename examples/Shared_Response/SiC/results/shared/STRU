@@ -1,0 +1,28 @@
+ATOMIC_SPECIES
+Si  28.0855 Si_ONCV_PBE-1.0.upf upf201
+C  12.0107 C_ONCV_PBE-1.0.upf upf201
+
+NUMERICAL_ORBITAL
+Si_gga_7au_100Ry_2s2p1d.orb
+C_gga_7au_100Ry_2s2p1d.orb
+
+LATTICE_CONSTANT
+1.8897261255
+
+LATTICE_VECTORS
+        3.1068804831       -0.0000000000       -0.0000000000
+        1.5534402416        2.6906374249       -0.0000000000
+        1.5534402416        0.8968791416        2.5367572918
+
+ATOMIC_POSITIONS
+Direct
+
+Si #label
+0.0000   #magnetism
+1 #number of atoms
+        0.0000000000        0.0000000000        0.0000000000 m 1 1 1
+
+C #label
+0.0000   #magnetism
+1 #number of atoms
+        0.2500000000        0.2500000000        0.2500000000 m 1 1 1

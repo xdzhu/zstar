@@ -163,7 +163,7 @@ class WorkflowTests(unittest.TestCase):
                 cpus_per_task=4,
             )
             self.assertIn(
-                "#PBS -l nodes=2:ppn=6",
+                "#PBS -l nodes=2:ppn=8",
                 divided_torque.read_text(encoding="utf-8"),
             )
 

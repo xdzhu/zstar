@@ -514,29 +514,29 @@ def generate_calculator_spectra_script(
     output: str | Path | None = None,
     job_name: str = "zstar-spectra",
     nodes: int = 1,
-    tasks: int = 1,
-    cpus_per_task: int = 1,
+    tasks: int | None = None,
+    cpus_per_task: int | None = None,
     walltime: str = "24:00:00",
     queue: str | None = None,
     account: str | None = None,
     env_script: str | Path | None = None,
+    header_file: str | Path | None = None,
     calculator_command: str | None = None,
     min_gap_eV: float = 0.01,
 ) -> Path:
     """Generate one shell, Slurm, or Torque driver for the serial workflow."""
-
+    from .configuration import launcher_command, resolve_parallelism
+    from .job_headers import compose_job_script, torque_ppn
+    tasks, cpus_per_task = resolve_parallelism(root, tasks=tasks, cpus_per_task=cpus_per_task)
     backend_key = normalize_execution_system(backend)
     if min(nodes, tasks, cpus_per_task) < 1:
         raise ValueError("nodes, tasks, and cpus_per_task must be positive")
     root_path, manifest = _load_manifest(root)
     calculator = manifest["calculator"]
     if calculator_command is None:
-        launcher = f"srun --ntasks={tasks}" if backend_key == "slurm" else f"mpirun -np {tasks}"
-        calculator_command = (
-            f"{launcher} vasp_std"
-            if calculator == "vasp"
-            else f"{launcher} cp2k.psmp -i input.inp -o output.log"
-        )
+        calculator_command = launcher_command(calculator, root=root, system=backend_key, tasks=tasks)
+        if calculator == 'cp2k':
+            calculator_command += ' -i input.inp -o output.log'
     if output is None:
         suffix = {"shell": "sh", "slurm": "slurm", "torque": "pbs"}[backend_key]
         target = root_path / f"run_spectra.{suffix}"
@@ -566,7 +566,7 @@ def generate_calculator_spectra_script(
         header.extend(
             [
                 f"#PBS -N {job_name}",
-                f"#PBS -l nodes={nodes}:ppn={tasks * cpus_per_task}",
+                f"#PBS -l nodes={nodes}:ppn={torque_ppn(nodes, tasks, cpus_per_task)}",
                 f"#PBS -l walltime={walltime}",
                 f"#PBS -o {root_path}/.zstar/torque.out",
                 f"#PBS -e {root_path}/.zstar/torque.err",
@@ -594,7 +594,8 @@ def generate_calculator_spectra_script(
         ]
     )
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text("\n".join(header + [""] + body) + "\n", encoding="utf-8", newline="\n")
+    target.write_text(compose_job_script(root_path, backend_key, header, body, specified=header_file),
+                      encoding="utf-8", newline="\n")
     target.chmod(target.stat().st_mode | 0o111)
     return target
 

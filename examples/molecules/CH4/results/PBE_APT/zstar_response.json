@@ -1,0 +1,162 @@
+{
+  "schema": "zstar-response",
+  "schema_version": "1.0",
+  "created_at": "2026-08-26T14:25:45.279675+00:00",
+  "backend": "abacus-pyatb",
+  "dimensionality": {
+    "value": 0,
+    "label": "molecule",
+    "periodic_axes": [],
+    "nonperiodic_axes": [
+      "x",
+      "y",
+      "z"
+    ],
+    "intrinsic_response_kind": "molecular polarizability",
+    "intrinsic_response_unit": "angstrom^3"
+  },
+  "structure": null,
+  "quantities": [
+    {
+      "name": "atomic_polar_tensor",
+      "values": [
+        [
+          [
+            -0.020784199999999992,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -0.020784199999999992,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -0.020784199999999992
+          ]
+        ],
+        [
+          [
+            0.005196049999999998,
+            -0.06694911999999999,
+            -0.06694911999999999
+          ],
+          [
+            -0.06694911999999999,
+            0.005196049999999998,
+            -0.06694911999999999
+          ],
+          [
+            -0.06694911999999999,
+            -0.06694911999999999,
+            0.005196049999999998
+          ]
+        ],
+        [
+          [
+            0.005196049999999998,
+            -0.06694911999999999,
+            0.06694911999999999
+          ],
+          [
+            -0.06694911999999999,
+            0.005196049999999998,
+            0.06694911999999999
+          ],
+          [
+            0.06694911999999999,
+            0.06694911999999999,
+            0.005196049999999998
+          ]
+        ],
+        [
+          [
+            0.005196049999999998,
+            0.06694911999999999,
+            -0.06694911999999999
+          ],
+          [
+            0.06694911999999999,
+            0.005196049999999998,
+            0.06694911999999999
+          ],
+          [
+            -0.06694911999999999,
+            0.06694911999999999,
+            0.005196049999999998
+          ]
+        ],
+        [
+          [
+            0.005196049999999998,
+            0.06694911999999999,
+            0.06694911999999999
+          ],
+          [
+            0.06694911999999999,
+            0.005196049999999998,
+            -0.06694911999999999
+          ],
+          [
+            0.06694911999999999,
+            -0.06694911999999999,
+            0.005196049999999998
+          ]
+        ]
+      ],
+      "shape": [
+        5,
+        3,
+        3
+      ],
+      "unit": "e",
+      "normalization": "per_atom",
+      "axes": [
+        "atom",
+        "displacement",
+        "polarization"
+      ],
+      "convention": "rows=atomic displacement; columns=molecular dipole; molecular atomic polar tensor in units of e",
+      "source": "abacus-pyatb",
+      "metadata": {
+        "labels": [
+          "C",
+          "H",
+          "H",
+          "H",
+          "H"
+        ]
+      }
+    }
+  ],
+  "provenance": {
+    "collector": "zstar.molecular_bec.collect_molecular_apts",
+    "source": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4",
+    "legacy_result": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/ch4/molecular_apt.json",
+    "backend_result_schema_version": 1,
+    "source_backend": "abacus-pyatb"
+  },
+  "metadata": {
+    "method": "central",
+    "sum_scope": null,
+    "acoustic_sum_tensor": [
+      [
+        -1.734723475976807e-18,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -1.734723475976807e-18,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -1.734723475976807e-18
+      ]
+    ]
+  }
+}

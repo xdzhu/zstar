@@ -1,0 +1,190 @@
+{
+  "definition": "ABACUS + PYATB successful solver calls, including reference and band gate, excluding input preparation, relaxation, refinements and diagnostics",
+  "cases": {
+    "cubic_BaTiO3": {
+      "status": "complete",
+      "protocol": "forward Cartesian BEC plus independent phonons",
+      "counts": {
+        "Cartesian": [
+          9,
+          13
+        ],
+        "Unified": [
+          3,
+          4
+        ]
+      },
+      "solver_core_hours": {
+        "Cartesian": 6.0791520131819805,
+        "Unified": 2.5598515689166055
+      },
+      "speedup": 2.374806448545309,
+      "timing_sha256": {
+        "cubic_BaTiO3/results/unified/component_times.jsonl": "fae7c6e01e17d72d79c466868230ce2ecad6110d5fe2e9a9cf41b44f3cd659f5",
+        "cubic_BaTiO3/results/legacy_bec/component_times.jsonl": "bec66f4ec38f1c9cf5b6b1b4b0d570abedd207f554ed74fdb084da411379e1c1",
+        "cubic_BaTiO3/results/legacy_phonon/component_times.jsonl": "799e387ce68a33af2c320fab3d34af87904897fb0aaea1d69dc71d32afd85191"
+      }
+    },
+    "SiC": {
+      "status": "complete",
+      "protocol": "central Cartesian joint-response control",
+      "counts": {
+        "Cartesian": [
+          12,
+          13
+        ],
+        "Unified": [
+          2,
+          3
+        ]
+      },
+      "solver_core_hours": {
+        "Cartesian": 12.922348399543099,
+        "Unified": 3.7807256981678723
+      },
+      "speedup": 3.417954496356408,
+      "timing_sha256": {
+        "SiC/results/controls/cartesian/component_times.jsonl": "1e806e6180cb005e2e03d5f2f0c0e42152c6e4d6a8699868fe5ba40f2e9ccdf3",
+        "SiC/results/shared/component_times.jsonl": "01b0bf23d1a49ec89bc15acacd628ab03622110d5003e8d58bbc41243baaf505"
+      }
+    },
+    "t_HfO2": {
+      "status": "complete",
+      "protocol": "central Cartesian joint-response control",
+      "counts": {
+        "Cartesian": [
+          12,
+          13
+        ],
+        "Unified": [
+          4,
+          5
+        ]
+      },
+      "solver_core_hours": {
+        "Cartesian": 24.134245589877377,
+        "Unified": 10.87362902115306
+      },
+      "speedup": 2.219520782153568,
+      "timing_sha256": {
+        "t_HfO2/results/controls/cartesian/component_times.jsonl": "e126131922f9d6e940288ac05bc0b68b6b09f9a3f0655aca472f4fa090a2f0f6",
+        "t_HfO2/results/shared/component_times.jsonl": "c1c9c8457b1aea9b64e936aae6aa09f4c8235f0975935b88aae21dc040f128bd"
+      }
+    },
+    "alpha_In2Se3": {
+      "status": "complete",
+      "protocol": "central Cartesian joint-response control",
+      "counts": {
+        "Cartesian": [
+          30,
+          31
+        ],
+        "Unified": [
+          10,
+          11
+        ]
+      },
+      "solver_core_hours": {
+        "Cartesian": 18.153754996125482,
+        "Unified": 7.397423743704955
+      },
+      "speedup": 2.4540644993568104,
+      "timing_sha256": {
+        "alpha_In2Se3/results/controls/cartesian/component_times.jsonl": "7746b2c7cb6bb6433d2290e48f06007d2727e25389eb6ab8ecac5246f26eabca",
+        "alpha_In2Se3/results/shared/component_times.jsonl": "32df52101a117e6462bd24307222b100f92b8e42d539e629bdc41634e72abe0d"
+      }
+    },
+    "hBN": {
+      "status": "complete",
+      "protocol": "central Cartesian joint-response control",
+      "counts": {
+        "Cartesian": [
+          12,
+          13
+        ],
+        "Unified": [
+          2,
+          3
+        ]
+      },
+      "solver_core_hours": {
+        "Cartesian": 1.9677701126457476,
+        "Unified": 0.567259513888146
+      },
+      "speedup": 3.4689063197162326,
+      "timing_sha256": {
+        "hBN/results/cartesian/component_times.jsonl": "18913b88d93e3c3941f864d002af95dc624b6de97a7ac6338b05bd27eecd13fd",
+        "hBN/results/unified/component_times.jsonl": "8c8b8bce264116eb4db19eddb86ec6b32aaa28e4e3738eb8f843e12bca59293d"
+      }
+    },
+    "MoS2": {
+      "status": "complete",
+      "protocol": "central Cartesian joint-response control",
+      "counts": {
+        "Cartesian": [
+          12,
+          13
+        ],
+        "Unified": [
+          3,
+          4
+        ]
+      },
+      "solver_core_hours": {
+        "Cartesian": 4.969489570396643,
+        "Unified": 3.0131735380428535
+      },
+      "speedup": 1.6492543518168805,
+      "timing_sha256": {
+        "MoS2/results/cartesian/component_times.jsonl": "7c4d9f22307517db1cf4fa5e621fb21a6e8130dc7055cd76b1afdde3dbf3b047",
+        "MoS2/results/unified/component_times.jsonl": "85540771faf1d98ac3c6438b79b3e8e1e0cc3e61cb824c599b671375f3987659"
+      }
+    },
+    "H2O": {
+      "status": "complete",
+      "protocol": "central Cartesian joint-response control",
+      "counts": {
+        "Cartesian": [
+          12,
+          13
+        ],
+        "Unified": [
+          6,
+          7
+        ]
+      },
+      "solver_core_hours": {
+        "Cartesian": 14.268801536100607,
+        "Unified": 8.908031079643925
+      },
+      "speedup": 1.6017907221615761,
+      "timing_sha256": {
+        "H2O/results/cartesian/component_times.jsonl": "60ce8c2381f7893a195644b433cdad7b348a3c240e159db14b96277cfed6eebe",
+        "H2O/results/unified/component_times.jsonl": "443d4717f17fc08c583163f8cfd3f48c94ef02b9e5b975cf545fbcaa7bae3d9d"
+      }
+    },
+    "CH4": {
+      "status": "complete",
+      "protocol": "central Cartesian joint-response control",
+      "counts": {
+        "Cartesian": [
+          12,
+          13
+        ],
+        "Unified": [
+          3,
+          4
+        ]
+      },
+      "solver_core_hours": {
+        "Cartesian": 10.500867740178688,
+        "Unified": 3.2605297272093594
+      },
+      "speedup": 3.2206017484055356,
+      "timing_sha256": {
+        "CH4/results/cartesian/component_times.jsonl": "b32a326aa9d4735eda396b6606d198a875ef73db5f135369e8598bf79ca6a0a1",
+        "CH4/results/unified/component_times.jsonl": "2f2447fcc0eeaa531f979aec400652986d21ce7fdb67ed86449fcb20fd47bcbc"
+      }
+    }
+  }
+}

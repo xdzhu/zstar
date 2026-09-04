@@ -1,0 +1,34 @@
+{
+  "stages": 4,
+  "additional_reserved_core_hours": 1.0366203153111402,
+  "per_stage": {
+    "0.no-move": {
+      "wall_seconds": 23.21030928302207,
+      "reserved_core_hours": 0.25789232536691187,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu20"
+    },
+    "disp-001": {
+      "wall_seconds": 23.201782424992416,
+      "reserved_core_hours": 0.25779758249991575,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu20"
+    },
+    "disp-002": {
+      "wall_seconds": 23.42180148299667,
+      "reserved_core_hours": 0.260242238699963,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu20"
+    },
+    "disp-003": {
+      "wall_seconds": 23.461935186991468,
+      "reserved_core_hours": 0.26068816874434964,
+      "mpi": 40,
+      "omp": 1,
+      "worker_host": "cu20"
+    }
+  }
+}

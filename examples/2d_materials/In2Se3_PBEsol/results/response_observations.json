@@ -1,0 +1,1343 @@
+{
+  "name": "In2Se3_PBEsol",
+  "dimension": 2,
+  "root": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec",
+  "structure": {
+    "cell_A": [
+      [
+        3.979198321595146,
+        -0.0,
+        -0.0
+      ],
+      [
+        -1.989599160797573,
+        3.4460868332504977,
+        -0.0
+      ],
+      [
+        0.0,
+        0.0,
+        36.36676900487976
+      ]
+    ],
+    "fractional_positions": [
+      [
+        0.0,
+        0.0,
+        0.575730745
+      ],
+      [
+        0.6666666667,
+        0.3333333333,
+        0.4608459974
+      ],
+      [
+        0.3333333333,
+        0.6666666667,
+        0.6131391672
+      ],
+      [
+        0.6666666667,
+        0.3333333333,
+        0.5296950093
+      ],
+      [
+        0.3333333333,
+        0.6666666667,
+        0.4257343807
+      ]
+    ],
+    "symbols": [
+      "In",
+      "In",
+      "Se",
+      "Se",
+      "Se"
+    ],
+    "masses_amu": [
+      114.82,
+      114.82,
+      78.971,
+      78.971,
+      78.971
+    ]
+  },
+  "settings": {
+    "dft_functional": "pbesol",
+    "ecutwfc": "100",
+    "scf_thr": "1e-08",
+    "basis_type": "lcao",
+    "cal_force": "1",
+    "out_mat_hs2": "1",
+    "out_mat_r": "1",
+    "nspin": "1",
+    "noncolin": "0",
+    "lspinorb": "0",
+    "efield_flag": "0",
+    "vdw_method": "d3_0",
+    "kspacing": "0.1 0.1 1",
+    "init_chg": "auto"
+  },
+  "reference_forces_eV_A": [
+    [
+      0.0,
+      0.0,
+      0.0017499265
+    ],
+    [
+      0.0,
+      0.0,
+      0.0031173002
+    ],
+    [
+      0.0,
+      0.0,
+      0.0042784383
+    ],
+    [
+      0.0,
+      0.0,
+      -0.0045402703
+    ],
+    [
+      0.0,
+      0.0,
+      -0.0046053947
+    ]
+  ],
+  "sources": [
+    {
+      "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/0.no-move/STRU",
+      "sha256": "508e31e6267f661ceec8a0711e2f6ee33b5fc4a047d1327b8ac1759d9922c761"
+    },
+    {
+      "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/0.no-move/pyatb/Out/Polarization/polarization.dat",
+      "sha256": "9ce2510c1e3fbd58c457ceba6b1c606398da3721e05cd9ed5fe03aa0629cf907"
+    },
+    {
+      "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/0.no-move/OUT.ABACUS/running_scf.log",
+      "sha256": "3dfd63852a231aff412144c9ef1c65a452d669c514a6cb674648a8d700b2ff99"
+    },
+    {
+      "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/zstar_2d_bec.json",
+      "sha256": "f496e5b32e1f92704f1a8e9b28924a3180c1355dd0ef019bd5dc3ef75c75791b"
+    },
+    {
+      "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/2.In/zstar_2d_bec.json",
+      "sha256": "5dc16b4668b39f994889c81bd699d836a45b703114728fce764dd64bd1641377"
+    },
+    {
+      "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/3.Se/zstar_2d_bec.json",
+      "sha256": "d15bfb6e8d5325b19fc8e6cdb2d5320077ba4e18e65b4cacf2182a676070c186"
+    },
+    {
+      "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/4.Se/zstar_2d_bec.json",
+      "sha256": "d523e981592330c85bcd872b71ff19dcd7791ab9aebbf61a593e87cf35a2a7cb"
+    },
+    {
+      "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/5.Se/zstar_2d_bec.json",
+      "sha256": "7ecefb17a0cebbd9f37d07a4e75c249b8faadaaa344f2f4d5674c897e6c86514"
+    },
+    {
+      "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/BORN",
+      "sha256": "22b24703728e77f970b9cb338cd38145fcfaf673dae268688775ed5f687cc2c7"
+    },
+    {
+      "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/Z-BORN-symm.out",
+      "sha256": "ab8858e9f363e8a3251bfdd8d63babb8360f5af5bea9714584d1fd660b1d8438"
+    }
+  ],
+  "stages": [
+    {
+      "name": "1.In/x+",
+      "atom": 0,
+      "displacement_A": [
+        0.009999999342014647,
+        0.0,
+        0.0
+      ],
+      "dipole_change_e_A": [
+        0.03864228938261416,
+        2.6955460544417905e-05,
+        -4.7509198418329925e-06
+      ],
+      "forces_eV_A": [
+        [
+          -0.0564049948,
+          0.0003943495,
+          0.0014372567
+        ],
+        [
+          -0.0015765974,
+          -1.00442e-05,
+          0.0031219532
+        ],
+        [
+          0.0434432663,
+          -0.000629914,
+          0.0048784537
+        ],
+        [
+          0.0162474967,
+          0.0002483221,
+          -0.0048306364
+        ],
+        [
+          -0.0017091708,
+          -2.7134e-06,
+          -0.0046070272
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/x+/STRU",
+          "sha256": "f51b7e197ffea16839783d48c4d521d89e571c2ee65677bd1f7287f557f05899"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/x+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "750751f367d40882a1834a056875ea5ba4c92dfebea057c3d5b4208051576bf3"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/x+/OUT.ABACUS/running_scf.log",
+          "sha256": "57e2e7d69fbe518bc3ebd4db7090089a6ebab9cfe450c8c8b67bb6fee1f3303e"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "1.In/y+",
+      "atom": 0,
+      "displacement_A": [
+        1.989599040775264e-12,
+        0.009999999339515037,
+        0.0
+      ],
+      "dipole_change_e_A": [
+        2.556098199760663e-13,
+        0.038600219499567906,
+        -4.782162865512937e-06
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          -0.0568074077,
+          0.0014219038
+        ],
+        [
+          0.0,
+          -0.0015658077,
+          0.0031244728
+        ],
+        [
+          0.0,
+          0.0440767856,
+          0.0048851803
+        ],
+        [
+          0.0,
+          0.0160019389,
+          -0.0048270432
+        ],
+        [
+          0.0,
+          -0.0017055091,
+          -0.0046045137
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/y+/STRU",
+          "sha256": "3e7ba6c730be4ca1c7466776ae88de147183e2a8ee2aa1d65eb72e970464bfa7"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/y+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "b8f97443b6aeace61bfc9172463ed0a243039ccc987c12af3b76b29d785f7c4f"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/y+/OUT.ABACUS/running_scf.log",
+          "sha256": "8c393fba0852dbcc6f9ab87a025188ccc093ce20bbf940232f6b5b7ad14b1026"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "1.In/z+",
+      "atom": 0,
+      "displacement_A": [
+        0.0,
+        0.0,
+        0.00999999932934897
+      ],
+      "dipole_change_e_A": [
+        0.0,
+        0.0,
+        0.0034940086116847765
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.0,
+          -0.1024105922
+        ],
+        [
+          0.0,
+          0.0,
+          0.0124574248
+        ],
+        [
+          0.0,
+          0.0,
+          0.0659733353
+        ],
+        [
+          0.0,
+          0.0,
+          0.0277959961
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0038161641
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/z+/STRU",
+          "sha256": "385fe2197c3171f1354dcf1c820c848d77b323e6ab0246a5ec128a54702dee69"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/z+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "2e561689227a85e54bca3ca4e1cdce02869788fd7febb3a3c03031fdc7842fca"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/1.In/z+/OUT.ABACUS/running_scf.log",
+          "sha256": "ee050a1e465c82d2e3d97eb78ffaf46a56b6296cf72fc6e21059326b03cd2334"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "2.In/x+",
+      "atom": 1,
+      "displacement_A": [
+        0.00999999934201491,
+        0.0,
+        0.0
+      ],
+      "dipole_change_e_A": [
+        0.026378848370330745,
+        2.6955460544417905e-05,
+        4.242421174205507e-06
+      ],
+      "forces_eV_A": [
+        [
+          -0.0015850576,
+          -7.0946e-06,
+          0.001750874
+        ],
+        [
+          -0.0522336941,
+          -0.0007185621,
+          0.004038534
+        ],
+        [
+          0.0011990032,
+          -6.8613e-06,
+          0.004281217
+        ],
+        [
+          -0.002179739,
+          -2.595e-07,
+          -0.0047590965
+        ],
+        [
+          0.0547994875,
+          0.0007327774,
+          -0.0053115285
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/2.In/x+/STRU",
+          "sha256": "62d3941a9b8dbfeeeb8b5f9ccb08a10df5bfc455cf765004178e591173998079"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/2.In/x+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "d446b2b2cba9736148b484b3aafaad8ffaa58575d96f9f21a6c763d375100a28"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/2.In/x+/OUT.ABACUS/running_scf.log",
+          "sha256": "4dcfa58c0143069bfbf10fdd55964ac57092b442e299ee6dce89815a2d92a20e"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "2.In/y+",
+      "atom": 1,
+      "displacement_A": [
+        1.9898863134256923e-12,
+        0.009999999339515096,
+        0.0
+      ],
+      "dipole_change_e_A": [
+        1.7446352291052825e-13,
+        0.02636244041241434,
+        4.216060173777973e-06
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          -0.0015705126,
+          0.0017522321
+        ],
+        [
+          0.0,
+          -0.051544203,
+          0.0040265626
+        ],
+        [
+          0.0,
+          0.0012135788,
+          0.0042826375
+        ],
+        [
+          0.0,
+          -0.0021717785,
+          -0.0047573901
+        ],
+        [
+          0.0,
+          0.0540729154,
+          -0.0053040421
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/2.In/y+/STRU",
+          "sha256": "58f0a594841633782f81061826508498207530b4f7081eede5bd48602b2deb14"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/2.In/y+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "eb2a94ab11b8377b76b9fc11eb9226a7e4d6cede253c95c8fff147ef0fa53c9e"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/2.In/y+/OUT.ABACUS/running_scf.log",
+          "sha256": "8af6b1fefc6052c7258dcf28154fa593970d63e23ef84afa7f63f9a037110079"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "2.In/z+",
+      "atom": 1,
+      "displacement_A": [
+        0.0,
+        0.0,
+        0.00999999932934897
+      ],
+      "dipole_change_e_A": [
+        0.0,
+        0.0,
+        0.0038255139329312574
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.0,
+          0.0113290083
+        ],
+        [
+          0.0,
+          0.0,
+          -0.1682240932
+        ],
+        [
+          0.0,
+          0.0,
+          0.0030660472
+        ],
+        [
+          0.0,
+          0.0,
+          0.0902192981
+        ],
+        [
+          0.0,
+          0.0,
+          0.0636097396
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/2.In/z+/STRU",
+          "sha256": "9b0caaaa16b94a52e93a0e0c6f463e51f62cbe9635a34151fbaa48d847793a25"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/2.In/z+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "ca791e8f705defb8dd0162a0512b56e8bc8d4aac110609476e6b62018f95617f"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/2.In/z+/OUT.ABACUS/running_scf.log",
+          "sha256": "01beaf5a37a3e02cde51208007d9c3f55444b9efb6700f2b6a377752de2acf4f"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "3.Se/x+",
+      "atom": 2,
+      "displacement_A": [
+        0.00999999934201469,
+        0.0,
+        0.0
+      ],
+      "dipole_change_e_A": [
+        -0.02427787814614501,
+        0.0,
+        -1.5933984189109941e-06
+      ],
+      "forces_eV_A": [
+        [
+          0.0434921449,
+          0.0006322308,
+          0.0011244564
+        ],
+        [
+          0.0012564796,
+          -9.9762e-06,
+          0.0030944163
+        ],
+        [
+          -0.0449606471,
+          -0.0005840388,
+          0.0048933027
+        ],
+        [
+          7.34719e-05,
+          -3.13135e-05,
+          -0.0045068699
+        ],
+        [
+          0.0001385506,
+          -6.9023e-06,
+          -0.0046053055
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/3.Se/x+/STRU",
+          "sha256": "5ae8e7d6a524f8cd66220f223eb439f7a422f2da37cc2331d7a075b52747aca8"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/3.Se/x+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "eba3328f0e91b72f26d17d6ab131d7e20d7f732e218490b1d2c11e6d9e2008e9"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/3.Se/x+/OUT.ABACUS/running_scf.log",
+          "sha256": "14e1b0eafd1266e3744017388da03281f30ac8e2e0b783ad7db1bbaa74d51738"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "3.Se/y+",
+      "atom": 2,
+      "displacement_A": [
+        1.9895555586043385e-12,
+        0.009999999339515286,
+        0.0
+      ],
+      "dipole_change_e_A": [
+        -1.6100562682849954e-13,
+        -0.024313825411040636,
+        -1.5564733578663725e-06
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.0428583003,
+          0.001130796
+        ],
+        [
+          0.0,
+          0.0012658341,
+          0.003094494
+        ],
+        [
+          0.0,
+          -0.0443733244,
+          0.0048869695
+        ],
+        [
+          0.0,
+          0.000104234,
+          -0.0045069994
+        ],
+        [
+          0.0,
+          0.0001449561,
+          -0.00460526
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/3.Se/y+/STRU",
+          "sha256": "299474ad0d23fdfaef927f1b7571b2be8ec66779908fb82dd8dbb136a0c136ab"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/3.Se/y+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "91d356f895be58bd7214c665389216c17b8a180d44f1daee32baba0cf69125de"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/3.Se/y+/OUT.ABACUS/running_scf.log",
+          "sha256": "780757c727b3c8ddddd0124aad457e35206ac61e23e690cdda65dbb449053773"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "3.Se/z+",
+      "atom": 2,
+      "displacement_A": [
+        0.0,
+        0.0,
+        0.009999999329353007
+      ],
+      "dipole_change_e_A": [
+        0.0,
+        0.0,
+        -0.0016736448908601252
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.0,
+          0.0632478237
+        ],
+        [
+          0.0,
+          0.0,
+          0.0017810334
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0722711484
+        ],
+        [
+          0.0,
+          0.0,
+          0.0120673368
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0048250455
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/3.Se/z+/STRU",
+          "sha256": "e9cb54d8525cac8a6366585b238cddd2a8bead66ecf61ad7de01f0dbd0aacd01"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/3.Se/z+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "2df26f2ffb4a089984e496a18ffa11d803941694c93ca2a6edeedc3fbb894944"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/3.Se/z+/OUT.ABACUS/running_scf.log",
+          "sha256": "8d1a7eb000de1781bd4f36bb560b8bb7c8376cd0f47a7d93a48be0daf81606f2"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "4.Se/x+",
+      "atom": 3,
+      "displacement_A": [
+        0.00999999934201491,
+        0.0,
+        0.0
+      ],
+      "dipole_change_e_A": [
+        -0.016465381460654394,
+        5.391092108883581e-05,
+        3.2681379026998577e-06
+      ],
+      "forces_eV_A": [
+        [
+          0.0163069169,
+          -0.0002738324,
+          0.0020149459
+        ],
+        [
+          -0.0021113247,
+          -4.52115e-05,
+          0.003292129
+        ],
+        [
+          8.55401e-05,
+          5.8315e-06,
+          0.0042749312
+        ],
+        [
+          -0.0184677365,
+          0.0003171938,
+          -0.004959942
+        ],
+        [
+          0.0041866042,
+          -3.9813e-06,
+          -0.004622064
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/4.Se/x+/STRU",
+          "sha256": "b5810d820d03747101661b171fb453a21d9df485cc42f86e50a7b53cb9e656ed"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/4.Se/x+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "6eb8ea937e4748ebea7b02f86808e67d0ccd5e24aa7379a5fc0ad87ebf3bcb31"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/4.Se/x+/OUT.ABACUS/running_scf.log",
+          "sha256": "c3bbefb80386db7ccdc17c913cdf962b85394c660d74e86339f58ea909ca19e4"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "4.Se/y+",
+      "atom": 3,
+      "displacement_A": [
+        1.9898863134256923e-12,
+        0.009999999339515096,
+        0.0
+      ],
+      "dipole_change_e_A": [
+        1.5562742291862957e-05,
+        -0.01652369731371153,
+        3.2326184311964475e-06
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.0165817449,
+          0.0020167654
+        ],
+        [
+          0.0,
+          -0.0020666569,
+          0.0032920838
+        ],
+        [
+          0.0,
+          7.99744e-05,
+          0.0042751669
+        ],
+        [
+          0.0,
+          -0.0187859407,
+          -0.0049620464
+        ],
+        [
+          0.0,
+          0.0041908783,
+          -0.0046219696
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/4.Se/y+/STRU",
+          "sha256": "6d3da7228fed116af24b7d407b157e5add04a07b8ee899a176ea0cbe6952cbba"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/4.Se/y+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "72d898e23300bd325afea9d7662fcad6328ac1f34e74b7727e3ff193e17f22f9"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/4.Se/y+/OUT.ABACUS/running_scf.log",
+          "sha256": "2d4ce4ec16d4f7c7e1e4ebf26f97fdfddd78a0bb83ec77393df274da94a7d832"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "4.Se/z+",
+      "atom": 3,
+      "displacement_A": [
+        0.0,
+        0.0,
+        0.00999999932934897
+      ],
+      "dipole_change_e_A": [
+        0.0,
+        0.0,
+        -0.0033979648953928305
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.0,
+          0.0344304665
+        ],
+        [
+          0.0,
+          0.0,
+          0.0937047955
+        ],
+        [
+          0.0,
+          0.0,
+          0.0210439435
+        ],
+        [
+          0.0,
+          0.0,
+          -0.1447810176
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0043981879
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/4.Se/z+/STRU",
+          "sha256": "50419438d3918f969f57fda771770509e7c1ba41402f89cbf3027269df0e0986"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/4.Se/z+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "e382e6ffbbc3f870917ec0813097e593474becafbe5b014296d7031ae0cc5abc"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/4.Se/z+/OUT.ABACUS/running_scf.log",
+          "sha256": "6b8ca22e43e3465f5f8ff2d9841b788fc7fa445c4f246214b209d9b60644c397"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "5.Se/x+",
+      "atom": 4,
+      "displacement_A": [
+        0.00999999934201469,
+        0.0,
+        0.0
+      ],
+      "dipole_change_e_A": [
+        -0.02426231540374344,
+        2.6955460544417905e-05,
+        5.682027859321263e-06
+      ],
+      "forces_eV_A": [
+        [
+          -0.0016549054,
+          2.7747e-06,
+          0.0017566635
+        ],
+        [
+          0.0548627454,
+          -0.0007427711,
+          0.0038504559
+        ],
+        [
+          0.0001438458,
+          -4.5885e-06,
+          0.0042786442
+        ],
+        [
+          0.0041818111,
+          -1.62239e-05,
+          -0.0045502318
+        ],
+        [
+          -0.0575334968,
+          0.0007608088,
+          -0.0053355318
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/5.Se/x+/STRU",
+          "sha256": "8e4c6454445e11efa03e47f05a1dcda7dfe924d0c6684dae24e913019628923f"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/5.Se/x+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "643ac4df289ff4075b1a5104c19b70c92f01e4f43a0f7919bcf8ad50116e947b"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/5.Se/x+/OUT.ABACUS/running_scf.log",
+          "sha256": "f206d11ebd6c2541cf3066b089cd3d72910d4466af37e51c78bfd1e863074e38"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "5.Se/y+",
+      "atom": 4,
+      "displacement_A": [
+        1.9895555586043385e-12,
+        0.009999999339515286,
+        0.0
+      ],
+      "dipole_change_e_A": [
+        1.5562742240563385e-05,
+        -0.024286869950496216,
+        5.7015496956405965e-06
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          -0.0016574739,
+          0.0017565914
+        ],
+        [
+          0.0,
+          0.0556078071,
+          0.0038554637
+        ],
+        [
+          0.0,
+          0.0001486637,
+          0.0042785093
+        ],
+        [
+          0.0,
+          0.0041981234,
+          -0.0045508999
+        ],
+        [
+          0.0,
+          -0.0582971203,
+          -0.0053396645
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/5.Se/y+/STRU",
+          "sha256": "1c2f48357563d69e8b20c8f05980bc678eb5c20372efbc2113c4982ea8c2cf4a"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/5.Se/y+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "52aa108d80fec79ca5ea2e074ad0ff145334dc611c5fb10cbb5056bbce5d56f4"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/5.Se/y+/OUT.ABACUS/running_scf.log",
+          "sha256": "3908d8fedd4224c8e4bcb7f5720cc14b4dab9a4f6a311cda0076214241b3330a"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    },
+    {
+      "name": "5.Se/z+",
+      "atom": 4,
+      "displacement_A": [
+        0.0,
+        0.0,
+        0.00999999932934897
+      ],
+      "dipole_change_e_A": [
+        4.6688227203993044e-05,
+        -2.6955460544417905e-05,
+        -0.002178517330706759
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.0,
+          0.0026450474
+        ],
+        [
+          0.0,
+          0.0,
+          0.0713023357
+        ],
+        [
+          0.0,
+          0.0,
+          0.0040878394
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0041553492
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0738798733
+        ]
+      ],
+      "sources": [
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/5.Se/z+/STRU",
+          "sha256": "c4ae3417eae76e6fe1097d1af148881a97a5ab716e5b239bc5d37b3a8a3ced18"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/5.Se/z+/pyatb/Out/Polarization/polarization.dat",
+          "sha256": "6f7fa957e24b485a524af8301fc49affae3ce917d0bf92b6c8a29d729d2e39b8"
+        },
+        {
+          "path": "/home/zhuxd/abacus/agent-runs/20260827-in2se3-pbesol-bec/bec/5.Se/z+/OUT.ABACUS/running_scf.log",
+          "sha256": "8ebbe89af7161bb5e20e2deba9671ee3ca63ef6d4778522f21d0d568f4d429d5"
+        }
+      ],
+      "settings": {
+        "dft_functional": "pbesol",
+        "ecutwfc": "100",
+        "scf_thr": "1e-08",
+        "basis_type": "lcao",
+        "cal_force": "1",
+        "out_mat_hs2": "1",
+        "out_mat_r": "1",
+        "nspin": "1",
+        "noncolin": "0",
+        "lspinorb": "0",
+        "efield_flag": "0",
+        "vdw_method": "d3_0",
+        "kspacing": "0.1 0.1 1",
+        "init_chg": "file"
+      }
+    }
+  ],
+  "phonon": null,
+  "tensor_convention": "Z[polarization, displacement] in e",
+  "electronic_dielectric": [
+    [
+      3.044254,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      3.044254,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      3.148238
+    ]
+  ],
+  "stored_symmetrized_BEC": [
+    {
+      "index": 1,
+      "label": "In",
+      "tensor": [
+        [
+          3.86358714,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          3.86358715,
+          0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          0.34801295
+        ]
+      ]
+    },
+    {
+      "index": 2,
+      "label": "In",
+      "tensor": [
+        [
+          2.63852614,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          2.63852614,
+          -0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          0.38116348
+        ]
+      ]
+    },
+    {
+      "index": 3,
+      "label": "Se",
+      "tensor": [
+        [
+          -2.42812347,
+          -0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -2.42812348,
+          -0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          -0.1687524
+        ]
+      ]
+    },
+    {
+      "index": 4,
+      "label": "Se",
+      "tensor": [
+        [
+          -1.64799224,
+          -0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -1.64799224,
+          -0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          -0.3411844
+        ]
+      ]
+    },
+    {
+      "index": 5,
+      "label": "Se",
+      "tensor": [
+        [
+          -2.42599757,
+          -0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -2.42599757,
+          -0.0
+        ],
+        [
+          0.0,
+          -0.0,
+          -0.21923964
+        ]
+      ]
+    }
+  ]
+}

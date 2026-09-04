@@ -5,11 +5,18 @@
 Prepare a PYATB-backed finite-displacement tree:
 
 ```bash
-zstar bec pre --calculator abacus --stru STRU --pyatb --method forward --dim 3 --force
+zstar bec pre --stru STRU
 zstar bec run --root .
 zstar bec stat --root .
 zstar bec post --root .
 ```
+
+The current source revision defaults to a Phonopy shared BEC/Gamma ensemble:
+`0.no-move`, `disp-001`, etc., recorded in `shared_response.json`. It adds
+force output and reconstructs both responses from the same SCFs. Use actual
+serialized vectors, not a rounded 0.01-Angstrom denominator. Default sign
+selection is `auto`; `--ensemble cartesian` selects the archived x/y/z route.
+Check installed help before assuming an older release has this feature.
 
 The workflow executor option is `--dimensionality 0|1|2|3` (with `--dim` as an
 alias); the Agent Skill preflight uses the user-facing values
@@ -20,12 +27,13 @@ For shell, Slurm, or Torque, generate one root driver:
 
 ```bash
 zstar bec job --system shell --root . --dry-run
-zstar bec job --system slurm --root . --queue compute --dry-run
-zstar bec job --system torque --root . --queue batch --dry-run
+zstar bec job --system slurm --root . --dry-run
+zstar bec job --system torque --root . --dry-run
 ```
 
 Remove `--dry-run` only after checking the generated script and environment.
 Use `--submit` only with explicit authorization.
+Queue, resource directives, and modules belong in the selected job header.
 
 For CP2K, use the independent serial lane:
 
@@ -42,12 +50,15 @@ For an isolated molecule, use `--dim 0` and central differences. ZStar reports
 an atomic polar tensor (APT), the molecular analogue of a periodic BEC:
 
 ```bash
-zstar bec pre --calculator abacus --stru STRU --pyatb --method central --dim 0 --force
+zstar bec pre --stru STRU --ensemble cartesian --method central --dim 0
 zstar bec run --root .
 zstar bec post --root .
 ```
 
-Check `molecular_apt.json`, including the symmetry-expanded raw translational
+This command retains the established molecular cube/APT archive convention.
+The shared route instead records its joint data in `shared_response_result.json`
+and must not be claimed as a newly DFT-validated molecular benchmark solely
+from the bulk/slab shared tests. Check `molecular_apt.json`, including the symmetry-expanded raw translational
 sum and the corrected sum. CP2K can run the same definition with
 `zstar bec pre --calculator cp2k --dim 0`; compare rotationally invariant GAPT values
 (`trace(APT)/3`) when molecular orientations differ.
@@ -55,7 +66,8 @@ sum and the corrected sum. CP2K can run the same definition with
 ## Two-dimensional BEC
 
 Use `--dim 2` consistently in generation, execution, and collection. Generate
-all Cartesian displacement directions. The out-of-plane response requires
+information spanning all Cartesian directions, through the Phonopy site
+orbits or explicit Cartesian sampling. The out-of-plane response requires
 reference and displaced charge-density cubes; audit a pair with:
 
 ```bash
@@ -72,7 +84,7 @@ The production convention is a wire periodic along Cartesian `z`, with
 orthogonal vacuum vectors along `x/y`:
 
 ```bash
-zstar bec pre --calculator abacus --stru STRU --input INPUT --pyatb --method central --dim 1 --force
+zstar bec pre --stru STRU --input INPUT --ensemble cartesian --method central --dim 1
 zstar bec run --root .
 zstar bec stat --root .
 zstar bec post --root .
@@ -89,6 +101,16 @@ spanning wires around a weighted circular ionic center; retain the reference
 structure and displaced structures in the same cell convention.
 
 ## Phonons and harmonic dielectric response
+
+In a completed shared ensemble, `zstar bec post` already writes `BORN`,
+`FORCE_CONSTANTS`, `qpoints.yaml`, and `irreps.yaml`. Proceed directly to
+`zstar phonon irrep` or `zstar dielectric static`; do not repeat Gamma SCFs.
+Converge the Berry mesh for mixed seeds, inspect raw residuals and conditioning,
+and retain full-precision polarization. Charge cubes must be private copies.
+All stages must have matching polarization grids, valence counts, and occupied
+bands. Negative optical frequencies must not be hidden in a static response.
+
+For a finite-q supercell workflow, use a separate directory:
 
 ```bash
 zstar phonon pre --stru STRU --dim "2 2 2"

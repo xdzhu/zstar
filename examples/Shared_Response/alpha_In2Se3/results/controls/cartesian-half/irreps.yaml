@@ -1,0 +1,74 @@
+q-position: [    0.0000000,    0.0000000,    0.0000000 ]
+point_group: 3m
+transformation_matrix:
+- [  1.0000000,  0.0000000,  0.0000000 ]
+- [  0.0000000,  1.0000000,  0.0000000 ]
+- [  0.0000000,  0.0000000,  1.0000000 ]
+rotations:
+- matrix:
+  - [  1,  0,  0 ]
+  - [  0,  1,  0 ]
+  - [  0,  0,  1 ]
+  symbol: E
+- matrix:
+  - [  0, -1,  0 ]
+  - [  1, -1,  0 ]
+  - [  0,  0,  1 ]
+  symbol: C3
+- matrix:
+  - [ -1,  1,  0 ]
+  - [ -1,  0,  0 ]
+  - [  0,  0,  1 ]
+  symbol: C3
+- matrix:
+  - [  0, -1,  0 ]
+  - [ -1,  0,  0 ]
+  - [  0,  0,  1 ]
+  symbol: sgv
+- matrix:
+  - [ -1,  1,  0 ]
+  - [  0,  1,  0 ]
+  - [  0,  0,  1 ]
+  symbol: sgv
+- matrix:
+  - [  1,  0,  0 ]
+  - [  1, -1,  0 ]
+  - [  0,  0,  1 ]
+  symbol: sgv
+normal_modes:
+- band_indices: [ 1, 2, 3 ]
+  frequency: -0.0000001551  
+  ir_label: None
+  characters: [ [  3,   0.0 ], [  0,   0.0 ], [  0,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ] ]
+- band_indices: [ 4, 5 ]
+  frequency: 0.5385349503   
+  ir_label: E
+  characters: [ [  2,   0.0 ], [  1, 180.0 ], [  1, 180.0 ], [  0,   0.0 ], [  0, 180.0 ], [  0,   0.0 ] ]
+- band_indices: [ 6, 7 ]
+  frequency: 2.5491748656   
+  ir_label: E
+  characters: [ [  2,   0.0 ], [  1, 180.0 ], [  1, 180.0 ], [  0,   0.0 ], [  0, 180.0 ], [  0,   0.0 ] ]
+- band_indices: [ 8 ]
+  frequency: 2.7471032282   
+  ir_label: A1
+  characters: [ [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ] ]
+- band_indices: [ 9, 10 ]
+  frequency: 4.6099998404   
+  ir_label: E
+  characters: [ [  2,   0.0 ], [  1, 180.0 ], [  1, 180.0 ], [  0,   0.0 ], [  0,   0.0 ], [  0, 180.0 ] ]
+- band_indices: [ 11, 12 ]
+  frequency: 4.9744767230   
+  ir_label: E
+  characters: [ [  2,   0.0 ], [  1, 180.0 ], [  1, 180.0 ], [  0, 180.0 ], [  0, 180.0 ], [  0,   0.0 ] ]
+- band_indices: [ 13 ]
+  frequency: 5.1718266461   
+  ir_label: A1
+  characters: [ [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ] ]
+- band_indices: [ 14 ]
+  frequency: 5.8288062703   
+  ir_label: A1
+  characters: [ [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ] ]
+- band_indices: [ 15 ]
+  frequency: 7.5594923452   
+  ir_label: A1
+  characters: [ [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ], [  1,   0.0 ] ]

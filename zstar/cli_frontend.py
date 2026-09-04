@@ -19,6 +19,7 @@ from .configuration import (
     launcher_command,
     load_config,
     resolve_executable,
+    resolve_parallelism,
     set_config_value,
 )
 from .project_manifest import manifest_path, read_manifest, write_manifest
@@ -153,12 +154,17 @@ def _run_bec(arguments: Sequence[str], legacy: LegacyRunner) -> None:
             manifest_root = root if root != "." else "qe_response"
         else:
             raise SystemExit(f"Unsupported BEC calculator: {calculator}")
+        from .shared_abacus import MANIFEST, load_manifest
+        shared_options = {}
+        if calculator == 'abacus' and (Path(manifest_root) / MANIFEST).is_file():
+            shared_data = load_manifest(manifest_root)
+            shared_options = {'method': shared_data['method'], 'ensemble': 'phonopy', 'gamma_phonons': True}
         write_manifest(
             "bec",
             root=manifest_root,
             calculator=calculator,
             dimensionality=dimensionality,
-            options={"method": method or ("central" if calculator == "cp2k" else "forward")},
+            options={"method": method or ("central" if calculator == "cp2k" else "forward"), **shared_options},
         )
         print(f"[MANIFEST] {manifest_path(manifest_root, 'bec')}")
         return
@@ -202,7 +208,7 @@ def _run_bec(arguments: Sequence[str], legacy: LegacyRunner) -> None:
     if action == "job":
         clean = _replace_option(clean, "--system", "--backend")
     system = str(_option(clean, "--backend", default="shell"))
-    tasks = int(_option(clean, "--tasks", default=1))
+    tasks, _ = resolve_parallelism(root, tasks=_option(clean, "--tasks"))
     if action == "run":
         if calculator == "abacus":
             if not _has_option(clean, "--abacus-command"):
@@ -210,9 +216,9 @@ def _run_bec(arguments: Sequence[str], legacy: LegacyRunner) -> None:
             if not _has_option(clean, "--pyatb-command"):
                 clean.extend(["--pyatb-command", launcher_command("pyatb", root=root)])
         elif calculator == "cp2k" and not _has_option(clean, "--cp2k-command"):
-            clean.extend(["--cp2k-command", resolve_executable("cp2k", root=root)])
+            clean.extend(["--cp2k-command", launcher_command("cp2k", root=root)])
         elif calculator == "vasp" and not _has_option(clean, "--vasp-command"):
-            clean.extend(["--vasp-command", resolve_executable("vasp", root=root)])
+            clean.extend(["--vasp-command", launcher_command("vasp", root=root)])
         elif calculator == "qe":
             for flag, key in (
                 ("--pw-command", "qe_pw"),
@@ -220,7 +226,7 @@ def _run_bec(arguments: Sequence[str], legacy: LegacyRunner) -> None:
                 ("--dynmat-command", "qe_dynmat"),
             ):
                 if not _has_option(clean, flag):
-                    clean.extend([flag, resolve_executable(key, root=root)])
+                    clean.extend([flag, launcher_command(key, root=root)])
     elif action == "job":
         if calculator == "abacus":
             if not _has_option(clean, "--abacus-command"):
@@ -344,10 +350,11 @@ def _run_phonon(arguments: Sequence[str], legacy: LegacyRunner) -> None:
         parser.add_argument('--root', default='.')
         if action == 'run':
             parser.add_argument('--command', default=None)
-            parser.add_argument('--omp-threads', type=int, default=1)
+            parser.add_argument('--omp-threads', type=int, default=None)
             parser.add_argument('--dry-run', action='store_true')
             parser.add_argument('--stop-after', type=int, default=None)
             args = parser.parse_args(rest)
+            _, args.omp_threads = resolve_parallelism(args.root, cpus_per_task=args.omp_threads)
             states = run_phonon_workflow(
                 args.root,
                 command=args.command,
@@ -364,12 +371,13 @@ def _run_phonon(arguments: Sequence[str], legacy: LegacyRunner) -> None:
             parser.add_argument('--output', default=None)
             parser.add_argument('--job-name', default='zstar-phonon')
             parser.add_argument('--nodes', type=int, default=1)
-            parser.add_argument('--tasks', type=int, default=1)
-            parser.add_argument('--cpus-per-task', type=int, default=1)
+            parser.add_argument('--tasks', type=int, default=None)
+            parser.add_argument('--cpus-per-task', type=int, default=None)
             parser.add_argument('--walltime', default='24:00:00')
             parser.add_argument('--queue', default=None)
             parser.add_argument('--account', default=None)
             parser.add_argument('--env-script', default=None)
+            parser.add_argument('--header', default=None, help='Specified header; otherwise ./header.sh, then ~/.zstar/header.sh.')
             parser.add_argument('--command', default=None)
             parser.add_argument('--dry-run', action='store_true')
             args = parser.parse_args(rest)
@@ -385,6 +393,7 @@ def _run_phonon(arguments: Sequence[str], legacy: LegacyRunner) -> None:
                 queue=args.queue,
                 account=args.account,
                 env_script=args.env_script,
+                header_file=args.header,
                 command=args.command,
                 dry_run=args.dry_run,
             )

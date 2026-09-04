@@ -16,6 +16,7 @@ directories are intentionally excluded.
 | `backend_examples/` | calculator-specific validation | CP2K BEC/IR/Raman; ABACUS/VASP SiC and HfO2 benchmarks |
 | `IR_Raman_Spectra/` | one-command IR and Raman workflows | HfO2, MoS2, CH4, GaAs nanowire |
 | `Electrostatic_Potential/` | cube-based electrostatic-potential analysis | MoS2, alpha-In2Se3, GeS, SnS, SnSe, SnTe |
+| `Shared_Response/` | matched Unified/Cartesian BEC/APT and Gamma-Hessian efficiency | cubic BaTiO3, SiC, t-HfO2, alpha-In2Se3, hBN, MoS2, H2O, CH4 |
 
 The machine-readable index is `manifest.json`. Every case contains a clean
 `run/` input directory, a `results/` directory with retained outputs, a

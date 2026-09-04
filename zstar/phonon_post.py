@@ -74,6 +74,12 @@ def run_eigen_irrep(
 ) -> dict:
     """Collect forces and write Gamma eigenvectors plus irreducible modes."""
 
+    from .shared_abacus import MANIFEST, collect_shared_abacus
+    if Path(MANIFEST).is_file():
+        if dim is not None and _dim_text(dim) != '1 1 1':
+            raise ValueError('The shared response ensemble contains Gamma forces only (DIM=1 1 1)')
+        return collect_shared_abacus('.', forces_only=not nac, nac=nac, q_direction=q_direction)
+
     dim_auto, tolerance_auto, space_group = get_phonopy_params()
     dimension = _dim_text(dim) if dim is not None else dim_auto
     tolerance = (

@@ -1,0 +1,129 @@
+{
+  "schema": "zstar-shared-response",
+  "version": 1,
+  "calculator": "abacus",
+  "dimension": 0,
+  "scope": "Gamma",
+  "displacement_scheme": "phonopy",
+  "method": "auto",
+  "nominal_distance_A": 0.01058354421806,
+  "symprec_A": 1e-05,
+  "length_unit": "angstrom",
+  "force_unit": "eV/angstrom",
+  "operation_count": 4,
+  "stages": [
+    {
+      "name": "disp-001",
+      "atom": 0,
+      "displacement_A": [
+        0.006110412103277003,
+        0.006110412103277003,
+        0.006110412103277003
+      ],
+      "distance_A": 0.010583544218059576
+    },
+    {
+      "name": "disp-002",
+      "atom": 0,
+      "displacement_A": [
+        -0.006110412103279224,
+        -0.006110412103279224,
+        -0.006110412103277003
+      ],
+      "distance_A": 0.01058354421806214
+    },
+    {
+      "name": "disp-003",
+      "atom": 1,
+      "displacement_A": [
+        0.00748369588557753,
+        0.0074836958855753095,
+        0.0
+      ],
+      "distance_A": 0.010583544218057904
+    },
+    {
+      "name": "disp-004",
+      "atom": 1,
+      "displacement_A": [
+        -0.00748369588557642,
+        -0.0074836958855797504,
+        0.0
+      ],
+      "distance_A": 0.010583544218060258
+    },
+    {
+      "name": "disp-005",
+      "atom": 1,
+      "displacement_A": [
+        -2.2204460496641207e-15,
+        -2.2204460496641207e-15,
+        0.01058354421805969
+      ],
+      "distance_A": 0.01058354421805969
+    },
+    {
+      "name": "disp-006",
+      "atom": 1,
+      "displacement_A": [
+        -2.2204460496641207e-15,
+        -2.2204460496641207e-15,
+        -0.0105835442180608
+      ],
+      "distance_A": 0.0105835442180608
+    }
+  ],
+  "input_hashes": {
+    "0.no-move/STRU": "f2d25776382942b622fa1f0274e55aab1dae2088f59e3c8416830e717b63a828",
+    "0.no-move/INPUT-scf": "b626dbee4da14e08428715c7a0e6660792d76a7bffaa4ddbeb3a872a06556474",
+    "0.no-move/KPT": "91042b39ee493cb5c1bee648adc865a2e5935a29278eb405dc009f994db55ece",
+    "0.no-move/O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+    "0.no-move/H.upf": "8272fc45fbee2b45a490830c61ef9b2f2b894591b2c9a310fe4af152b76502a6",
+    "0.no-move/O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+    "0.no-move/H_gga_9au_100Ry_3s2p.orb": "7234ccdfeed67ab25561fec0d3bf48c0fbf1080f05b1ca6686fa029df49be9e9",
+    "disp-001/STRU": "5b261d8c9e5b45665b8ab3ca250ddfff03b9566bcdd14d260d0dbdb02697dade",
+    "disp-001/INPUT-scf": "23ed86e452ad918f45e44b382b51393df41d08364edaceb45092ab65301f28a6",
+    "disp-001/KPT": "91042b39ee493cb5c1bee648adc865a2e5935a29278eb405dc009f994db55ece",
+    "disp-001/O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+    "disp-001/H.upf": "8272fc45fbee2b45a490830c61ef9b2f2b894591b2c9a310fe4af152b76502a6",
+    "disp-001/O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+    "disp-001/H_gga_9au_100Ry_3s2p.orb": "7234ccdfeed67ab25561fec0d3bf48c0fbf1080f05b1ca6686fa029df49be9e9",
+    "disp-002/STRU": "3806f9266a671b01cb6ee31278d8d8cbdd4c3219352a75aca304c6cb4312507f",
+    "disp-002/INPUT-scf": "23ed86e452ad918f45e44b382b51393df41d08364edaceb45092ab65301f28a6",
+    "disp-002/KPT": "91042b39ee493cb5c1bee648adc865a2e5935a29278eb405dc009f994db55ece",
+    "disp-002/O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+    "disp-002/H.upf": "8272fc45fbee2b45a490830c61ef9b2f2b894591b2c9a310fe4af152b76502a6",
+    "disp-002/O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+    "disp-002/H_gga_9au_100Ry_3s2p.orb": "7234ccdfeed67ab25561fec0d3bf48c0fbf1080f05b1ca6686fa029df49be9e9",
+    "disp-003/STRU": "a9bd62548f4a807350a5c8056699d396814c5964d6d240c3a4f2a1ff63c00074",
+    "disp-003/INPUT-scf": "23ed86e452ad918f45e44b382b51393df41d08364edaceb45092ab65301f28a6",
+    "disp-003/KPT": "91042b39ee493cb5c1bee648adc865a2e5935a29278eb405dc009f994db55ece",
+    "disp-003/O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+    "disp-003/H.upf": "8272fc45fbee2b45a490830c61ef9b2f2b894591b2c9a310fe4af152b76502a6",
+    "disp-003/O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+    "disp-003/H_gga_9au_100Ry_3s2p.orb": "7234ccdfeed67ab25561fec0d3bf48c0fbf1080f05b1ca6686fa029df49be9e9",
+    "disp-004/STRU": "23d2329fb61871e847469e5a87dc77ac313312f15adf3dd88b01c8258a03acfe",
+    "disp-004/INPUT-scf": "23ed86e452ad918f45e44b382b51393df41d08364edaceb45092ab65301f28a6",
+    "disp-004/KPT": "91042b39ee493cb5c1bee648adc865a2e5935a29278eb405dc009f994db55ece",
+    "disp-004/O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+    "disp-004/H.upf": "8272fc45fbee2b45a490830c61ef9b2f2b894591b2c9a310fe4af152b76502a6",
+    "disp-004/O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+    "disp-004/H_gga_9au_100Ry_3s2p.orb": "7234ccdfeed67ab25561fec0d3bf48c0fbf1080f05b1ca6686fa029df49be9e9",
+    "disp-005/STRU": "98c864f4a5dff25994efc33354f33e6904794d1e0f156db2d3ce1bf58e6b001b",
+    "disp-005/INPUT-scf": "23ed86e452ad918f45e44b382b51393df41d08364edaceb45092ab65301f28a6",
+    "disp-005/KPT": "91042b39ee493cb5c1bee648adc865a2e5935a29278eb405dc009f994db55ece",
+    "disp-005/O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+    "disp-005/H.upf": "8272fc45fbee2b45a490830c61ef9b2f2b894591b2c9a310fe4af152b76502a6",
+    "disp-005/O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+    "disp-005/H_gga_9au_100Ry_3s2p.orb": "7234ccdfeed67ab25561fec0d3bf48c0fbf1080f05b1ca6686fa029df49be9e9",
+    "disp-006/STRU": "a22342d7971512431fce51501c8a945aa2746b711dc758c2dfa3904411c063d2",
+    "disp-006/INPUT-scf": "23ed86e452ad918f45e44b382b51393df41d08364edaceb45092ab65301f28a6",
+    "disp-006/KPT": "91042b39ee493cb5c1bee648adc865a2e5935a29278eb405dc009f994db55ece",
+    "disp-006/O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+    "disp-006/H.upf": "8272fc45fbee2b45a490830c61ef9b2f2b894591b2c9a310fe4af152b76502a6",
+    "disp-006/O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+    "disp-006/H_gga_9au_100Ry_3s2p.orb": "7234ccdfeed67ab25561fec0d3bf48c0fbf1080f05b1ca6686fa029df49be9e9",
+    "phonopy_disp.yaml": "3777ce1b343d2b0cbde467c0afc317e41b27d23d54009cca49448f49f4759ebf",
+    "STRU": "6f4d257ed98ae776aa57f3ba25e82365ed708b0041b701001fc588a7207a1814"
+  }
+}

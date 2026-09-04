@@ -1,0 +1,20 @@
+{
+  "stage": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/fixed_a_control",
+  "host": "cu26",
+  "mpi": 1,
+  "omp": 40,
+  "allocated_cores": 40,
+  "command": [
+    "mpirun",
+    "-np",
+    "1",
+    "/home/zhuxd/Software/abacus/INSTALL/3.10.0-LTS/bin/abacus"
+  ],
+  "started_utc": "2026-09-04T02:43:12.221148+00:00",
+  "pid": 245848,
+  "status": "process_finished",
+  "returncode": 0,
+  "wall_seconds": 204.6626920653507,
+  "allocated_core_hours": 2.2740299118372302,
+  "finished_utc": "2026-09-04T02:46:36.884491+00:00"
+}

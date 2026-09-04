@@ -1,0 +1,125 @@
+{
+  "schema": "zstar-response",
+  "schema_version": "1.0",
+  "created_at": "2026-09-02T15:28:32.717035+00:00",
+  "backend": "abacus-cube",
+  "dimensionality": {
+    "value": 0,
+    "label": "molecule",
+    "periodic_axes": [],
+    "nonperiodic_axes": [
+      "x",
+      "y",
+      "z"
+    ],
+    "intrinsic_response_kind": "molecular polarizability",
+    "intrinsic_response_unit": "angstrom^3"
+  },
+  "structure": null,
+  "quantities": [
+    {
+      "name": "atomic_polar_tensor",
+      "values": [
+        [
+          [
+            -0.6682822266666667,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -0.49631206,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -0.35451596
+          ]
+        ],
+        [
+          [
+            0.33414111333333335,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.24815603,
+            0.08357876
+          ],
+          [
+            0.0,
+            0.06630629,
+            0.17725798
+          ]
+        ],
+        [
+          [
+            0.33414111333333335,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.24815603,
+            -0.08357876
+          ],
+          [
+            0.0,
+            -0.06630629,
+            0.17725798
+          ]
+        ]
+      ],
+      "shape": [
+        3,
+        3,
+        3
+      ],
+      "unit": "e",
+      "normalization": "per_atom",
+      "axes": [
+        "atom",
+        "displacement",
+        "polarization"
+      ],
+      "convention": "rows=atomic displacement; columns=molecular dipole; molecular atomic polar tensor in units of e",
+      "source": "abacus-cube",
+      "metadata": {
+        "labels": [
+          "O",
+          "H",
+          "H"
+        ]
+      }
+    }
+  ],
+  "provenance": {
+    "collector": "zstar.molecular_bec.collect_molecular_cube_apts",
+    "root": "/home/zhuxd/abacus/zstar_hse_apt_20260902/H2O",
+    "backend_result_schema_version": 1,
+    "source_backend": "abacus-cube"
+  },
+  "metadata": {
+    "method": "central",
+    "sum_scope": null,
+    "acoustic_sum_tensor": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ]
+  }
+}

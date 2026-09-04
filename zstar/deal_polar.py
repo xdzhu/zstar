@@ -1763,6 +1763,12 @@ def main(
         return
 
 
+    from .shared_abacus import MANIFEST, collect_shared_abacus
+    if Path(MANIFEST).is_file():
+        if displacement_angstrom is not None:
+            raise ValueError('Shared responses use actual STRU displacement vectors; do not override --displacement during postprocessing')
+        return collect_shared_abacus('.')
+
     if displacement_angstrom is None:
         half_displacement, displacement_source = _infer_displacement_angstrom()
     else:

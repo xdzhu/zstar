@@ -1,0 +1,8 @@
+{
+  "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/relax/OUT.SHARED_IN2SE3/STRU_ION_D",
+  "reason": "Remove numerical cell shear after converged cell relaxation, then recheck forces with a fresh fixed-cell relaxation",
+  "maximum_cartesian_atom_change_A": 2.0774617535265103e-06,
+  "maximum_cell_component_change_A": 3.0192999999588253e-06,
+  "lattice_a_A": 4.103887933055564,
+  "fresh_relaxation_required": true
+}

@@ -1,0 +1,31 @@
+ATOMIC_SPECIES
+In 114.8200 /home/zhuxd/abacus/8.dielec/4.In2Se3/pporb/In_ONCV_PBE_FR-1.0.upf upf201
+Se  78.9710 /home/zhuxd/abacus/8.dielec/4.In2Se3/pporb/Se_ONCV_PBE_FR-1.1.upf upf201
+
+NUMERICAL_ORBITAL
+/home/zhuxd/abacus/8.dielec/4.In2Se3/pporb/In_gga_10au_100Ry_2s2p2d1f.orb
+/home/zhuxd/abacus/8.dielec/4.In2Se3/pporb/Se_gga_10au_100Ry_2s2p1d.orb
+
+LATTICE_CONSTANT
+1.8897162000
+
+LATTICE_VECTORS
+        3.9792192200       -0.0000000000       -0.0000000000
+       -1.9896096100        3.4461049318       -0.0000000000
+        0.0000000000        0.0000000000       36.3669600000
+
+ATOMIC_POSITIONS
+Direct
+
+In #label
+0.0000   #magnetism
+2 #number of atoms
+        0.0000000000        0.0000000000        0.5757307450 m 1 1 1
+        0.6666666667        0.3333333333        0.4608459974 m 1 1 1
+
+Se #label
+0.0000   #magnetism
+3 #number of atoms
+        0.3333333333        0.6666666667        0.6131391672 m 1 1 1
+        0.6666666667        0.3333333333        0.5296950093 m 1 1 1
+        0.3333333333        0.6666666667        0.4257343807 m 1 1 1

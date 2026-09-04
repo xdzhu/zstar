@@ -62,28 +62,27 @@ override has the highest priority.
 Environment variables use names such as `ZSTAR_ABACUS_EXECUTABLE` and
 `ZSTAR_QE_PW_EXECUTABLE`. Store the calculator executable in configuration;
 ZStar adds `mpirun -np N` for shell/Torque jobs or `srun --ntasks=N` for Slurm.
-Environment setup belongs in a small shell file passed with `--env-script`.
+Environment setup belongs in the selected job header.
 
 ### Cluster resources and environment
 
-Queue and resource values are properties of one generated job, so they are
-specified when the driver is created rather than stored in the calculator
-configuration:
+Queue, account, resources, time limits and module/source commands belong in a
+single selected header: **Specified** `--header FILE`, then **Current**
+`header.sh` in the workflow root, then **Global** `~/.zstar/header.sh`. There is
+no merge or parent-directory search. If none exists, an editable default is
+generated. MPI/OMP and executable paths remain configuration settings:
 
 ```bash
-zstar bec job --root . --system slurm \
-  --nodes 1 --tasks 28 --cpus-per-task 1 \
-  --queue compute --account PROJECT --walltime 24:00:00 \
-  --env-script ./env.sh
+zstar config set execution.mpi 1
+zstar config set execution.omp 40
+zstar bec job --system slurm --header /path/to/header.sh
 ```
 
-The same resource options are available for `zstar phonon job` and
-`zstar spectra job`.  Use `--system shell` for direct local execution and
-`--system torque` (or `--system pbs`) for Torque/PBS.  The generated driver
-contains the scheduler directives and uses `srun` for Slurm or `mpirun` for
-shell/Torque.  `env.sh` is the place for `module load`, `conda activate`, and
-cluster-specific environment variables.  Use `--dry-run` to inspect the
-driver without running the calculator.
+The same selection applies to `zstar phonon job` and `zstar spectra job`.
+Selected contents are embedded in the script and hashed in
+`.zstar/job_header.json`. Keep MPI/OMP consistent with the scheduler allocation.
+Legacy resource flags and `--env-script` remain supported. For complete header
+examples, default behavior, execution and restart, see [the tutorial](job_headers.md).
 
 ### ABACUS pseudopotentials and orbitals
 
@@ -116,17 +115,21 @@ calculator inputs. ABACUS + PYATB bulk BEC:
 
 ```bash
 zstar bec pre --stru STRU
-zstar bec job --root . --system slurm --tasks 28 --env-script env.sh
+zstar bec job --system slurm --header header.sh
 zstar bec stat --root .
 zstar bec post --root .
 ```
 
-For `zstar bec pre`, ABACUS + PYATB and the forward finite-difference method
-are the defaults. The calculator and `--pyatb` switch are therefore omitted
-from the canonical example; specify `--calculator cp2k`, `vasp`, or `qe` only
-when changing backends.
+In `0.3.0rc1`, `zstar bec pre` defaults to ABACUS + PYATB and
+Phonopy's symmetry-adapted Unified BEC/Gamma displacement ensemble, with
+automatic +/- selection. The calculator and `--pyatb` switch remain optional;
+specify `--calculator cp2k`, `vasp`, or `qe` only when changing backends.
+`--ensemble cartesian` retains the legacy atom/direction layout. See the
+[shared response tutorial](research/shared_response/USAGE.md) for scope,
+actual displacement units, raw diagnostics, and compatibility.
 
-Phonons and mode classification:
+For the shared Gamma route, `zstar bec post` already generates the phonon
+outputs. Prepare finite-q/supercell phonons in a separate directory:
 
 ```bash
 zstar phonon pre --stru STRU --dim "2 2 2"
@@ -151,6 +154,14 @@ Static and frequency-dependent dielectric response:
 zstar dielectric static
 zstar dielectric freq
 ```
+
+Low-dimensional outputs use their documented source-field normalization.
+For independently screened macroscopic slab data only, the optional
+`--slab-boundary macroscopic` with `--thickness` converts the total tensor
+using direct in-plane and inverse out-of-plane response. It does not add
+missing local-field physics to PYATB results. See
+[response conventions](response_conventions.md) and the
+[eight-system benchmarks](../examples/Shared_Response/README.md).
 
 ## Electrostatic-potential coverage
 

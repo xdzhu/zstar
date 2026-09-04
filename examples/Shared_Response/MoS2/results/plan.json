@@ -1,0 +1,90 @@
+{
+  "case": "MoS2",
+  "dimension": 2,
+  "source": "/home/zhuxd/abacus/agent-runs/20260904-eight-system-efficiency/upload/examples/IR_Raman_Spectra/2D_MoS2/run",
+  "protocol": "Cartesian central joint-response control versus Phonopy-auto unified response",
+  "scope": "BEC/APT and Gamma Hessian; not Raman or full dispersion",
+  "space_group_of_periodic_cell": "P-6m2",
+  "symprec_angstrom": 1e-05,
+  "changes_to_source_input": {
+    "calculation": "scf",
+    "cal_force": "1",
+    "cal_stress": "0",
+    "gamma_only": "0",
+    "scf_thr": "1e-8",
+    "symmetry": "1",
+    "pseudo_dir": ".",
+    "orbital_dir": ".",
+    "init_chg": "auto"
+  },
+  "structure": {
+    "cell_angstrom": [
+      [
+        1.5991197844394547,
+        -2.769756714036977,
+        -0.0
+      ],
+      [
+        1.5991197844394547,
+        2.769756714036977,
+        -0.0
+      ],
+      [
+        0.0,
+        0.0,
+        34.47923620612465
+      ]
+    ],
+    "positions_angstrom": [
+      [
+        1.5991197844394547,
+        0.9232522381969761,
+        3.2257703089999907
+      ],
+      [
+        1.5991197844394545,
+        -0.9232522381969762,
+        1.6459657991041203
+      ],
+      [
+        1.5991197844394545,
+        -0.9232522381969762,
+        4.805572494995341
+      ]
+    ],
+    "symbols": [
+      "Mo",
+      "S",
+      "S"
+    ]
+  },
+  "stages": {
+    "unified": 3,
+    "cartesian": 12
+  },
+  "seed_sha256": {
+    "INPUT": "6981acbbbcf39fd33b9af3296289bf2fe580d2086f51267ebc29402dbdb492b3",
+    "KPT": "152c4570c7e5149c88ff387d3f26c4b02293ca3eaa28295626c9fcfaabd10652",
+    "STRU": "09b4e204b35f3b2da8e2ed53937b82715ed90c1d22be94602724c2ef4c5e9910",
+    "Mo.upf": "b5a929dee3378934d30b33a8f510c8a715450d22b4f1a3469276569ac47ab29d",
+    "Mo_gga_7au_100Ry_4s2p2d1f.orb": "40815a5d260af9590f9ec749eeff4aaa1ac4462ffcb8786c7041be0bbcf61fd6",
+    "S.upf": "47dc390784fa31acb520275f817fbe0bb42219399f641ecbcfb97ca9a1f947fa",
+    "S_gga_6au_100Ry_2s2p1d.orb": "5e2628093932604fe3e7857c021ef3fd29b5bbc376a8e9d5dc7dc97764fdbd22",
+    "INPUT.source": "577783272d96f3806216e1ecabc3a3acd75b24e5d0854981651585e341db69dd",
+    "STRU.direct": "09b4e204b35f3b2da8e2ed53937b82715ed90c1d22be94602724c2ef4c5e9910"
+  },
+  "polarization_mp_density": 0.08,
+  "allocated_cores": 40,
+  "mpi_omp": {
+    "ABACUS": [
+      1,
+      40
+    ],
+    "PYATB": [
+      40,
+      1
+    ]
+  },
+  "timing": "monotonic seconds times allocated cores; successful solver calls only",
+  "completed": true
+}

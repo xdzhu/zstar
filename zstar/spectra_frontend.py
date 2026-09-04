@@ -12,7 +12,9 @@ from .configuration import (
     launcher_command,
     normalize_execution_system,
     resolve_executable,
+    resolve_parallelism,
 )
+from .job_headers import compose_job_script, torque_ppn
 from .project_manifest import manifest_path, read_manifest, write_manifest
 
 
@@ -94,6 +96,8 @@ def _write_driver(
     account: str | None,
     env_script: str | None,
     dry_run: bool,
+    header_file: str | None = None,
+    calculator: str = 'abacus',
 ) -> Path:
     root_path = Path(root).resolve()
     key = normalize_execution_system(system)
@@ -112,7 +116,7 @@ def _write_driver(
             header.append(f"#SBATCH --account={account}")
     elif key == "torque":
         header.extend([
-            f"#PBS -N {job_name}", f"#PBS -l nodes={nodes}:ppn={tasks * cpus_per_task}",
+            f"#PBS -N {job_name}", f"#PBS -l nodes={nodes}:ppn={torque_ppn(nodes, tasks, cpus_per_task)}",
             f"#PBS -l walltime={walltime}", f"#PBS -o {root_path}/.zstar/torque.out",
             f"#PBS -e {root_path}/.zstar/torque.err",
         ])
@@ -123,14 +127,29 @@ def _write_driver(
     body = ["set -euo pipefail", f"ROOT={shlex.quote(str(root_path))}", 'cd "$ROOT"']
     if env_script:
         body.append(f"source {shlex.quote(str(Path(env_script).expanduser().resolve()))}")
+    command_options = []
+    if calculator == 'abacus':
+        for flag, name in [('--abacus-command', 'abacus'), ('--pyatb-command', 'pyatb')]:
+            command_options.extend([flag, launcher_command(name, root=root, system=key, tasks=tasks)])
+    elif calculator in ('vasp', 'cp2k'):
+        command = launcher_command(calculator, root=root, system=key, tasks=tasks)
+        if calculator == 'cp2k':
+            command += ' -i input.inp -o output.log'
+        command_options = ['--command', command]
+    elif calculator == 'qe':
+        for flag, name in [('--pw-command', 'qe_pw'), ('--ph-command', 'qe_ph'), ('--dynmat-command', 'qe_dynmat')]:
+            command_options.extend([flag, launcher_command(name, root=root, system=key, tasks=tasks)])
+    commands = ' '.join(shlex.quote(value) for value in command_options)
     body.extend([
         f"export OMP_NUM_THREADS={cpus_per_task}",
-        f"zstar spectra run --root \"$ROOT\" --omp-threads {cpus_per_task}"
+        f"zstar spectra run --root \"$ROOT\" --omp-threads {cpus_per_task} {commands}"
         f"{' --dry-run' if dry_run else ''} 2>&1 | tee -a \"$ROOT/.zstar/spectra.log\"",
-        'zstar spectra post --root "$ROOT" 2>&1 | tee -a "$ROOT/.zstar/spectra.log"',
     ])
+    if not dry_run:
+        body.append('zstar spectra post --root "$ROOT" 2>&1 | tee -a "$ROOT/.zstar/spectra.log"')
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text("\n".join(header + [""] + body) + "\n", encoding="utf-8", newline="\n")
+    target.write_text(compose_job_script(root_path, key, header, body, specified=header_file),
+                      encoding="utf-8", newline="\n")
     if os.name != "nt":
         target.chmod(target.stat().st_mode | 0o111)
     return target
@@ -149,7 +168,7 @@ def run_spectra_cli(arguments: Sequence[str], legacy: LegacyRunner) -> None:
         print(f"usage: zstar spectra {action} [options]")
         print("workflow options: --calculator, --kind, --root, --dim")
         if action == "job":
-            print("job options: --system, --tasks, --cpus-per-task, --walltime")
+            print("job options: --system, --header, --tasks, --cpus-per-task, --walltime")
         return
     legacy_root = str(_option(rest, "--root", default=_default_root()))
     if (
@@ -223,19 +242,23 @@ def run_spectra_cli(arguments: Sequence[str], legacy: LegacyRunner) -> None:
     if action == "job":
         system = str(_option(rest, "--system", "--backend", default="shell"))
         output = _option(rest, "--output")
+        tasks, threads = resolve_parallelism(root, tasks=_option(rest, '--tasks'),
+                                             cpus_per_task=_option(rest, '--cpus-per-task'))
         target = _write_driver(
             root,
             system=system,
             output=output,
             job_name=str(_option(rest, "--job-name", default="zstar-spectra")),
             nodes=int(_option(rest, "--nodes", default=1)),
-            tasks=int(_option(rest, "--tasks", default=1)),
-            cpus_per_task=int(_option(rest, "--cpus-per-task", default=1)),
+            tasks=tasks,
+            cpus_per_task=threads,
             walltime=str(_option(rest, "--walltime", default="24:00:00")),
             queue=_option(rest, "--queue"),
             account=_option(rest, "--account"),
             env_script=_option(rest, "--env-script"),
             dry_run="--dry-run" in rest,
+            header_file=_option(rest, '--header'),
+            calculator=calculator,
         )
         print(f"[OUT] {target}")
         return
@@ -246,7 +269,7 @@ def run_spectra_cli(arguments: Sequence[str], legacy: LegacyRunner) -> None:
         if not _has(clean, "--root"):
             clean.extend(["--root", root])
         if action == "run" and not _has(clean, "--command"):
-            executable = resolve_executable(calculator, root=root)
+            executable = launcher_command(calculator, root=root)
             command = executable if calculator == "vasp" else f"{executable} -i input.inp -o output.log"
             clean.extend(["--command", command])
         legacy(["spectra", mapping[action], *clean])
@@ -259,7 +282,7 @@ def run_spectra_cli(arguments: Sequence[str], legacy: LegacyRunner) -> None:
         if action == "run":
             for flag, key in (("--pw-command", "qe_pw"), ("--ph-command", "qe_ph"), ("--dynmat-command", "qe_dynmat")):
                 if not _has(clean, flag):
-                    clean.extend([flag, resolve_executable(key, root=root)])
+                    clean.extend([flag, launcher_command(key, root=root)])
         legacy(["qe-bec", mapping[action], *clean])
         return
 

@@ -1,0 +1,178 @@
+{
+  "schema": "zstar-shared-response",
+  "version": 1,
+  "calculator": "abacus",
+  "dimension": 3,
+  "scope": "Gamma",
+  "displacement_scheme": "cartesian-control",
+  "method": "central",
+  "nominal_distance_A": 0.01058354421806,
+  "symprec_A": 1e-05,
+  "length_unit": "angstrom",
+  "force_unit": "eV/angstrom",
+  "operation_count": 24,
+  "stages": [
+    {
+      "name": "disp-001",
+      "atom": 0,
+      "displacement_A": [
+        0.010583544218059996,
+        0.0,
+        0.0
+      ],
+      "distance_A": 0.010583544218059996
+    },
+    {
+      "name": "disp-002",
+      "atom": 0,
+      "displacement_A": [
+        -0.010583544218059996,
+        0.0,
+        0.0
+      ],
+      "distance_A": 0.010583544218059996
+    },
+    {
+      "name": "disp-003",
+      "atom": 0,
+      "displacement_A": [
+        -3.239729613580995e-18,
+        0.010583544218059997,
+        0.0
+      ],
+      "distance_A": 0.010583544218059997
+    },
+    {
+      "name": "disp-004",
+      "atom": 0,
+      "displacement_A": [
+        3.239729613580995e-18,
+        -0.010583544218059997,
+        0.0
+      ],
+      "distance_A": 0.010583544218059997
+    },
+    {
+      "name": "disp-005",
+      "atom": 0,
+      "displacement_A": [
+        -2.189767188020641e-18,
+        -4.015025111669685e-19,
+        0.010583544218059996
+      ],
+      "distance_A": 0.010583544218059996
+    },
+    {
+      "name": "disp-006",
+      "atom": 0,
+      "displacement_A": [
+        2.189767188020641e-18,
+        4.015025111669685e-19,
+        -0.010583544218059996
+      ],
+      "distance_A": 0.010583544218059996
+    },
+    {
+      "name": "disp-007",
+      "atom": 1,
+      "displacement_A": [
+        0.010583544218059977,
+        0.0,
+        0.0
+      ],
+      "distance_A": 0.010583544218059977
+    },
+    {
+      "name": "disp-008",
+      "atom": 1,
+      "displacement_A": [
+        -0.010583544218059977,
+        0.0,
+        0.0
+      ],
+      "distance_A": 0.010583544218059977
+    },
+    {
+      "name": "disp-009",
+      "atom": 1,
+      "displacement_A": [
+        -2.4606263570347556e-17,
+        0.01058354421805984,
+        0.0
+      ],
+      "distance_A": 0.01058354421805984
+    },
+    {
+      "name": "disp-010",
+      "atom": 1,
+      "displacement_A": [
+        2.399634333808555e-16,
+        -0.010583544218059914,
+        0.0
+      ],
+      "distance_A": 0.010583544218059914
+    },
+    {
+      "name": "disp-011",
+      "atom": 1,
+      "displacement_A": [
+        1.828912370383265e-17,
+        6.00372541857808e-17,
+        0.010583544218059938
+      ],
+      "distance_A": 0.010583544218059938
+    },
+    {
+      "name": "disp-012",
+      "atom": 1,
+      "displacement_A": [
+        3.7028893491497213e-16,
+        1.4989536150216098e-17,
+        -0.010583544218059938
+      ],
+      "distance_A": 0.010583544218059938
+    }
+  ],
+  "input_hashes": {
+    "0.no-move/STRU": "3f9b08cbda07f5f660c37c6d3f44e093fc7a9a282ddd0524a18e77b4341b5f80",
+    "0.no-move/INPUT-scf": "c484f25e8609e70a1a3b0f8f146aa2d0800c890943d2cc5f55c99597adbd79d1",
+    "0.no-move/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "disp-001/STRU": "5dd916fdd0f5f0e174ee4f688e27a05d4832f71c66c56cce62e57e2fccc2ef6f",
+    "disp-001/INPUT-scf": "40240dd219a0519a48b2eee4474fe7ee23c23370c041fb1fe2741961964c0fba",
+    "disp-001/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "disp-002/STRU": "caec0bd42f1b9e5a5ddb89d8d9d9dada293158a7643050c8e577434944cf359f",
+    "disp-002/INPUT-scf": "40240dd219a0519a48b2eee4474fe7ee23c23370c041fb1fe2741961964c0fba",
+    "disp-002/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "disp-003/STRU": "2f312372a6ad2f80c7cb9d34a66382e7921616112cf9ac1253e46183a391d531",
+    "disp-003/INPUT-scf": "40240dd219a0519a48b2eee4474fe7ee23c23370c041fb1fe2741961964c0fba",
+    "disp-003/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "disp-004/STRU": "24470a19fed066cbfe394a0395989bdf465ec356d6b8231cc46215dbad3b3cbb",
+    "disp-004/INPUT-scf": "40240dd219a0519a48b2eee4474fe7ee23c23370c041fb1fe2741961964c0fba",
+    "disp-004/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "disp-005/STRU": "59bf82a69c84b55d3100e63287a7350f4e79390f236151a4bc12e838cacf8247",
+    "disp-005/INPUT-scf": "40240dd219a0519a48b2eee4474fe7ee23c23370c041fb1fe2741961964c0fba",
+    "disp-005/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "disp-006/STRU": "799d12e1b028b81cd0fe4cea9e5b2f6cf82ed0f2b35dbaafb958570391603287",
+    "disp-006/INPUT-scf": "40240dd219a0519a48b2eee4474fe7ee23c23370c041fb1fe2741961964c0fba",
+    "disp-006/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "disp-007/STRU": "bb86b364fbf17963cef70e986ff63cbcbe1a983b946850b3eee33d9fcb3b2d77",
+    "disp-007/INPUT-scf": "40240dd219a0519a48b2eee4474fe7ee23c23370c041fb1fe2741961964c0fba",
+    "disp-007/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "disp-008/STRU": "a830afae0a2f39b904ac3a028215a92dea771715ecc0b07f5abf817f28c77fc1",
+    "disp-008/INPUT-scf": "40240dd219a0519a48b2eee4474fe7ee23c23370c041fb1fe2741961964c0fba",
+    "disp-008/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "disp-009/STRU": "f380e447fe3014d56607a57d89035e72722bdd19ac56ac812e6d766e8d9e56c1",
+    "disp-009/INPUT-scf": "40240dd219a0519a48b2eee4474fe7ee23c23370c041fb1fe2741961964c0fba",
+    "disp-009/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "disp-010/STRU": "97f9644dc30f966201e9b47acc03f8bef65ef35d5b8d9ed2bca4e1b7201fc3fd",
+    "disp-010/INPUT-scf": "40240dd219a0519a48b2eee4474fe7ee23c23370c041fb1fe2741961964c0fba",
+    "disp-010/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "disp-011/STRU": "943aa8ee2c3f68edcec982729053562d0827350bfd847c3e77681af5ac27a91a",
+    "disp-011/INPUT-scf": "40240dd219a0519a48b2eee4474fe7ee23c23370c041fb1fe2741961964c0fba",
+    "disp-011/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "disp-012/STRU": "3a57cd1a5be43a927ceb4c1ea0aea561ccd89afa7d042f77c07d30cca4463ecf",
+    "disp-012/INPUT-scf": "40240dd219a0519a48b2eee4474fe7ee23c23370c041fb1fe2741961964c0fba",
+    "disp-012/KPT": "3dc6b094e8bfe5b276239cc404a436fa48c661e0337c5252bc6e11ff96914d5a",
+    "phonopy_disp.yaml": "f9122261519fd0c06f2e9d9459a44c1ac30af99d6c2a04a2fd7e6f8d064e0d8e"
+  }
+}

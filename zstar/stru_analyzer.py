@@ -144,8 +144,22 @@ def stru_analyzer(f_stru: str, latname: Optional[str] = None):
     if not lines:
         raise ValueError("ATOMIC_POSITIONS 内容为空。")
 
-    coordinate_type = lines[0].strip()
-    assert coordinate_type in ('Direct', 'Cartesian'), "Only 'Direct' or 'Cartesian' are supported."
+    source_coordinate_type = lines[0].strip()
+    supported_coordinates = ('Direct', 'Cartesian', 'Cartesian_angstrom', 'Cartesian_au')
+    if source_coordinate_type not in supported_coordinates:
+        raise ValueError(
+            f"Unsupported STRU coordinate type {source_coordinate_type!r}; "
+            "use Direct, Cartesian, Cartesian_angstrom, or Cartesian_au."
+        )
+    if not np.isfinite(lattice_constant) or lattice_constant <= 0:
+        raise ValueError("LATTICE_CONSTANT must be finite and positive.")
+    # Preserve the legacy return contract: Cartesian coordinates are in a0 units.
+    coordinate_type = 'Direct' if source_coordinate_type == 'Direct' else 'Cartesian'
+    coordinate_scale = {
+        'Direct': 1.0, 'Cartesian': 1.0,
+        'Cartesian_angstrom': 1.0 / (lattice_constant * Bohr),
+        'Cartesian_au': 1.0 / lattice_constant,
+    }[source_coordinate_type]
     lines = lines[1:]  # 剩余内容
 
     # 逐元素解析：元素标题行 -> 磁矩行 -> 个数行 -> 逐行坐标
@@ -179,7 +193,7 @@ def stru_analyzer(f_stru: str, latname: Optional[str] = None):
             return None
 
         parts = raw.split()
-        coords = list(map(float, parts[:3]))
+        coords = [float(value) * coordinate_scale for value in parts[:3]]
 
         # 支持多种形式：
         # x y z

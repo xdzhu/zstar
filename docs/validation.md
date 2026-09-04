@@ -1,4 +1,12 @@
-# ZStar 0.2.1 Validation Record
+# ZStar Validation Record
+
+The historical material checks below are supplemented by the 0.3.0rc1
+[eight-system Unified benchmark](../examples/Shared_Response/README.md)
+and the [publication-revision audit](research/PUBLICATION_REVISION_20260904.md).
+The final candidate passes 319 tests with each of Phonopy 2.36.0 and 4.4.0.
+An isolated wheel installation with NumPy 2.2.6 and each Phonopy version also passes
+319 tests (47 additional subtests) and `pip check`; it does not inherit the
+workstation's installed ZStar or optional pymatgen.
 
 [简体中文](validation.zh-CN.md)
 

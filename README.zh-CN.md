@@ -33,6 +33,16 @@ ZStar 不会隐藏中间步骤。结构、输入文件、绝缘性门控、极�
 
 当前版本的数值验证与运行环境汇总见 [docs/validation.zh-CN.md](docs/validation.zh-CN.md)。
 
+开发中的 ABACUS + PYATB 流程已改为由 Phonopy 生成共用位移，同时获取 BEC
+与 Gamma 点声子响应。推导、真实位移处理、极化输出精度及验证状态见
+[共用位移教程](docs/research/shared_response/USAGE.zh-CN.md) 和
+[配对案例](examples/Shared_Response/README.md)。已发布版本与历史案例仍保留其原有版本记录。
+
+混合位移不仅需要检查 SCF 与位移步长，也要检查 PYATB 的 Berry 积分网格。
+[直接验证报告](docs/research/shared_response/DIRECT_VALIDATION.md) 保留了 SiC、
+四方 HfO₂、重新优化的 α-In₂Se₃ 的原始张量、网格与步长收敛检查，以及
+分别记录的 CPU 核时，不将输出小数位数等同于物理精度。
+
 ### 主要功能
 
 - 前向差分与中心差分 BEC。
@@ -78,12 +88,14 @@ Z*(kappa, alpha, beta) = Omega/e * dP_alpha / du_(kappa,beta)
 
 二维薄膜的面内与面外响应采用不同处理：
 
-- **面内极化列：**在体系保持绝缘的前提下，沿用 Berry 相位极化差分。
-- **面外极化列：**从 ABACUS 电荷密度 cube 文件做实空间积分，同时包含离子和电子偶极。
+- **面内极化分量：**在体系保持绝缘的前提下，沿用 Berry 相位极化差分。
+- **面外极化分量：**从 ABACUS 电荷密度 cube 文件做实空间积分，同时包含离子和电子偶极。
 - **归一化：**面内 BEC 通过超胞体积因子消除真空层高度依赖；二维介电谱默认输出与真空无关的片层极化率。
 
-ZStar 的统一张量约定为：行表示原子位移/力，列表示极化/电场。因此，完整二维
-BEC 需要 `x`、`y`、`z` 三个方向的位移。`zstar bec pre --dim 2` 默认会生成全部三个
+旧版带编号的 `Z-BORN-*.out` 表采用行表示位移、列表示极化的排列；Phonopy
+`BORN` 和统一重建内核采用极化优先排列，与上面的定义公式一致，结构化记录
+明确标出轴含义。完整二维 BEC 需要覆盖三个方向的位移信息。默认统一流程通过 Phonopy 种子位移及其位点
+对称性像获得满秩的信息；旧式笛卡尔流程则显式生成 `x`、`y`、`z` 三个
 方向。当前混合算法要求薄膜法向与笛卡尔 `z` 轴对齐；对于倾斜薄膜会明确报错退出。
 
 可以独立审计一对参考/位移电荷密度 cube：
@@ -100,6 +112,11 @@ PNG/PDF/SVG 图片。
 ## 安装
 
 ZStar 要求 Python 3.9 或更高版本。
+
+统一框架的投稿候选版本为 **0.3.0rc1**。八体系基准与新 header 功能需要
+对应源码，旧 PyPI 0.2.1 不包含这些新增内容。在下方源码安装前执行
+`git checkout v0.3.0rc1`；参见[可复现基准](examples/Shared_Response/README.zh-CN.md)
+及[本轮验证记录](docs/research/PUBLICATION_REVISION_20260904.md)。
 
 从 PyPI 安装：
 
@@ -180,7 +197,7 @@ zstar skill preflight --root . --lane bec --dim bulk
 zstar bec pre --stru STRU
 ```
 
-`bec pre` 默认使用 ABACUS + PYATB 路线以及 forward 前向有限差分，因此不必
+`bec pre` 默认使用 ABACUS + PYATB 与 Unified 对称性适配位移，自动选择正负位移，因此不必
 重复写这些参数。只有切换到其他后端时，才使用 `--calculator cp2k`、
 `--calculator vasp` 或 `--calculator qe`。
 
@@ -196,16 +213,20 @@ zstar bec pre --stru STRU --dim 2
 zstar bec pre --stru STRU --dim 1 --method central
 ```
 
-生成的目录从 `0.no-move` 开始，后面是类似 `1.Ti/x+` 的原子/方向位移目录。每个位移目录不再需要单独复制一份任务脚本。
+默认 ABACUS + PYATB 目录从 `0.no-move` 开始，后面是 `disp-001`、`disp-002`
+等 Phonopy 位移目录，自动打开 `cal_force 1`，同一批 SCF 同时提供 BEC 和 Gamma
+声子响应。`--ensemble cartesian` 保留 `1.Ti/x+` 等旧布局。无需向每个位移目录
+单独复制任务脚本。
 
 常用选项：
 
 | 选项 | 含义 |
 | --- | --- |
-| `--method forward\|central` | 前向或中心有限差分。 |
+| `--method auto\|forward\|central` | 自动选择正负位移（共享流程默认）、单边或显式中心差分。 |
+| `--ensemble phonopy\|cartesian` | 默认共用 BEC/Gamma 位移，或采用旧笛卡尔布局。 |
 | `--reduce` / `--all` | 默认只算对称性代表原子，或强制计算全部原子。 |
-| `--move "x y z"` | 显式指定原子位移方向。 |
-| `--displacement 0.01` | 有限位移的半步长，单位为 Angstrom。 |
+| `--move "x y z"` | 显式指定方向，使用旧笛卡尔流程。 |
+| `--displacement 0.01` | 指定位移长度，单位 Å；共享默认 0.02 bohr，重建使用实际结构差分向量。 |
 | `--dim 0\|1\|2\|3` | 分子、一维、二维或三维处理。 |
 | `--input-mode abacus\|pyatb\|hamgnn\|custom` | 输入文件准备方式。 |
 | `--input_sets FILES` | 复制到任务目录的附加文件或文件夹。 |
@@ -263,7 +284,7 @@ zstar bec run --root . \
 6. 按确定顺序串行执行全部位移及其极化计算。
 7. 在 `.zstar/` 保存阶段状态；中断后再次执行同一命令即可继续。
 
-默认采用普通能带路径进行轻量绝缘性门控。它可以发现所采样路径上的闭隙，但不能排除路径之外的小型费米面。只有显式指定时才采用更严格的 MP 网格：
+默认沿常规高对称能带路径检查 band gap。也可显式选择更密的 MP 网格：
 
 ```bash
 zstar bec run --root . --gap-mode mp --mp-density 0.08
@@ -286,30 +307,30 @@ zstar bec job --root . --system shell
 Slurm：
 
 ```bash
-zstar bec job --root . --system slurm \
-  --queue compute --tasks 28 --cpus-per-task 1 --walltime 24:00:00
+zstar bec job --system slurm
 ```
 
 Torque/PBS：
 
 ```bash
-zstar bec job --root . --system torque \
-  --queue batch --tasks 28 --cpus-per-task 1 --walltime 24:00:00
+zstar bec job --system torque
 ```
 
-队列、节点数、CPU 分配、墙钟时间、项目账号和集群模块都属于具体任务，应在生成
-作业脚本时指定，不要写入计算软件配置。`module load` 和 `conda activate` 等环境
-初始化放入 `--env-script` 指定的脚本：
+队列、资源、时限、账号和 `module`/环境命令放在一个 header 中，依次选择：
+**Specified** `--header FILE` > **Current** 工作流根目录的 `header.sh` >
+**Global** `~/.zstar/header.sh`。不合并；都没有时生成带简短指引的默认模板。
+软件路径和 MPI/OMP 仍放在 `zstar config`：
 
 ```bash
-zstar bec job --root . --system slurm \
-  --nodes 1 --tasks 28 --cpus-per-task 1 \
-  --queue compute --account PROJECT --walltime 24:00:00 \
-  --env-script ./env.sh
+zstar config set execution.mpi 1
+zstar config set execution.omp 40
+zstar bec job --system slurm --header /path/to/header.sh
 ```
 
-生成的驱动脚本会使用 Slurm 的 `srun`，或 shell/Torque 的 `mpirun`。`zstar phonon
-job` 和 `zstar spectra job` 使用相同方式；提交前可以用 `--dry-run` 检查脚本。
+header 申请的资源须与 MPI/OMP 匹配；选中的内容会嵌入生成脚本并记录哈希。
+`zstar phonon job` 和 `zstar spectra job` 使用相同规则。
+Slurm、Torque、本地运行的完整例子见[header 教程](docs/job_headers.zh-CN.md)。
+旧资源参数及 `--env-script` 继续兼容。
 
 后端默认启动命令会自动适配：shell/Torque 使用 `mpirun -np N`，Slurm
 使用 `srun --ntasks=N`。加入 `--dry-run` 可以在不启动计算的情况下检查
@@ -329,10 +350,11 @@ zstar bec run --root . \
 zstar bec post --root .
 ```
 
-分子收集器会展开对称等价原子、施加平移不变性约束，并写出
-`molecular_apt.json` 和统一格式的 `zstar_response.json`。当 PYATB 最终极化行
-因六位小数舍入而不足以解析分子微小响应时，解析器会从分别输出的离子相位和
-电子相位重构更高精度的极化。
+Unified 收集器同时重构分子 APT 与力常数，将原始及投影后张量保存在
+`shared_response_result.json`，并写出统一格式的 `zstar_response.json`。
+PYATB 输出适配器保留完整精度的极化数值，不修改已安装的 PYATB 内核。
+旧 Cartesian 分子流程仍写出 `molecular_apt.json`；对于旧的舍入输出，
+它也可以从分别打印的离子相位与电子相位中恢复微小的极化信号。
 
 三维：
 
@@ -364,10 +386,12 @@ zstar bec post --root .
 | `Z-BORN-reduced-neutral.out` | 对称展开与电中性修正后的约化张量。 |
 | `BORN` | 电子介电张量和 Phonopy 原子顺序的 BEC。 |
 | `BORN-for-phonopy.out` | 与 `BORN` 内容一致、名称更明确的输出。 |
-| `born_symmetry_report.json` | 对称重构与残差报告。 |
-| `zstar_2d_bec.json` | 二维混合 BEC 的逐原子积分诊断。 |
-| `zstar_1d_bec.json` | 一维混合 BEC 的逐原子积分诊断。 |
-| `molecular_apt.json` | 分子 APT、对称展开和平移求和诊断。 |
+| `shared_response_result.json` | Unified 原始及投影后的 BEC/APT、力常数、单位与诊断。 |
+| `zstar_response.json` | 统一响应记录，包括维度和数据来源。 |
+| `born_symmetry_report.json` | 旧 Cartesian 流程的对称重构与残差报告。 |
+| `zstar_2d_bec.json` | 旧 Cartesian 二维混合 BEC 诊断。 |
+| `zstar_1d_bec.json` | 旧 Cartesian 一维混合 BEC 诊断。 |
+| `molecular_apt.json` | 旧 Cartesian/cube 分子 APT 及平移求和诊断。 |
 
 ## CP2K BEC 后端
 
@@ -404,6 +428,11 @@ zstar bec post --root vasp_bec
 [完整中文文档](docs/vasp_bec_zh.md)。
 
 ## 声子与介电响应
+
+共享 BEC 流程的 `zstar bec post` 已同时写出 Gamma 力常数、`qpoints.yaml`、
+`irreps.yaml` 和 `BORN`，可直接继续 `zstar phonon irrep` 与
+`zstar dielectric static`，无需重复生成 Gamma 力计算。下面的独立声子目录
+用于超胞声子或旧档案；有限波矢超胞计算不能与共享 Gamma 目录混用。
 
 ### 1. 生成声子位移任务
 
@@ -466,7 +495,11 @@ zstar dielectric static --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 2
 ```
 
-只有需要定义某个等效三维介电张量时，才设置 `--thickness ANGSTROM`。
+`--thickness ANGSTROM` 输出厚度归一化的源电场响应，不能直接称为面外本征
+介电常数。明确输入为相容且包含屏蔽的宏观超胞响应时，可加
+`--slab-boundary macroscopic`，采用面内直接、面外逆响应转换；该选项不会为
+PYATB 增加局域场修正。电场约定及分子/1D/2D/bulk Raman 单位详见
+[响应定义与单位](docs/response_conventions.md)。
 完整物理约定、三维与二维算例及输出规范见
 [介电响应指南](docs/dielectric_response.zh-CN.md)。
 
@@ -671,7 +704,7 @@ zstar pot --cube OUT.ABACUS/ElecStaticPot.cube \
   求解器 scratch 输出仍保留在仓库之外，不提交到 GitHub。
 - `dist/` 与 `build/` 是本地构建产物，不提交。
 - 调度脚本由 `zstar bec job`、`zstar phonon job` 和 `zstar spectra job` 自动生成；
-  集群队列和环境设置通过生成命令及 `--env-script` 指定。
+  集群资源和环境命令通过 [Specified、Current、Global header](docs/job_headers.zh-CN.md) 设置。
 - PyPI 更新流程见 [docs/how_to_update_pypi.md](docs/how_to_update_pypi.md)。
 
 私有 GitHub 仓库中的 README 可以使用相对路径 logo，因为已登录的仓库访问者能够读取图片；PyPI 无法访问私有仓库的图片地址。因此 `README_PYPI.md` 不引用私有相对图片。若希望 PyPI 展示 logo，必须提供长期稳定、无需登录即可访问的 HTTPS 图片地址。

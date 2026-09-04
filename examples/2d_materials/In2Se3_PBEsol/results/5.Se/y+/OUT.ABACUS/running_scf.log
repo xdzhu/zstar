@@ -1,0 +1,2113 @@
+                                                                                     
+                              ABACUS v3.10.0
+
+               Atomic-orbital Based Ab-initio Computation at UStc                    
+
+                     Website: http://abacus.ustc.edu.cn/                             
+               Documentation: https://abacus.deepmodeling.com/                       
+                  Repository: https://github.com/abacusmodeling/abacus-develop       
+                              https://github.com/deepmodeling/abacus-develop         
+                      Commit: e84abb4 (Sat Jun 28 13:06:46 2025 +0800)
+
+    Start Time is Thu Aug 27 10:02:54 2026
+                                                                                     
+ ------------------------------------------------------------------------------------
+
+ READING GENERAL INFORMATION
+                           global_out_dir = OUT.ABACUS/
+                           global_in_card = INPUT
+                               pseudo_dir = 
+                              orbital_dir = 
+                                    DRANK = 1
+                                    DSIZE = 1
+                                   DCOLOR = 1
+                                    GRANK = 1
+                                    GSIZE = 1
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Reading atom information in unitcell:                              |
+ | From the input file and the structure file we know the number of   |
+ | different elments in this unitcell, then we list the detail        |
+ | information for each element, especially the zeta and polar atomic |
+ | orbital number for each element. The total atom number is counted. |
+ | We calculate the nearest atom distance for each atom and show the  |
+ | Cartesian and Direct coordinates for each atom. We list the file   |
+ | address for atomic orbitals. The volume and the lattice vectors    |
+ | in real and reciprocal space is also shown.                        |
+ |                                                                    |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+ READING UNITCELL INFORMATION
+                                    ntype = 2
+                  lattice constant (Bohr) = 1.88972
+              lattice constant (Angstrom) = 0.999994
+
+ READING ATOM TYPE 1
+                               atom label = In
+                      L=0, number of zeta = 2
+                      L=1, number of zeta = 2
+                      L=2, number of zeta = 2
+                      L=3, number of zeta = 1
+             number of atom for this type = 2
+
+ READING ATOM TYPE 2
+                               atom label = Se
+                      L=0, number of zeta = 2
+                      L=1, number of zeta = 2
+                      L=2, number of zeta = 1
+             number of atom for this type = 3
+
+                        TOTAL ATOM NUMBER = 5
+DIRECT COORDINATES
+    atom                   x                   y                   z     mag                  vx                  vy                  vz
+taud_In1            0.0000000000        0.0000000000        0.5757307450  0.0000        0.0000000000        0.0000000000        0.0000000000
+taud_In2            0.6666666667        0.3333333333        0.4608459974  0.0000        0.0000000000        0.0000000000        0.0000000000
+taud_Se1            0.3333333333        0.6666666667        0.6131391672  0.0000        0.0000000000        0.0000000000        0.0000000000
+taud_Se2            0.6666666667        0.3333333333        0.5296950093  0.0000        0.0000000000        0.0000000000        0.0000000000
+taud_Se3            0.3347842543        0.6695685087        0.4257343807  0.0000        0.0000000000        0.0000000000        0.0000000000
+
+
+
+                          Volume (Bohr^3) = 3365.29
+                             Volume (A^3) = 498.685
+
+ Lattice vectors: (Cartesian coordinate: in unit of a_0)
+             +3.97922                  -0                  -0
+             -1.98961             +3.4461                  -0
+                   +0                  +0             +36.367
+ Reciprocal vectors: (Cartesian coordinate: in unit of 2 pi/a_0)
+            +0.251306           +0.145091                  -0
+                   -0           +0.290183                  -0
+                   +0                  +0          +0.0274975
+ The esolver type has been set to : ksdft_lcao
+
+ RUNNING WITH DEVICE  : CPU / Intel(R) Xeon(R) Gold 6248 CPU @ 2.50GHz
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Reading pseudopotentials files:                                    |
+ | The pseudopotential file is in UPF format. The 'NC' indicates that |
+ | the type of pseudopotential is 'norm conserving'. Functional of    |
+ | exchange and correlation is decided by 4 given parameters in UPF   |
+ | file.  We also read in the 'core correction' if there exists.      |
+ | Also we can read the valence electrons number and the maximal      |
+ | angular momentum used in this pseudopotential. We also read in the |
+ | trail wave function, trail atomic density and local-pseudopotential|
+ | on logrithmic grid. The non-local pseudopotential projector is also|
+ | read in if there is any.                                           |
+ |                                                                    |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+                PAO radial cut off (Bohr) = 15
+
+ Read in pseudopotential file is /home/zhuxd/abacus/8.dielec/4.In2Se3/pporb/In_ONCV_PBE_FR-1.0.upf
+                     pseudopotential type = NC
+          exchange-correlation functional = PBE
+                 nonlocal core correction = 0
+                        valence electrons = 13
+                                     lmax = 2
+                           number of zeta = 0
+                     number of projectors = 6
+                           L of projector = 0
+                           L of projector = 0
+                           L of projector = 1
+                           L of projector = 1
+                           L of projector = 2
+                           L of projector = 2
+ XC functional updated to : pbesol
+          exchange-correlation functional = PBESOL
+                PAO radial cut off (Bohr) = 15
+
+ Read in pseudopotential file is /home/zhuxd/abacus/8.dielec/4.In2Se3/pporb/Se_ONCV_PBE_FR-1.1.upf
+                     pseudopotential type = NC
+          exchange-correlation functional = PBE
+                 nonlocal core correction = 0
+                        valence electrons = 6
+                                     lmax = 2
+                           number of zeta = 0
+                     number of projectors = 6
+                           L of projector = 0
+                           L of projector = 0
+                           L of projector = 1
+                           L of projector = 1
+                           L of projector = 2
+                           L of projector = 2
+ XC functional updated to : pbesol
+          exchange-correlation functional = PBESOL
+     initial pseudo atomic orbital number = 0
+
+ SETUP THE ELECTRONS NUMBER
+            electron number of element In = 13
+      total electron number of element In = 26
+            electron number of element Se = 6
+      total electron number of element Se = 18
+            AUTOSET number of electrons:  = 44
+                           occupied bands = 22
+                                   NLOCAL = 89
+                                   NBANDS = 32
+                                   NBANDS = 32
+                                   NLOCAL = 89
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ Warning: the number of valence electrons in pseudopotential > 3 for In: [Kr] 4d10 5s2 5p1
+ Pseudopotentials with additional electrons can yield (more) accurate outcomes, but may be less efficient.
+ If you're confident that your chosen pseudopotential is appropriate, you can safely ignore this warning.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                  
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Setup plane waves of charge/potential:                             |
+ | Use the energy cutoff and the lattice vectors to generate the      |
+ | dimensions of FFT grid. The number of FFT grid on each processor   |
+ | is 'nrxx'. The number of plane wave basis in reciprocal space is   |
+ | different for charege/potential and wave functions. We also set    |
+ | the 'sticks' for the parallel of FFT. The number of plane waves    |
+ | is 'npw' in each processor.                                        |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+
+ SETUP THE PLANE WAVE BASIS
+ energy cutoff for charge/potential (unit:Ry) = 400
+            fft grid for charge/potential = [ 48, 48, 450 ]
+                        fft grid division = [ 4, 4, 3 ]
+        big fft grid for charge/potential = [ 12, 12, 150 ]
+                                     nbxx = 21600
+                                     nrxx = 1036800
+
+ SETUP PLANE WAVES FOR CHARGE/POTENTIAL
+                    number of plane waves = 454379
+                         number of sticks = 1555
+
+ PARALLEL PW FOR CHARGE/POTENTIAL
+     PROC   COLUMNS(POT)             PW
+        1           1555         454379
+ --------------- sum -------------------
+        1           1555         454379
+                            number of |g| = 19709
+                                  max |g| = 36.1773
+                                  min |g| = 0
+ DONE : SETUP UNITCELL Time : 0.169778 (SEC)
+
+
+----------- Double Check Mixing Parameters Begin ------------
+mixing_type: pulay
+mixing_beta: 0.4
+mixing_gg0: 1
+mixing_gg0_min: 0.1
+mixing_ndim: 8
+----------- Double Check Mixing Parameters End ------------
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Doing symmetry analysis:                                           |
+ | We calculate the norm of 3 vectors and the angles between them,    |
+ | the type of Bravais lattice is given. We can judge if the unticell |
+ | is a primitive cell. Finally we give the point group operation for |
+ | this unitcell. We use the point group operations to do symmetry |
+ | analysis on given k-point mesh and the charge density.             |
+ |                                                                    |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+ LATTICE VECTORS: (CARTESIAN COORDINATE: IN UNIT OF A0)
+             +3.97922                  -0                  -0
+             -1.98961             +3.4461                  -0
+                   +0                  +0             +36.367
+                       right hand lattice = 1
+                                   NORM_A = 3.97922
+                                   NORM_B = 3.97922
+                                   NORM_C = 36.367
+                           ALPHA (DEGREE) = 90
+                           BETA  (DEGREE) = 90
+                           GAMMA (DEGREE) = 120
+
+ The lattice vectors have been changed (STRU_SIMPLE.cif)
+
+(for optimal symmetric configuration:)
+                             BRAVAIS TYPE = 4
+                     BRAVAIS LATTICE NAME = 04. Hexagonal cell
+                                    ibrav = 4
+                                    IBRAV = 4
+                                  BRAVAIS = HEXAGONAL CELL
+                       LATTICE CONSTANT A = 3.97922
+                                C/A RATIO = 9.13922
+Original cell was already a primitive cell.
+                        ROTATION MATRICES = 24
+              PURE POINT GROUP OPERATIONS = 2
+                   SPACE GROUP OPERATIONS = 2
+                                       C2 = 0
+                                       C3 = 0
+                                       C4 = 0
+                                       C6 = 0
+                                       S1 = 1
+                                       S3 = 0
+                                       S4 = 0
+                                       S6 = 0
+                              POINT GROUP = C_1h
+                                       C2 = 0
+                                       C3 = 0
+                                       C4 = 0
+                                       C6 = 0
+                                       S1 = 1
+                                       S3 = 0
+                                       S4 = 0
+                                       S6 = 0
+               POINT GROUP IN SPACE GROUP = C_1h
+ DONE : SYMMETRY Time : 0.195387 (SEC)
+
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Setup K-points                                                     |
+ | We setup the k-points according to input parameters.               |
+ | The reduced k-points are set according to symmetry operations.     |
+ | We treat the spin as another set of k-points.                      |
+ |                                                                    |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+
+ SETUP K-POINTS
+                                    nspin = 1
+                   Input type of k points = Monkhorst-Pack(Gamma)
+                                   nkstot = 100
+                       right hand lattice = 1
+(for reciprocal lattice: )
+                             BRAVAIS TYPE = 4
+                     BRAVAIS LATTICE NAME = 04. Hexagonal cell
+                                    ibrav = 4
+                       right hand lattice = 1
+(for k-lattice: )
+                             BRAVAIS TYPE = 4
+                     BRAVAIS LATTICE NAME = 04. Hexagonal cell
+                                    ibrav = 4
+                       right hand lattice = 1
+                        ROTATION MATRICES = 24
+                               nkstot_ibz = 31
+K-POINTS REDUCTION ACCORDING TO SYMMETRY
+     IBZ    DIRECT_X    DIRECT_Y    DIRECT_Z  WEIGHT  ibz2bz
+       1  0.00000000  0.00000000  0.00000000  0.0100       0
+       2 -0.10000000  0.10000000  0.00000000  0.0400       1
+       3 -0.20000000  0.20000000  0.00000000  0.0400       2
+       4 -0.30000000  0.30000000  0.00000000  0.0400       3
+       5 -0.40000000  0.40000000  0.00000000  0.0400       4
+       6  0.50000000  0.50000000  0.00000000  0.0200       5
+       7  0.00000000  0.10000000  0.00000000  0.0200      10
+       8 -0.10000000  0.20000000  0.00000000  0.0400      11
+       9 -0.20000000  0.30000000  0.00000000  0.0400      12
+      10 -0.30000000  0.40000000  0.00000000  0.0400      13
+      11  0.40000000  0.50000000  0.00000000  0.0400      14
+      12  0.50000000  0.40000000  0.00000000  0.0400      15
+      13  0.40000000 -0.30000000  0.00000000  0.0400      16
+      14  0.30000000 -0.20000000  0.00000000  0.0400      17
+      15  0.20000000 -0.10000000  0.00000000  0.0200      18
+      16  0.00000000  0.20000000  0.00000000  0.0200      20
+      17 -0.10000000  0.30000000  0.00000000  0.0400      21
+      18 -0.20000000  0.40000000  0.00000000  0.0400      22
+      19  0.30000000  0.50000000  0.00000000  0.0400      23
+      20  0.40000000  0.40000000  0.00000000  0.0400      24
+      21  0.50000000  0.30000000  0.00000000  0.0400      25
+      22  0.40000000 -0.20000000  0.00000000  0.0200      26
+      23  0.00000000  0.30000000  0.00000000  0.0200      30
+      24 -0.10000000  0.40000000  0.00000000  0.0400      31
+      25  0.20000000  0.50000000  0.00000000  0.0400      32
+      26  0.30000000  0.40000000  0.00000000  0.0400      33
+      27  0.40000000  0.30000000  0.00000000  0.0200      34
+      28  0.00000000  0.40000000  0.00000000  0.0200      40
+      29  0.10000000  0.50000000  0.00000000  0.0400      41
+      30  0.20000000  0.40000000  0.00000000  0.0200      42
+      31  0.00000000  0.50000000  0.00000000  0.0100      50
+
+                               nkstot now = 31
+K-POINTS DIRECT COORDINATES
+ KPOINTS    DIRECT_X    DIRECT_Y    DIRECT_Z  WEIGHT
+       1  0.00000000  0.00000000  0.00000000  0.0100
+       2 -0.10000000  0.10000000  0.00000000  0.0400
+       3 -0.20000000  0.20000000  0.00000000  0.0400
+       4 -0.30000000  0.30000000  0.00000000  0.0400
+       5 -0.40000000  0.40000000  0.00000000  0.0400
+       6  0.50000000  0.50000000  0.00000000  0.0200
+       7  0.00000000  0.10000000  0.00000000  0.0200
+       8 -0.10000000  0.20000000  0.00000000  0.0400
+       9 -0.20000000  0.30000000  0.00000000  0.0400
+      10 -0.30000000  0.40000000  0.00000000  0.0400
+      11  0.40000000  0.50000000  0.00000000  0.0400
+      12  0.50000000  0.40000000  0.00000000  0.0400
+      13  0.40000000 -0.30000000  0.00000000  0.0400
+      14  0.30000000 -0.20000000  0.00000000  0.0400
+      15  0.20000000 -0.10000000  0.00000000  0.0200
+      16  0.00000000  0.20000000  0.00000000  0.0200
+      17 -0.10000000  0.30000000  0.00000000  0.0400
+      18 -0.20000000  0.40000000  0.00000000  0.0400
+      19  0.30000000  0.50000000  0.00000000  0.0400
+      20  0.40000000  0.40000000  0.00000000  0.0400
+      21  0.50000000  0.30000000  0.00000000  0.0400
+      22  0.40000000 -0.20000000  0.00000000  0.0200
+      23  0.00000000  0.30000000  0.00000000  0.0200
+      24 -0.10000000  0.40000000  0.00000000  0.0400
+      25  0.20000000  0.50000000  0.00000000  0.0400
+      26  0.30000000  0.40000000  0.00000000  0.0400
+      27  0.40000000  0.30000000  0.00000000  0.0200
+      28  0.00000000  0.40000000  0.00000000  0.0200
+      29  0.10000000  0.50000000  0.00000000  0.0400
+      30  0.20000000  0.40000000  0.00000000  0.0200
+      31  0.00000000  0.50000000  0.00000000  0.0100
+
+
+           k-point number in this process = 31
+       minimum distributed K point number = 31
+starsize: 1
+isym: 0 ks_vec: 0 0 0
+starsize: 4
+isym: 0 ks_vec: -0.1 0.1 0
+isym: 1 ks_vec: 0.1 0 0
+isym: 2 ks_vec: 0.1 -0.1 0
+isym: 3 ks_vec: -0.1 0 0
+starsize: 4
+isym: 0 ks_vec: -0.2 0.2 0
+isym: 1 ks_vec: 0.2 0 0
+isym: 2 ks_vec: 0.2 -0.2 0
+isym: 3 ks_vec: -0.2 0 0
+starsize: 4
+isym: 0 ks_vec: -0.3 0.3 0
+isym: 1 ks_vec: 0.3 0 0
+isym: 2 ks_vec: 0.3 -0.3 0
+isym: 3 ks_vec: -0.3 0 0
+starsize: 4
+isym: 0 ks_vec: -0.4 0.4 0
+isym: 1 ks_vec: 0.4 0 0
+isym: 2 ks_vec: 0.4 -0.4 0
+isym: 3 ks_vec: -0.4 0 0
+starsize: 2
+isym: 0 ks_vec: 0.5 0.5 0
+isym: 1 ks_vec: 0.5 0 0
+starsize: 2
+isym: 0 ks_vec: 0 0.1 0
+isym: 2 ks_vec: 0 -0.1 0
+starsize: 4
+isym: 0 ks_vec: -0.1 0.2 0
+isym: 1 ks_vec: 0.1 0.1 0
+isym: 2 ks_vec: 0.1 -0.2 0
+isym: 3 ks_vec: -0.1 -0.1 0
+starsize: 4
+isym: 0 ks_vec: -0.2 0.3 0
+isym: 1 ks_vec: 0.2 0.1 0
+isym: 2 ks_vec: 0.2 -0.3 0
+isym: 3 ks_vec: -0.2 -0.1 0
+starsize: 4
+isym: 0 ks_vec: -0.3 0.4 0
+isym: 1 ks_vec: 0.3 0.1 0
+isym: 2 ks_vec: 0.3 -0.4 0
+isym: 3 ks_vec: -0.3 -0.1 0
+starsize: 4
+isym: 0 ks_vec: 0.4 0.5 0
+isym: 1 ks_vec: -0.4 -0.1 0
+isym: 2 ks_vec: -0.4 0.5 0
+isym: 3 ks_vec: 0.4 0.1 0
+starsize: 4
+isym: 0 ks_vec: 0.5 0.4 0
+isym: 1 ks_vec: 0.5 -0.1 0
+isym: 2 ks_vec: 0.5 -0.4 0
+isym: 3 ks_vec: 0.5 0.1 0
+starsize: 4
+isym: 0 ks_vec: 0.4 -0.3 0
+isym: 1 ks_vec: -0.4 0.1 0
+isym: 2 ks_vec: -0.4 0.3 0
+isym: 3 ks_vec: 0.4 -0.1 0
+starsize: 4
+isym: 0 ks_vec: 0.3 -0.2 0
+isym: 1 ks_vec: -0.3 0.1 0
+isym: 2 ks_vec: -0.3 0.2 0
+isym: 3 ks_vec: 0.3 -0.1 0
+starsize: 2
+isym: 0 ks_vec: 0.2 -0.1 0
+isym: 1 ks_vec: -0.2 0.1 0
+starsize: 2
+isym: 0 ks_vec: 0 0.2 0
+isym: 2 ks_vec: 0 -0.2 0
+starsize: 4
+isym: 0 ks_vec: -0.1 0.3 0
+isym: 1 ks_vec: 0.1 0.2 0
+isym: 2 ks_vec: 0.1 -0.3 0
+isym: 3 ks_vec: -0.1 -0.2 0
+starsize: 4
+isym: 0 ks_vec: -0.2 0.4 0
+isym: 1 ks_vec: 0.2 0.2 0
+isym: 2 ks_vec: 0.2 -0.4 0
+isym: 3 ks_vec: -0.2 -0.2 0
+starsize: 4
+isym: 0 ks_vec: 0.3 0.5 0
+isym: 1 ks_vec: -0.3 -0.2 0
+isym: 2 ks_vec: -0.3 0.5 0
+isym: 3 ks_vec: 0.3 0.2 0
+starsize: 4
+isym: 0 ks_vec: 0.4 0.4 0
+isym: 1 ks_vec: -0.4 -0.2 0
+isym: 2 ks_vec: -0.4 -0.4 0
+isym: 3 ks_vec: 0.4 0.2 0
+starsize: 4
+isym: 0 ks_vec: 0.5 0.3 0
+isym: 1 ks_vec: 0.5 -0.2 0
+isym: 2 ks_vec: 0.5 -0.3 0
+isym: 3 ks_vec: 0.5 0.2 0
+starsize: 2
+isym: 0 ks_vec: 0.4 -0.2 0
+isym: 1 ks_vec: -0.4 0.2 0
+starsize: 2
+isym: 0 ks_vec: 0 0.3 0
+isym: 2 ks_vec: 0 -0.3 0
+starsize: 4
+isym: 0 ks_vec: -0.1 0.4 0
+isym: 1 ks_vec: 0.1 0.3 0
+isym: 2 ks_vec: 0.1 -0.4 0
+isym: 3 ks_vec: -0.1 -0.3 0
+starsize: 4
+isym: 0 ks_vec: 0.2 0.5 0
+isym: 1 ks_vec: -0.2 -0.3 0
+isym: 2 ks_vec: -0.2 0.5 0
+isym: 3 ks_vec: 0.2 0.3 0
+starsize: 4
+isym: 0 ks_vec: 0.3 0.4 0
+isym: 1 ks_vec: -0.3 -0.3 0
+isym: 2 ks_vec: -0.3 -0.4 0
+isym: 3 ks_vec: 0.3 0.3 0
+starsize: 2
+isym: 0 ks_vec: 0.4 0.3 0
+isym: 1 ks_vec: -0.4 -0.3 0
+starsize: 2
+isym: 0 ks_vec: 0 0.4 0
+isym: 2 ks_vec: 0 -0.4 0
+starsize: 4
+isym: 0 ks_vec: 0.1 0.5 0
+isym: 1 ks_vec: -0.1 -0.4 0
+isym: 2 ks_vec: -0.1 0.5 0
+isym: 3 ks_vec: 0.1 0.4 0
+starsize: 2
+isym: 0 ks_vec: 0.2 0.4 0
+isym: 1 ks_vec: -0.2 -0.4 0
+starsize: 1
+isym: 0 ks_vec: 0 0.5 0
+
+K-POINTS CARTESIAN COORDINATES
+ KPOINTS CARTESIAN_X CARTESIAN_Y CARTESIAN_Z  WEIGHT
+       1  0.00000000  0.00000000  0.00000000  0.0200
+       2 -0.02513056  0.01450913  0.00000000  0.0800
+       3 -0.05026112  0.02901827  0.00000000  0.0800
+       4 -0.07539167  0.04352740  0.00000000  0.0800
+       5 -0.10052223  0.05803654  0.00000000  0.0800
+       6  0.12565279  0.21763702  0.00000000  0.0400
+       7  0.00000000  0.02901827  0.00000000  0.0400
+       8 -0.02513056  0.04352740  0.00000000  0.0800
+       9 -0.05026112  0.05803654  0.00000000  0.0800
+      10 -0.07539167  0.07254567  0.00000000  0.0800
+      11  0.10052223  0.20312788  0.00000000  0.0800
+      12  0.12565279  0.18861875  0.00000000  0.0800
+      13  0.10052223 -0.02901827  0.00000000  0.0800
+      14  0.07539167 -0.01450913  0.00000000  0.0800
+      15  0.05026112  0.00000000  0.00000000  0.0400
+      16  0.00000000  0.05803654  0.00000000  0.0400
+      17 -0.02513056  0.07254567  0.00000000  0.0800
+      18 -0.05026112  0.08705481  0.00000000  0.0800
+      19  0.07539167  0.18861875  0.00000000  0.0800
+      20  0.10052223  0.17410961  0.00000000  0.0800
+      21  0.12565279  0.15960048  0.00000000  0.0800
+      22  0.10052223  0.00000000  0.00000000  0.0400
+      23  0.00000000  0.08705481  0.00000000  0.0400
+      24 -0.02513056  0.10156394  0.00000000  0.0800
+      25  0.05026112  0.17410961  0.00000000  0.0800
+      26  0.07539167  0.15960048  0.00000000  0.0800
+      27  0.10052223  0.14509135  0.00000000  0.0400
+      28  0.00000000  0.11607308  0.00000000  0.0400
+      29  0.02513056  0.15960048  0.00000000  0.0800
+      30  0.05026112  0.14509135  0.00000000  0.0400
+      31  0.00000000  0.14509135  0.00000000  0.0200
+
+
+K-POINTS DIRECT COORDINATES
+ KPOINTS    DIRECT_X    DIRECT_Y    DIRECT_Z  WEIGHT
+       1  0.00000000  0.00000000  0.00000000  0.0200
+       2 -0.10000000  0.10000000  0.00000000  0.0800
+       3 -0.20000000  0.20000000  0.00000000  0.0800
+       4 -0.30000000  0.30000000  0.00000000  0.0800
+       5 -0.40000000  0.40000000  0.00000000  0.0800
+       6  0.50000000  0.50000000  0.00000000  0.0400
+       7  0.00000000  0.10000000  0.00000000  0.0400
+       8 -0.10000000  0.20000000  0.00000000  0.0800
+       9 -0.20000000  0.30000000  0.00000000  0.0800
+      10 -0.30000000  0.40000000  0.00000000  0.0800
+      11  0.40000000  0.50000000  0.00000000  0.0800
+      12  0.50000000  0.40000000  0.00000000  0.0800
+      13  0.40000000 -0.30000000  0.00000000  0.0800
+      14  0.30000000 -0.20000000  0.00000000  0.0800
+      15  0.20000000 -0.10000000  0.00000000  0.0400
+      16  0.00000000  0.20000000  0.00000000  0.0400
+      17 -0.10000000  0.30000000  0.00000000  0.0800
+      18 -0.20000000  0.40000000  0.00000000  0.0800
+      19  0.30000000  0.50000000  0.00000000  0.0800
+      20  0.40000000  0.40000000  0.00000000  0.0800
+      21  0.50000000  0.30000000  0.00000000  0.0800
+      22  0.40000000 -0.20000000  0.00000000  0.0400
+      23  0.00000000  0.30000000  0.00000000  0.0400
+      24 -0.10000000  0.40000000  0.00000000  0.0800
+      25  0.20000000  0.50000000  0.00000000  0.0800
+      26  0.30000000  0.40000000  0.00000000  0.0800
+      27  0.40000000  0.30000000  0.00000000  0.0400
+      28  0.00000000  0.40000000  0.00000000  0.0400
+      29  0.10000000  0.50000000  0.00000000  0.0800
+      30  0.20000000  0.40000000  0.00000000  0.0400
+      31  0.00000000  0.50000000  0.00000000  0.0200
+
+ DONE : INIT K-POINTS Time : 0.27146 (SEC)
+
+
+ Warning_Memory_Consuming allocated:  PW_B_K::gk2 13.4622 MB
+
+ Warning_Memory_Consuming allocated:  PW_B_K::gcar 40.3867 MB
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Setup plane waves of wave functions:                               |
+ | Use the energy cutoff and the lattice vectors to generate the      |
+ | dimensions of FFT grid. The number of FFT grid on each processor   |
+ | is 'nrxx'. The number of plane wave basis in reciprocal space is   |
+ | different for charege/potential and wave functions. We also set    |
+ | the 'sticks' for the parallel of FFT. The number of plane wave of  |
+ | each k-point is 'npwk[ik]' in each processor                       |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+
+ SETUP PLANE WAVES FOR WAVE FUNCTIONS
+     energy cutoff for wavefunc (unit:Ry) = 100
+              fft grid for wave functions = [ 48, 48, 450 ]
+                    number of plane waves = 72099
+                         number of sticks = 451
+
+ PARALLEL PW FOR WAVE FUNCTIONS
+     PROC   COLUMNS(POT)             PW
+        1            451          72099
+ --------------- sum -------------------
+        1            451          72099
+ DONE : INIT PLANEWAVE Time : 0.379452 (SEC)
+
+
+ Warning_Memory_Consuming allocated:  SF::strucFac 13.8665 MB
+ SET NONLOCAL PSEUDOPOTENTIAL PROJECTORS
+ SET NONLOCAL PSEUDOPOTENTIAL PROJECTORS
+ max number of nonlocal projetors among all species is 6
+ DONE : LOCAL POTENTIAL Time : 0.660182 (SEC)
+
+
+ Warning_Memory_Consuming allocated:  Chg::rho 7.91016 MB
+
+ Warning_Memory_Consuming allocated:  Chg::rho_save 7.91016 MB
+
+ Warning_Memory_Consuming allocated:  Chg::rho_core 7.91016 MB
+
+ Warning_Memory_Consuming allocated:  Pot::veff_fix 7.91016 MB
+
+ Warning_Memory_Consuming allocated:  Pot::veff 7.91016 MB
+
+ Warning_Memory_Consuming allocated:  Pot::veff_smooth 7.91016 MB
+
+ -------------------------------------------
+ SELF-CONSISTENT
+ -------------------------------------------
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ |                                                                    |
+ | Search adjacent atoms:                                             |
+ | Set the adjacent atoms for each atom and set the periodic boundary |
+ | condition for the atoms on real space FFT grid. For k-dependent    |
+ | algorithm, we also need to set the sparse H and S matrix element   |
+ | for each atom.                                                     |
+ |                                                                    |
+ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+
+
+ SETUP SEARCHING RADIUS FOR PROGRAM TO SEARCH ADJACENT ATOMS
+                  longest orb rcut (Bohr) = 10
+   longest nonlocal projector rcut (Bohr) = 3.42
+                     search radius (Bohr) = 26.8
+              searching radius is (Bohr)) = 26.8
+         searching radius unit is (Bohr)) = 1.89
+                         PeriodicBoundary = 1
+                        Radius(unit:lat0) = 14.2
+                                   glayer = [ 6, 6, 2 ]
+                             glayer_minus = [ 5, 5, 1 ]
+
+Find the coordinate range of the input atom(unit:lat0).
+                                  min_tau = [ -29.8, -17.2, -20.9 ]
+                                  max_tau = [ 31.8, 19.5, 58.7 ]
+                                BoxNumber = [ 11, 11, 3 ]
+
+ SETUP EXTENDED REAL SPACE GRID FOR GRID INTEGRATION
+                          real space grid = [ 48, 48, 450 ]
+                 big cell numbers in grid = [ 12, 12, 150 ]
+             meshcell numbers in big cell = [ 4, 4, 3 ]
+                        extended fft grid = [ 19, 19, 22 ]
+                dimension of extened grid = [ 51, 51, 195 ]
+                            UnitCellTotal = 75
+              Atom number in sub-FFT-grid = 5
+    Local orbitals number in sub-FFT-grid = 89
+                                ParaV.nnr = 282987
+                                 init_chg = file
+ try to read charge from file
+ Read in the charge density: OUT.ABACUS//ABACUS-CHARGE-DENSITY.restart
+ DONE : INIT SCF Time : 0.993966 (SEC)
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   1--------------------------------
+
+ Density error is 0.00252286349835
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -270.4322330349      -3679.4192921383     
+ E_Harris       -270.4333808345      -3679.4349087527     
+ E_Fermi        -0.1473358741        -2.0046074070        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   2--------------------------------
+
+ Density error is 0.00132601870835
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -270.4321309992      -3679.4179038713     
+ E_Harris       -270.4320622512      -3679.4169685065     
+ E_Fermi        -0.1471911965        -2.0026389676        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   3--------------------------------
+
+ Density error is 0.000294911749865
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -270.4321673005      -3679.4183977766     
+ E_Harris       -270.4312835016      -3679.4063730748     
+ E_Fermi        -0.1470711552        -2.0010057226        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   4--------------------------------
+
+ Density error is 5.0757096671e-05
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -270.4321675841      -3679.4184016344     
+ E_Harris       -270.4330374227      -3679.4302363954     
+ E_Fermi        -0.1470831061        -2.0011683223        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   5--------------------------------
+
+ Density error is 8.51009180711e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -270.4321676081      -3679.4184019614     
+ E_Harris       -270.4317087224      -3679.4121585008     
+ E_Fermi        -0.1470840599        -2.0011812999        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   6--------------------------------
+
+ Density error is 4.62613313321e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -270.4321676118      -3679.4184020120     
+ E_Harris       -270.4321619855      -3679.4183254618     
+ E_Fermi        -0.1470869402        -2.0012204880        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   7--------------------------------
+
+ Density error is 1.11952988996e-06
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -270.4321676118      -3679.4184020118     
+ E_Harris       -270.4323515768      -3679.4209049838     
+ E_Fermi        -0.1470874929        -2.0012280073        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   8--------------------------------
+
+ Density error is 3.35918612001e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -270.4321676119      -3679.4184020127     
+ E_Harris       -270.4321972150      -3679.4188047833     
+ E_Fermi        -0.1470873835        -2.0012265196        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=   9--------------------------------
+
+ Density error is 1.32138410107e-07
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -270.4321676121      -3679.4184020162     
+ E_Harris       -270.4321620564      -3679.4183264270     
+ E_Fermi        -0.1470874166        -2.0012269701        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  10--------------------------------
+
+ Density error is 2.41622647232e-08
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -270.4321676121      -3679.4184020156     
+ E_Harris       -270.4321749879      -3679.4185023691     
+ E_Fermi        -0.1470875090        -2.0012282269        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  11--------------------------------
+
+ Density error is 1.27099210308e-08
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -270.4321676120      -3679.4184020146     
+ E_Harris       -270.4321737561      -3679.4184856087     
+ E_Fermi        -0.1470875272        -2.0012284741        
+----------------------------------------------------------
+
+
+ LCAO ALGORITHM --------------- ION=   1  ELEC=  12--------------------------------
+
+ Density error is 7.27622238462e-09
+----------------------------------------------------------
+     Energy           Rydberg                 eV          
+----------------------------------------------------------
+ E_KohnSham     -270.4321676121      -3679.4184020162     
+ E_KS(sigma->0) -270.4321676121      -3679.4184020162     
+ E_Harris       -270.4321721265      -3679.4184634372     
+ E_band         -37.1259108532       -505.1239310431      
+ E_one_elec     -3433.4786506740     -46714.8736105180    
+ E_Hartree      1724.5594112881      23463.8345330442     
+ E_xc           -40.4104233455       -549.8120160906      
+ E_Ewald        1478.9945930992      20122.7537773400     
+ E_entropy(-TS) -0.0000000000        -0.0000000000        
+ E_descf        0.0000000000         0.0000000000         
+ E_vdwD3        -0.0970979800        -1.3210857918        
+ E_exx          0.0000000000         0.0000000000         
+ E_Fermi        -0.1470875506        -2.0012287931        
+----------------------------------------------------------
+
+
+ charge density convergence is achieved
+ final etot is -3679.418402 eV
+ EFERMI = -2.0012287931 eV
+
+ STATE ENERGY(eV) AND OCCUPATIONS    NSPIN == 1
+ 1/31 kpoint (Cartesian) = 0.0000 0.0000 0.0000 (56649 pws)
+       1       -17.2047      0.0200000
+       2       -17.0368      0.0200000
+       3       -17.0318      0.0200000
+       4       -16.9210      0.0200000
+       5       -16.9202      0.0200000
+       6       -16.0946      0.0200000
+       7       -16.0944      0.0200000
+       8       -16.0300      0.0200000
+       9       -15.9589      0.0200000
+      10       -15.9589      0.0200000
+      11       -15.5425      0.0200000
+      12       -14.6638      0.0200000
+      13       -13.6556      0.0200000
+      14       -8.20246      0.0200000
+      15       -5.86757      0.0200000
+      16       -3.78734      0.0200000
+      17       -3.76037      0.0200000
+      18       -3.54520      0.0200000
+      19       -2.73390      0.0200000
+      20       -2.73183      0.0200000
+      21       -2.34218      0.0200000
+      22       -2.34194      0.0200000
+      23       -1.45893        0.00000
+      24      -0.114811        0.00000
+      25        1.41107        0.00000
+      26        2.85485        0.00000
+      27        2.89294        0.00000
+      28        2.92688        0.00000
+      29        3.91656        0.00000
+      30        3.92106        0.00000
+      31        6.38307        0.00000
+      32        6.65182        0.00000
+
+ 2/31 kpoint (Cartesian) = -0.025131 0.014509 0.0000 (56647 pws)
+       1       -17.2046      0.0800000
+       2       -17.0617      0.0800000
+       3       -17.0299      0.0800000
+       4       -16.9257      0.0800000
+       5       -16.9186      0.0800000
+       6       -16.1286      0.0800000
+       7       -16.0880      0.0800000
+       8       -16.0167      0.0800000
+       9       -15.9657      0.0800000
+      10       -15.9580      0.0800000
+      11       -15.4324      0.0800000
+      12       -14.5941      0.0800000
+      13       -13.5690      0.0800000
+      14       -8.15521      0.0800000
+      15       -5.93243      0.0800000
+      16       -4.36162      0.0800000
+      17       -3.91058      0.0800000
+      18       -3.67345      0.0800000
+      19       -3.19978      0.0800000
+      20       -2.95360      0.0800000
+      21       -2.74883      0.0800000
+      22       -2.30198      0.0800000
+      23      -0.980991        0.00000
+      24       0.350529        0.00000
+      25        1.87084        0.00000
+      26        2.25772        0.00000
+      27        3.01763        0.00000
+      28        3.06232        0.00000
+      29        3.94825        0.00000
+      30        4.14708        0.00000
+      31        6.50068        0.00000
+      32        6.62204        0.00000
+
+ 3/31 kpoint (Cartesian) = -0.050261 0.029018 0.0000 (56735 pws)
+       1       -17.2172      0.0800000
+       2       -17.1139      0.0800000
+       3       -17.0179      0.0800000
+       4       -16.9353      0.0800000
+       5       -16.9119      0.0800000
+       6       -16.2089      0.0800000
+       7       -16.0733      0.0800000
+       8       -15.9952      0.0800000
+       9       -15.9735      0.0800000
+      10       -15.9533      0.0800000
+      11       -15.1379      0.0800000
+      12       -14.3932      0.0800000
+      13       -13.3451      0.0800000
+      14       -8.06814      0.0800000
+      15       -6.27548      0.0800000
+      16       -5.27729      0.0800000
+      17       -4.45359      0.0800000
+      18       -4.22045      0.0800000
+      19       -3.69081      0.0800000
+      20       -3.37129      0.0800000
+      21       -3.15131      0.0800000
+      22       -2.32677      0.0800000
+      23      -0.433871        0.00000
+      24       0.587138        0.00000
+      25        1.43745        0.00000
+      26        2.52853        0.00000
+      27        3.28464        0.00000
+      28        3.46160        0.00000
+      29        4.52483        0.00000
+      30        4.68527        0.00000
+      31        6.05207        0.00000
+      32        6.51727        0.00000
+
+ 4/31 kpoint (Cartesian) = -0.075392 0.043527 0.0000 (56777 pws)
+       1       -17.2646      0.0800000
+       2       -17.1322      0.0800000
+       3       -17.0077      0.0800000
+       4       -16.9449      0.0800000
+       5       -16.8986      0.0800000
+       6       -16.2977      0.0800000
+       7       -16.0602      0.0800000
+       8       -15.9991      0.0800000
+       9       -15.9548      0.0800000
+      10       -15.9420      0.0800000
+      11       -14.7387      0.0800000
+      12       -14.1050      0.0800000
+      13       -13.0710      0.0800000
+      14       -8.14342      0.0800000
+      15       -6.97604      0.0800000
+      16       -5.85414      0.0800000
+      17       -5.20504      0.0800000
+      18       -4.55654      0.0800000
+      19       -4.13195      0.0800000
+      20       -3.77438      0.0800000
+      21       -3.18435      0.0800000
+      22       -2.41798      0.0800000
+      23      -0.444122        0.00000
+      24       0.193675        0.00000
+      25       0.938762        0.00000
+      26        2.77436        0.00000
+      27        3.45121        0.00000
+      28        4.29716        0.00000
+      29        5.14584        0.00000
+      30        5.21639        0.00000
+      31        5.71464        0.00000
+      32        6.48400        0.00000
+
+ 5/31 kpoint (Cartesian) = -0.10052 0.058037 0.0000 (56836 pws)
+       1       -17.3115      0.0800000
+       2       -17.1301      0.0800000
+       3       -17.0030      0.0800000
+       4       -16.9519      0.0800000
+       5       -16.8839      0.0800000
+       6       -16.3623      0.0800000
+       7       -16.0541      0.0800000
+       8       -16.0080      0.0800000
+       9       -15.9353      0.0800000
+      10       -15.9280      0.0800000
+      11       -14.3563      0.0800000
+      12       -13.8363      0.0800000
+      13       -12.8548      0.0800000
+      14       -8.49229      0.0800000
+      15       -7.57717      0.0800000
+      16       -6.05565      0.0800000
+      17       -5.61547      0.0800000
+      18       -4.80072      0.0800000
+      19       -4.38722      0.0800000
+      20       -4.05356      0.0800000
+      21       -3.17221      0.0800000
+      22       -2.50458      0.0800000
+      23      -0.710202        0.00000
+      24      -0.131027        0.00000
+      25       0.626924        0.00000
+      26        2.70220        0.00000
+      27        3.48797        0.00000
+      28        4.41506        0.00000
+      29        5.14406        0.00000
+      30        5.52123        0.00000
+      31        5.99095        0.00000
+      32        7.00249        0.00000
+
+ 6/31 kpoint (Cartesian) = 0.12565 0.21764 0.0000 (56844 pws)
+       1       -17.3291      0.0400000
+       2       -17.1282      0.0400000
+       3       -17.0019      0.0400000
+       4       -16.9545      0.0400000
+       5       -16.8776      0.0400000
+       6       -16.3854      0.0400000
+       7       -16.0526      0.0400000
+       8       -16.0115      0.0400000
+       9       -15.9282      0.0400000
+      10       -15.9217      0.0400000
+      11       -14.1843      0.0400000
+      12       -13.7270      0.0400000
+      13       -12.7763      0.0400000
+      14       -8.69698      0.0400000
+      15       -7.80954      0.0400000
+      16       -6.14924      0.0400000
+      17       -5.63191      0.0400000
+      18       -4.88876      0.0400000
+      19       -4.52030      0.0400000
+      20       -4.15240      0.0400000
+      21       -3.15478      0.0400000
+      22       -2.53863      0.0400000
+      23      -0.812489        0.00000
+      24      -0.279861        0.00000
+      25       0.524067        0.00000
+      26        2.62071        0.00000
+      27        3.48568        0.00000
+      28        4.36286        0.00000
+      29        5.00552        0.00000
+      30        5.60747        0.00000
+      31        6.28460        0.00000
+      32        7.18741        0.00000
+
+ 7/31 kpoint (Cartesian) = 0.0000 0.029018 0.0000 (56647 pws)
+       1       -17.2048      0.0400000
+       2       -17.0653      0.0400000
+       3       -17.0262      0.0400000
+       4       -16.9249      0.0400000
+       5       -16.9194      0.0400000
+       6       -16.1285      0.0400000
+       7       -16.0881      0.0400000
+       8       -16.0167      0.0400000
+       9       -15.9657      0.0400000
+      10       -15.9580      0.0400000
+      11       -15.4319      0.0400000
+      12       -14.5940      0.0400000
+      13       -13.5690      0.0400000
+      14       -8.15560      0.0400000
+      15       -5.93327      0.0400000
+      16       -4.37877      0.0400000
+      17       -3.89250      0.0400000
+      18       -3.67360      0.0400000
+      19       -3.19954      0.0400000
+      20       -2.95446      0.0400000
+      21       -2.74833      0.0400000
+      22       -2.30245      0.0400000
+      23      -0.980812        0.00000
+      24       0.350585        0.00000
+      25        1.87393        0.00000
+      26        2.27535        0.00000
+      27        2.99356        0.00000
+      28        3.06793        0.00000
+      29        3.94874        0.00000
+      30        4.14375        0.00000
+      31        6.50433        0.00000
+      32        6.62862        0.00000
+
+ 8/31 kpoint (Cartesian) = -0.025131 0.043527 0.0000 (56736 pws)
+       1       -17.2110      0.0800000
+       2       -17.1037      0.0800000
+       3       -17.0192      0.0800000
+       4       -16.9310      0.0800000
+       5       -16.9159      0.0800000
+       6       -16.1801      0.0800000
+       7       -16.0845      0.0800000
+       8       -15.9973      0.0800000
+       9       -15.9742      0.0800000
+      10       -15.9550      0.0800000
+      11       -15.2301      0.0800000
+      12       -14.4576      0.0800000
+      13       -13.4146      0.0800000
+      14       -8.08693      0.0800000
+      15       -6.13379      0.0800000
+      16       -5.02828      0.0800000
+      17       -4.21684      0.0800000
+      18       -4.03747      0.0800000
+      19       -3.85595      0.0800000
+      20       -3.26617      0.0800000
+      21       -2.73205      0.0800000
+      22       -2.57217      0.0800000
+      23      -0.489011        0.00000
+      24       0.727970        0.00000
+      25        1.77251        0.00000
+      26        2.49845        0.00000
+      27        2.63324        0.00000
+      28        3.47351        0.00000
+      29        4.21604        0.00000
+      30        4.61454        0.00000
+      31        6.28027        0.00000
+      32        6.60651        0.00000
+
+ 9/31 kpoint (Cartesian) = -0.050261 0.058037 0.0000 (56800 pws)
+       1       -17.2446      0.0800000
+       2       -17.1309      0.0800000
+       3       -17.0110      0.0800000
+       4       -16.9385      0.0800000
+       5       -16.9071      0.0800000
+       6       -16.2559      0.0800000
+       7       -16.0813      0.0800000
+       8       -15.9883      0.0800000
+       9       -15.9706      0.0800000
+      10       -15.9444      0.0800000
+      11       -14.8837      0.0800000
+      12       -14.2059      0.0800000
+      13       -13.1682      0.0800000
+      14       -8.06922      0.0800000
+      15       -6.67078      0.0800000
+      16       -5.65358      0.0800000
+      17       -4.85695      0.0800000
+      18       -4.62722      0.0800000
+      19       -4.32055      0.0800000
+      20       -3.48144      0.0800000
+      21       -3.08223      0.0800000
+      22       -2.66430      0.0800000
+      23      -0.174205        0.00000
+      24       0.547381        0.00000
+      25        1.41681        0.00000
+      26        2.59067        0.00000
+      27        3.09939        0.00000
+      28        3.93519        0.00000
+      29        4.68892        0.00000
+      30        5.17261        0.00000
+      31        6.06029        0.00000
+      32        6.33718        0.00000
+
+ 10/31 kpoint (Cartesian) = -0.075392 0.072546 0.0000 (56859 pws)
+       1       -17.2940      0.0800000
+       2       -17.1320      0.0800000
+       3       -17.0068      0.0800000
+       4       -16.9452      0.0800000
+       5       -16.8938      0.0800000
+       6       -16.3258      0.0800000
+       7       -16.0786      0.0800000
+       8       -15.9980      0.0800000
+       9       -15.9510      0.0800000
+      10       -15.9304      0.0800000
+      11       -14.4859      0.0800000
+      12       -13.9111      0.0800000
+      13       -12.9275      0.0800000
+      14       -8.29946      0.0800000
+      15       -7.31616      0.0800000
+      16       -5.97616      0.0800000
+      17       -5.47244      0.0800000
+      18       -4.96818      0.0800000
+      19       -4.51398      0.0800000
+      20       -3.94328      0.0800000
+      21       -3.18567      0.0800000
+      22       -2.71656      0.0800000
+      23      -0.309186        0.00000
+      24       0.181603        0.00000
+      25        1.03968        0.00000
+      26        2.87185        0.00000
+      27        3.14533        0.00000
+      28        4.35097        0.00000
+      29        5.19541        0.00000
+      30        5.30405        0.00000
+      31        5.87024        0.00000
+      32        6.56231        0.00000
+
+ 11/31 kpoint (Cartesian) = 0.10052 0.20313 0.0000 (56873 pws)
+       1       -17.3247      0.0800000
+       2       -17.1285      0.0800000
+       3       -17.0060      0.0800000
+       4       -16.9491      0.0800000
+       5       -16.8838      0.0800000
+       6       -16.3661      0.0800000
+       7       -16.0779      0.0800000
+       8       -16.0042      0.0800000
+       9       -15.9339      0.0800000
+      10       -15.9255      0.0800000
+      11       -14.1918      0.0800000
+      12       -13.7062      0.0800000
+      13       -12.7875      0.0800000
+      14       -8.60803      0.0800000
+      15       -7.73157      0.0800000
+      16       -6.08365      0.0800000
+      17       -5.70087      0.0800000
+      18       -5.14380      0.0800000
+      19       -4.56762      0.0800000
+      20       -4.28315      0.0800000
+      21       -3.24456      0.0800000
+      22       -2.72087      0.0800000
+      23      -0.494933        0.00000
+      24     -0.0831212        0.00000
+      25       0.854145        0.00000
+      26        2.86251        0.00000
+      27        3.17890        0.00000
+      28        4.33271        0.00000
+      29        5.09359        0.00000
+      30        5.59668        0.00000
+      31        5.97804        0.00000
+      32        6.83647        0.00000
+
+ 12/31 kpoint (Cartesian) = 0.12565 0.18862 0.0000 (56873 pws)
+       1       -17.3242      0.0800000
+       2       -17.1284      0.0800000
+       3       -17.0065      0.0800000
+       4       -16.9492      0.0800000
+       5       -16.8838      0.0800000
+       6       -16.3662      0.0800000
+       7       -16.0779      0.0800000
+       8       -16.0042      0.0800000
+       9       -15.9338      0.0800000
+      10       -15.9256      0.0800000
+      11       -14.1928      0.0800000
+      12       -13.7061      0.0800000
+      13       -12.7875      0.0800000
+      14       -8.60528      0.0800000
+      15       -7.73136      0.0800000
+      16       -6.08375      0.0800000
+      17       -5.70212      0.0800000
+      18       -5.14466      0.0800000
+      19       -4.56698      0.0800000
+      20       -4.28353      0.0800000
+      21       -3.24446      0.0800000
+      22       -2.72129      0.0800000
+      23      -0.493978        0.00000
+      24     -0.0843065        0.00000
+      25       0.854538        0.00000
+      26        2.85969        0.00000
+      27        3.18374        0.00000
+      28        4.32884        0.00000
+      29        5.09325        0.00000
+      30        5.59781        0.00000
+      31        5.97688        0.00000
+      32        6.83631        0.00000
+
+ 13/31 kpoint (Cartesian) = 0.10052 -0.029018 0.0000 (56859 pws)
+       1       -17.2925      0.0800000
+       2       -17.1318      0.0800000
+       3       -17.0083      0.0800000
+       4       -16.9456      0.0800000
+       5       -16.8936      0.0800000
+       6       -16.3259      0.0800000
+       7       -16.0786      0.0800000
+       8       -15.9980      0.0800000
+       9       -15.9509      0.0800000
+      10       -15.9304      0.0800000
+      11       -14.4877      0.0800000
+      12       -13.9111      0.0800000
+      13       -12.9275      0.0800000
+      14       -8.29346      0.0800000
+      15       -7.31470      0.0800000
+      16       -5.97525      0.0800000
+      17       -5.47330      0.0800000
+      18       -4.97431      0.0800000
+      19       -4.51313      0.0800000
+      20       -3.94301      0.0800000
+      21       -3.18550      0.0800000
+      22       -2.71741      0.0800000
+      23      -0.307728        0.00000
+      24       0.179391        0.00000
+      25        1.03957        0.00000
+      26        2.87610        0.00000
+      27        3.14627        0.00000
+      28        4.33995        0.00000
+      29        5.19473        0.00000
+      30        5.29900        0.00000
+      31        5.87582        0.00000
+      32        6.56193        0.00000
+
+ 14/31 kpoint (Cartesian) = 0.075392 -0.014509 0.0000 (56800 pws)
+       1       -17.2426      0.0800000
+       2       -17.1300      0.0800000
+       3       -17.0137      0.0800000
+       4       -16.9392      0.0800000
+       5       -16.9065      0.0800000
+       6       -16.2559      0.0800000
+       7       -16.0813      0.0800000
+       8       -15.9883      0.0800000
+       9       -15.9705      0.0800000
+      10       -15.9445      0.0800000
+      11       -14.8854      0.0800000
+      12       -14.2060      0.0800000
+      13       -13.1682      0.0800000
+      14       -8.06513      0.0800000
+      15       -6.66647      0.0800000
+      16       -5.64629      0.0800000
+      17       -4.85800      0.0800000
+      18       -4.64108      0.0800000
+      19       -4.31916      0.0800000
+      20       -3.48070      0.0800000
+      21       -3.08221      0.0800000
+      22       -2.66490      0.0800000
+      23      -0.172632        0.00000
+      24       0.543667        0.00000
+      25        1.41375        0.00000
+      26        2.59883        0.00000
+      27        3.09585        0.00000
+      28        3.92681        0.00000
+      29        4.68768        0.00000
+      30        5.16588        0.00000
+      31        6.06761        0.00000
+      32        6.33872        0.00000
+
+ 15/31 kpoint (Cartesian) = 0.050261 0.0000 0.0000 (56736 pws)
+       1       -17.2100      0.0400000
+       2       -17.1005      0.0400000
+       3       -17.0232      0.0400000
+       4       -16.9320      0.0400000
+       5       -16.9149      0.0400000
+       6       -16.1802      0.0400000
+       7       -16.0844      0.0400000
+       8       -15.9973      0.0400000
+       9       -15.9741      0.0400000
+      10       -15.9551      0.0400000
+      11       -15.2313      0.0400000
+      12       -14.4577      0.0400000
+      13       -13.4146      0.0400000
+      14       -8.08536      0.0400000
+      15       -6.13057      0.0400000
+      16       -5.01064      0.0400000
+      17       -4.23817      0.0400000
+      18       -4.03670      0.0400000
+      19       -3.85614      0.0400000
+      20       -3.26624      0.0400000
+      21       -2.73112      0.0400000
+      22       -2.57246      0.0400000
+      23      -0.488268        0.00000
+      24       0.725856        0.00000
+      25        1.75927        0.00000
+      26        2.49891        0.00000
+      27        2.63012        0.00000
+      28        3.48613        0.00000
+      29        4.21543        0.00000
+      30        4.61462        0.00000
+      31        6.28062        0.00000
+      32        6.59712        0.00000
+
+ 16/31 kpoint (Cartesian) = 0.0000 0.058037 0.0000 (56735 pws)
+       1       -17.2188      0.0400000
+       2       -17.1166      0.0400000
+       3       -17.0138      0.0400000
+       4       -16.9342      0.0400000
+       5       -16.9130      0.0400000
+       6       -16.2089      0.0400000
+       7       -16.0734      0.0400000
+       8       -15.9953      0.0400000
+       9       -15.9735      0.0400000
+      10       -15.9533      0.0400000
+      11       -15.1362      0.0400000
+      12       -14.3930      0.0400000
+      13       -13.3451      0.0400000
+      14       -8.07067      0.0400000
+      15       -6.27997      0.0400000
+      16       -5.28946      0.0400000
+      17       -4.45281      0.0400000
+      18       -4.20599      0.0400000
+      19       -3.69198      0.0400000
+      20       -3.37149      0.0400000
+      21       -3.15084      0.0400000
+      22       -2.32723      0.0400000
+      23      -0.431917        0.00000
+      24       0.590056        0.00000
+      25        1.45372        0.00000
+      26        2.53473        0.00000
+      27        3.26648        0.00000
+      28        3.46220        0.00000
+      29        4.52503        0.00000
+      30        4.68224        0.00000
+      31        6.05966        0.00000
+      32        6.51449        0.00000
+
+ 17/31 kpoint (Cartesian) = -0.025131 0.072546 0.0000 (56800 pws)
+       1       -17.2460      0.0800000
+       2       -17.1315      0.0800000
+       3       -17.0090      0.0800000
+       4       -16.9379      0.0800000
+       5       -16.9078      0.0800000
+       6       -16.2558      0.0800000
+       7       -16.0814      0.0800000
+       8       -15.9884      0.0800000
+       9       -15.9705      0.0800000
+      10       -15.9444      0.0800000
+      11       -14.8823      0.0800000
+      12       -14.2058      0.0800000
+      13       -13.1682      0.0800000
+      14       -8.07218      0.0800000
+      15       -6.67344      0.0800000
+      16       -5.65794      0.0800000
+      17       -4.85518      0.0800000
+      18       -4.62235      0.0800000
+      19       -4.32128      0.0800000
+      20       -3.48179      0.0800000
+      21       -3.08138      0.0800000
+      22       -2.66519      0.0800000
+      23      -0.173240        0.00000
+      24       0.551277        0.00000
+      25        1.42764        0.00000
+      26        2.58530        0.00000
+      27        3.09954        0.00000
+      28        3.93483        0.00000
+      29        4.68689        0.00000
+      30        5.17013        0.00000
+      31        6.05872        0.00000
+      32        6.34019        0.00000
+
+ 18/31 kpoint (Cartesian) = -0.050261 0.087055 0.0000 (56870 pws)
+       1       -17.2860      0.0800000
+       2       -17.1331      0.0800000
+       3       -17.0091      0.0800000
+       4       -16.9384      0.0800000
+       5       -16.9021      0.0800000
+       6       -16.2966      0.0800000
+       7       -16.1069      0.0800000
+       8       -15.9855      0.0800000
+       9       -15.9661      0.0800000
+      10       -15.9305      0.0800000
+      11       -14.5330      0.0800000
+      12       -13.9330      0.0800000
+      13       -12.9590      0.0800000
+      14       -8.20616      0.0800000
+      15       -7.15408      0.0800000
+      16       -5.91496      0.0800000
+      17       -5.37796      0.0800000
+      18       -5.12253      0.0800000
+      19       -4.77766      0.0800000
+      20       -3.74544      0.0800000
+      21       -3.31929      0.0800000
+      22       -2.89609      0.0800000
+      23      0.0229166        0.00000
+      24       0.464446        0.00000
+      25        1.66565        0.00000
+      26        2.22282        0.00000
+      27        3.60989        0.00000
+      28        3.97948        0.00000
+      29        4.84956        0.00000
+      30        5.49875        0.00000
+      31        6.12649        0.00000
+      32        6.80584        0.00000
+
+ 19/31 kpoint (Cartesian) = 0.075392 0.18862 0.0000 (56897 pws)
+       1       -17.3178      0.0800000
+       2       -17.1289      0.0800000
+       3       -17.0119      0.0800000
+       4       -16.9376      0.0800000
+       5       -16.8969      0.0800000
+       6       -16.3247      0.0800000
+       7       -16.1292      0.0800000
+       8       -15.9874      0.0800000
+       9       -15.9531      0.0800000
+      10       -15.9263      0.0800000
+      11       -14.2028      0.0800000
+      12       -13.6721      0.0800000
+      13       -12.8059      0.0800000
+      14       -8.44656      0.0800000
+      15       -7.57700      0.0800000
+      16       -6.04201      0.0800000
+      17       -5.87950      0.0800000
+      18       -5.37225      0.0800000
+      19       -4.85039      0.0800000
+      20       -4.22399      0.0800000
+      21       -3.58475      0.0800000
+      22       -2.83291      0.0800000
+      23     -0.0121877        0.00000
+      24       0.172693        0.00000
+      25        1.58576        0.00000
+      26        2.37006        0.00000
+      27        3.72675        0.00000
+      28        4.39733        0.00000
+      29        5.26329        0.00000
+      30        5.47592        0.00000
+      31        6.22936        0.00000
+      32        6.58702        0.00000
+
+ 20/31 kpoint (Cartesian) = 0.10052 0.17411 0.0000 (56906 pws)
+       1       -17.3289      0.0800000
+       2       -17.1268      0.0800000
+       3       -17.0140      0.0800000
+       4       -16.9374      0.0800000
+       5       -16.8947      0.0800000
+       6       -16.3350      0.0800000
+       7       -16.1376      0.0800000
+       8       -15.9889      0.0800000
+       9       -15.9413      0.0800000
+      10       -15.9309      0.0800000
+      11       -14.0602      0.0800000
+      12       -13.5607      0.0800000
+      13       -12.7556      0.0800000
+      14       -8.56670      0.0800000
+      15       -7.75428      0.0800000
+      16       -6.10524      0.0800000
+      17       -6.02951      0.0800000
+      18       -5.47027      0.0800000
+      19       -4.65981      0.0800000
+      20       -4.57829      0.0800000
+      21       -3.69038      0.0800000
+      22       -2.78878      0.0800000
+      23     -0.0813353        0.00000
+      24      0.0348974        0.00000
+      25        1.51572        0.00000
+      26        2.48283        0.00000
+      27        3.71128        0.00000
+      28        4.50816        0.00000
+      29        5.20782        0.00000
+      30        5.88053        0.00000
+      31        6.15918        0.00000
+      32        6.63234        0.00000
+
+ 21/31 kpoint (Cartesian) = 0.12565 0.15960 0.0000 (56897 pws)
+       1       -17.3158      0.0800000
+       2       -17.1289      0.0800000
+       3       -17.0137      0.0800000
+       4       -16.9383      0.0800000
+       5       -16.8965      0.0800000
+       6       -16.3248      0.0800000
+       7       -16.1292      0.0800000
+       8       -15.9874      0.0800000
+       9       -15.9530      0.0800000
+      10       -15.9264      0.0800000
+      11       -14.2059      0.0800000
+      12       -13.6718      0.0800000
+      13       -12.8059      0.0800000
+      14       -8.43587      0.0800000
+      15       -7.57586      0.0800000
+      16       -6.04394      0.0800000
+      17       -5.88519      0.0800000
+      18       -5.37321      0.0800000
+      19       -4.85095      0.0800000
+      20       -4.22249      0.0800000
+      21       -3.58428      0.0800000
+      22       -2.83357      0.0800000
+      23    -0.00967066        0.00000
+      24       0.167948        0.00000
+      25        1.58412        0.00000
+      26        2.37698        0.00000
+      27        3.72225        0.00000
+      28        4.39396        0.00000
+      29        5.26355        0.00000
+      30        5.46775        0.00000
+      31        6.22758        0.00000
+      32        6.59049        0.00000
+
+ 22/31 kpoint (Cartesian) = 0.10052 0.0000 0.0000 (56870 pws)
+       1       -17.2825      0.0400000
+       2       -17.1327      0.0400000
+       3       -17.0125      0.0400000
+       4       -16.9396      0.0400000
+       5       -16.9011      0.0400000
+       6       -16.2967      0.0400000
+       7       -16.1068      0.0400000
+       8       -15.9854      0.0400000
+       9       -15.9661      0.0400000
+      10       -15.9306      0.0400000
+      11       -14.5368      0.0400000
+      12       -13.9330      0.0400000
+      13       -12.9590      0.0400000
+      14       -8.19362      0.0400000
+      15       -7.14985      0.0400000
+      16       -5.90881      0.0400000
+      17       -5.39096      0.0400000
+      18       -5.12808      0.0400000
+      19       -4.77655      0.0400000
+      20       -3.74432      0.0400000
+      21       -3.31905      0.0400000
+      22       -2.89673      0.0400000
+      23      0.0258129        0.00000
+      24       0.456427        0.00000
+      25        1.65181        0.00000
+      26        2.24656        0.00000
+      27        3.59697        0.00000
+      28        3.97159        0.00000
+      29        4.85059        0.00000
+      30        5.48941        0.00000
+      31        6.12843        0.00000
+      32        6.80454        0.00000
+
+ 23/31 kpoint (Cartesian) = 0.0000 0.087055 0.0000 (56777 pws)
+       1       -17.2683      0.0400000
+       2       -17.1329      0.0400000
+       3       -17.0033      0.0400000
+       4       -16.9438      0.0400000
+       5       -16.8998      0.0400000
+       6       -16.2976      0.0400000
+       7       -16.0603      0.0400000
+       8       -15.9991      0.0400000
+       9       -15.9547      0.0400000
+      10       -15.9419      0.0400000
+      11       -14.7347      0.0400000
+      12       -14.1048      0.0400000
+      13       -13.0710      0.0400000
+      14       -8.15354      0.0400000
+      15       -6.98080      0.0400000
+      16       -5.86013      0.0400000
+      17       -5.20329      0.0400000
+      18       -4.54532      0.0400000
+      19       -4.13471      0.0400000
+      20       -3.77425      0.0400000
+      21       -3.18429      0.0400000
+      22       -2.41832      0.0400000
+      23      -0.440510        0.00000
+      24       0.200902        0.00000
+      25       0.947834        0.00000
+      26        2.78496        0.00000
+      27        3.44081        0.00000
+      28        4.30434        0.00000
+      29        5.14273        0.00000
+      30        5.21422        0.00000
+      31        5.71048        0.00000
+      32        6.47805        0.00000
+
+ 24/31 kpoint (Cartesian) = -0.025131 0.10156 0.0000 (56859 pws)
+       1       -17.2969      0.0800000
+       2       -17.1321      0.0800000
+       3       -17.0038      0.0800000
+       4       -16.9443      0.0800000
+       5       -16.8948      0.0800000
+       6       -16.3258      0.0800000
+       7       -16.0787      0.0800000
+       8       -15.9981      0.0800000
+       9       -15.9509      0.0800000
+      10       -15.9304      0.0800000
+      11       -14.4819      0.0800000
+      12       -13.9111      0.0800000
+      13       -12.9276      0.0800000
+      14       -8.31095      0.0800000
+      15       -7.31802      0.0800000
+      16       -5.97925      0.0800000
+      17       -5.46877      0.0800000
+      18       -4.96095      0.0800000
+      19       -4.51734      0.0800000
+      20       -3.94372      0.0800000
+      21       -3.18521      0.0800000
+      22       -2.71751      0.0800000
+      23      -0.308769        0.00000
+      24       0.189335        0.00000
+      25        1.04822        0.00000
+      26        2.86816        0.00000
+      27        3.15445        0.00000
+      28        4.35354        0.00000
+      29        5.19362        0.00000
+      30        5.29827        0.00000
+      31        5.86837        0.00000
+      32        6.55722        0.00000
+
+ 25/31 kpoint (Cartesian) = 0.050261 0.17411 0.0000 (56897 pws)
+       1       -17.3194      0.0800000
+       2       -17.1289      0.0800000
+       3       -17.0105      0.0800000
+       4       -16.9369      0.0800000
+       5       -16.8976      0.0800000
+       6       -16.3247      0.0800000
+       7       -16.1293      0.0800000
+       8       -15.9875      0.0800000
+       9       -15.9530      0.0800000
+      10       -15.9263      0.0800000
+      11       -14.2000      0.0800000
+      12       -13.6724      0.0800000
+      13       -12.8060      0.0800000
+      14       -8.45497      0.0800000
+      15       -7.57750      0.0800000
+      16       -6.04386      0.0800000
+      17       -5.87321      0.0800000
+      18       -5.36944      0.0800000
+      19       -4.85333      0.0800000
+      20       -4.22339      0.0800000
+      21       -3.58605      0.0800000
+      22       -2.83286      0.0800000
+      23     -0.0149036        0.00000
+      24       0.178230        0.00000
+      25        1.59115        0.00000
+      26        2.36623        0.00000
+      27        3.73954        0.00000
+      28        4.39791        0.00000
+      29        5.26070        0.00000
+      30        5.47246        0.00000
+      31        6.22829        0.00000
+      32        6.58142        0.00000
+
+ 26/31 kpoint (Cartesian) = 0.075392 0.15960 0.0000 (56920 pws)
+       1       -17.3305      0.0800000
+       2       -17.1260      0.0800000
+       3       -17.0170      0.0800000
+       4       -16.9249      0.0800000
+       5       -16.9071      0.0800000
+       6       -16.3039      0.0800000
+       7       -16.1810      0.0800000
+       8       -15.9726      0.0800000
+       9       -15.9563      0.0800000
+      10       -15.9318      0.0800000
+      11       -14.0091      0.0800000
+      12       -13.4924      0.0800000
+      13       -12.7519      0.0800000
+      14       -8.50823      0.0800000
+      15       -7.73428      0.0800000
+      16       -6.36379      0.0800000
+      17       -6.08167      0.0800000
+      18       -5.44499      0.0800000
+      19       -4.82590      0.0800000
+      20       -4.57740      0.0800000
+      21       -3.94929      0.0800000
+      22       -2.77399      0.0800000
+      23      0.0155022        0.00000
+      24       0.133270        0.00000
+      25        1.77131        0.00000
+      26        2.34524        0.00000
+      27        4.05285        0.00000
+      28        5.07557        0.00000
+      29        5.39408        0.00000
+      30        5.62334        0.00000
+      31        6.45103        0.00000
+      32        7.16706        0.00000
+
+ 27/31 kpoint (Cartesian) = 0.10052 0.14509 0.0000 (56920 pws)
+       1       -17.3291      0.0400000
+       2       -17.1261      0.0400000
+       3       -17.0181      0.0400000
+       4       -16.9260      0.0400000
+       5       -16.9061      0.0400000
+       6       -16.3040      0.0400000
+       7       -16.1810      0.0400000
+       8       -15.9726      0.0400000
+       9       -15.9563      0.0400000
+      10       -15.9319      0.0400000
+      11       -14.0118      0.0400000
+      12       -13.4919      0.0400000
+      13       -12.7519      0.0400000
+      14       -8.49909      0.0400000
+      15       -7.73390      0.0400000
+      16       -6.37115      0.0400000
+      17       -6.08134      0.0400000
+      18       -5.44439      0.0400000
+      19       -4.82836      0.0400000
+      20       -4.57583      0.0400000
+      21       -3.94735      0.0400000
+      22       -2.77445      0.0400000
+      23      0.0132849        0.00000
+      24       0.133982        0.00000
+      25        1.77049        0.00000
+      26        2.34720        0.00000
+      27        4.04742        0.00000
+      28        5.07412        0.00000
+      29        5.39115        0.00000
+      30        5.62134        0.00000
+      31        6.45191        0.00000
+      32        7.16713        0.00000
+
+ 28/31 kpoint (Cartesian) = 0.0000 0.11607 0.0000 (56836 pws)
+       1       -17.3159      0.0400000
+       2       -17.1303      0.0400000
+       3       -16.9986      0.0400000
+       4       -16.9509      0.0400000
+       5       -16.8850      0.0400000
+       6       -16.3622      0.0400000
+       7       -16.0542      0.0400000
+       8       -16.0081      0.0400000
+       9       -15.9353      0.0400000
+      10       -15.9280      0.0400000
+      11       -14.3492      0.0400000
+      12       -13.8366      0.0400000
+      13       -12.8550      0.0400000
+      14       -8.51205      0.0400000
+      15       -7.57857      0.0400000
+      16       -6.05782      0.0400000
+      17       -5.61040      0.0400000
+      18       -4.79148      0.0400000
+      19       -4.39444      0.0400000
+      20       -4.05332      0.0400000
+      21       -3.17157      0.0400000
+      22       -2.50484      0.0400000
+      23      -0.707620        0.00000
+      24      -0.121647        0.00000
+      25       0.634887        0.00000
+      26        2.71415        0.00000
+      27        3.48223        0.00000
+      28        4.42409        0.00000
+      29        5.14045        0.00000
+      30        5.52000        0.00000
+      31        5.98645        0.00000
+      32        6.99543        0.00000
+
+ 29/31 kpoint (Cartesian) = 0.025131 0.15960 0.0000 (56873 pws)
+       1       -17.3286      0.0800000
+       2       -17.1284      0.0800000
+       3       -17.0024      0.0800000
+       4       -16.9480      0.0800000
+       5       -16.8848      0.0800000
+       6       -16.3661      0.0800000
+       7       -16.0780      0.0800000
+       8       -16.0043      0.0800000
+       9       -15.9338      0.0800000
+      10       -15.9255      0.0800000
+      11       -14.1845      0.0800000
+      12       -13.7070      0.0800000
+      13       -12.7876      0.0800000
+      14       -8.62769      0.0800000
+      15       -7.73226      0.0800000
+      16       -6.08543      0.0800000
+      17       -5.69276      0.0800000
+      18       -5.13585      0.0800000
+      19       -4.57470      0.0800000
+      20       -4.28404      0.0800000
+      21       -3.24419      0.0800000
+      22       -2.72119      0.0800000
+      23      -0.495742        0.00000
+      24     -0.0742275        0.00000
+      25       0.862967        0.00000
+      26        2.86449        0.00000
+      27        3.18537        0.00000
+      28        4.33948        0.00000
+      29        5.08746        0.00000
+      30        5.59690        0.00000
+      31        5.98194        0.00000
+      32        6.82144        0.00000
+
+ 30/31 kpoint (Cartesian) = 0.050261 0.14509 0.0000 (56906 pws)
+       1       -17.3317      0.0400000
+       2       -17.1266      0.0400000
+       3       -17.0115      0.0400000
+       4       -16.9361      0.0400000
+       5       -16.8957      0.0400000
+       6       -16.3350      0.0400000
+       7       -16.1377      0.0400000
+       8       -15.9890      0.0400000
+       9       -15.9413      0.0400000
+      10       -15.9309      0.0400000
+      11       -14.0545      0.0400000
+      12       -13.5617      0.0400000
+      13       -12.7557      0.0400000
+      14       -8.58367      0.0400000
+      15       -7.75481      0.0400000
+      16       -6.09660      0.0400000
+      17       -6.02794      0.0400000
+      18       -5.46762      0.0400000
+      19       -4.66193      0.0400000
+      20       -4.57868      0.0400000
+      21       -3.69295      0.0400000
+      22       -2.78807      0.0400000
+      23     -0.0844860        0.00000
+      24      0.0417854        0.00000
+      25        1.52107        0.00000
+      26        2.47863        0.00000
+      27        3.72855        0.00000
+      28        4.51184        0.00000
+      29        5.20385        0.00000
+      30        5.88504        0.00000
+      31        6.15952        0.00000
+      32        6.61518        0.00000
+
+ 31/31 kpoint (Cartesian) = 0.0000 0.14509 0.0000 (56844 pws)
+       1       -17.3338      0.0200000
+       2       -17.1282      0.0200000
+       3       -16.9976      0.0200000
+       4       -16.9535      0.0200000
+       5       -16.8786      0.0200000
+       6       -16.3853      0.0200000
+       7       -16.0527      0.0200000
+       8       -16.0116      0.0200000
+       9       -15.9282      0.0200000
+      10       -15.9216      0.0200000
+      11       -14.1751      0.0200000
+      12       -13.7282      0.0200000
+      13       -12.7764      0.0200000
+      14       -8.71998      0.0200000
+      15       -7.81016      0.0200000
+      16       -6.15113      0.0200000
+      17       -5.62258      0.0200000
+      18       -4.88015      0.0200000
+      19       -4.53162      0.0200000
+      20       -4.15213      0.0200000
+      21       -3.15353      0.0200000
+      22       -2.53887      0.0200000
+      23      -0.811147        0.00000
+      24      -0.269761        0.00000
+      25       0.532946        0.00000
+      26        2.63245        0.00000
+      27        3.48136        0.00000
+      28        4.37154        0.00000
+      29        5.00041        0.00000
+      30        5.60665        0.00000
+      31        6.28932        0.00000
+      32        7.17004        0.00000
+
+
+ Warning_Memory_Consuming allocated:  ORB::Jl(x) 921.868 MB
+
+ Warning_Memory_Consuming allocated:  Force::dS_K 6.47706 MB
+
+ Warning_Memory_Consuming allocated:  Stress::dHr 6.47706 MB
+
+ Warning_Memory_Consuming allocated:  Stress::dSR 12.9541 MB
+
+ Warning_Memory_Consuming allocated:  Force::dTVNL 6.47706 MB
+ correction force for each atom along direction 1 is -0.0135043
+ correction force for each atom along direction 2 is -6.19196e-07
+ correction force for each atom along direction 3 is 8.08669e-06
+------------------------------------------------------------------------------------------
+ TOTAL-FORCE (eV/Angstrom)                                                                
+------------------------------------------------------------------------------------------
+                       In1         0.0000000000        -0.0016574739         0.0017565914 
+                       In2         0.0000000000         0.0556078071         0.0038554637 
+                       Se1         0.0000000000         0.0001486637         0.0042785093 
+                       Se2         0.0000000000         0.0041981234        -0.0045508999 
+                       Se3         0.0000000000        -0.0582971203        -0.0053396645 
+------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------
+ TOTAL-STRESS (KBAR)                                            
+----------------------------------------------------------------
+        -0.1468513611         0.0000000000         0.0000000000 
+         0.0000000000         0.2009527565         0.2525031376 
+         0.0000000000         0.2525031376         0.0745265909 
+----------------------------------------------------------------
+ TOTAL-PRESSURE: 0.042876 KBAR
+
+
+
+ --------------------------------------------
+ !FINAL_ETOT_IS -3679.4184020161760600 eV
+ --------------------------------------------
+
+
+TIME STATISTICS
+------------------------------------------------------------------------------------
+    CLASS_NAME                    NAME                TIME/s  CALLS   AVG/s  PER/%  
+------------------------------------------------------------------------------------
+                   total                              20.07  13       1.54   100.00 
+ Driver            reading                            0.03   1        0.03   0.15   
+ Input_Conv        Convert                            0.00   1        0.00   0.01   
+ Driver            driver_line                        20.04  1        20.04  99.85  
+ UnitCell          check_tau                          0.00   1        0.00   0.00   
+ ESolver_KS_LCAO   before_all_runners                 0.65   1        0.65   3.23   
+ PW_Basis_Sup      setuptransform                     0.01   1        0.01   0.05   
+ PW_Basis_Sup      distributeg                        0.01   1        0.01   0.03   
+ mymath            heapsort                           0.05   197      0.00   0.26   
+ Charge_Mixing     init_mixing                        0.00   1        0.00   0.00   
+ Symmetry          analy_sys                          0.03   1        0.03   0.13   
+ PW_Basis_K        setuptransform                     0.06   1        0.06   0.31   
+ PW_Basis_K        distributeg                        0.00   1        0.00   0.02   
+ PW_Basis          setup_struc_factor                 0.03   1        0.03   0.13   
+ NOrbital_Lm       extra_uniform                      0.98   265      0.00   4.90   
+ Mathzone_Add1     SplineD2                           0.00   265      0.00   0.01   
+ Mathzone_Add1     Cubic_Spline_Interpolation         0.01   265      0.00   0.03   
+ Mathzone_Add1     Uni_Deriv_Phi                      0.96   265      0.00   4.76   
+ ppcell_vl         init_vloc                          0.01   1        0.01   0.05   
+ Ions              opt_ions                           19.38  1        19.38  96.55  
+ ESolver_KS_LCAO   runner                             18.15  1        18.15  90.45  
+ ESolver_KS_LCAO   before_scf                         0.31   1        0.31   1.55   
+ Vdwd3             cal_energy                         0.00   1        0.00   0.01   
+ atom_arrange      search                             0.00   1        0.00   0.00   
+ atom_arrange      grid_d.init                        0.00   1        0.00   0.00   
+ Grid              Construct_Adjacent_expand          0.00   1        0.00   0.00   
+ Grid              Construct_Adjacent_expand_periodic 0.00   5        0.00   0.00   
+ Grid_Technique    init                               0.06   1        0.06   0.27   
+ Grid_BigCell      grid_expansion_index               0.01   2        0.01   0.07   
+ Grid_Driver       Find_atom                          0.00   31       0.00   0.00   
+ Record_adj        for_2d                             0.00   1        0.00   0.00   
+ LCAO_domain       grid_prepare                       0.00   1        0.00   0.00   
+ Veff              initialize_HR                      0.00   1        0.00   0.00   
+ OverlapNew        initialize_SR                      0.00   1        0.00   0.00   
+ EkineticNew       initialize_HR                      0.00   1        0.00   0.00   
+ NonlocalNew       initialize_HR                      0.00   1        0.00   0.01   
+ Charge            set_rho_core                       0.00   1        0.00   0.01   
+ ModuleIO          read_rhog                          0.06   1        0.06   0.28   
+ PW_Basis_Sup      recip2real                         0.24   95       0.00   1.21   
+ PW_Basis_Sup      gathers_scatterp                   0.04   95       0.00   0.19   
+ Potential         init_pot                           0.09   1        0.09   0.46   
+ Potential         update_from_charge                 1.05   13       0.08   5.23   
+ Potential         cal_fixed_v                        0.01   1        0.01   0.05   
+ PotLocal          cal_fixed_v                        0.01   1        0.01   0.04   
+ Potential         cal_v_eff                          1.02   13       0.08   5.07   
+ H_Hartree_pw      v_hartree                          0.15   13       0.01   0.72   
+ PW_Basis_Sup      real2recip                         0.23   110      0.00   1.14   
+ PW_Basis_Sup      gatherp_scatters                   0.03   110      0.00   0.15   
+ PotXC             cal_v_eff                          0.83   13       0.06   4.16   
+ XC_Functional     v_xc                               0.81   13       0.06   4.05   
+ Potential         interpolate_vrs                    0.02   13       0.00   0.11   
+ Symmetry          rhog_symmetry                      0.56   13       0.04   2.79   
+ Symmetry          group fft grids                    0.37   13       0.03   1.86   
+ H_Ewald_pw        compute_ewald                      0.02   1        0.02   0.10   
+ HSolverLCAO       solve                              9.69   12       0.81   48.31  
+ HamiltLCAO        updateHk                           3.97   372      0.01   19.79  
+ OperatorLCAO      init                               3.85   1116     0.00   19.18  
+ Veff              contributeHR                       3.26   12       0.27   16.27  
+ Gint_interface    cal_gint                           6.70   25       0.27   33.38  
+ Gint_interface    cal_gint_vlocal                    3.22   12       0.27   16.06  
+ Gint_Tools        cal_psir_ylm                       3.68   11859    0.00   18.32  
+ Gint_k            transfer_pvpR                      0.01   12       0.00   0.05   
+ OverlapNew        calculate_SR                       0.10   1        0.10   0.49   
+ OverlapNew        contributeHk                       0.02   372      0.00   0.11   
+ EkineticNew       contributeHR                       0.18   12       0.01   0.88   
+ EkineticNew       calculate_HR                       0.18   1        0.18   0.88   
+ NonlocalNew       contributeHR                       0.38   12       0.03   1.88   
+ NonlocalNew       calculate_HR                       0.37   1        0.37   1.85   
+ OperatorLCAO      contributeHk                       0.02   372      0.00   0.09   
+ HSolverLCAO       hamiltSolvePsiK                    2.57   372      0.01   12.83  
+ DiagoElpa         elpa_solve                         2.49   372      0.01   12.40  
+ elecstate         cal_dm                             0.03   13       0.00   0.17   
+ psiMulPsiMpi      pdgemm                             0.03   403      0.00   0.14   
+ DensityMatrix     cal_DMR                            0.02   13       0.00   0.08   
+ ElecStateLCAO     psiToRho                           3.10   12       0.26   15.46  
+ Gint              transfer_DMR                       0.02   12       0.00   0.08   
+ Gint_interface    cal_gint_rho                       3.01   12       0.25   15.02  
+ Charge_Mixing     get_drho                           0.00   12       0.00   0.02   
+ Charge            mix_rho                            0.19   11       0.02   0.96   
+ Charge            Pulay_mixing                       0.01   11       0.00   0.05   
+ ModuleIO          write_rhog                         0.08   1        0.08   0.42   
+ ESolver_KS_LCAO   after_scf                          5.99   1        5.99   29.86  
+ Charge            atomic_rho                         0.03   1        0.03   0.14   
+ ModuleIO          output_HSR                         0.73   1        0.73   3.62   
+ ModuleIO          save_HSR_sparse                    0.68   1        0.68   3.38   
+ cal_r_overlap_R   init                               3.69   1        3.69   18.39  
+ ORB_gaunt_table   init_Gaunt_CH                      0.00   1        0.00   0.01   
+ ORB_gaunt_table   Calc_Gaunt_CH                      0.00   1631     0.00   0.00   
+ ORB_gaunt_table   init_Gaunt                         0.01   1        0.01   0.05   
+ ORB_gaunt_table   Get_Gaunt_SH                       0.00   25313    0.00   0.02   
+ Center2_Orb       cal_ST_Phi12_R                     1.66   633      0.00   8.26   
+ cal_r_overlap_R   out_rR_other                       1.11   1        1.11   5.54   
+ ESolver_KS_LCAO   cal_force                          1.22   1        1.22   6.10   
+ Force_Stress_LCAO getForceStress                     1.22   1        1.22   6.10   
+ Forces            cal_force_loc                      0.04   1        0.04   0.19   
+ Forces            cal_force_ew                       0.02   1        0.02   0.09   
+ Forces            cal_force_cc                       0.00   1        0.00   0.00   
+ Forces            cal_force_scc                      0.02   1        0.02   0.09   
+ Stress_Func       stress_loc                         0.05   1        0.05   0.25   
+ Stress_Func       stress_har                         0.01   1        0.01   0.03   
+ Stress_Func       stress_ewa                         0.00   1        0.00   0.02   
+ Stress_Func       stress_cc                          0.00   1        0.00   0.00   
+ Stress_Func       stress_gga                         0.03   1        0.03   0.13   
+ Force_LCAO        ftable                             0.74   1        0.74   3.68   
+ Force_LCAO        allocate                           0.30   1        0.30   1.50   
+ LCAO_domain       build_ST_new                       0.30   2        0.15   1.50   
+ Force_LCAO        cal_pulay_fs_center2               0.00   2        0.00   0.02   
+ Gint_interface    cal_gint_force                     0.43   1        0.43   2.14   
+ Gint_Tools        cal_dpsir_ylm                      0.19   487      0.00   0.96   
+ Gint_Tools        cal_dpsirr_ylm                     0.03   487      0.00   0.14   
+ NonlocalNew       cal_force_stress                   0.31   1        0.31   1.53   
+ Vdwd3             cal_force                          0.01   1        0.01   0.04   
+ Vdwd3             cal_stress                         0.01   1        0.01   0.04   
+ ESolver_KS_LCAO   cal_stress                         0.00   1        0.00   0.00   
+ ESolver_KS_LCAO   after_all_runners                  0.00   1        0.00   0.02   
+ ModuleIO          write_istate_info                  0.00   1        0.00   0.02   
+------------------------------------------------------------------------------------
+
+
+ NAME-------------------------|MEMORY(MB)--------
+                         total      1114.1782
+                    ORB::Jl(x)       921.8678
+                  PW_B_K::gcar        40.3867
+                  SF::strucFac        13.8665
+                   PW_B_K::gk2        13.4622
+                   Stress::dSR        12.9541
+                      Chg::rho         7.9102
+                 Chg::rho_save         7.9102
+                 Chg::rho_core         7.9102
+                 Pot::veff_fix         7.9102
+                     Pot::veff         7.9102
+              Pot::veff_smooth         7.9102
+                   Force::dS_K         6.4771
+                   Stress::dHr         6.4771
+                  Force::dTVNL         6.4771
+            DensityMatrix::DMK         3.7468
+                     Chg::rhog         3.4666
+                Chg::rhog_save         3.4666
+                Chg::rhog_core         3.4666
+       TwoCenterTable: Kinetic         3.4580
+       TwoCenterTable: Overlap         3.4580
+      TwoCenterTable: Nonlocal         3.4379
+                HamiltLCAO::hR         2.1849
+            DensityMatrix::DMR         2.1849
+               GT::ind_bigcell         1.9348
+         GT::in_this_processor         1.9348
+              GT::index2normal         1.9348
+               GT::index2ucell         1.9348
+                HamiltLCAO::sR         1.4823
+                  Gint::hRGint         1.4823
+                 Gint::DMRGint         1.4816
+ -------------   < 1.0 MB has been ignored ----------------
+ ----------------------------------------------------------
+
+ Start  Time  : Thu Aug 27 10:02:54 2026
+ Finish Time  : Thu Aug 27 10:03:14 2026
+ Total  Time  : 0 h 0 mins 20 secs 

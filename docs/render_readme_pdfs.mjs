@@ -65,7 +65,7 @@ for (const [sourceName, outputName, title] of documents) {
     .readFileSync(path.join(repoRoot, sourceName), "utf8")
     .replace(
       /<img alt="PyPI"[^>]*>/g,
-      `<span class="pdf-badge badge-pypi">PyPI v${versionMatch[1]}</span>`,
+      `<span class="pdf-badge badge-pypi">ZStar v${versionMatch[1]}</span>`,
     )
     .replace(
       /<img alt="Python"[^>]*>/g,

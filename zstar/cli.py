@@ -67,7 +67,7 @@ def _add_qe_action_parsers(action_subparsers) -> None:
     parser_run.add_argument('--ph-command', default='ph.x')
     parser_run.add_argument('--dynmat-command', default='dynmat.x')
     parser_run.add_argument('--min-gap', type=float, default=0.01)
-    parser_run.add_argument('--omp-threads', type=int, default=1)
+    parser_run.add_argument('--omp-threads', type=int, default=None)
     parser_run.add_argument('--dry-run', action='store_true')
 
     parser_status = action_subparsers.add_parser('status')
@@ -87,12 +87,13 @@ def _add_qe_action_parsers(action_subparsers) -> None:
     parser_script.add_argument('--output', default=None)
     parser_script.add_argument('--job-name', default='zstar-qe-response')
     parser_script.add_argument('--nodes', type=int, default=1)
-    parser_script.add_argument('--tasks', type=int, default=1)
-    parser_script.add_argument('--cpus-per-task', type=int, default=1)
+    parser_script.add_argument('--tasks', type=int, default=None)
+    parser_script.add_argument('--cpus-per-task', type=int, default=None)
     parser_script.add_argument('--walltime', default='24:00:00')
     parser_script.add_argument('--queue', default=None)
     parser_script.add_argument('--account', default=None)
     parser_script.add_argument('--env-script', default=None)
+    parser_script.add_argument('--header', default=None, help='Specified header; overrides ./header.sh and ~/.zstar/header.sh.')
     parser_script.add_argument('--pw-command', default=None)
     parser_script.add_argument('--ph-command', default=None)
     parser_script.add_argument('--dynmat-command', default=None)
@@ -155,6 +156,7 @@ def _run_qe_action(args) -> None:
             queue=args.queue,
             account=args.account,
             env_script=args.env_script,
+            header_file=args.header,
             pw_command=args.pw_command,
             ph_command=args.ph_command,
             dynmat_command=args.dynmat_command,
@@ -212,7 +214,10 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
         '--dim', type=int, choices=[0, 1, 2, 3], default=3,
         help='Physical dimensionality: 0 for a molecule, 1 for a z-periodic wire, 2 for a slab, or 3 for bulk.'
     )
-    parser_gen.add_argument('--method', type=str, help='Type of finite difference method, by forward or central, with pricesion of first and seconde order.', default='forward')
+    parser_gen.add_argument('--method', choices=['auto', 'forward', 'central'], default=None,
+                            help='Phonopy +/- selection: auto (default), forward, or central. Legacy Cartesian default: forward.')
+    parser_gen.add_argument('--ensemble', choices=['phonopy', 'cartesian'], default=None,
+                            help='Shared BEC/Gamma Phonopy ensemble (default), or legacy Cartesian displacements.')
     parser_gen.add_argument(
         '--xc',
         type=str,
@@ -229,9 +234,9 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
                             default=True)
     parser_gen.add_argument('--kspacing', type=float,
                             help='kspacing in INPUT, default 0.1',
-                            default=0.1)
+                            default=None)
     parser_gen.add_argument('--force', action='store_true',
-                            help="Force overwrite existing directories if they exist.",
+                            help="Overwrite legacy generated directories; shared ensembles require a fresh directory.",
                             default=False)
     parser_gen.add_argument('--stru', help='Path to the STRU file', default='STRU')
     parser_gen.add_argument(
@@ -283,8 +288,8 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
                           help='Use a CP2K input template for Berry-phase BEC.')
     parser_gen.add_argument('--cp2k-root', default='cp2k_bec',
                             help='Output root for --cp2k (default: cp2k_bec).')
-    parser_gen.add_argument('--displacement', type=float, default=0.01,
-                            help='Atomic finite-displacement half-step in Angstrom.')
+    parser_gen.add_argument('--displacement', type=float, default=None,
+                            help='Displacement in Angstrom; shared default 0.02 bohr, legacy default 0.01 Angstrom.')
 
     # ---------------- deal ----------------
     parser_deal = subparsers.add_parser(
@@ -455,7 +460,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     )
     parser_cp2k_run.add_argument('--root', default='cp2k_bec')
     parser_cp2k_run.add_argument('--cp2k-command', default='cp2k.psmp')
-    parser_cp2k_run.add_argument('--omp-threads', type=int, default=1)
+    parser_cp2k_run.add_argument('--omp-threads', type=int, default=None)
     parser_cp2k_run.add_argument('--data-dir', default=None)
     parser_cp2k_run.add_argument('--dry-run', action='store_true')
     parser_cp2k_run.add_argument('--stop-after', type=int, default=None)
@@ -473,12 +478,13 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     parser_cp2k_script.add_argument('--output', default=None)
     parser_cp2k_script.add_argument('--job-name', default='zstar-cp2k-bec')
     parser_cp2k_script.add_argument('--nodes', type=int, default=1)
-    parser_cp2k_script.add_argument('--tasks', type=int, default=1)
-    parser_cp2k_script.add_argument('--cpus-per-task', type=int, default=1)
+    parser_cp2k_script.add_argument('--tasks', type=int, default=None)
+    parser_cp2k_script.add_argument('--cpus-per-task', type=int, default=None)
     parser_cp2k_script.add_argument('--walltime', default='24:00:00')
     parser_cp2k_script.add_argument('--queue', default=None)
     parser_cp2k_script.add_argument('--account', default=None)
     parser_cp2k_script.add_argument('--env-script', default=None)
+    parser_cp2k_script.add_argument('--header', default=None, help='Specified header; overrides ./header.sh and ~/.zstar/header.sh.')
     parser_cp2k_script.add_argument('--cp2k-command', default=None)
     parser_cp2k_script.add_argument('--data-dir', default=None)
 
@@ -497,7 +503,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     parser_cp2k_native.add_argument('--root', default='cp2k_native_apt')
     parser_cp2k_native.add_argument('--field-strength', type=float, default=3.0e-4)
     parser_cp2k_native.add_argument('--cp2k-command', default='cp2k.ssmp')
-    parser_cp2k_native.add_argument('--omp-threads', type=int, default=1)
+    parser_cp2k_native.add_argument('--omp-threads', type=int, default=None)
     parser_cp2k_native.add_argument('--data-dir', default=None)
     parser_cp2k_native.add_argument('--prepare-only', action='store_true')
     parser_cp2k_native.add_argument('--force', action='store_true')
@@ -534,6 +540,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     )
     parser_vasp_bec_run.add_argument('--root', default='vasp_bec')
     parser_vasp_bec_run.add_argument('--vasp-command', default='vasp_std')
+    parser_vasp_bec_run.add_argument('--omp-threads', type=int, default=None)
     parser_vasp_bec_run.add_argument('--min-gap', type=float, default=0.01)
     parser_vasp_bec_run.add_argument('--dry-run', action='store_true')
     parser_vasp_bec_status = vasp_bec_actions.add_parser('status')
@@ -556,12 +563,13 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     parser_vasp_bec_script.add_argument('--output', default=None)
     parser_vasp_bec_script.add_argument('--job-name', default='zstar-vasp-bec')
     parser_vasp_bec_script.add_argument('--nodes', type=int, default=1)
-    parser_vasp_bec_script.add_argument('--tasks', type=int, default=1)
-    parser_vasp_bec_script.add_argument('--cpus-per-task', type=int, default=1)
+    parser_vasp_bec_script.add_argument('--tasks', type=int, default=None)
+    parser_vasp_bec_script.add_argument('--cpus-per-task', type=int, default=None)
     parser_vasp_bec_script.add_argument('--walltime', default='24:00:00')
     parser_vasp_bec_script.add_argument('--queue', default=None)
     parser_vasp_bec_script.add_argument('--account', default=None)
     parser_vasp_bec_script.add_argument('--env-script', default=None)
+    parser_vasp_bec_script.add_argument('--header', default=None, help='Specified header; overrides ./header.sh and ~/.zstar/header.sh.')
     parser_vasp_bec_script.add_argument('--vasp-command', default=None)
     parser_vasp_bec_script.add_argument('--min-gap', type=float, default=0.01)
     parser_vasp_bec_compare = vasp_bec_actions.add_parser(
@@ -617,7 +625,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
         help='Calculator launch command (vasp_std or cp2k ... -o output.log).'
     )
     parser_spectra_run.add_argument('--min-gap', type=float, default=0.01)
-    parser_spectra_run.add_argument('--omp-threads', type=int, default=1)
+    parser_spectra_run.add_argument('--omp-threads', type=int, default=None)
     parser_spectra_run.add_argument('--cp2k-data-dir', default=None)
     parser_spectra_run.add_argument('--dry-run', action='store_true')
     parser_spectra_run.add_argument('--stop-after', type=int, default=None)
@@ -633,12 +641,13 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     parser_spectra_script.add_argument('--output', default=None)
     parser_spectra_script.add_argument('--job-name', default='zstar-spectra')
     parser_spectra_script.add_argument('--nodes', type=int, default=1)
-    parser_spectra_script.add_argument('--tasks', type=int, default=1)
-    parser_spectra_script.add_argument('--cpus-per-task', type=int, default=1)
+    parser_spectra_script.add_argument('--tasks', type=int, default=None)
+    parser_spectra_script.add_argument('--cpus-per-task', type=int, default=None)
     parser_spectra_script.add_argument('--walltime', default='24:00:00')
     parser_spectra_script.add_argument('--queue', default=None)
     parser_spectra_script.add_argument('--account', default=None)
     parser_spectra_script.add_argument('--env-script', default=None)
+    parser_spectra_script.add_argument('--header', default=None, help='Specified header; overrides ./header.sh and ~/.zstar/header.sh.')
     parser_spectra_script.add_argument('--command', dest='calculator_command', default=None)
     parser_spectra_script.add_argument('--min-gap', type=float, default=0.01)
     parser_spectra_collect = spectra_actions.add_parser(
@@ -874,7 +883,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     parser_workflow_run.add_argument(
         '--legacy-domega', type=float, default=0.10
     )
-    parser_workflow_run.add_argument('--omp-threads', type=int, default=1)
+    parser_workflow_run.add_argument('--omp-threads', type=int, default=None)
     parser_workflow_run.add_argument('--dry-run', action='store_true')
     parser_workflow_run.add_argument('--stop-after', type=int, default=None)
 
@@ -893,12 +902,13 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     parser_workflow_script.add_argument('--output', default=None)
     parser_workflow_script.add_argument('--job-name', default='zstar-born')
     parser_workflow_script.add_argument('--nodes', type=int, default=1)
-    parser_workflow_script.add_argument('--tasks', type=int, default=1)
-    parser_workflow_script.add_argument('--cpus-per-task', type=int, default=28)
+    parser_workflow_script.add_argument('--tasks', type=int, default=None)
+    parser_workflow_script.add_argument('--cpus-per-task', type=int, default=None)
     parser_workflow_script.add_argument('--walltime', default='24:00:00')
     parser_workflow_script.add_argument('--queue', default=None)
     parser_workflow_script.add_argument('--account', default=None)
     parser_workflow_script.add_argument('--env-script', default=None)
+    parser_workflow_script.add_argument('--header', default=None, help='Specified header; overrides ./header.sh and ~/.zstar/header.sh.')
     parser_workflow_script.add_argument(
         '--abacus-command', default=None,
         help='Override the backend-aware ABACUS launcher.'
@@ -1005,6 +1015,10 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
         help='2D effective thickness in Angstrom; omit for sheet polarizability.'
     )
     parser_ir.add_argument(
+        '--slab-boundary', choices=['source-field', 'macroscopic'], default='source-field',
+        help='Thickness conversion convention. macroscopic requires matched screened inputs, not bare PYATB optics.'
+    )
+    parser_ir.add_argument(
         '--modes', default=None,
         help='One-based mode list, e.g. 4,5,8-10. Default: all optical modes.'
     )
@@ -1077,7 +1091,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
     )
     parser_raman_run.add_argument('--legacy-omega-max', type=float, default=30.0)
     parser_raman_run.add_argument('--legacy-domega', type=float, default=0.10)
-    parser_raman_run.add_argument('--omp-threads', type=int, default=1)
+    parser_raman_run.add_argument('--omp-threads', type=int, default=None)
     parser_raman_run.add_argument('--dry-run', action='store_true')
     parser_raman_run.add_argument('--stop-after', type=int, default=None)
     parser_raman_run.add_argument('--temperature', type=float, default=300.0)
@@ -1201,6 +1215,8 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
         help='Periodic axis for --dim 1; default: z.'
     )
     parser_calc.add_argument('--thickness', type=float, default=None)
+    parser_calc.add_argument('--slab-boundary', choices=['source-field', 'macroscopic'], default='source-field',
+                             help='macroscopic requires matched screened slab response inputs.')
     parser_calc.add_argument('--acoustic-cutoff', type=float, default=5.0)
     parser_calc.add_argument('--imaginary-tolerance', type=float, default=20.0)
     parser_calc.add_argument('--allow-imaginary', action='store_true')
@@ -1242,6 +1258,8 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
         help='Periodic axis for --dim 1; default: z.'
     )
     parser_freq.add_argument('--thickness', type=float, default=None)
+    parser_freq.add_argument('--slab-boundary', choices=['source-field', 'macroscopic'], default='source-field',
+                             help='macroscopic requires matched screened slab response inputs.')
     parser_freq.add_argument('--acoustic-cutoff', type=float, default=5.0)
     parser_freq.add_argument('--imaginary-tolerance', type=float, default=20.0)
     parser_freq.add_argument('--allow-imaginary', action='store_true')
@@ -1393,6 +1411,10 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
 
     _restrict_top_level_help(subparsers)
     args = parser.parse_args(cli_argv)
+    if hasattr(args, 'omp_threads'):
+        from .configuration import resolve_parallelism
+        _, args.omp_threads = resolve_parallelism(
+            getattr(args, 'root', getattr(args, 'raman_dir', '.')), cpus_per_task=args.omp_threads)
 
     if legacy_qe_command:
         print(
@@ -1519,6 +1541,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
                 queue=args.queue,
                 account=args.account,
                 env_script=args.env_script,
+                header_file=args.header,
                 cp2k_command=args.cp2k_command,
                 data_dir=args.data_dir,
             )
@@ -1598,6 +1621,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
             states = run_vasp_bec(
                 args.root,
                 vasp_command=args.vasp_command,
+                omp_threads=args.omp_threads,
                 min_gap_eV=args.min_gap,
                 dry_run=args.dry_run,
             )
@@ -1636,6 +1660,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
                 queue=args.queue,
                 account=args.account,
                 env_script=args.env_script,
+                header_file=args.header,
                 vasp_command=args.vasp_command,
                 min_gap_eV=args.min_gap,
             )
@@ -1736,6 +1761,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
                 queue=args.queue,
                 account=args.account,
                 env_script=args.env_script,
+                header_file=args.header,
                 calculator_command=args.calculator_command,
                 min_gap_eV=args.min_gap,
             )
@@ -2016,6 +2042,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
                 queue=args.queue,
                 account=args.account,
                 env_script=args.env_script,
+                header_file=args.header,
                 abacus_command=args.abacus_command,
                 pyatb_command=args.pyatb_command,
                 mp_density=args.mp_density,
@@ -2082,6 +2109,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
                 max_frequency_cm1=args.max_frequency,
                 points=args.points,
                 thickness_angstrom=args.thickness,
+                slab_boundary=args.slab_boundary,
                 periodic_axis='xyz'.index(args.periodic_axis),
                 imaginary_tolerance_cm1=args.imaginary_tolerance,
                 allow_imaginary=args.allow_imaginary,
@@ -2357,6 +2385,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
             max_frequency_cm1=args.max_frequency,
             points=args.points,
             thickness_angstrom=args.thickness,
+            slab_boundary=args.slab_boundary,
             periodic_axis='xyz'.index(args.periodic_axis),
             imaginary_tolerance_cm1=args.imaginary_tolerance,
             allow_imaginary=args.allow_imaginary,
@@ -2389,6 +2418,7 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
             max_frequency_cm1=args.max_frequency,
             points=args.points,
             thickness_angstrom=args.thickness,
+            slab_boundary=args.slab_boundary,
             periodic_axis='xyz'.index(args.periodic_axis),
             imaginary_tolerance_cm1=args.imaginary_tolerance,
             allow_imaginary=args.allow_imaginary,
@@ -2485,8 +2515,8 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
             root = prepare_cp2k_bec(
                 args.input,
                 args.cp2k_root,
-                method=args.method,
-                displacement_angstrom=args.displacement,
+                method=args.method or 'forward',
+                displacement_angstrom=0.01 if args.displacement is None else args.displacement,
                 atoms=args.atom or 'all',
                 dimensionality=args.dim,
                 force=args.force,
@@ -2522,7 +2552,21 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
             extra = [] if input_sets is None else [input_sets]
             input_sets = extra + [str(path) for path in prepared.assets]
 
-        # Full x/y/z displacements are required for the hybrid 2D BEC tensor.
+        legacy_selection = args.atom is not None or args.move is not None or not args.reduce
+        shared_compatible = not legacy_selection and not args.abacus and args.input_mode in (None, 'pyatb')
+        if args.ensemble == 'phonopy' and not shared_compatible:
+            raise SystemExit('Shared Phonopy ensembles require full tensor scope and ABACUS + PYATB. Use --ensemble cartesian for partial/legacy workflows.')
+        if args.ensemble == 'phonopy' or (args.ensemble is None and shared_compatible):
+            from .shared_abacus import prepare_shared_abacus
+            prepare_shared_abacus(
+                str(prepared.path), scf_input=args.input, symprec=args.symmprec,
+                dimension=args.dim, method=args.method or 'auto',
+                displacement_angstrom=args.displacement, input_sets=input_sets,
+                kspacing=args.kspacing, xc=args.xc, vdw=args.vdw, force=args.force,
+            )
+            return
+
+        # Partial and explicitly Cartesian legacy workflows retain their layout.
         if args.move is None or str(args.move).strip() == "":
             args.move = "x y z"
             print(
@@ -2558,13 +2602,13 @@ def zstar_cli(argv=None, *, _canonical=True) -> None:
             dimension=args.dim,
             vdw=args.vdw,
             init_chg_bool=args.init,
-            k_grid=args.kspacing,
+            k_grid=0.1 if args.kspacing is None else args.kspacing,
             nscf_calculator=nscf_calculator,
             input_mode=input_mode,
             input_sets=input_sets,
             extract_starred_atoms_only=args.reduce,
             method=method_fd,
-            displacement_angstrom=args.displacement,
+            displacement_angstrom=0.01 if args.displacement is None else args.displacement,
         )
 
     elif args.command == 'ph':

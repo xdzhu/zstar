@@ -623,17 +623,20 @@ def generate_cp2k_backend_script(
     output: str | Path | None = None,
     job_name: str = "zstar-cp2k-bec",
     nodes: int = 1,
-    tasks: int = 1,
-    cpus_per_task: int = 1,
+    tasks: int | None = None,
+    cpus_per_task: int | None = None,
     walltime: str = "24:00:00",
     queue: str | None = None,
     account: str | None = None,
     env_script: str | Path | None = None,
+    header_file: str | Path | None = None,
     cp2k_command: str | None = None,
     data_dir: str | Path | None = None,
 ) -> Path:
     """Generate one serial, resumable CP2K BEC driver."""
-
+    from .configuration import launcher_command, resolve_parallelism
+    from .job_headers import compose_job_script, torque_ppn
+    tasks, cpus_per_task = resolve_parallelism(root, tasks=tasks, cpus_per_task=cpus_per_task)
     backend_key = normalize_execution_system(backend)
     if min(int(nodes), int(tasks), int(cpus_per_task)) < 1:
         raise ValueError("nodes, tasks, and cpus_per_task must be positive")
@@ -644,12 +647,7 @@ def generate_cp2k_backend_script(
     else:
         target = Path(output).resolve()
     if cp2k_command is None:
-        launcher = (
-            f"srun --ntasks={int(tasks)}"
-            if backend_key == "slurm"
-            else f"mpirun -np {int(tasks)}"
-        )
-        cp2k_command = f"{launcher} cp2k.psmp"
+        cp2k_command = launcher_command('cp2k', root=root, system=backend_key, tasks=tasks)
 
     header = [
         "#!/usr/bin/env bash",
@@ -675,7 +673,7 @@ def generate_cp2k_backend_script(
         header.extend(
             [
                 f"#PBS -N {job_name}",
-                f"#PBS -l nodes={int(nodes)}:ppn={int(tasks) * int(cpus_per_task)}",
+                f"#PBS -l nodes={int(nodes)}:ppn={torque_ppn(nodes, tasks, cpus_per_task)}",
                 f"#PBS -l walltime={walltime}",
                 f"#PBS -o {root_path}/.zstar/torque.out",
                 f"#PBS -e {root_path}/.zstar/torque.err",
@@ -705,7 +703,8 @@ def generate_cp2k_backend_script(
         ]
     )
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text("\n".join(header + [""] + body) + "\n", encoding="utf-8", newline="\n")
+    target.write_text(compose_job_script(root_path, backend_key, header, body, specified=header_file),
+                      encoding="utf-8", newline="\n")
     if os.name != "nt":
         target.chmod(target.stat().st_mode | 0o111)
     return target

@@ -1,0 +1,19 @@
+INPUT_PARAMETERS
+cal_force           1
+suffix              POLAR
+calculation         scf
+ecutwfc             100
+basis_type          lcao
+ks_solver           genelpa
+nspin               1
+symmetry            1
+smearing_method     gauss
+smearing_sigma      0.01
+scf_nmax            200
+scf_thr             1e-8
+dft_functional       pbesol
+init_chg            auto
+out_chg             1
+out_mat_hs2         1
+out_mat_r           1
+kspacing            0

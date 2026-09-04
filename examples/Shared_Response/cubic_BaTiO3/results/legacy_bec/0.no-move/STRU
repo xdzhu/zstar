@@ -1,0 +1,37 @@
+ATOMIC_SPECIES
+Ba 137.3300 Ba.upf upf201
+Ti  47.8670 Ti.upf upf201
+O  15.9990 O.upf upf201
+
+NUMERICAL_ORBITAL
+Ba_gga_10au_100Ry_4s2p1d.orb
+Ti_gga_10au_100Ry_4s2p2d1f.orb
+O_gga_10au_100Ry_2s2p1d.orb
+
+LATTICE_CONSTANT
+1.8897260000
+
+LATTICE_VECTORS
+        3.9814151535        0.0000000000        0.0000000000
+        0.0000000000        3.9814151535       -0.0000000000
+        0.0000000000       -0.0000000000        3.9814151535
+
+ATOMIC_POSITIONS
+Direct
+
+Ba #label
+0.0000   #magnetism
+1 #number of atoms
+        0.5000000000        0.5000000000        0.5000000000 m 1 1 1
+
+Ti #label
+0.0000   #magnetism
+1 #number of atoms
+        0.0000000000        0.0000000000        0.0000000000 m 1 1 1
+
+O #label
+0.0000   #magnetism
+3 #number of atoms
+        0.5000000000        0.0000000000        0.0000000000 m 1 1 1
+        0.0000000000        0.5000000000        0.0000000000 m 1 1 1
+        0.0000000000        0.0000000000        0.5000000000 m 1 1 1

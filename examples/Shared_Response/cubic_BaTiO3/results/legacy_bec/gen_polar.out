@@ -1,0 +1,17 @@
+f_stru=STRU
+symm_tol=1e-05
+force_delete=False
+atom_input=None
+move_input=['x', 'y', 'z']
+scf_input=/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/seed/INPUT
+xc=None
+dimension=3
+vdw=None
+init_chg_bool=True
+k_grid=0
+nscf_calculator=pyatb
+input_mode=pyatb
+input_sets=['/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/seed/assets/Ba.upf', '/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/seed/assets/Ba_gga_10au_100Ry_4s2p1d.orb', '/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/seed/assets/O.upf', '/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/seed/assets/O_gga_10au_100Ry_2s2p1d.orb', '/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/seed/assets/Ti.upf', '/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/seed/assets/Ti_gga_10au_100Ry_4s2p2d1f.orb']
+source_dir=/home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/legacy_bec
+extract_starred_atoms_only=True
+displacement_angstrom=0.01058354421806

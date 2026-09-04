@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "backend": "abacus-pyatb",
+  "dimensionality": 0,
+  "quantity": "atomic_polar_tensor",
+  "method": "central",
+  "displacement_angstrom": 0.01,
+  "natoms_total": 3,
+  "natoms_calculated": 2,
+  "tensor_convention": "rows=atomic displacement; columns=molecular dipole; molecular atomic polar tensor in units of e",
+  "raw_atoms": [
+    {
+      "index": 1,
+      "label": "O",
+      "tensor": [
+        [
+          -0.6375155254217091,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.47663778311309624,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -0.32775092842996767
+        ]
+      ],
+      "gapt": -0.48063474565492426
+    },
+    {
+      "index": 2,
+      "label": "H",
+      "tensor": [
+        [
+          0.3187577627108547,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.23781927123881955,
+          0.08693393528477701
+        ],
+        [
+          0.0,
+          0.0639514006692624,
+          0.16387546421498653
+        ]
+      ],
+      "gapt": 0.2401508327215536
+    }
+  ],
+  "atoms": [
+    {
+      "index": 1,
+      "label": "O",
+      "tensor": [
+        [
+          -0.6375155266666667,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.4763047,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -0.32775092666666666
+        ]
+      ],
+      "gapt": -0.48052371777777786
+    },
+    {
+      "index": 2,
+      "label": "H",
+      "tensor": [
+        [
+          0.31875776333333333,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.23815235,
+          0.08693394
+        ],
+        [
+          0.0,
+          0.0639514,
+          0.16387546333333333
+        ]
+      ],
+      "gapt": 0.24026185888888893
+    },
+    {
+      "index": 3,
+      "label": "H",
+      "tensor": [
+        [
+          0.31875776333333333,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.23815235,
+          -0.08693394
+        ],
+        [
+          0.0,
+          -0.0639514,
+          0.16387546333333333
+        ]
+      ],
+      "gapt": 0.24026185888888893
+    }
+  ],
+  "raw_reduced_sum_tensor": [
+    [
+      -0.3187577627108544,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      -0.2388185118742767,
+      0.08693393528477701
+    ],
+    [
+      0.0,
+      0.0639514006692624,
+      -0.16387546421498114
+    ]
+  ],
+  "raw_acoustic_sum_tensor": [
+    [
+      -1.0000000050247593e-08,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      -0.0009992400000000123,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      -9.999999994736442e-09
+    ]
+  ],
+  "acoustic_sum_tensor": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "diagnostics": [
+    {
+      "method": "central",
+      "displacement_angstrom": 0.01,
+      "cell_volume_angstrom3": 7999.999989370764,
+      "reference_polarization": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/0.no-move/pyatb/Out/Polarization/polarization.dat",
+      "directions": {
+        "x": {
+          "plus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/1.O/x+/pyatb/Out/Polarization/polarization.dat",
+          "minus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/1.O/x-/pyatb/Out/Polarization/polarization.dat",
+          "delta_polarization_C_m2": [
+            -2.5535311999999985e-05,
+            0.0,
+            0.0
+          ],
+          "branch_shifts": [
+            0,
+            0,
+            0
+          ],
+          "plus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ],
+          "minus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ]
+        },
+        "y": {
+          "plus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/1.O/y+/pyatb/Out/Polarization/polarization.dat",
+          "minus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/1.O/y-/pyatb/Out/Polarization/polarization.dat",
+          "delta_polarization_C_m2": [
+            0.0,
+            -1.9091448e-05,
+            0.0
+          ],
+          "branch_shifts": [
+            0,
+            0,
+            0
+          ],
+          "plus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ],
+          "minus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ]
+        },
+        "z": {
+          "plus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/1.O/z+/pyatb/Out/Polarization/polarization.dat",
+          "minus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/1.O/z-/pyatb/Out/Polarization/polarization.dat",
+          "delta_polarization_C_m2": [
+            0.0,
+            0.0,
+            -1.3127871999999915e-05
+          ],
+          "branch_shifts": [
+            0,
+            0,
+            0
+          ],
+          "plus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ],
+          "minus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ]
+        }
+      },
+      "index": 1,
+      "label": "O"
+    },
+    {
+      "method": "central",
+      "displacement_angstrom": 0.01,
+      "cell_volume_angstrom3": 7999.999989370764,
+      "reference_polarization": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/0.no-move/pyatb/Out/Polarization/polarization.dat",
+      "directions": {
+        "x": {
+          "plus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/2.H/x+/pyatb/Out/Polarization/polarization.dat",
+          "minus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/2.H/x-/pyatb/Out/Polarization/polarization.dat",
+          "delta_polarization_C_m2": [
+            1.2767656e-05,
+            0.0,
+            0.0
+          ],
+          "branch_shifts": [
+            0,
+            0,
+            0
+          ],
+          "plus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ],
+          "minus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ]
+        },
+        "y": {
+          "plus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/2.H/y+/pyatb/Out/Polarization/polarization.dat",
+          "minus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/2.H/y-/pyatb/Out/Polarization/polarization.dat",
+          "delta_polarization_C_m2": [
+            0.0,
+            9.525712e-06,
+            3.482087999999938e-06
+          ],
+          "branch_shifts": [
+            0,
+            0,
+            0
+          ],
+          "plus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ],
+          "minus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ]
+        },
+        "z": {
+          "plus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/2.H/z+/pyatb/Out/Polarization/polarization.dat",
+          "minus": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/2.H/z-/pyatb/Out/Polarization/polarization.dat",
+          "delta_polarization_C_m2": [
+            0.0,
+            2.561536e-06,
+            6.563936000000066e-06
+          ],
+          "branch_shifts": [
+            0,
+            0,
+            0
+          ],
+          "plus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ],
+          "minus_quanta_C_m2": [
+            0.040024,
+            0.040024,
+            0.040024
+          ]
+        }
+      },
+      "index": 2,
+      "label": "H"
+    }
+  ],
+  "files": {
+    "raw_reduced": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/Z-BORN-reduced.out",
+    "raw_all": null,
+    "symmetry_corrected": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/Z-BORN-symm.out",
+    "symmetry_report": "/home/zhuxd/abacus/agent-runs/20260826-zstar-molecular-apt/h2o/molecular_apt_symmetry_report.json"
+  }
+}

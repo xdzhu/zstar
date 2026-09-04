@@ -9,6 +9,7 @@ import math
 from pathlib import Path
 import re
 import shutil
+import warnings
 from typing import Iterable, Optional, Sequence
 
 import numpy as np
@@ -281,8 +282,15 @@ def read_born_data(
             electronic, _ = read_static_dielectric(dielectric_file)
 
     tensor_source = born_path.resolve()
+    shared_born = 'ZStar shared response: Z[polarization,displacement]' in born_path.read_text(encoding='utf-8', errors='ignore').splitlines()[0]
+    if shared_born:
+        # Standard Phonopy BORN is polarization-first; internal ZStar mode
+        # contractions retain the legacy displacement-first convention.
+        tensors = [tensor.T for tensor in tensors]
     if natoms is not None and len(tensors) != natoms:
-        for candidate_name in ("Z-BORN-all.out", "Z-BORN-symm.out"):
+        candidates = (("Z-BORN-symm.out", "Z-BORN-all.out") if shared_born
+                      else ("Z-BORN-all.out", "Z-BORN-symm.out"))
+        for candidate_name in candidates:
             candidate = born_path.parent / candidate_name
             if not candidate.is_file():
                 continue
@@ -558,6 +566,7 @@ def calculate_ir_spectrum(
     max_frequency_cm1: Optional[float] = None,
     points: int = 2001,
     thickness_angstrom: Optional[float] = None,
+    slab_boundary: str = "source-field",
     periodic_axis: int = 2,
     imaginary_tolerance_cm1: float = 20.0,
     allow_imaginary: bool = False,
@@ -566,8 +575,12 @@ def calculate_ir_spectrum(
 
     if dimensionality not in (1, 2, 3):
         raise ValueError("dimensionality must be 1, 2, or 3")
-    if dimensionality == 1 and thickness_angstrom is not None:
+    if dimensionality != 2 and thickness_angstrom is not None:
         raise ValueError("thickness_angstrom applies only to dimensionality=2")
+    if slab_boundary not in ("source-field", "macroscopic"):
+        raise ValueError("slab_boundary must be source-field or macroscopic")
+    if slab_boundary == "macroscopic" and (dimensionality != 2 or thickness_angstrom is None):
+        raise ValueError("macroscopic slab conversion requires dim=2 and an explicit thickness")
     validate_gamma_stability(
         modes,
         imaginary_tolerance_cm1=imaginary_tolerance_cm1,
@@ -632,19 +645,38 @@ def calculate_ir_spectrum(
             )
             response += electronic_sheet_m[None, :, :]
         if thickness_angstrom is not None:
-            response = (
-                np.eye(3)[None, :, :]
-                + response / (float(thickness_angstrom) * 1.0e-10)
-            )
-            response_kind = (
-                "effective total relative dielectric tensor"
-                if born.electronic_dielectric is not None
-                else "effective lattice relative dielectric tensor"
-            )
+            thickness = float(thickness_angstrom)
+            if not np.isfinite(thickness) or not 0 < thickness <= modes.cell_height_angstrom:
+                raise ValueError("Slab thickness must be positive and no larger than the cell height")
+            if slab_boundary == "macroscopic":
+                from .response_units import slab_effective_dielectric
+                if born.electronic_dielectric is None:
+                    raise ValueError("Screened slab conversion requires the electronic dielectric tensor")
+                epsilon_sc = np.eye(3) + response / (modes.cell_height_angstrom * 1e-10)
+                response = slab_effective_dielectric(
+                    epsilon_sc, modes.cell_height_angstrom, thickness,
+                    normal=np.cross(modes.lattice_angstrom[0], modes.lattice_angstrom[1]),
+                )
+                response_kind = "effective slab relative dielectric tensor (macroscopic-field model)"
+                response_convention = (
+                    "screened macroscopic input required; tangential E and normal D continuous; "
+                    "diagonal limit: eps_parallel=1+L/t*(eps_sc_parallel-1), "
+                    "eps_perpendicular=1/(1+L/t*(1/eps_sc_perpendicular-1))"
+                )
+            else:
+                response = np.eye(3) + response / (thickness * 1e-10)
+                response_kind = "thickness-normalized source-field response tensor"
+                response_convention = (
+                    "I + L/thickness*(epsilon_source-I); not an intrinsic perpendicular "
+                    "permittivity or a local-field correction"
+                )
+                warnings.warn(
+                    "--thickness preserves the source-field response convention; it does not "
+                    "yield intrinsic perpendicular permittivity. Use --slab-boundary macroscopic "
+                    "only with matched, screened macroscopic response inputs.", UserWarning,
+                    stacklevel=2,
+                )
             response_unit = "1"
-            response_convention = (
-                "epsilon_effective = I + (alpha_2D/epsilon_0)/thickness"
-            )
         else:
             response *= 1.0e10
             response_kind = (
@@ -654,7 +686,9 @@ def calculate_ir_spectrum(
             )
             response_unit = "angstrom"
             response_convention = (
-                "alpha_2D/epsilon_0 = cell_height*(epsilon_supercell-I)"
+                "cell_height*(epsilon_source-I), SI alpha_2D/epsilon_0 normalization; "
+                "field convention inherited from the source; no perpendicular screening "
+                "or local-field correction is added"
             )
     else:
         length_m = modes.periodic_length_angstrom(periodic_axis) * 1.0e-10
@@ -679,7 +713,8 @@ def calculate_ir_spectrum(
         response_unit = "angstrom^2"
         response_convention = (
             "alpha_1D/epsilon_0 = nonperiodic_cross_section*"
-            "(epsilon_supercell-I)"
+            "(epsilon_source-I); source-field normalization, not an intrinsic "
+            "transverse wire permittivity"
         )
 
     return IRSpectrumResult(
@@ -1027,6 +1062,8 @@ def write_ir_outputs(
         "response_unit": result.response_unit,
         "response_convention": result.response_convention,
         "electronic_response_included": result.electronic_response_included,
+        "mode_effective_charge_unit": "e/sqrt(amu)",
+        "oscillator_strength_unit": "e^2/amu",
     }
     static_path.write_text(json.dumps(static_record, indent=2), encoding="utf-8")
 
@@ -1443,6 +1480,9 @@ def collect_raman_tensors(
 ) -> tuple[np.ndarray, np.ndarray, str]:
     """Central-difference PYATB dielectric tensors in ``mode-*/plus|minus``."""
 
+    from .response_units import raman_convention
+
+    convention = raman_convention(dimensionality)
     root = Path(raman_dir)
     manifest_path = root / "raman_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -1504,6 +1544,7 @@ def collect_raman_tensors(
                 "mode_numbers": mode_numbers,
                 "tensors": tensor_array.tolist(),
                 "tensor_kind": kind,
+                **convention,
                 "cell_volume_A3": (
                     float(cell_volume_angstrom3)
                     if dimensionality == 0
@@ -1515,10 +1556,10 @@ def collect_raman_tensors(
                     else None
                 ),
                 "conversion": (
-                    "dalpha/dQ = V/(4*pi) * d(epsilon_r)/dQ"
+                    "dalpha/dq = V/(4*pi) * d(epsilon_r)/dq"
                     if dimensionality == 0
                     else (
-                        "dalpha_1D/dQ = A_perp/(4*pi) * d(epsilon_r)/dQ"
+                        "dalpha_1D/dq = A_perp/(4*pi) * d(epsilon_r)/dq"
                         if dimensionality == 1
                         else None
                     )

@@ -1,0 +1,28 @@
+INPUT_PARAMETERS
+suffix                  SHARED_IN2SE3
+calculation             cell-relax
+basis_type              lcao
+dft_functional          pbe
+ecutwfc                 100
+ks_solver               genelpa
+scf_thr                 1e-8
+scf_nmax                200
+smearing_method         gauss
+smearing_sigma          0.005
+mixing_type             pulay
+mixing_beta             0.3
+symmetry                1
+cal_force               1
+cal_stress              1
+force_thr_ev            0.005
+stress_thr              0.5
+relax_nmax              150
+fixed_axes              c
+out_stru                1
+out_chg                 1 10
+efield_flag             1
+dip_cor_flag            1
+efield_dir              2
+efield_pos_max          0.95
+efield_pos_dec          0.1
+efield_amp              0

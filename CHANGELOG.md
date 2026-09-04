@@ -1,4 +1,30 @@
-## Unreleased
+## 0.3.0rc1 - 2026-09-04
+
+Submission candidate; this tag is a GitHub prerelease, not a PyPI publication.
+
+- Add the Unified symmetry-adapted ABACUS + PYATB BEC/APT and Gamma
+  force-constant workflow, using actual displacement vectors, rank checks,
+  phase-wrapped polarization differences, and separate raw/projected outputs.
+- Complete eight matched Cartesian/Unified benchmarks: cubic BaTiO3, 3C-SiC,
+  tetragonal HfO2, alpha-In2Se3, hBN, MoS2, H2O, and CH4. Successful solver
+  timings give 1.60-3.47-fold speedups under the documented per-case controls.
+  Molecular results use relaxed structures and internal-coordinate validation;
+  cubic BaTiO3 retains its physical harmonic instability.
+- Add reproducible inputs, PP/ORB assets, response observations, force records,
+  timing ledgers, and offline verifiers to the GitHub example library. Include
+  refined MoS2 Berry-grid evidence and PBEsol In2Se3/HSE molecular APT records.
+- Implement Specified -> Current -> Global job-header selection across BEC,
+  phonon and spectroscopy generators; honor configured MPI/OMP/executables in
+  both generated scripts and direct runs. Test shell, Slurm and Torque syntax
+  and mocked execution without claiming a new native scheduler validation.
+- Make low-dimensional response fields and Raman normalization explicit.
+  Add opt-in macroscopic slab boundary conversion with coupled tensor support;
+  preserve source-field normalization for independent-particle PYATB outputs.
+- Correct STRU Cartesian length-unit conversion, improve PYATB output precision,
+  and preserve byte-identical archived evidence across Git checkouts.
+- Synchronize bilingual manuals, response conventions, and citation metadata;
+  validate 319 package tests with both Phonopy 2.36 and 4.4, plus 50 research
+  regressions. GitHub CI tests both dependency profiles before building wheels.
 
 - Add `--pp` and `--orb` to ABACUS BEC preparation, with global directory
   defaults, exact-or-unique asset matching, immutable source `STRU` handling,

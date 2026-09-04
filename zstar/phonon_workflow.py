@@ -126,6 +126,9 @@ def run_phonon_workflow(
     stop_after: int | None = None,
 ) -> list[PhononStageState]:
     root_path = Path(root).resolve()
+    from .shared_abacus import MANIFEST
+    if (root_path / MANIFEST).is_file():
+        raise ValueError('This is a shared BEC/Gamma ensemble. Use zstar bec run to preserve reference-first charge reuse and the insulating gate, then zstar phonon post.')
     states = phonon_workflow_status(root_path)
     executed = 0
     for state in states:
@@ -181,15 +184,19 @@ def generate_phonon_script(
     output: str | Path | None = None,
     job_name: str = "zstar-phonon",
     nodes: int = 1,
-    tasks: int = 1,
-    cpus_per_task: int = 1,
+    tasks: int | None = None,
+    cpus_per_task: int | None = None,
     walltime: str = "24:00:00",
     queue: str | None = None,
     account: str | None = None,
     env_script: str | Path | None = None,
+    header_file: str | Path | None = None,
     command: str | None = None,
     dry_run: bool = False,
 ) -> Path:
+    from .configuration import resolve_parallelism
+    from .job_headers import compose_job_script, torque_ppn
+    tasks, cpus_per_task = resolve_parallelism(root, tasks=tasks, cpus_per_task=cpus_per_task)
     backend_key = normalize_execution_system(backend)
     if min(int(nodes), int(tasks), int(cpus_per_task)) < 1:
         raise ValueError("nodes, tasks, and cpus_per_task must be positive")
@@ -218,7 +225,7 @@ def generate_phonon_script(
             header.append(f"#SBATCH --account={account}")
     elif backend_key == "torque":
         header.extend([
-            f"#PBS -N {job_name}", f"#PBS -l nodes={int(nodes)}:ppn={int(tasks) * int(cpus_per_task)}",
+            f"#PBS -N {job_name}", f"#PBS -l nodes={int(nodes)}:ppn={torque_ppn(nodes, tasks, cpus_per_task)}",
             f"#PBS -l walltime={walltime}", f"#PBS -o {root_path}/.zstar/torque.out",
             f"#PBS -e {root_path}/.zstar/torque.err",
         ])
@@ -237,7 +244,8 @@ def generate_phonon_script(
         f"{' --dry-run' if dry_run else ''} 2>&1 | tee -a \"$ROOT/.zstar/phonon.log\"",
     ])
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text("\n".join(header + [""] + body) + "\n", encoding="utf-8", newline="\n")
+    target.write_text(compose_job_script(root_path, backend_key, header, body, specified=header_file),
+                      encoding="utf-8", newline="\n")
     if os.name != "nt":
         target.chmod(target.stat().st_mode | 0o111)
     return target

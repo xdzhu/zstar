@@ -1,0 +1,1064 @@
+{
+  "unified": {
+    "status": "joint_result_available",
+    "displacements": 3,
+    "total_stages": 4,
+    "completed_stages": 4,
+    "failed_stages": [],
+    "full_precision_polarization_stages": 4,
+    "output_precision_diagnostic_core_hours": 0,
+    "precision_rerun_legacy_text_check": {
+      "checked_stages": 0,
+      "identical_stages": 0
+    },
+    "berry_refinement_cost": {
+      "stages": 4,
+      "additional_reserved_core_hours": 1.0366203153111402,
+      "per_stage": {
+        "0.no-move": {
+          "wall_seconds": 23.21030928302207,
+          "reserved_core_hours": 0.25789232536691187,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu20"
+        },
+        "disp-001": {
+          "wall_seconds": 23.201782424992416,
+          "reserved_core_hours": 0.25779758249991575,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu20"
+        },
+        "disp-002": {
+          "wall_seconds": 23.42180148299667,
+          "reserved_core_hours": 0.260242238699963,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu20"
+        },
+        "disp-003": {
+          "wall_seconds": 23.461935186991468,
+          "reserved_core_hours": 0.26068816874434964,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu20"
+        }
+      }
+    },
+    "berry_refinement": {
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-eight-system-efficiency/MoS2/unified",
+      "polarization_mesh": [
+        112,
+        112,
+        2
+      ],
+      "SCFs_repeated": false,
+      "electronic_dielectric": "unchanged original reference static calculation",
+      "timing": "original workflow and additional polarization-only refinement reported separately"
+    },
+    "timing_completed_components": {
+      "SCF": {
+        "wall_seconds": 255.37698414176702,
+        "reserved_core_hours": 2.8375220460196338,
+        "calls": 4
+      },
+      "input_preparation": {
+        "wall_seconds": 1.9781331103295088,
+        "reserved_core_hours": 0.02197925678143899,
+        "calls": 5
+      },
+      "band_gate": {
+        "wall_seconds": 3.5218658754602075,
+        "reserved_core_hours": 0.03913184306066897,
+        "calls": 1
+      },
+      "polarization_and_electronic_response": {
+        "wall_seconds": 12.286768406629562,
+        "reserved_core_hours": 0.1365196489625507,
+        "calls": 4
+      }
+    },
+    "reserved_core_hours_completed_components": 3.0351527948242927,
+    "dimension": 2,
+    "diagnostics": {
+      "site_fits": [
+        {
+          "atom": 0,
+          "rank": 3,
+          "condition_number": 15.246201046806663,
+          "dipole_fit_max_e_A": 5.952703715433282e-07,
+          "force_fit_max_eV_A": 0.0003397187500000787,
+          "observations": 12
+        },
+        {
+          "atom": 1,
+          "rank": 3,
+          "condition_number": 15.246201046807517,
+          "dipole_fit_max_e_A": 1.8502989726010745e-05,
+          "force_fit_max_eV_A": 0.0022505124000020416,
+          "observations": 12
+        }
+      ],
+      "born_asr_max_e": 0.0018248544757175642,
+      "hessian_reciprocity_max_eV_A2": 0.17612939613305123,
+      "hessian_reciprocity_relative_Frobenius": 0.008516268532532607,
+      "force_asr_max_eV_A2": 0.35225879226610957,
+      "total_force_derivative_max_eV_A2": 7.105427357601002e-15,
+      "reference_force_max_eV_A": 0.0373858143,
+      "constraints_applied": false
+    },
+    "frequencies_cm1": [
+      -2.8060415995250496e-06,
+      2.7167275863966847e-06,
+      4.810003546791862e-06,
+      270.12311243851417,
+      270.1231124385874,
+      361.8225459780226,
+      361.82254597812056,
+      391.636972692265,
+      438.4285009000041
+    ],
+    "born_raw_e": [
+      [
+        [
+          -0.7220582246693438,
+          0.0,
+          5.135813185032629e-34
+        ],
+        [
+          0.0,
+          -0.7220582246689528,
+          -7.703719777548943e-34
+        ],
+        [
+          -6.419766481290786e-35,
+          0.0,
+          0.0023453023465630505
+        ]
+      ],
+      [
+        [
+          0.36073596306175104,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.3607359630615557,
+          -1.2839532962581572e-34
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0002602239354227431
+        ]
+      ],
+      [
+        [
+          0.36073596306175104,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.3607359630615557,
+          5.135813185032629e-34
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0002602239354227431
+        ]
+      ]
+    ],
+    "born_projected_e": [
+      [
+        [
+          -0.7218627918207299,
+          0.0,
+          3.423875456688419e-34
+        ],
+        [
+          0.0,
+          -0.721862791820339,
+          -6.419766481290786e-34
+        ],
+        [
+          -4.279844320860524e-35,
+          0.0,
+          0.0017370175213238625
+        ]
+      ],
+      [
+        [
+          0.36093139591036494,
+          0.0,
+          -1.7119377283442096e-34
+        ],
+        [
+          0.0,
+          0.3609313959101695,
+          4.276423536147513e-50
+        ],
+        [
+          2.139922160430262e-35,
+          0.0,
+          -0.000868508760661931
+        ]
+      ],
+      [
+        [
+          0.36093139591036494,
+          0.0,
+          -1.7119377283442096e-34
+        ],
+        [
+          0.0,
+          0.3609313959101695,
+          6.4197664812907865e-34
+        ],
+        [
+          2.139922160430262e-35,
+          0.0,
+          -0.000868508760661931
+        ]
+      ]
+    ],
+    "phonon_static_response": {
+      "status": "computed",
+      "unit": "Angstrom sheet phonon polarizability (Gaussian alpha_2D)",
+      "tensor": [
+        [
+          0.04577714938004555,
+          -4.2317006412653656e-66,
+          3.179537820511718e-36
+        ],
+        [
+          -4.2317006412653646e-66,
+          0.04577714938002075,
+          -1.4943330844444807e-36
+        ],
+        [
+          3.179537820511718e-36,
+          -1.4943330844444803e-36,
+          1.8052673311555567e-07
+        ]
+      ]
+    },
+    "epsilon_infinity": [
+      [
+        3.472218,
+        2.122932e-10,
+        -1.600136e-10
+      ],
+      [
+        2.122932e-10,
+        3.472218,
+        1.819877e-09
+      ],
+      [
+        -1.600136e-10,
+        1.819877e-09,
+        2.166946
+      ]
+    ],
+    "hessian_raw_eV_A2": [
+      [
+        18.386330411231636,
+        0.0,
+        -6.573840876841765e-32,
+        -9.369294601748873,
+        0.0,
+        0.0,
+        -9.369294601748873,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        18.38633041122169,
+        0.0,
+        0.0,
+        -9.369294601743798,
+        0.0,
+        0.0,
+        -9.369294601743801,
+        0.0
+      ],
+      [
+        0.0,
+        -1.0518145402946823e-30,
+        27.213844855526755,
+        0.0,
+        0.0,
+        -13.538942467180169,
+        0.0,
+        0.0,
+        -13.538942467180169
+      ],
+      [
+        -9.193165205615822,
+        0.0,
+        -4.930380657631324e-32,
+        8.985919892801222,
+        0.0,
+        0.0,
+        0.3833747089476529,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -9.193165205610846,
+        8.217301096052206e-33,
+        0.0,
+        8.985919892796357,
+        -2.0543252740130515e-33,
+        0.0,
+        0.38337470894744535,
+        -5.135813185032629e-34
+      ],
+      [
+        0.0,
+        5.259072701473412e-31,
+        -13.606922427763381,
+        0.0,
+        0.0,
+        15.81097871823897,
+        -1.314768175368353e-31,
+        0.0,
+        -2.2720362510588044
+      ],
+      [
+        -9.193165205615822,
+        0.0,
+        -4.930380657631324e-32,
+        0.3833747089476529,
+        0.0,
+        0.0,
+        8.985919892801222,
+        0.0,
+        2.0543252740130515e-33
+      ],
+      [
+        0.0,
+        -9.193165205610844,
+        8.217301096052206e-33,
+        0.0,
+        0.38337470894744535,
+        1.2839532962581572e-34,
+        0.0,
+        8.985919892796355,
+        8.217301096052206e-33
+      ],
+      [
+        0.0,
+        5.259072701473412e-31,
+        -13.606922427763381,
+        0.0,
+        0.0,
+        -2.2720362510588044,
+        2.1036290805893647e-30,
+        0.0,
+        15.81097871823897
+      ]
+    ],
+    "cell_A": [
+      [
+        1.5991197844394547,
+        -2.7697567140369768,
+        -0.0
+      ],
+      [
+        1.5991197844394547,
+        2.7697567140369768,
+        -0.0
+      ],
+      [
+        0.0,
+        0.0,
+        34.47923620612463
+      ]
+    ],
+    "masses_amu": [
+      95.95,
+      32.06,
+      32.06
+    ],
+    "independent_phonopy_raw_force_constants_max_difference_eV_A2": 6.3433702734982944e-12,
+    "independent_mode_sum_phonon_static_tensor": [
+      [
+        0.04577716129921361,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.04577716129921361,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.8052729324787534e-07
+      ]
+    ],
+    "mode_sum_vs_Hessian_static_relative_difference": 2.603740213190467e-07,
+    "degenerate_mode_oscillator_groups": [
+      {
+        "last_frequency_cm1": 270.1231124400068,
+        "multiplicity": 2,
+        "oscillator_e2_amu": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      {
+        "last_frequency_cm1": 361.82254597945894,
+        "multiplicity": 2,
+        "oscillator_e2_amu": [
+          [
+            0.013557536141887335,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.013557536141887335,
+            -0.0
+          ],
+          [
+            0.0,
+            -0.0,
+            0.0
+          ]
+        ]
+      },
+      {
+        "last_frequency_cm1": 391.63697269195484,
+        "multiplicity": 1,
+        "oscillator_e2_amu": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      {
+        "last_frequency_cm1": 438.4285008997792,
+        "multiplicity": 1,
+        "oscillator_e2_amu": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            7.850206663015449e-08
+          ]
+        ]
+      }
+    ]
+  },
+  "cartesian": {
+    "status": "joint_result_available",
+    "displacements": 12,
+    "total_stages": 13,
+    "completed_stages": 13,
+    "failed_stages": [],
+    "full_precision_polarization_stages": 13,
+    "output_precision_diagnostic_core_hours": 0,
+    "precision_rerun_legacy_text_check": {
+      "checked_stages": 0,
+      "identical_stages": 0
+    },
+    "berry_refinement_cost": {
+      "stages": 13,
+      "additional_reserved_core_hours": 3.4591423430066137,
+      "per_stage": {
+        "0.no-move": {
+          "wall_seconds": 23.89332932420075,
+          "reserved_core_hours": 0.26548143693556386,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        },
+        "disp-001": {
+          "wall_seconds": 23.99937246646732,
+          "reserved_core_hours": 0.26665969407185913,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        },
+        "disp-002": {
+          "wall_seconds": 24.114457671530545,
+          "reserved_core_hours": 0.2679384185725616,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        },
+        "disp-003": {
+          "wall_seconds": 24.040638624690473,
+          "reserved_core_hours": 0.26711820694100524,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        },
+        "disp-004": {
+          "wall_seconds": 24.094818742014468,
+          "reserved_core_hours": 0.2677202082446052,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        },
+        "disp-005": {
+          "wall_seconds": 23.870848439633846,
+          "reserved_core_hours": 0.26523164932926496,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        },
+        "disp-006": {
+          "wall_seconds": 23.90458910819143,
+          "reserved_core_hours": 0.26560654564657143,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        },
+        "disp-007": {
+          "wall_seconds": 23.818801169283688,
+          "reserved_core_hours": 0.2646533463253743,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        },
+        "disp-008": {
+          "wall_seconds": 23.918613119982183,
+          "reserved_core_hours": 0.265762367999802,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        },
+        "disp-009": {
+          "wall_seconds": 23.96680949162692,
+          "reserved_core_hours": 0.26629788324029907,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        },
+        "disp-010": {
+          "wall_seconds": 23.884446046315134,
+          "reserved_core_hours": 0.2653827338479459,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        },
+        "disp-011": {
+          "wall_seconds": 23.89233156107366,
+          "reserved_core_hours": 0.26547035067859626,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        },
+        "disp-012": {
+          "wall_seconds": 23.92375510558486,
+          "reserved_core_hours": 0.2658195011731651,
+          "mpi": 40,
+          "omp": 1,
+          "worker_host": "cu23"
+        }
+      }
+    },
+    "berry_refinement": {
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-eight-system-efficiency/MoS2/cartesian",
+      "polarization_mesh": [
+        112,
+        112,
+        2
+      ],
+      "SCFs_repeated": false,
+      "electronic_dielectric": "unchanged original reference static calculation",
+      "timing": "original workflow and additional polarization-only refinement reported separately"
+    },
+    "timing_completed_components": {
+      "SCF": {
+        "wall_seconds": 405.0847783870995,
+        "reserved_core_hours": 4.500941982078884,
+        "calls": 13
+      },
+      "input_preparation": {
+        "wall_seconds": 4.186826418153942,
+        "reserved_core_hours": 0.0465202935350438,
+        "calls": 14
+      },
+      "band_gate": {
+        "wall_seconds": 3.3084363294765353,
+        "reserved_core_hours": 0.03676040366085039,
+        "calls": 1
+      },
+      "polarization_and_electronic_response": {
+        "wall_seconds": 38.86084661912173,
+        "reserved_core_hours": 0.43178718465690813,
+        "calls": 13
+      }
+    },
+    "reserved_core_hours_completed_components": 5.016009863931687,
+    "dimension": 2,
+    "diagnostics": {
+      "site_fits": [
+        {
+          "atom": 0,
+          "rank": 3,
+          "condition_number": 1.000000000000271,
+          "dipole_fit_max_e_A": 6.688921087575229e-05,
+          "force_fit_max_eV_A": 0.0010005237250046428,
+          "observations": 72
+        },
+        {
+          "atom": 1,
+          "rank": 3,
+          "condition_number": 1.0000000000002707,
+          "dipole_fit_max_e_A": 5.5383771249335224e-05,
+          "force_fit_max_eV_A": 0.0022671723999981575,
+          "observations": 36
+        }
+      ],
+      "born_asr_max_e": 0.0007026868558894783,
+      "hessian_reciprocity_max_eV_A2": 0.1405348855124,
+      "hessian_reciprocity_relative_Frobenius": 0.006782688440573448,
+      "force_asr_max_eV_A2": 0.28106976866265043,
+      "total_force_derivative_max_eV_A2": 2.3621586908717518e-09,
+      "reference_force_max_eV_A": 0.0373858122,
+      "constraints_applied": false
+    },
+    "frequencies_cm1": [
+      -3.900407747003943e-06,
+      -2.8001262207051735e-06,
+      2.8001262207051726e-06,
+      270.30106002254706,
+      270.3010600226202,
+      362.34941399649307,
+      362.3494139965911,
+      391.6340577221433,
+      438.27354724856343
+    ],
+    "born_raw_e": [
+      [
+        [
+          -0.7212759179635277,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.7212759179631371,
+          0.0
+        ],
+        [
+          9.183549615799121e-41,
+          0.0,
+          0.0006235297732360182
+        ]
+      ],
+      [
+        [
+          0.36028661555381913,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.360286615553624,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -0.00024270155378756478
+        ]
+      ],
+      [
+        [
+          0.36028661555381913,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.360286615553624,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          -0.00024270155378756478
+        ]
+      ]
+    ],
+    "born_projected_e": [
+      [
+        [
+          -0.7210416890115646,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -0.721041689011174,
+          0.0
+        ],
+        [
+          6.122366410532748e-41,
+          0.0,
+          0.0005774875513490553
+        ]
+      ],
+      [
+        [
+          0.3605208445057823,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.360520844505587,
+          0.0
+        ],
+        [
+          -3.0611832052663735e-41,
+          0.0,
+          -0.0002887437756745277
+        ]
+      ],
+      [
+        [
+          0.3605208445057823,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.360520844505587,
+          0.0
+        ],
+        [
+          -3.0611832052663735e-41,
+          0.0,
+          -0.0002887437756745277
+        ]
+      ]
+    ],
+    "phonon_static_response": {
+      "status": "computed",
+      "unit": "Angstrom sheet phonon polarizability (Gaussian alpha_2D)",
+      "tensor": [
+        [
+          0.045540343902451784,
+          -1.3306718100941137e-74,
+          9.246108066016338e-43
+        ],
+        [
+          -1.3306718100941147e-74,
+          0.0455403439024271,
+          1.197860577494803e-42
+        ],
+        [
+          9.246108066016323e-43,
+          1.197860577494803e-42,
+          1.996757928575859e-08
+        ]
+      ]
+    },
+    "epsilon_infinity": [
+      [
+        3.472218,
+        2.122943e-10,
+        -1.600137e-10
+      ],
+      [
+        2.122943e-10,
+        3.472218,
+        1.345699e-09
+      ],
+      [
+        -1.600137e-10,
+        1.345699e-09,
+        2.166946
+      ]
+    ],
+    "hessian_raw_eV_A2": [
+      [
+        18.463987804916325,
+        0.0,
+        0.0,
+        -9.372528786789488,
+        0.0,
+        0.0,
+        -9.372528786789488,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        18.463987804906328,
+        0.0,
+        0.0,
+        -9.37252878678441,
+        0.0,
+        0.0,
+        -9.37252878678441,
+        0.0
+      ],
+      [
+        2.919371800676702e-47,
+        0.0,
+        27.185016457817486,
+        0.0,
+        0.0,
+        -13.53896946501986,
+        0.0,
+        0.0,
+        -13.53896946501986
+      ],
+      [
+        -9.231993901277088,
+        0.0,
+        0.0,
+        8.993205904276225,
+        0.0,
+        0.0,
+        0.37932288015110394,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -9.231993901272089,
+        0.0,
+        0.0,
+        8.993205904271356,
+        0.0,
+        0.0,
+        0.37932288015089854,
+        0.0
+      ],
+      [
+        0.0,
+        -3.209883240645393e-35,
+        -13.59250822890875,
+        0.0,
+        6.419766481290786e-35,
+        15.81085762503435,
+        0.0,
+        -6.419766481290786e-35,
+        -2.27188816001449
+      ],
+      [
+        -9.231993901277088,
+        0.0,
+        0.0,
+        0.37932288015110394,
+        0.0,
+        0.0,
+        8.993205904276225,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -9.231993901272089,
+        0.0,
+        0.0,
+        0.37932288015089854,
+        0.0,
+        0.0,
+        8.993205904271356,
+        0.0
+      ],
+      [
+        0.0,
+        2.407412430484045e-35,
+        -13.59250822890875,
+        3.209883240645393e-35,
+        1.2839532962581572e-34,
+        -2.27188816001449,
+        3.209883240645393e-35,
+        -1.2839532962581572e-34,
+        15.81085762503435
+      ]
+    ],
+    "cell_A": [
+      [
+        1.5991197844394547,
+        -2.7697567140369768,
+        -0.0
+      ],
+      [
+        1.5991197844394547,
+        2.7697567140369768,
+        -0.0
+      ],
+      [
+        0.0,
+        0.0,
+        34.47923620612463
+      ]
+    ],
+    "masses_amu": [
+      95.95,
+      32.06,
+      32.06
+    ],
+    "independent_phonopy_raw_force_constants_max_difference_eV_A2": 6.346922987177095e-12,
+    "independent_mode_sum_phonon_static_tensor": [
+      [
+        0.04554035460129502,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.04554035460129502,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.9967339064770722e-08
+      ]
+    ],
+    "mode_sum_vs_Hessian_static_relative_difference": 2.349313742569748e-07,
+    "degenerate_mode_oscillator_groups": [
+      {
+        "last_frequency_cm1": 270.301060021997,
+        "multiplicity": 2,
+        "oscillator_e2_amu": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      {
+        "last_frequency_cm1": 362.3494139969325,
+        "multiplicity": 2,
+        "oscillator_e2_amu": [
+          [
+            0.0135267105498063,
+            -0.0,
+            0.0
+          ],
+          [
+            -0.0,
+            0.0135267105498063,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      {
+        "last_frequency_cm1": 391.63405772202583,
+        "multiplicity": 1,
+        "oscillator_e2_amu": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      {
+        "last_frequency_cm1": 438.27354724847686,
+        "multiplicity": 1,
+        "oscillator_e2_amu": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            8.676635888130706e-09
+          ]
+        ]
+      }
+    ]
+  },
+  "comparison": {
+    "status": "compared",
+    "max_BEC_difference_raw_e": 0.0017217725733270322,
+    "max_BEC_difference_projected_e": 0.0011595299699748074,
+    "max_Hessian_difference_eV_A2": 0.07765739368468871,
+    "relative_Hessian_Frobenius_difference": 0.0023101295234627933,
+    "max_frequency_difference_cm1": 0.5268680184705659,
+    "both_have_full_precision_polarization": true,
+    "max_group_oscillator_difference_e2_amu": 3.082559208103519e-05,
+    "relative_group_oscillator_Frobenius_difference": 0.0022788712384470187,
+    "mode_group_pairing": "ascending frequency with equal degeneracies; within-group oscillator tensors are summed",
+    "max_phonon_static_difference": 0.0002368054775937628,
+    "relative_phonon_static_Frobenius_difference": 0.005199905940908735,
+    "static_unit": "Angstrom sheet phonon polarizability (Gaussian alpha_2D)"
+  }
+}

@@ -74,6 +74,13 @@ def discover_stages(root: str | Path) -> list[WorkflowStage]:
     if not reference.is_dir():
         raise FileNotFoundError(f"Reference directory not found: {reference}")
 
+    from .shared_abacus import MANIFEST, load_manifest
+    if (root_path / MANIFEST).is_file():
+        metadata = load_manifest(root_path)
+        return [WorkflowStage("0.no-move", reference, reference=True),
+                *(WorkflowStage(item["name"], root_path / item["name"])
+                  for item in metadata["stages"])]
+
     displaced: list[tuple[int, str, int, WorkflowStage]] = []
     for atom_dir in root_path.iterdir():
         if not atom_dir.is_dir():
@@ -233,6 +240,8 @@ def reuse_reference_charge(
             f"{Path(reference_dir) / 'OUT.*'}"
         )
     target, suffix = _abacus_output_dir(Path(target_dir))
+    if target.is_symlink():
+        raise ValueError(f'Charge output directory is a symlink: {target}. Use a private writable directory.')
     target.mkdir(parents=True, exist_ok=True)
     copied: list[Path] = []
     for source in source_files:
@@ -240,6 +249,8 @@ def reuse_reference_charge(
         if source.name.endswith("-CHARGE-DENSITY.restart"):
             destination_name = f"{suffix}-CHARGE-DENSITY.restart"
         destination = target / destination_name
+        if destination.is_symlink():
+            raise ValueError(f'Charge destination is a symlink: {destination}. Replace it with a private copy before running ABACUS.')
         if destination.exists() and not overwrite:
             continue
         shutil.copy2(source, destination)
@@ -297,6 +308,8 @@ def _prepare_abacus_input(
 ) -> None:
     source = stage_dir / "INPUT-scf"
     destination = stage_dir / "INPUT"
+    if destination.is_symlink():
+        raise ValueError(f'INPUT is a symlink: {destination}. Use a private input copy.')
     if not source.is_file():
         if destination.is_file():
             text = destination.read_text(encoding="utf-8")
@@ -498,6 +511,12 @@ def run_serial_workflow(
 
     root_path = Path(root).resolve()
     stages = discover_stages(root_path)
+    from .shared_abacus import MANIFEST, load_manifest, read_forces
+    shared = (root_path / MANIFEST).is_file()
+    if shared:
+        dimensionality = load_manifest(root_path)["dimension"]
+        from .pyatb_precision import precision_command
+        pyatb_command = precision_command(pyatb_command, pyatb_executable)
     store = WorkflowStateStore(root_path)
     reference_dir = stages[0].path
     caps = detect_pyatb_capabilities(pyatb_executable)
@@ -558,6 +577,9 @@ def run_serial_workflow(
                         "ABACUS returned successfully but running_scf.log has no completion marker"
                     )
                 state.scf = "dry-run" if dry_run else "completed"
+
+            if shared and not dry_run:
+                read_forces(stage.path)
 
             if check_insulating and stage.reference:
                 state.band = "running"
@@ -934,6 +956,8 @@ def run_raman_workflow(
 
 def workflow_status(root: str | Path = ".") -> list[StageState]:
     root_path = Path(root).resolve()
+    from .shared_abacus import MANIFEST, read_forces
+    shared = (root_path / MANIFEST).is_file()
     store = WorkflowStateStore(root_path)
     reference_gated = (root_path / "0.no-move" / "zstar_insulation.json").is_file()
     states: list[StageState] = []
@@ -957,6 +981,12 @@ def workflow_status(root: str | Path = ".") -> list[StageState]:
                 state.dielectric = "completed"
             if state.scf == "completed" and state.pyatb == "completed":
                 state.status = "completed"
+        if shared and state.scf == 'completed':
+            try:
+                read_forces(stage.path)
+            except ValueError as exc:
+                state.status = 'failed'
+                state.error = str(exc)
         states.append(state)
     return states
 
@@ -1031,12 +1061,13 @@ def generate_backend_script(
     output: Optional[str | Path] = None,
     job_name: str = "zstar-born",
     nodes: int = 1,
-    tasks: int = 1,
-    cpus_per_task: int = 28,
+    tasks: Optional[int] = None,
+    cpus_per_task: Optional[int] = None,
     walltime: str = "24:00:00",
     queue: Optional[str] = None,
     account: Optional[str] = None,
     env_script: Optional[str] = None,
+    header_file: Optional[str | Path] = None,
     abacus_command: Optional[str] = None,
     pyatb_command: Optional[str] = None,
     mp_density: float = 0.08,
@@ -1048,7 +1079,9 @@ def generate_backend_script(
     dry_run: bool = False,
 ) -> Path:
     """Generate a single backend script that runs the complete serial chain."""
-
+    from .configuration import launcher_command, resolve_parallelism
+    from .job_headers import compose_job_script, torque_ppn
+    tasks, cpus_per_task = resolve_parallelism(root, tasks=tasks, cpus_per_task=cpus_per_task)
     backend_key = normalize_execution_system(backend)
     if int(nodes) < 1 or int(tasks) < 1 or int(cpus_per_task) < 1:
         raise ValueError("nodes, tasks, and cpus_per_task must be positive")
@@ -1060,17 +1093,9 @@ def generate_backend_script(
         output_path = Path(output).resolve()
 
     if abacus_command is None:
-        abacus_command = (
-            f"srun --ntasks={int(tasks)} abacus"
-            if backend_key == "slurm"
-            else f"mpirun -np {int(tasks)} abacus"
-        )
+        abacus_command = launcher_command('abacus', root=root, system=backend_key, tasks=tasks)
     if pyatb_command is None:
-        pyatb_command = (
-            f"srun --ntasks={int(tasks)} pyatb"
-            if backend_key == "slurm"
-            else f"mpirun -np {int(tasks)} pyatb"
-        )
+        pyatb_command = launcher_command('pyatb', root=root, system=backend_key, tasks=tasks)
     if env_script is not None:
         env_script = str(Path(env_script).expanduser().resolve())
 
@@ -1115,7 +1140,7 @@ def generate_backend_script(
         if account:
             header.append(f"#SBATCH --account={account}")
     elif backend_key == "torque":
-        ppn = int(math.ceil(int(tasks) * int(cpus_per_task) / int(nodes)))
+        ppn = torque_ppn(nodes, tasks, cpus_per_task)
         header.extend(
             [
                 f"#PBS -N {job_name}",
@@ -1151,11 +1176,12 @@ def generate_backend_script(
         ]
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    script_text = "\n".join(header + [""] + body) + "\n"
+    script_text = compose_job_script(root_path, backend_key, header, body, specified=header_file)
     output_path.write_bytes(script_text.encode("utf-8"))
     if os.name != "nt":
         output_path.chmod(output_path.stat().st_mode | 0o111)
     write_workflow_manifest(root_path)
+    header_record = json.loads((root_path / '.zstar' / 'job_header.json').read_text(encoding='utf-8'))
     backend_manifest = {
         "schema": 1,
         "backend": backend_key,
@@ -1175,8 +1201,12 @@ def generate_backend_script(
             "pyatb": pyatb_command,
         },
         "environment_script": env_script,
+        "job_header": header_record,
+        "resources_source": "generated defaults" if header_record['level'] == 'Default' else "selected header",
         "dry_run": bool(dry_run),
     }
+    if header_record['level'] != 'Default':
+        backend_manifest['resources'] = {'tasks': int(tasks), 'cpus_per_task': int(cpus_per_task)}
     (root_path / ".zstar" / "backend_manifest.json").write_text(
         json.dumps(backend_manifest, indent=2), encoding="utf-8"
     )
@@ -1227,7 +1257,7 @@ def format_status_table(states: Iterable[StageState]) -> str:
         "error",
     )
     widths = [
-        max(len(headers[i]), *(len(str(row[i])) for row in rows))
+        max([len(headers[i]), *(len(str(row[i])) for row in rows)])
         for i in range(len(headers))
     ]
     lines = [

@@ -1,0 +1,34 @@
+{
+  "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/relax_symmetry_verified",
+  "structure": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/relax_symmetry_verified/OUT.SHARED_IN2SE3/STRU_ION_D",
+  "structure_sha256": "5f8dea473afafba431cefe15804cbb9ca90890db6746ab642f1822a38d4dce15",
+  "space_group": "P3m1",
+  "symprec_A": 1e-05,
+  "cell_A": [
+    [
+      4.103887933044035,
+      0.0,
+      0.0
+    ],
+    [
+      -2.0519439664720176,
+      3.554071204251533,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      29.999999999590887
+    ]
+  ],
+  "symbols": [
+    "In",
+    "In",
+    "Se",
+    "Se",
+    "Se"
+  ],
+  "host": "cu24",
+  "control": "cartesian-half",
+  "comparison": "same-inputs force-and-polarization SCFs; Cartesian central vs Phonopy auto"
+}

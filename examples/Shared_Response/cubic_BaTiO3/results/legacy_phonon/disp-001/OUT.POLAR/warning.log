@@ -1,0 +1,134 @@
+ In SCAN_END, can't find: </PP_RELWFC.1> block.
+ In SCAN_END, can't find: </PP_RELWFC.2> block.
+ In SCAN_END, can't find: </PP_RELWFC.3> block.
+ In SCAN_END, can't find: </PP_RELWFC.4> block.
+ In SCAN_END, can't find: </PP_RELBETA.1> block.
+ In SCAN_END, can't find: </PP_RELBETA.2> block.
+ In SCAN_END, can't find: </PP_RELBETA.3> block.
+ In SCAN_END, can't find: </PP_RELBETA.4> block.
+ In SCAN_END, can't find: </PP_RELBETA.5> block.
+ In SCAN_END, can't find: </PP_RELBETA.6> block.
+ In SCAN_END, can't find: </PP_RELBETA.7> block.
+ In SCAN_END, can't find: </PP_RELBETA.8> block.
+ In SCAN_END, can't find: </PP_RELBETA.9> block.
+ In SCAN_END, can't find: </PP_RELBETA.10> block.
+ In SCAN_END, can't find: </PP_SPIN_ORB> block.
+ dft_functional readin is: pbesol
+ dft_functional in pseudopot file is: PBE
+ Please make sure this is what you need
+ In SCAN_END, can't find: </PP_RELWFC.1> block.
+ In SCAN_END, can't find: </PP_RELWFC.2> block.
+ In SCAN_END, can't find: </PP_RELWFC.3> block.
+ In SCAN_END, can't find: </PP_RELWFC.4> block.
+ In SCAN_END, can't find: </PP_RELWFC.5> block.
+ In SCAN_END, can't find: </PP_RELWFC.6> block.
+ In SCAN_END, can't find: </PP_RELBETA.1> block.
+ In SCAN_END, can't find: </PP_RELBETA.2> block.
+ In SCAN_END, can't find: </PP_RELBETA.3> block.
+ In SCAN_END, can't find: </PP_RELBETA.4> block.
+ In SCAN_END, can't find: </PP_RELBETA.5> block.
+ In SCAN_END, can't find: </PP_RELBETA.6> block.
+ In SCAN_END, can't find: </PP_RELBETA.7> block.
+ In SCAN_END, can't find: </PP_RELBETA.8> block.
+ In SCAN_END, can't find: </PP_RELBETA.9> block.
+ In SCAN_END, can't find: </PP_RELBETA.10> block.
+ In SCAN_END, can't find: </PP_SPIN_ORB> block.
+ dft_functional readin is: pbesol
+ dft_functional in pseudopot file is: PBE
+ Please make sure this is what you need
+ In SCAN_END, can't find: </PP_RELWFC.1> block.
+ In SCAN_END, can't find: </PP_RELWFC.2> block.
+ In SCAN_END, can't find: </PP_RELWFC.3> block.
+ In SCAN_END, can't find: </PP_RELBETA.1> block.
+ In SCAN_END, can't find: </PP_RELBETA.2> block.
+ In SCAN_END, can't find: </PP_RELBETA.3> block.
+ In SCAN_END, can't find: </PP_RELBETA.4> block.
+ In SCAN_END, can't find: </PP_RELBETA.5> block.
+ In SCAN_END, can't find: </PP_RELBETA.6> block.
+ In SCAN_END, can't find: </PP_RELBETA.7> block.
+ In SCAN_END, can't find: </PP_RELBETA.8> block.
+ In SCAN_END, can't find: </PP_SPIN_ORB> block.
+ dft_functional readin is: pbesol
+ dft_functional in pseudopot file is: PBE
+ Please make sure this is what you need
+ AUTO_SET NBANDS to 30
+ AUTO_SET NBANDS to 30
+      Processor           Atom
+              1             60
+ ModuleIO::read_rhog  warning : Can't open file OUT.POLAR//POLAR-CHARGE-DENSITY.restart
+                            startmag_type = 2
+                       charge from rho_at = 9.99984
+                         charge should be = 10
+                            startmag_type = 2
+                       charge from rho_at = 12
+                         charge should be = 12
+                            startmag_type = 2
+                       charge from rho_at = 6
+                         charge should be = 6
+
+ SETUP ATOMIC RHO FOR SPIN 1
+                 Electron number from rho = 40
+           total electron number from rho = 40
+                                should be = 40
+                 charge before normalized = 40.0000000000002
+                  charge after normalized = 40
+                 charge before normalized = 39.9999988878693
+                  charge after normalized = 40.0000000000007
+                 charge before normalized = 39.9999999999997
+                  charge after normalized = 40
+                 charge before normalized = 39.9999999505787
+                  charge after normalized = 39.9999999999995
+                 charge before normalized = 39.9999999999999
+                  charge after normalized = 40
+                 charge before normalized = 39.999998903851
+                  charge after normalized = 40.0000000000001
+                 charge before normalized = 40.0000000000007
+                  charge after normalized = 40
+                 charge before normalized = 39.9999990126643
+                  charge after normalized = 40.0000000000002
+                 charge before normalized = 39.999999999998
+                  charge after normalized = 40.0000000000002
+                 charge before normalized = 39.9999991847319
+                  charge after normalized = 40.0000000000001
+                 charge before normalized = 40.0000000000013
+                  charge after normalized = 40.0000000000001
+                 charge before normalized = 39.9999992413758
+                  charge after normalized = 40.0000000000014
+                 charge before normalized = 40.0000000000002
+                  charge after normalized = 39.9999999999999
+                 charge before normalized = 39.9999992332309
+                  charge after normalized = 39.9999999999999
+                 charge before normalized = 39.9999999999997
+                  charge after normalized = 40
+                 charge before normalized = 39.999999229285
+                  charge after normalized = 40.0000000000009
+                 charge before normalized = 40.0000000000002
+                  charge after normalized = 39.9999999999999
+                 charge before normalized = 39.9999992288486
+                  charge after normalized = 39.9999999999999
+                 charge before normalized = 39.999999999999
+                  charge after normalized = 39.9999999999999
+                 charge before normalized = 39.9999992291254
+                  charge after normalized = 39.9999999999995
+                 charge before normalized = 40.0000000000005
+                  charge after normalized = 40
+                 charge before normalized = 39.9999992289703
+                  charge after normalized = 39.9999999999995
+                 charge before normalized = 39.999999999999
+                  charge after normalized = 39.9999999999999
+                 charge before normalized = 39.9999992289651
+                  charge after normalized = 40.0000000000001
+                            startmag_type = 2
+                       charge from rho_at = 9.99984437259022
+                         charge should be = 10
+                            startmag_type = 2
+                       charge from rho_at = 11.9999945058124
+                         charge should be = 12
+                            startmag_type = 2
+                       charge from rho_at = 5.99999614925575
+                         charge should be = 6
+
+ SETUP ATOMIC RHO FOR SPIN 1
+                 Electron number from rho = 40.0000000000008
+           total electron number from rho = 40.0000000000008
+                                should be = 40

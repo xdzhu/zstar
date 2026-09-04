@@ -1,0 +1,4384 @@
+{
+  "cases": {
+    "hBN": {
+      "status": "paired_result_audited",
+      "unified": {
+        "status": "joint_result_available",
+        "displacements": 2,
+        "total_stages": 3,
+        "completed_stages": 3,
+        "failed_stages": [],
+        "full_precision_polarization_stages": 3,
+        "output_precision_diagnostic_core_hours": 0,
+        "precision_rerun_legacy_text_check": {
+          "checked_stages": 0,
+          "identical_stages": 0
+        },
+        "timing_completed_components": {
+          "SCF": {
+            "wall_seconds": 38.6262383509893,
+            "reserved_core_hours": 0.42918042612210333,
+            "calls": 3
+          },
+          "input_preparation": {
+            "wall_seconds": 2.37192191297072,
+            "reserved_core_hours": 0.026354687921896887,
+            "calls": 4
+          },
+          "band_gate": {
+            "wall_seconds": 3.6004184019984677,
+            "reserved_core_hours": 0.040004648911094086,
+            "calls": 1
+          },
+          "polarization_and_electronic_response": {
+            "wall_seconds": 8.826699496945366,
+            "reserved_core_hours": 0.09807443885494851,
+            "calls": 3
+          }
+        },
+        "reserved_core_hours_completed_components": 0.5936142018100428,
+        "dimension": 2,
+        "diagnostics": {
+          "site_fits": [
+            {
+              "atom": 0,
+              "rank": 3,
+              "condition_number": 16.898821292280186,
+              "dipole_fit_max_e_A": 1.7950047462697758e-06,
+              "force_fit_max_eV_A": 4.690690000000283e-05,
+              "observations": 12
+            },
+            {
+              "atom": 1,
+              "rank": 3,
+              "condition_number": 16.89882129227485,
+              "dipole_fit_max_e_A": 1.796122423277761e-06,
+              "force_fit_max_eV_A": 4.7011700000005464e-05,
+              "observations": 12
+            }
+          ],
+          "born_asr_max_e": 0.0005213616858026349,
+          "hessian_reciprocity_max_eV_A2": 0.0002635332857892081,
+          "hessian_reciprocity_relative_Frobenius": 4.411770995233447e-06,
+          "force_asr_max_eV_A2": 0.0002635332857892081,
+          "total_force_derivative_max_eV_A2": 7.888609052210118e-31,
+          "reference_force_max_eV_A": 0.0,
+          "constraints_applied": false
+        },
+        "frequencies_cm1": [
+          -2.2903065575264973e-05,
+          -6.223763846383987e-06,
+          9.404933721118929e-06,
+          825.2002264842536,
+          1354.7704990192792,
+          1354.7704990711918
+        ],
+        "born_raw_e": [
+          [
+            [
+              -2.7018862054358017,
+              6.213307344592783e-11,
+              -3.851859888774472e-34
+            ],
+            [
+              6.213303167523682e-11,
+              -2.7018862056014328,
+              0.0
+            ],
+            [
+              8.217301096052206e-33,
+              -3.2869204384208823e-32,
+              -0.3413359442331387
+            ]
+          ],
+          [
+            [
+              2.7013648437500297,
+              -6.212108339738099e-11,
+              -5.135813185032629e-34
+            ],
+            [
+              -6.212104180380723e-11,
+              2.70136484391563,
+              5.135813185032629e-34
+            ],
+            [
+              -2.465190328815662e-32,
+              0.0,
+              0.34120676441320935
+            ]
+          ]
+        ],
+        "born_projected_e": [
+          [
+            [
+              -2.7016255245929157,
+              6.212707842165442e-11,
+              6.41976648129078e-35
+            ],
+            [
+              6.212703673952203e-11,
+              -2.7016255247585317,
+              -2.5679065925163143e-34
+            ],
+            [
+              1.6434602192104414e-32,
+              -1.6434602192104412e-32,
+              -0.341271354323174
+            ]
+          ],
+          [
+            [
+              2.7016255245929157,
+              -6.212707842165442e-11,
+              -6.419766481290789e-35
+            ],
+            [
+              -6.212703673952203e-11,
+              2.7016255247585317,
+              2.5679065925163143e-34
+            ],
+            [
+              -1.6434602192104412e-32,
+              1.6434602192104412e-32,
+              0.341271354323174
+            ]
+          ]
+        ],
+        "phonon_static_response": {
+          "status": "computed",
+          "unit": "Angstrom sheet phonon polarizability (Gaussian alpha_2D)",
+          "tensor": [
+            [
+              0.4675401265354064,
+              -1.0751631455602593e-11,
+              -3.983517946451945e-33
+            ],
+            [
+              -1.0751631455602591e-11,
+              0.4675401265640677,
+              2.3470803731794057e-33
+            ],
+            [
+              -3.9835179464519445e-33,
+              2.3470803731794057e-33,
+              0.02010856343074667
+            ]
+          ]
+        },
+        "epsilon_infinity": [
+          [
+            1.408043,
+            -5.275561e-08,
+            -6.703934e-10
+          ],
+          [
+            -5.275561e-08,
+            1.408043,
+            -3.610212e-09
+          ],
+          [
+            -6.703934e-10,
+            -3.610212e-09,
+            1.147124
+          ]
+        ],
+        "hessian_raw_eV_A2": [
+          [
+            41.180495548632585,
+            -9.46994381210865e-10,
+            0.0,
+            -41.18075908191837,
+            9.469999540110277e-10,
+            8.217301096052206e-33
+          ],
+          [
+            -9.469943812108652e-10,
+            41.180495551157044,
+            4.108650548026103e-33,
+            9.47000546129974e-10,
+            -41.18075908444283,
+            0.0
+          ],
+          [
+            -7.888609052210118e-31,
+            0.0,
+            15.278457264217337,
+            -1.5777218104420236e-30,
+            -5.259072701473412e-31,
+            -15.278504350139862
+          ],
+          [
+            -41.180495548632585,
+            9.46994381210865e-10,
+            0.0,
+            41.18075908191837,
+            -9.469999540110277e-10,
+            -8.217301096052206e-33
+          ],
+          [
+            9.469943812108652e-10,
+            -41.180495551157044,
+            -4.108650548026103e-33,
+            -9.47000546129974e-10,
+            41.18075908444283,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -15.278457264217337,
+            1.5777218104420236e-30,
+            5.259072701473412e-31,
+            15.278504350139862
+          ]
+        ],
+        "cell_A": [
+          [
+            2.5106132161272625,
+            0.0,
+            0.0
+          ],
+          [
+            -1.2553066081136308,
+            2.174254824309804,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            29.999998021526476
+          ]
+        ],
+        "masses_amu": [
+          14.007,
+          10.81
+        ],
+        "independent_phonopy_raw_force_constants_max_difference_eV_A2": 1.26224364294103e-09,
+        "independent_mode_sum_phonon_static_tensor": [
+          [
+            0.46754024127793525,
+            1.0362567240572512e-11,
+            0.0
+          ],
+          [
+            1.0362567240572512e-11,
+            0.46754024125031113,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.02010856792463224
+          ]
+        ],
+        "mode_sum_vs_Hessian_static_relative_difference": 2.453380039830515e-07,
+        "degenerate_mode_oscillator_groups": [
+          {
+            "last_frequency_cm1": 825.2002264846838,
+            "multiplicity": 1,
+            "oscillator_e2_amu": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.019088777638985418
+              ]
+            ]
+          },
+          {
+            "last_frequency_cm1": 1354.7704990697266,
+            "multiplicity": 2,
+            "oscillator_e2_amu": [
+              [
+                1.1962687510181413,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.1962687510181413,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ]
+          }
+        ],
+        "solver_cost": {
+          "solver_core_hours": 0.567259513888146,
+          "component_core_hours": {
+            "ABACUS": 0.42918042612210333,
+            "PYATB": 0.1380790877660426,
+            "preparation": 0.026354687921896887
+          },
+          "calls": {
+            "ABACUS": 3,
+            "PYATB": 4,
+            "preparation": 4
+          },
+          "definition": "successful ABACUS + PYATB calls, including reference and band gate; input preparation excluded"
+        }
+      },
+      "cartesian": {
+        "status": "joint_result_available",
+        "displacements": 12,
+        "total_stages": 13,
+        "completed_stages": 13,
+        "failed_stages": [],
+        "full_precision_polarization_stages": 13,
+        "output_precision_diagnostic_core_hours": 0,
+        "precision_rerun_legacy_text_check": {
+          "checked_stages": 0,
+          "identical_stages": 0
+        },
+        "timing_completed_components": {
+          "SCF": {
+            "wall_seconds": 136.48589499408263,
+            "reserved_core_hours": 1.516509944378696,
+            "calls": 13
+          },
+          "input_preparation": {
+            "wall_seconds": 3.7588644059433136,
+            "reserved_core_hours": 0.04176516006603682,
+            "calls": 14
+          },
+          "band_gate": {
+            "wall_seconds": 3.067874505009968,
+            "reserved_core_hours": 0.034087494500110754,
+            "calls": 1
+          },
+          "polarization_and_electronic_response": {
+            "wall_seconds": 37.54554063902469,
+            "reserved_core_hours": 0.417172673766941,
+            "calls": 13
+          }
+        },
+        "reserved_core_hours_completed_components": 2.009535272711785,
+        "dimension": 2,
+        "diagnostics": {
+          "site_fits": [
+            {
+              "atom": 0,
+              "rank": 3,
+              "condition_number": 1.0000000000383182,
+              "dipole_fit_max_e_A": 0.0002249071568137813,
+              "force_fit_max_eV_A": 0.00716809367500193,
+              "observations": 72
+            },
+            {
+              "atom": 1,
+              "rank": 3,
+              "condition_number": 1.000000000038319,
+              "dipole_fit_max_e_A": 0.000224910262004238,
+              "force_fit_max_eV_A": 0.007167642174998767,
+              "observations": 72
+            }
+          ],
+          "born_asr_max_e": 4.3963627254228754e-06,
+          "hessian_reciprocity_max_eV_A2": 0.0006597317357162069,
+          "hessian_reciprocity_relative_Frobenius": 1.1042340882122046e-05,
+          "force_asr_max_eV_A2": 0.0006597317357162069,
+          "total_force_derivative_max_eV_A2": 1.7763568394002505e-15,
+          "reference_force_max_eV_A": 0.0,
+          "constraints_applied": false
+        },
+        "frequencies_cm1": [
+          -1.7265586428913064e-05,
+          -9.074749977392089e-06,
+          -2.0746264672760044e-06,
+          825.200927270428,
+          1355.206921537996,
+          1355.206921589926
+        ],
+        "born_raw_e": [
+          [
+            [
+              -2.70221496257782,
+              6.214058950258244e-11,
+              -8.024708101613482e-36
+            ],
+            [
+              6.214066052980994e-11,
+              -2.7022149627434717,
+              1.6049416203226965e-35
+            ],
+            [
+              6.727807016891547e-41,
+              0.0,
+              -0.3412603840935619
+            ]
+          ],
+          [
+            [
+              2.702210566215095,
+              -6.214051879529556e-11,
+              1.0320673554851579e-36
+            ],
+            [
+              -6.214053596513773e-11,
+              2.7022105663807463,
+              0.0
+            ],
+            [
+              0.0,
+              1.2244732821065494e-40,
+              0.3412579156254651
+            ]
+          ]
+        ],
+        "born_projected_e": [
+          [
+            [
+              -2.7022127643964575,
+              6.2140554148939e-11,
+              -4.52838772854932e-36
+            ],
+            [
+              6.214059824747383e-11,
+              -2.702212764562109,
+              8.024708101613482e-36
+            ],
+            [
+              3.363903508445773e-41,
+              -6.122366410532747e-41,
+              -0.3412591498595135
+            ]
+          ],
+          [
+            [
+              2.7022127643964575,
+              -6.2140554148939e-11,
+              4.5283877285493197e-36
+            ],
+            [
+              -6.214059824747383e-11,
+              2.702212764562109,
+              -8.024708101613482e-36
+            ],
+            [
+              -3.363903508445773e-41,
+              6.122366410532747e-41,
+              0.3412591498595135
+            ]
+          ]
+        ],
+        "phonon_static_response": {
+          "status": "computed",
+          "unit": "Angstrom sheet phonon polarizability (Gaussian alpha_2D)",
+          "tensor": [
+            [
+              0.4674421927599761,
+              -1.0749389707970793e-11,
+              2.6680813889697076e-37
+            ],
+            [
+              -1.0749389707970793e-11,
+              0.46744219278863125,
+              -4.728076081720174e-37
+            ],
+            [
+              2.6680813889697076e-37,
+              -4.728076081720174e-37,
+              0.02010709107012453
+            ]
+          ]
+        },
+        "epsilon_infinity": [
+          [
+            1.408043,
+            -5.275923e-08,
+            -6.703934e-10
+          ],
+          [
+            -5.275923e-08,
+            1.408043,
+            -3.610212e-09
+          ],
+          [
+            -6.703934e-10,
+            -3.610212e-09,
+            1.147124
+          ]
+        ],
+        "hessian_raw_eV_A2": [
+          [
+            41.2068333798275,
+            -9.475989119492726e-10,
+            0.0,
+            -41.20749311156319,
+            9.476146271940372e-10,
+            0.0
+          ],
+          [
+            -9.475989119492726e-10,
+            41.20683338235357,
+            0.0,
+            9.476158114319301e-10,
+            -41.20749311408929,
+            0.0
+          ],
+          [
+            1.459685900338351e-47,
+            -9.123036877114694e-49,
+            15.278446300066413,
+            0.0,
+            3.6492147508458776e-48,
+            -15.278567214192499
+          ],
+          [
+            -41.2068333798275,
+            9.475989119492726e-10,
+            0.0,
+            41.20749311156319,
+            -9.476146271940372e-10,
+            0.0
+          ],
+          [
+            9.475989119492726e-10,
+            -41.20683338235357,
+            0.0,
+            -9.476158114319301e-10,
+            41.20749311408929,
+            0.0
+          ],
+          [
+            -2.919371800676702e-47,
+            -2.5544503255921146e-47,
+            -15.278446300066415,
+            0.0,
+            0.0,
+            15.278567214192499
+          ]
+        ],
+        "cell_A": [
+          [
+            2.5106132161272625,
+            0.0,
+            0.0
+          ],
+          [
+            -1.2553066081136308,
+            2.174254824309804,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            29.999998021526476
+          ]
+        ],
+        "masses_amu": [
+          14.007,
+          10.81
+        ],
+        "independent_phonopy_raw_force_constants_max_difference_eV_A2": 1.2630678725145117e-09,
+        "independent_mode_sum_phonon_static_tensor": [
+          [
+            0.4674423075479682,
+            1.1047566976296603e-11,
+            0.0
+          ],
+          [
+            1.1047566976296603e-11,
+            0.4674423075185183,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.020107096089730003
+          ]
+        ],
+        "mode_sum_vs_Hessian_static_relative_difference": 2.4550789520771145e-07,
+        "degenerate_mode_oscillator_groups": [
+          {
+            "last_frequency_cm1": 825.2009272694912,
+            "multiplicity": 1,
+            "oscillator_e2_amu": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.01908741286620526
+              ]
+            ]
+          },
+          {
+            "last_frequency_cm1": 1355.2069215897352,
+            "multiplicity": 2,
+            "oscillator_e2_amu": [
+              [
+                1.1967888624883827,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.1967888624883827,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ]
+          }
+        ],
+        "solver_cost": {
+          "solver_core_hours": 1.9677701126457476,
+          "component_core_hours": {
+            "ABACUS": 1.516509944378696,
+            "PYATB": 0.45126016826705173,
+            "preparation": 0.04176516006603682
+          },
+          "calls": {
+            "ABACUS": 13,
+            "PYATB": 14,
+            "preparation": 14
+          },
+          "definition": "successful ABACUS + PYATB calls, including reference and band gate; input preparation excluded"
+        }
+      },
+      "comparison": {
+        "status": "compared",
+        "max_BEC_difference_raw_e": 0.000845722465116161,
+        "max_BEC_difference_projected_e": 0.000587239803577333,
+        "max_Hessian_difference_eV_A2": 0.026734029646455326,
+        "relative_Hessian_Frobenius_difference": 0.0006229292573481402,
+        "max_frequency_difference_cm1": 0.4364225187341617,
+        "both_have_full_precision_polarization": true,
+        "max_group_oscillator_difference_e2_amu": 0.0005201114702413356,
+        "relative_group_oscillator_Frobenius_difference": 0.0004345622776599675,
+        "mode_group_pairing": "ascending frequency with equal degeneracies; within-group oscillator tensors are summed",
+        "max_phonon_static_difference": 9.793377543643178e-05,
+        "relative_phonon_static_Frobenius_difference": 0.0002094249039332614,
+        "static_unit": "Angstrom sheet phonon polarizability (Gaussian alpha_2D)",
+        "solver_speedup": 3.4689063197162326
+      },
+      "plan": {
+        "case": "hBN",
+        "dimension": 2,
+        "source": "/home/zhuxd/abacus/agent-runs/20260904-eight-system-efficiency/upload/examples/2d_materials/hBN/run",
+        "protocol": "Cartesian central joint-response control versus Phonopy-auto unified response",
+        "scope": "BEC/APT and Gamma Hessian; not Raman or full dispersion",
+        "space_group_of_periodic_cell": "P-6m2",
+        "symprec_angstrom": 1e-05,
+        "changes_to_source_input": {
+          "calculation": "scf",
+          "cal_force": "1",
+          "cal_stress": "0",
+          "gamma_only": "0",
+          "scf_thr": "1e-8",
+          "symmetry": "1",
+          "pseudo_dir": ".",
+          "orbital_dir": ".",
+          "init_chg": "auto"
+        },
+        "structure": {
+          "cell_angstrom": [
+            [
+              2.510613216127263,
+              0.0,
+              0.0
+            ],
+            [
+              -1.2553066081136315,
+              2.174254824309804,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              29.999998021526476
+            ]
+          ],
+          "positions_angstrom": [
+            [
+              -1.2886398900758902e-09,
+              1.449503260416384,
+              14.999999010763238
+            ],
+            [
+              1.255306533983875,
+              0.7247515638934199,
+              14.999999010763238
+            ]
+          ],
+          "symbols": [
+            "N",
+            "B"
+          ]
+        },
+        "stages": {
+          "unified": 2,
+          "cartesian": 12
+        },
+        "seed_sha256": {
+          "INPUT": "71a88acafccff9407d1bc421c980fa9a6cef1a47154c19b3971bc33f0e405424",
+          "INPUT.phonon": "ce0741c606eadb530883990688e20dbeda173c936b818a5a67e22ac8ac1bda71",
+          "KPT": "b20feb4a0f2d86014761755eb4a25faaaed6eeaf989850ab108065add11a9e73",
+          "STRU": "a16c0a8231f2fd594a79c9970788dbbe088cdbd874122d785d6d14925d26e4c7",
+          "B.upf": "aea4d22e37f0180d6d16ca354cebe4bd4a59bfe53155377c50801acca78c0f7f",
+          "B_gga_10au_100Ry_2s2p1d.orb": "90c7a3b99d2a36638e2c2ea61b9f9d40a686822fe4c782976cb0325206c5fe72",
+          "N.upf": "153a989f135fffe2e0f091bad0bbd724c0df5c12042ad3365f24feb0a426c529",
+          "N_gga_10au_100Ry_2s2p1d.orb": "ccc95f673c022e0eb0b81cd382189e717c0d17b3993d3d61bbc7378d34c02dca",
+          "INPUT.source": "ffe3dfee166d1baee77405bed85a7cb8a1dad0b626722c50c849e175b34a3220",
+          "STRU.direct": "a16c0a8231f2fd594a79c9970788dbbe088cdbd874122d785d6d14925d26e4c7"
+        },
+        "polarization_mp_density": 0.08,
+        "allocated_cores": 40,
+        "mpi_omp": {
+          "ABACUS": [
+            1,
+            40
+          ],
+          "PYATB": [
+            40,
+            1
+          ]
+        },
+        "timing": "monotonic seconds times allocated cores; successful solver calls only",
+        "completed": true
+      }
+    },
+    "MoS2": {
+      "status": "paired_result_audited",
+      "unified": {
+        "status": "joint_result_available",
+        "displacements": 3,
+        "total_stages": 4,
+        "completed_stages": 4,
+        "failed_stages": [],
+        "full_precision_polarization_stages": 4,
+        "output_precision_diagnostic_core_hours": 0,
+        "precision_rerun_legacy_text_check": {
+          "checked_stages": 0,
+          "identical_stages": 0
+        },
+        "timing_completed_components": {
+          "SCF": {
+            "wall_seconds": 255.37698414176702,
+            "reserved_core_hours": 2.8375220460196338,
+            "calls": 4
+          },
+          "input_preparation": {
+            "wall_seconds": 1.9781331103295088,
+            "reserved_core_hours": 0.02197925678143899,
+            "calls": 5
+          },
+          "band_gate": {
+            "wall_seconds": 3.5218658754602075,
+            "reserved_core_hours": 0.03913184306066897,
+            "calls": 1
+          },
+          "polarization_and_electronic_response": {
+            "wall_seconds": 12.286768406629562,
+            "reserved_core_hours": 0.1365196489625507,
+            "calls": 4
+          }
+        },
+        "reserved_core_hours_completed_components": 3.0351527948242927,
+        "dimension": 2,
+        "diagnostics": {
+          "site_fits": [
+            {
+              "atom": 0,
+              "rank": 3,
+              "condition_number": 15.246201046806663,
+              "dipole_fit_max_e_A": 2.448450839918883e-07,
+              "force_fit_max_eV_A": 0.0003397187500000787,
+              "observations": 12
+            },
+            {
+              "atom": 1,
+              "rank": 3,
+              "condition_number": 15.246201046807517,
+              "dipole_fit_max_e_A": 1.8502989726010745e-05,
+              "force_fit_max_eV_A": 0.0022505124000020416,
+              "observations": 12
+            }
+          ],
+          "born_asr_max_e": 0.010718243919346615,
+          "hessian_reciprocity_max_eV_A2": 0.17612939613305123,
+          "hessian_reciprocity_relative_Frobenius": 0.008516268532532607,
+          "force_asr_max_eV_A2": 0.35225879226610957,
+          "total_force_derivative_max_eV_A2": 7.105427357601002e-15,
+          "reference_force_max_eV_A": 0.0373858143,
+          "constraints_applied": false
+        },
+        "frequencies_cm1": [
+          -2.8060415995250496e-06,
+          2.7167275863966847e-06,
+          4.810003546791862e-06,
+          270.12311243851417,
+          270.1231124385874,
+          361.8225459780226,
+          361.82254597812056,
+          391.636972692265,
+          438.4285009000041
+        ],
+        "born_raw_e": [
+          [
+            [
+              -0.7170458367505176,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -0.7170458367501295,
+              0.0
+            ],
+            [
+              -6.419766481290786e-35,
+              0.0,
+              0.0023453023465630505
+            ]
+          ],
+          [
+            [
+              0.3638820403349321,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.363882040334735,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -0.0002602239354227431
+            ]
+          ],
+          [
+            [
+              0.3638820403349321,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.363882040334735,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -0.0002602239354227431
+            ]
+          ]
+        ],
+        "born_projected_e": [
+          [
+            [
+              -0.7206185847236332,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -0.7206185847232429,
+              0.0
+            ],
+            [
+              -4.279844320860524e-35,
+              0.0,
+              0.0017370175213238625
+            ]
+          ],
+          [
+            [
+              0.3603092923618166,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.36030929236162146,
+              0.0
+            ],
+            [
+              2.139922160430262e-35,
+              0.0,
+              -0.000868508760661931
+            ]
+          ],
+          [
+            [
+              0.3603092923618166,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.36030929236162146,
+              0.0
+            ],
+            [
+              2.139922160430262e-35,
+              0.0,
+              -0.000868508760661931
+            ]
+          ]
+        ],
+        "phonon_static_response": {
+          "status": "computed",
+          "unit": "Angstrom sheet phonon polarizability (Gaussian alpha_2D)",
+          "tensor": [
+            [
+              0.04561948182960429,
+              -3.346986310118636e-66,
+              3.1385348402920267e-36
+            ],
+            [
+              -3.346986310118639e-66,
+              0.04561948182957957,
+              -1.4251523625420033e-36
+            ],
+            [
+              3.1385348402920267e-36,
+              -1.4251523625420033e-36,
+              1.8052673311555567e-07
+            ]
+          ]
+        },
+        "epsilon_infinity": [
+          [
+            3.472218,
+            2.122932e-10,
+            -1.600136e-10
+          ],
+          [
+            2.122932e-10,
+            3.472218,
+            1.819877e-09
+          ],
+          [
+            -1.600136e-10,
+            1.819877e-09,
+            2.166946
+          ]
+        ],
+        "hessian_raw_eV_A2": [
+          [
+            18.386330411231636,
+            0.0,
+            -6.573840876841765e-32,
+            -9.369294601748873,
+            0.0,
+            0.0,
+            -9.369294601748873,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            18.38633041122169,
+            0.0,
+            0.0,
+            -9.369294601743798,
+            0.0,
+            0.0,
+            -9.369294601743801,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0518145402946823e-30,
+            27.213844855526755,
+            0.0,
+            0.0,
+            -13.538942467180169,
+            0.0,
+            0.0,
+            -13.538942467180169
+          ],
+          [
+            -9.193165205615822,
+            0.0,
+            -4.930380657631324e-32,
+            8.985919892801222,
+            0.0,
+            0.0,
+            0.3833747089476529,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -9.193165205610846,
+            8.217301096052206e-33,
+            0.0,
+            8.985919892796357,
+            -2.0543252740130515e-33,
+            0.0,
+            0.38337470894744535,
+            -5.135813185032629e-34
+          ],
+          [
+            0.0,
+            5.259072701473412e-31,
+            -13.606922427763381,
+            0.0,
+            0.0,
+            15.81097871823897,
+            -1.314768175368353e-31,
+            0.0,
+            -2.2720362510588044
+          ],
+          [
+            -9.193165205615822,
+            0.0,
+            -4.930380657631324e-32,
+            0.3833747089476529,
+            0.0,
+            0.0,
+            8.985919892801222,
+            0.0,
+            2.0543252740130515e-33
+          ],
+          [
+            0.0,
+            -9.193165205610844,
+            8.217301096052206e-33,
+            0.0,
+            0.38337470894744535,
+            1.2839532962581572e-34,
+            0.0,
+            8.985919892796355,
+            8.217301096052206e-33
+          ],
+          [
+            0.0,
+            5.259072701473412e-31,
+            -13.606922427763381,
+            0.0,
+            0.0,
+            -2.2720362510588044,
+            2.1036290805893647e-30,
+            0.0,
+            15.81097871823897
+          ]
+        ],
+        "cell_A": [
+          [
+            1.5991197844394547,
+            -2.7697567140369768,
+            -0.0
+          ],
+          [
+            1.5991197844394547,
+            2.7697567140369768,
+            -0.0
+          ],
+          [
+            0.0,
+            0.0,
+            34.47923620612463
+          ]
+        ],
+        "masses_amu": [
+          95.95,
+          32.06,
+          32.06
+        ],
+        "independent_phonopy_raw_force_constants_max_difference_eV_A2": 6.3433702734982944e-12,
+        "independent_mode_sum_phonon_static_tensor": [
+          [
+            0.045619492582143636,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.045619492582143636,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.8052729324787534e-07
+          ]
+        ],
+        "mode_sum_vs_Hessian_static_relative_difference": 2.357008734575378e-07,
+        "degenerate_mode_oscillator_groups": [
+          {
+            "last_frequency_cm1": 270.1231124400068,
+            "multiplicity": 2,
+            "oscillator_e2_amu": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ]
+          },
+          {
+            "last_frequency_cm1": 361.82254597945894,
+            "multiplicity": 2,
+            "oscillator_e2_amu": [
+              [
+                0.013510840382048729,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.013510840382048729,
+                -0.0
+              ],
+              [
+                0.0,
+                -0.0,
+                0.0
+              ]
+            ]
+          },
+          {
+            "last_frequency_cm1": 391.63697269195484,
+            "multiplicity": 1,
+            "oscillator_e2_amu": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ]
+          },
+          {
+            "last_frequency_cm1": 438.4285008997792,
+            "multiplicity": 1,
+            "oscillator_e2_amu": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                7.850206663015449e-08
+              ]
+            ]
+          }
+        ],
+        "solver_cost": {
+          "solver_core_hours": 3.0131735380428535,
+          "component_core_hours": {
+            "ABACUS": 2.8375220460196338,
+            "PYATB": 0.17565149202321964,
+            "preparation": 0.02197925678143899
+          },
+          "calls": {
+            "ABACUS": 4,
+            "PYATB": 5,
+            "preparation": 5
+          },
+          "definition": "successful ABACUS + PYATB calls, including reference and band gate; input preparation excluded"
+        }
+      },
+      "cartesian": {
+        "status": "joint_result_available",
+        "displacements": 12,
+        "total_stages": 13,
+        "completed_stages": 13,
+        "failed_stages": [],
+        "full_precision_polarization_stages": 13,
+        "output_precision_diagnostic_core_hours": 0,
+        "precision_rerun_legacy_text_check": {
+          "checked_stages": 0,
+          "identical_stages": 0
+        },
+        "timing_completed_components": {
+          "SCF": {
+            "wall_seconds": 405.0847783870995,
+            "reserved_core_hours": 4.500941982078884,
+            "calls": 13
+          },
+          "input_preparation": {
+            "wall_seconds": 4.186826418153942,
+            "reserved_core_hours": 0.0465202935350438,
+            "calls": 14
+          },
+          "band_gate": {
+            "wall_seconds": 3.3084363294765353,
+            "reserved_core_hours": 0.03676040366085039,
+            "calls": 1
+          },
+          "polarization_and_electronic_response": {
+            "wall_seconds": 38.86084661912173,
+            "reserved_core_hours": 0.43178718465690813,
+            "calls": 13
+          }
+        },
+        "reserved_core_hours_completed_components": 5.016009863931687,
+        "dimension": 2,
+        "diagnostics": {
+          "site_fits": [
+            {
+              "atom": 0,
+              "rank": 3,
+              "condition_number": 1.000000000000271,
+              "dipole_fit_max_e_A": 6.650611214719694e-05,
+              "force_fit_max_eV_A": 0.0010005237250046428,
+              "observations": 72
+            },
+            {
+              "atom": 1,
+              "rank": 3,
+              "condition_number": 1.0000000000002707,
+              "dipole_fit_max_e_A": 5.5203404768169265e-05,
+              "force_fit_max_eV_A": 0.0022671723999981575,
+              "observations": 36
+            }
+          ],
+          "born_asr_max_e": 0.0007059778868190314,
+          "hessian_reciprocity_max_eV_A2": 0.1405348855124,
+          "hessian_reciprocity_relative_Frobenius": 0.006782688440573448,
+          "force_asr_max_eV_A2": 0.28106976866265043,
+          "total_force_derivative_max_eV_A2": 2.3621586908717518e-09,
+          "reference_force_max_eV_A": 0.0373858122,
+          "constraints_applied": false
+        },
+        "frequencies_cm1": [
+          -3.900407747003943e-06,
+          -2.8001262207051735e-06,
+          2.8001262207051726e-06,
+          270.30106002254706,
+          270.3010600226202,
+          362.34941399649307,
+          362.3494139965911,
+          391.6340577221433,
+          438.27354724856343
+        ],
+        "born_raw_e": [
+          [
+            [
+              -0.7156534169222751,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -0.7156534169218877,
+              -4.513898307157584e-36
+            ],
+            [
+              9.183549615799121e-41,
+              0.0,
+              0.0006235297732360182
+            ]
+          ],
+          [
+            [
+              0.35747371951772805,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.35747371951753454,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -0.00024270155378756478
+            ]
+          ],
+          [
+            [
+              0.35747371951772805,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.35747371951753454,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -0.00024270155378756478
+            ]
+          ]
+        ],
+        "born_projected_e": [
+          [
+            [
+              -0.7154180909600021,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -0.7154180909596148,
+              -3.009265538105056e-36
+            ],
+            [
+              6.122366410532748e-41,
+              0.0,
+              0.0005774875513490553
+            ]
+          ],
+          [
+            [
+              0.35770904548000104,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.3577090454798074,
+              1.504632769052528e-36
+            ],
+            [
+              -3.0611832052663735e-41,
+              0.0,
+              -0.0002887437756745277
+            ]
+          ],
+          [
+            [
+              0.35770904548000104,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.3577090454798074,
+              1.504632769052528e-36
+            ],
+            [
+              -3.0611832052663735e-41,
+              0.0,
+              -0.0002887437756745277
+            ]
+          ]
+        ],
+        "phonon_static_response": {
+          "status": "computed",
+          "unit": "Angstrom sheet phonon polarizability (Gaussian alpha_2D)",
+          "tensor": [
+            [
+              0.04483275127795018,
+              -3.787325243958346e-74,
+              9.173995182535405e-43
+            ],
+            [
+              -3.7873252439583465e-74,
+              0.044832751277925915,
+              -1.0286177365112653e-40
+            ],
+            [
+              9.173995182535402e-43,
+              -1.028617736511265e-40,
+              1.996757928575859e-08
+            ]
+          ]
+        },
+        "epsilon_infinity": [
+          [
+            3.472218,
+            2.122943e-10,
+            -1.600137e-10
+          ],
+          [
+            2.122943e-10,
+            3.472218,
+            1.345699e-09
+          ],
+          [
+            -1.600137e-10,
+            1.345699e-09,
+            2.166946
+          ]
+        ],
+        "hessian_raw_eV_A2": [
+          [
+            18.463987804916325,
+            0.0,
+            0.0,
+            -9.372528786789488,
+            0.0,
+            0.0,
+            -9.372528786789488,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            18.463987804906328,
+            0.0,
+            0.0,
+            -9.37252878678441,
+            0.0,
+            0.0,
+            -9.37252878678441,
+            0.0
+          ],
+          [
+            2.919371800676702e-47,
+            0.0,
+            27.185016457817486,
+            0.0,
+            0.0,
+            -13.53896946501986,
+            0.0,
+            0.0,
+            -13.53896946501986
+          ],
+          [
+            -9.231993901277088,
+            0.0,
+            0.0,
+            8.993205904276225,
+            0.0,
+            0.0,
+            0.37932288015110394,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -9.231993901272089,
+            0.0,
+            0.0,
+            8.993205904271356,
+            0.0,
+            0.0,
+            0.37932288015089854,
+            0.0
+          ],
+          [
+            0.0,
+            -3.209883240645393e-35,
+            -13.59250822890875,
+            0.0,
+            6.419766481290786e-35,
+            15.81085762503435,
+            0.0,
+            -6.419766481290786e-35,
+            -2.27188816001449
+          ],
+          [
+            -9.231993901277088,
+            0.0,
+            0.0,
+            0.37932288015110394,
+            0.0,
+            0.0,
+            8.993205904276225,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -9.231993901272089,
+            0.0,
+            0.0,
+            0.37932288015089854,
+            0.0,
+            0.0,
+            8.993205904271356,
+            0.0
+          ],
+          [
+            0.0,
+            2.407412430484045e-35,
+            -13.59250822890875,
+            3.209883240645393e-35,
+            1.2839532962581572e-34,
+            -2.27188816001449,
+            3.209883240645393e-35,
+            -1.2839532962581572e-34,
+            15.81085762503435
+          ]
+        ],
+        "cell_A": [
+          [
+            1.5991197844394547,
+            -2.7697567140369768,
+            -0.0
+          ],
+          [
+            1.5991197844394547,
+            2.7697567140369768,
+            -0.0
+          ],
+          [
+            0.0,
+            0.0,
+            34.47923620612463
+          ]
+        ],
+        "masses_amu": [
+          95.95,
+          32.06,
+          32.06
+        ],
+        "independent_phonopy_raw_force_constants_max_difference_eV_A2": 6.346922987177095e-12,
+        "independent_mode_sum_phonon_static_tensor": [
+          [
+            0.04483276306401688,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.04483276306401688,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.9967339064770722e-08
+          ]
+        ],
+        "mode_sum_vs_Hessian_static_relative_difference": 2.6288992972596886e-07,
+        "degenerate_mode_oscillator_groups": [
+          {
+            "last_frequency_cm1": 270.301060021997,
+            "multiplicity": 2,
+            "oscillator_e2_amu": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ]
+          },
+          {
+            "last_frequency_cm1": 362.3494139969325,
+            "multiplicity": 2,
+            "oscillator_e2_amu": [
+              [
+                0.013316536825950805,
+                -0.0,
+                0.0
+              ],
+              [
+                -0.0,
+                0.013316536825950805,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ]
+          },
+          {
+            "last_frequency_cm1": 391.63405772202583,
+            "multiplicity": 1,
+            "oscillator_e2_amu": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ]
+          },
+          {
+            "last_frequency_cm1": 438.27354724847686,
+            "multiplicity": 1,
+            "oscillator_e2_amu": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                8.676635888130706e-09
+              ]
+            ]
+          }
+        ],
+        "solver_cost": {
+          "solver_core_hours": 4.969489570396643,
+          "component_core_hours": {
+            "ABACUS": 4.500941982078884,
+            "PYATB": 0.46854758831775856,
+            "preparation": 0.0465202935350438
+          },
+          "calls": {
+            "ABACUS": 13,
+            "PYATB": 14,
+            "preparation": 14
+          },
+          "definition": "successful ABACUS + PYATB calls, including reference and band gate; input preparation excluded"
+        }
+      },
+      "comparison": {
+        "status": "compared",
+        "max_BEC_difference_raw_e": 0.0064083208172040496,
+        "max_BEC_difference_projected_e": 0.0052004937636310755,
+        "max_Hessian_difference_eV_A2": 0.07765739368468871,
+        "relative_Hessian_Frobenius_difference": 0.0023101295234627933,
+        "max_frequency_difference_cm1": 0.5268680184705659,
+        "both_have_full_precision_polarization": true,
+        "max_group_oscillator_difference_e2_amu": 0.0001943035560979245,
+        "relative_group_oscillator_Frobenius_difference": 0.014591148202467612,
+        "mode_group_pairing": "ascending frequency with equal degeneracies; within-group oscillator tensors are summed",
+        "max_phonon_static_difference": 0.0007867305516541107,
+        "relative_phonon_static_Frobenius_difference": 0.01754812134924405,
+        "static_unit": "Angstrom sheet phonon polarizability (Gaussian alpha_2D)",
+        "solver_speedup": 1.6492543518168805
+      },
+      "plan": {
+        "case": "MoS2",
+        "dimension": 2,
+        "source": "/home/zhuxd/abacus/agent-runs/20260904-eight-system-efficiency/upload/examples/IR_Raman_Spectra/2D_MoS2/run",
+        "protocol": "Cartesian central joint-response control versus Phonopy-auto unified response",
+        "scope": "BEC/APT and Gamma Hessian; not Raman or full dispersion",
+        "space_group_of_periodic_cell": "P-6m2",
+        "symprec_angstrom": 1e-05,
+        "changes_to_source_input": {
+          "calculation": "scf",
+          "cal_force": "1",
+          "cal_stress": "0",
+          "gamma_only": "0",
+          "scf_thr": "1e-8",
+          "symmetry": "1",
+          "pseudo_dir": ".",
+          "orbital_dir": ".",
+          "init_chg": "auto"
+        },
+        "structure": {
+          "cell_angstrom": [
+            [
+              1.5991197844394547,
+              -2.769756714036977,
+              -0.0
+            ],
+            [
+              1.5991197844394547,
+              2.769756714036977,
+              -0.0
+            ],
+            [
+              0.0,
+              0.0,
+              34.47923620612465
+            ]
+          ],
+          "positions_angstrom": [
+            [
+              1.5991197844394547,
+              0.9232522381969761,
+              3.2257703089999907
+            ],
+            [
+              1.5991197844394545,
+              -0.9232522381969762,
+              1.6459657991041203
+            ],
+            [
+              1.5991197844394545,
+              -0.9232522381969762,
+              4.805572494995341
+            ]
+          ],
+          "symbols": [
+            "Mo",
+            "S",
+            "S"
+          ]
+        },
+        "stages": {
+          "unified": 3,
+          "cartesian": 12
+        },
+        "seed_sha256": {
+          "INPUT": "6981acbbbcf39fd33b9af3296289bf2fe580d2086f51267ebc29402dbdb492b3",
+          "KPT": "152c4570c7e5149c88ff387d3f26c4b02293ca3eaa28295626c9fcfaabd10652",
+          "STRU": "09b4e204b35f3b2da8e2ed53937b82715ed90c1d22be94602724c2ef4c5e9910",
+          "Mo.upf": "b5a929dee3378934d30b33a8f510c8a715450d22b4f1a3469276569ac47ab29d",
+          "Mo_gga_7au_100Ry_4s2p2d1f.orb": "40815a5d260af9590f9ec749eeff4aaa1ac4462ffcb8786c7041be0bbcf61fd6",
+          "S.upf": "47dc390784fa31acb520275f817fbe0bb42219399f641ecbcfb97ca9a1f947fa",
+          "S_gga_6au_100Ry_2s2p1d.orb": "5e2628093932604fe3e7857c021ef3fd29b5bbc376a8e9d5dc7dc97764fdbd22",
+          "INPUT.source": "577783272d96f3806216e1ecabc3a3acd75b24e5d0854981651585e341db69dd",
+          "STRU.direct": "09b4e204b35f3b2da8e2ed53937b82715ed90c1d22be94602724c2ef4c5e9910"
+        },
+        "polarization_mp_density": 0.08,
+        "allocated_cores": 40,
+        "mpi_omp": {
+          "ABACUS": [
+            1,
+            40
+          ],
+          "PYATB": [
+            40,
+            1
+          ]
+        },
+        "timing": "monotonic seconds times allocated cores; successful solver calls only",
+        "completed": true
+      }
+    },
+    "H2O": {
+      "status": "paired_result_audited",
+      "unified": {
+        "status": "joint_result_available",
+        "displacements": 6,
+        "total_stages": 7,
+        "completed_stages": 7,
+        "failed_stages": [],
+        "full_precision_polarization_stages": 7,
+        "output_precision_diagnostic_core_hours": 0,
+        "precision_rerun_legacy_text_check": {
+          "checked_stages": 0,
+          "identical_stages": 0
+        },
+        "timing_completed_components": {
+          "SCF": {
+            "wall_seconds": 781.4071792559698,
+            "reserved_core_hours": 8.682301991732999,
+            "calls": 7
+          },
+          "input_preparation": {
+            "wall_seconds": 3.566562512423843,
+            "reserved_core_hours": 0.03962847236026492,
+            "calls": 8
+          },
+          "band_gate": {
+            "wall_seconds": 3.4408539664000273,
+            "reserved_core_hours": 0.038231710737778084,
+            "calls": 1
+          },
+          "polarization_and_electronic_response": {
+            "wall_seconds": 16.874763945583254,
+            "reserved_core_hours": 0.18749737717314727,
+            "calls": 7
+          }
+        },
+        "reserved_core_hours_completed_components": 8.947659552004188,
+        "dimension": 0,
+        "diagnostics": {
+          "site_fits": [
+            {
+              "atom": 0,
+              "rank": 3,
+              "condition_number": 1.0000000000001816,
+              "dipole_fit_max_e_A": 2.679078793020118e-05,
+              "force_fit_max_eV_A": 0.01171140619993255,
+              "observations": 8
+            },
+            {
+              "atom": 1,
+              "rank": 3,
+              "condition_number": 1.414213562373303,
+              "dipole_fit_max_e_A": 1.2328943342110191e-05,
+              "force_fit_max_eV_A": 0.006077817599944191,
+              "observations": 8
+            }
+          ],
+          "born_asr_max_e": 4.525839239744034e-05,
+          "hessian_reciprocity_max_eV_A2": 0.019507126144247877,
+          "hessian_reciprocity_relative_Frobenius": 0.00043360256858699113,
+          "force_asr_max_eV_A2": 0.039014252288481543,
+          "total_force_derivative_max_eV_A2": 8.182755806274145e-09,
+          "reference_force_max_eV_A": 0.0003358204,
+          "constraints_applied": false
+        },
+        "frequencies_cm1": [
+          -67.865545231317,
+          -41.80040405650486,
+          -33.20072703607463,
+          -6.0640376522059986e-05,
+          -5.686552785404419e-07,
+          8.151890998418663e-06,
+          1605.1839647312518,
+          3709.0052540365123,
+          3830.7257687412502
+        ],
+        "born_raw_e": [
+          [
+            [
+              -0.6789721985808017,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -0.48037494102827943,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -0.2918371698513144
+            ]
+          ],
+          [
+            [
+              0.33946347009420214,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.2401762880217578,
+              0.07813900002749953
+            ],
+            [
+              0.0,
+              0.08441791042171749,
+              0.1459093594342538
+            ]
+          ],
+          [
+            [
+              0.33946347009420214,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.2401762880217578,
+              -0.07813900002749953
+            ],
+            [
+              0.0,
+              -0.08441791042171749,
+              0.1459093594342538
+            ]
+          ]
+        ],
+        "born_projected_e": [
+          [
+            [
+              -0.6789571124500026,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -0.48036748603335816,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -0.29183101952371215
+            ]
+          ],
+          [
+            [
+              0.3394785562250013,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.24018374301667908,
+              0.07813900002749953
+            ],
+            [
+              0.0,
+              0.08441791042171749,
+              0.14591550976185608
+            ]
+          ],
+          [
+            [
+              0.3394785562250013,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.24018374301667908,
+              -0.07813900002749953
+            ],
+            [
+              0.0,
+              -0.08441791042171749,
+              0.14591550976185608
+            ]
+          ]
+        ],
+        "phonon_static_response": {
+          "status": "computed",
+          "unit": "Angstrom^3 Gaussian vibrational polarizability",
+          "rigid_motion_rank": 6,
+          "internal_mode_count": 3,
+          "frequencies_cm1": [
+            1604.6945184293313,
+            3708.7743814596765,
+            3830.4893089317475
+          ],
+          "raw_rigid_coupling_relative": 0.00017886983248779128,
+          "coordinate_convention": "fixed orientation, mass-weighted COM Eckart subspace",
+          "raw_Hessian_modified": false,
+          "reference_max_force_eV_A": 0.0003358204,
+          "tensor": [
+            [
+              8.287736311402808e-34,
+              -5.142752610420146e-19,
+              -8.453009628539827e-18
+            ],
+            [
+              -5.142752610420147e-19,
+              0.01342266852411589,
+              -1.2926679624379053e-18
+            ],
+            [
+              -8.453009628539827e-18,
+              -7.405796194916606e-18,
+              0.09270240929700585
+            ]
+          ],
+          "mode_charges_e_sqrt_amu": [
+            [
+              -2.2749211905834943e-17,
+              2.1176561402191652e-18,
+              0.24655591844650407
+            ],
+            [
+              -8.810218618344926e-18,
+              6.461229461574395e-16,
+              -0.030383732422027
+            ],
+            [
+              8.592597699946861e-18,
+              -0.22426820697884015,
+              -8.977622883494352e-17
+            ]
+          ],
+          "mode_sum_closure_relative": 3.0897804668542287e-16
+        },
+        "epsilon_infinity": [
+          [
+            1.002169,
+            2.076073e-17,
+            1.079257e-11
+          ],
+          [
+            2.076073e-17,
+            1.003362,
+            -5.657693e-11
+          ],
+          [
+            1.079257e-11,
+            -5.657693e-11,
+            1.002829
+          ]
+        ],
+        "hessian_raw_eV_A2": [
+          [
+            -0.04021334336331497,
+            0.0,
+            0.0,
+            0.005268907315681231,
+            0.0,
+            0.0,
+            0.005268907315681231,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            62.78962968703383,
+            0.0,
+            0.0,
+            -31.380221963934005,
+            24.45251796259151,
+            0.0,
+            -31.380221963934005,
+            -24.45251796259151
+          ],
+          [
+            0.0,
+            0.0,
+            41.959167960619155,
+            0.0,
+            18.487141856823943,
+            -20.960076854165337,
+            0.0,
+            -18.487141856823943,
+            -20.960076854165337
+          ],
+          [
+            0.020106671681657497,
+            0.0,
+            0.0,
+            -0.0058725395408613075,
+            0.0,
+            0.0,
+            0.0006036322251801052,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -31.39481483942554,
+            18.498345604935686,
+            0.0,
+            34.15164128229122,
+            -21.471440787502946,
+            0.0,
+            -2.7714193250384107,
+            2.9810771798128846
+          ],
+          [
+            0.0,
+            24.452324499495425,
+            -20.979583980309584,
+            0.0,
+            -21.468301238647,
+            20.000604739647056,
+            0.0,
+            -2.9811593885042384,
+            0.9594721097939664
+          ],
+          [
+            0.020106671681657497,
+            0.0,
+            9.922749818691408e-35,
+            0.0006036322251801052,
+            0.0,
+            0.0,
+            -0.0058725395408613075,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -31.394814839425536,
+            -18.498345604935686,
+            0.0,
+            -2.7714193250384107,
+            -2.9810771798128846,
+            0.0,
+            34.15164128229122,
+            21.471440787502946
+          ],
+          [
+            0.0,
+            -24.452324499495425,
+            -20.979583980309584,
+            0.0,
+            2.9811593885042384,
+            0.9594721097939664,
+            0.0,
+            21.468301238647,
+            20.000604739647056
+          ]
+        ],
+        "cell_A": [
+          [
+            20.000000003727248,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            20.000000003727248,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            20.000000003727248
+          ]
+        ],
+        "masses_amu": [
+          15.9994,
+          1.0079,
+          1.0079
+        ],
+        "independent_phonopy_raw_force_constants_max_difference_eV_A2": 2.1316282072803006e-14,
+        "molecular_internal_validation": {
+          "status": "computed",
+          "unit": "Angstrom^3 Gaussian vibrational polarizability",
+          "rigid_motion_rank": 6,
+          "internal_mode_count": 3,
+          "frequencies_cm1": [
+            1604.6945184293313,
+            3708.7743814596765,
+            3830.4893089317475
+          ],
+          "raw_rigid_coupling_relative": 0.00017886983248779128,
+          "coordinate_convention": "fixed orientation, mass-weighted COM Eckart subspace",
+          "raw_Hessian_modified": false,
+          "reference_max_force_eV_A": 0.0003358204,
+          "tensor": [
+            [
+              8.287736311402808e-34,
+              -5.142752610420146e-19,
+              -8.453009628539827e-18
+            ],
+            [
+              -5.142752610420147e-19,
+              0.01342266852411589,
+              -1.2926679624379053e-18
+            ],
+            [
+              -8.453009628539827e-18,
+              -7.405796194916606e-18,
+              0.09270240929700585
+            ]
+          ],
+          "mode_charges_e_sqrt_amu": [
+            [
+              -2.2749211905834943e-17,
+              2.1176561402191652e-18,
+              0.24655591844650407
+            ],
+            [
+              -8.810218618344926e-18,
+              6.461229461574395e-16,
+              -0.030383732422027
+            ],
+            [
+              8.592597699946861e-18,
+              -0.22426820697884015,
+              -8.977622883494352e-17
+            ]
+          ],
+          "mode_sum_closure_relative": 3.0897804668542287e-16
+        },
+        "solver_cost": {
+          "solver_core_hours": 8.908031079643925,
+          "component_core_hours": {
+            "ABACUS": 8.682301991732999,
+            "PYATB": 0.22572908791092533,
+            "preparation": 0.03962847236026492
+          },
+          "calls": {
+            "ABACUS": 7,
+            "PYATB": 8,
+            "preparation": 8
+          },
+          "definition": "successful ABACUS + PYATB calls, including reference and band gate; input preparation excluded"
+        }
+      },
+      "cartesian": {
+        "status": "joint_result_available",
+        "displacements": 12,
+        "total_stages": 13,
+        "completed_stages": 13,
+        "failed_stages": [],
+        "full_precision_polarization_stages": 13,
+        "output_precision_diagnostic_core_hours": 0,
+        "precision_rerun_legacy_text_check": {
+          "checked_stages": 0,
+          "identical_stages": 0
+        },
+        "timing_completed_components": {
+          "SCF": {
+            "wall_seconds": 1249.4156661303714,
+            "reserved_core_hours": 13.88239629033746,
+            "calls": 13
+          },
+          "input_preparation": {
+            "wall_seconds": 5.953994521871209,
+            "reserved_core_hours": 0.06615549468745788,
+            "calls": 14
+          },
+          "band_gate": {
+            "wall_seconds": 3.3837367529049516,
+            "reserved_core_hours": 0.03759707503227724,
+            "calls": 1
+          },
+          "polarization_and_electronic_response": {
+            "wall_seconds": 31.392735365778208,
+            "reserved_core_hours": 0.34880817073086895,
+            "calls": 13
+          }
+        },
+        "reserved_core_hours_completed_components": 14.334957030788065,
+        "dimension": 0,
+        "diagnostics": {
+          "site_fits": [
+            {
+              "atom": 0,
+              "rank": 3,
+              "condition_number": 1.0000000000000524,
+              "dipole_fit_max_e_A": 3.862278085576621e-05,
+              "force_fit_max_eV_A": 0.017532525099999998,
+              "observations": 24
+            },
+            {
+              "atom": 1,
+              "rank": 3,
+              "condition_number": 1.0000000000000526,
+              "dipole_fit_max_e_A": 1.2328943337184444e-05,
+              "force_fit_max_eV_A": 0.00851868364995409,
+              "observations": 12
+            }
+          ],
+          "born_asr_max_e": 4.2590484651772176e-05,
+          "hessian_reciprocity_max_eV_A2": 0.011539343294054236,
+          "hessian_reciprocity_relative_Frobenius": 0.0003037132032065994,
+          "force_asr_max_eV_A2": 0.023078686588108473,
+          "total_force_derivative_max_eV_A2": 7.105427357601002e-15,
+          "reference_force_max_eV_A": 0.0003358204,
+          "constraints_applied": false
+        },
+        "frequencies_cm1": [
+          -52.69370088387106,
+          -36.19409195819934,
+          -4.461834925684211e-05,
+          -2.455454074446416e-06,
+          5.101825420550133e-05,
+          28.643833684945253,
+          1604.500294542207,
+          3709.276785202069,
+          3830.914886315014
+        ],
+        "born_raw_e": [
+          [
+            [
+              -0.6788902651503063,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -0.4803320722443937,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -0.2918613093540902
+            ]
+          ],
+          [
+            [
+              0.33945214560717557,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.24017395905058495,
+              0.07813900002776575
+            ],
+            [
+              0.0,
+              0.08442919121574048,
+              0.14590935943471922
+            ]
+          ],
+          [
+            [
+              0.33945214560717557,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.24017395905058495,
+              -0.07813900002776575
+            ],
+            [
+              0.0,
+              -0.08442919121574048,
+              0.14590935943471922
+            ]
+          ]
+        ],
+        "born_projected_e": [
+          [
+            [
+              -0.6788949405049879,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -0.48033735419665247,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -0.291847112525873
+            ]
+          ],
+          [
+            [
+              0.33944747025249394,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.24016867709832623,
+              0.07813900002776575
+            ],
+            [
+              0.0,
+              0.08442919121574048,
+              0.1459235562629365
+            ]
+          ],
+          [
+            [
+              0.33944747025249394,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.24016867709832623,
+              -0.07813900002776575
+            ],
+            [
+              0.0,
+              -0.08442919121574048,
+              0.1459235562629365
+            ]
+          ]
+        ],
+        "phonon_static_response": {
+          "status": "computed",
+          "unit": "Angstrom^3 Gaussian vibrational polarizability",
+          "rigid_motion_rank": 6,
+          "internal_mode_count": 3,
+          "frequencies_cm1": [
+            1604.339536563627,
+            3709.2236327392247,
+            3830.9223747872343
+          ],
+          "raw_rigid_coupling_relative": 0.00015358351171747603,
+          "coordinate_convention": "fixed orientation, mass-weighted COM Eckart subspace",
+          "raw_Hessian_modified": false,
+          "reference_max_force_eV_A": 0.0003358204,
+          "tensor": [
+            [
+              8.289201848181949e-34,
+              -5.140702989601142e-19,
+              -8.456553752942535e-18
+            ],
+            [
+              -5.140702989601138e-19,
+              0.01341746154507654,
+              -2.4639926347322934e-18
+            ],
+            [
+              -8.456553752942535e-18,
+              -3.9795622462658656e-18,
+              0.09275893169505632
+            ]
+          ],
+          "mode_charges_e_sqrt_amu": [
+            [
+              -2.2746416054793298e-17,
+              -1.7661560499515763e-17,
+              0.2465774077367428
+            ],
+            [
+              -8.811251966744618e-18,
+              -4.2705313849837165e-16,
+              -0.030357874730382806
+            ],
+            [
+              8.591810877772223e-18,
+              -0.2242500535204489,
+              6.435411639996014e-17
+            ]
+          ],
+          "mode_sum_closure_relative": 1.3338948693934273e-15
+        },
+        "epsilon_infinity": [
+          [
+            1.002169,
+            2.076073e-17,
+            1.079257e-11
+          ],
+          [
+            2.076073e-17,
+            1.003362,
+            -5.657693e-11
+          ],
+          [
+            1.079257e-11,
+            -5.657693e-11,
+            1.002829
+          ]
+        ],
+        "hessian_raw_eV_A2": [
+          [
+            -0.016317265411458875,
+            0.0,
+            0.0,
+            -0.003380710588324799,
+            0.0,
+            0.0,
+            -0.003380710588324799,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            62.77824056956362,
+            0.0,
+            0.0,
+            -31.38938536139148,
+            24.45251796731582,
+            0.0,
+            -31.38938536139148,
+            -24.45251796731582
+          ],
+          [
+            0.0,
+            0.0,
+            41.93100228586366,
+            0.0,
+            18.50066289852935,
+            -20.960076854165337,
+            0.0,
+            -18.50066289852935,
+            -20.960076854165337
+          ],
+          [
+            0.008158632705729437,
+            0.0,
+            0.0,
+            0.0032108667285587504,
+            0.0,
+            0.0,
+            0.00016984385976604862,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -31.38912028478181,
+            18.491528453771537,
+            0.0,
+            34.161174994956994,
+            -21.471440787502942,
+            0.0,
+            -2.771789633565512,
+            2.9810771798128832
+          ],
+          [
+            0.0,
+            24.46294337375123,
+            -20.965501142931828,
+            0.0,
+            -21.481966377770135,
+            20.000604739647052,
+            0.0,
+            -2.9813034792407804,
+            0.9594721145182814
+          ],
+          [
+            0.008158632705729437,
+            0.0,
+            0.0,
+            0.00016984385976604862,
+            0.0,
+            0.0,
+            0.0032108667285587504,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -31.38912028478181,
+            -18.491528453771537,
+            0.0,
+            -2.771789633565512,
+            -2.9810771798128832,
+            0.0,
+            34.161174994956994,
+            21.471440787502942
+          ],
+          [
+            0.0,
+            -24.46294337375123,
+            -20.965501142931828,
+            0.0,
+            2.9813034792407804,
+            0.9594721145182814,
+            0.0,
+            21.481966377770135,
+            20.000604739647052
+          ]
+        ],
+        "cell_A": [
+          [
+            20.000000003727248,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            20.000000003727248,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            20.000000003727248
+          ]
+        ],
+        "masses_amu": [
+          15.9994,
+          1.0079,
+          1.0079
+        ],
+        "independent_phonopy_raw_force_constants_max_difference_eV_A2": 1.4210854715202004e-14,
+        "molecular_internal_validation": {
+          "status": "computed",
+          "unit": "Angstrom^3 Gaussian vibrational polarizability",
+          "rigid_motion_rank": 6,
+          "internal_mode_count": 3,
+          "frequencies_cm1": [
+            1604.339536563627,
+            3709.2236327392247,
+            3830.9223747872343
+          ],
+          "raw_rigid_coupling_relative": 0.00015358351171747603,
+          "coordinate_convention": "fixed orientation, mass-weighted COM Eckart subspace",
+          "raw_Hessian_modified": false,
+          "reference_max_force_eV_A": 0.0003358204,
+          "tensor": [
+            [
+              8.289201848181949e-34,
+              -5.140702989601142e-19,
+              -8.456553752942535e-18
+            ],
+            [
+              -5.140702989601138e-19,
+              0.01341746154507654,
+              -2.4639926347322934e-18
+            ],
+            [
+              -8.456553752942535e-18,
+              -3.9795622462658656e-18,
+              0.09275893169505632
+            ]
+          ],
+          "mode_charges_e_sqrt_amu": [
+            [
+              -2.2746416054793298e-17,
+              -1.7661560499515763e-17,
+              0.2465774077367428
+            ],
+            [
+              -8.811251966744618e-18,
+              -4.2705313849837165e-16,
+              -0.030357874730382806
+            ],
+            [
+              8.591810877772223e-18,
+              -0.2242500535204489,
+              6.435411639996014e-17
+            ]
+          ],
+          "mode_sum_closure_relative": 1.3338948693934273e-15
+        },
+        "solver_cost": {
+          "solver_core_hours": 14.268801536100607,
+          "component_core_hours": {
+            "ABACUS": 13.88239629033746,
+            "PYATB": 0.38640524576314617,
+            "preparation": 0.06615549468745788
+          },
+          "calls": {
+            "ABACUS": 13,
+            "PYATB": 14,
+            "preparation": 14
+          },
+          "definition": "successful ABACUS + PYATB calls, including reference and band gate; input preparation excluded"
+        }
+      },
+      "comparison": {
+        "status": "compared",
+        "max_BEC_difference_raw_e": 8.19334304954511e-05,
+        "max_BEC_difference_projected_e": 6.217194501467738e-05,
+        "max_Hessian_difference_eV_A2": 0.02816567475549192,
+        "relative_Hessian_Frobenius_difference": 0.00044306749390475385,
+        "max_frequency_difference_cm1": 33.200682417725375,
+        "both_have_full_precision_polarization": true,
+        "molecular_internal_mode_count": 3,
+        "max_internal_frequency_difference_cm1": 0.4492512795482071,
+        "max_phonon_static_difference": 5.652239805047088e-05,
+        "relative_phonon_static_Frobenius_difference": 0.0006056243735921142,
+        "static_unit": "Angstrom^3 Gaussian vibrational polarizability",
+        "solver_speedup": 1.6017907221615761
+      },
+      "plan": {
+        "case": "H2O",
+        "dimension": 0,
+        "source": "/home/zhuxd/abacus/agent-runs/20260904-molecular-relaxed-efficiency/relaxed-seeds/H2O",
+        "protocol": "Cartesian central joint-response control versus Phonopy-auto unified response",
+        "scope": "BEC/APT and Gamma Hessian; not Raman or full dispersion",
+        "space_group_of_periodic_cell": "Pmm2",
+        "symprec_angstrom": 1e-05,
+        "changes_to_source_input": {
+          "calculation": "scf",
+          "cal_force": "1",
+          "cal_stress": "0",
+          "gamma_only": "0",
+          "scf_thr": "1e-8",
+          "symmetry": "1",
+          "pseudo_dir": ".",
+          "orbital_dir": ".",
+          "init_chg": "auto",
+          "kspacing": "0"
+        },
+        "structure": {
+          "cell_angstrom": [
+            [
+              20.00000000372726,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              20.00000000372726,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              20.00000000372726
+            ]
+          ],
+          "positions_angstrom": [
+            [
+              10.00000000186363,
+              10.00000000186363,
+              10.121241253886224
+            ],
+            [
+              10.00000000186363,
+              10.762682590005767,
+              9.527113375775501
+            ],
+            [
+              10.00000000186363,
+              9.237317413721494,
+              9.527113375775501
+            ]
+          ],
+          "symbols": [
+            "O",
+            "H",
+            "H"
+          ]
+        },
+        "stages": {
+          "unified": 6,
+          "cartesian": 12
+        },
+        "seed_sha256": {
+          "INPUT": "f4fea1d07cc8313f53beb2819930c2e75357e19b498a4b38d688e7eb0e2eca36",
+          "INPUT.phonon": "60287de86193cf158fcdfafac5815862f231b3b1f7dfd57c1fccd9c5950744c4",
+          "KPT": "91042b39ee493cb5c1bee648adc865a2e5935a29278eb405dc009f994db55ece",
+          "STRU": "6f4d257ed98ae776aa57f3ba25e82365ed708b0041b701001fc588a7207a1814",
+          "H_gga_9au_100Ry_3s2p.orb": "7234ccdfeed67ab25561fec0d3bf48c0fbf1080f05b1ca6686fa029df49be9e9",
+          "O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+          "H.upf": "8272fc45fbee2b45a490830c61ef9b2f2b894591b2c9a310fe4af152b76502a6",
+          "O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+          "INPUT.source": "f4fea1d07cc8313f53beb2819930c2e75357e19b498a4b38d688e7eb0e2eca36",
+          "STRU.direct": "6f4d257ed98ae776aa57f3ba25e82365ed708b0041b701001fc588a7207a1814"
+        },
+        "polarization_mp_density": 0.08,
+        "allocated_cores": 40,
+        "mpi_omp": {
+          "ABACUS": [
+            1,
+            40
+          ],
+          "PYATB": [
+            40,
+            1
+          ]
+        },
+        "timing": "monotonic seconds times allocated cores; successful solver calls only",
+        "completed": true
+      }
+    },
+    "CH4": {
+      "status": "paired_result_audited",
+      "unified": {
+        "status": "joint_result_available",
+        "displacements": 3,
+        "total_stages": 4,
+        "completed_stages": 4,
+        "failed_stages": [],
+        "full_precision_polarization_stages": 4,
+        "output_precision_diagnostic_core_hours": 0,
+        "precision_rerun_legacy_text_check": {
+          "checked_stages": 0,
+          "identical_stages": 0
+        },
+        "timing_completed_components": {
+          "SCF": {
+            "wall_seconds": 281.0629993993789,
+            "reserved_core_hours": 3.1229222155486545,
+            "calls": 4
+          },
+          "input_preparation": {
+            "wall_seconds": 1.7251057913526893,
+            "reserved_core_hours": 0.01916784212614099,
+            "calls": 5
+          },
+          "band_gate": {
+            "wall_seconds": 3.357492921408266,
+            "reserved_core_hours": 0.03730547690453629,
+            "calls": 1
+          },
+          "polarization_and_electronic_response": {
+            "wall_seconds": 9.027183128055185,
+            "reserved_core_hours": 0.10030203475616872,
+            "calls": 4
+          }
+        },
+        "reserved_core_hours_completed_components": 3.2796975693355006,
+        "dimension": 0,
+        "diagnostics": {
+          "site_fits": [
+            {
+              "atom": 0,
+              "rank": 3,
+              "condition_number": 1.0,
+              "dipole_fit_max_e_A": 4.8834855863841314e-08,
+              "force_fit_max_eV_A": 0.0019632827500000033,
+              "observations": 24
+            },
+            {
+              "atom": 1,
+              "rank": 3,
+              "condition_number": 1.0,
+              "dipole_fit_max_e_A": 7.589852151777905e-06,
+              "force_fit_max_eV_A": 0.0019974013000000207,
+              "observations": 12
+            }
+          ],
+          "born_asr_max_e": 5.786169157551493e-06,
+          "hessian_reciprocity_max_eV_A2": 0.0003007829829400066,
+          "hessian_reciprocity_relative_Frobenius": 1.7812747586594868e-05,
+          "force_asr_max_eV_A2": 0.0012031319317422629,
+          "total_force_derivative_max_eV_A2": 9.448632987130168e-09,
+          "reference_force_max_eV_A": 2.1072e-05,
+          "constraints_applied": false
+        },
+        "frequencies_cm1": [
+          -28.978205556297446,
+          -28.978205556292398,
+          -28.978205556275235,
+          -7.563046940556369e-05,
+          -4.478680018879618e-05,
+          1.2491396734731946e-05,
+          1287.929152124882,
+          1287.9291521248826,
+          1287.9291521248829,
+          1516.6477821365045,
+          1516.647782136505,
+          2968.3468993317874,
+          3088.100898478119,
+          3088.1008984781192,
+          3088.1008984781192
+        ],
+        "born_raw_e": [
+          [
+            [
+              -0.023744248971025794,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -0.023744248971025794,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -0.023744248971025794
+            ]
+          ],
+          [
+            [
+              0.005934615700467061,
+              -0.06529269594084186,
+              -0.06529269594084186
+            ],
+            [
+              -0.06529269594084186,
+              0.005934615700467061,
+              -0.06529269594084186
+            ],
+            [
+              -0.06529269594084186,
+              -0.06529269594084186,
+              0.005934615700467061
+            ]
+          ],
+          [
+            [
+              0.005934615700467061,
+              0.06529269594084186,
+              0.06529269594084186
+            ],
+            [
+              0.06529269594084186,
+              0.005934615700467061,
+              -0.06529269594084186
+            ],
+            [
+              0.06529269594084186,
+              -0.06529269594084186,
+              0.005934615700467061
+            ]
+          ],
+          [
+            [
+              0.005934615700467061,
+              0.06529269594084186,
+              -0.06529269594084186
+            ],
+            [
+              0.06529269594084186,
+              0.005934615700467061,
+              0.06529269594084186
+            ],
+            [
+              -0.06529269594084185,
+              0.06529269594084186,
+              0.005934615700467061
+            ]
+          ],
+          [
+            [
+              0.005934615700467061,
+              -0.06529269594084186,
+              0.06529269594084186
+            ],
+            [
+              -0.06529269594084186,
+              0.005934615700467061,
+              0.06529269594084186
+            ],
+            [
+              0.06529269594084185,
+              0.06529269594084186,
+              0.005934615700467061
+            ]
+          ]
+        ],
+        "born_projected_e": [
+          [
+            [
+              -0.023743091737194282,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -0.023743091737194282,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -0.023743091737194282
+            ]
+          ],
+          [
+            [
+              0.005935772934298571,
+              -0.06529269594084186,
+              -0.06529269594084186
+            ],
+            [
+              -0.06529269594084186,
+              0.005935772934298571,
+              -0.06529269594084186
+            ],
+            [
+              -0.06529269594084186,
+              -0.06529269594084186,
+              0.005935772934298571
+            ]
+          ],
+          [
+            [
+              0.005935772934298571,
+              0.06529269594084186,
+              0.06529269594084186
+            ],
+            [
+              0.06529269594084186,
+              0.005935772934298571,
+              -0.06529269594084186
+            ],
+            [
+              0.06529269594084186,
+              -0.06529269594084186,
+              0.005935772934298571
+            ]
+          ],
+          [
+            [
+              0.005935772934298571,
+              0.06529269594084186,
+              -0.06529269594084186
+            ],
+            [
+              0.06529269594084186,
+              0.005935772934298571,
+              0.06529269594084186
+            ],
+            [
+              -0.06529269594084185,
+              0.06529269594084186,
+              0.005935772934298571
+            ]
+          ],
+          [
+            [
+              0.005935772934298571,
+              -0.06529269594084186,
+              0.06529269594084186
+            ],
+            [
+              -0.06529269594084186,
+              0.005935772934298571,
+              0.06529269594084186
+            ],
+            [
+              0.06529269594084185,
+              0.06529269594084186,
+              0.005935772934298571
+            ]
+          ]
+        ],
+        "phonon_static_response": {
+          "status": "computed",
+          "unit": "Angstrom^3 Gaussian vibrational polarizability",
+          "rigid_motion_rank": 6,
+          "internal_mode_count": 9,
+          "frequencies_cm1": [
+            1287.94924242638,
+            1287.9492424263804,
+            1287.949242426381,
+            1516.6479692477235,
+            1516.6479692477242,
+            2968.34726554141,
+            3088.1025964562623,
+            3088.1025964562627,
+            3088.102596456263
+          ],
+          "raw_rigid_coupling_relative": 7.57220972529354e-05,
+          "coordinate_convention": "fixed orientation, mass-weighted COM Eckart subspace",
+          "raw_Hessian_modified": false,
+          "reference_max_force_eV_A": 3.649777461709138e-05,
+          "tensor": [
+            [
+              0.04302385373001444,
+              -2.208850246084785e-18,
+              1.3430324917919165e-17
+            ],
+            [
+              -2.2435119127825268e-18,
+              0.04302385373001444,
+              -7.44773525429384e-18
+            ],
+            [
+              1.1105723508410482e-17,
+              5.009723622286348e-18,
+              0.043023853730014425
+            ]
+          ],
+          "mode_charges_e_sqrt_amu": [
+            [
+              0.09113112114604048,
+              0.07776768959586795,
+              0.023381946383866797
+            ],
+            [
+              0.07281856144095378,
+              -0.0627007414094043,
+              -0.07526941171214668
+            ],
+            [
+              0.03594420775935023,
+              -0.07014423486462257,
+              0.09320520611489964
+            ],
+            [
+              2.7907561441887995e-17,
+              2.743358997752191e-16,
+              -1.2102705074518558e-16
+            ],
+            [
+              -2.679376951083671e-16,
+              -9.166991351832449e-17,
+              1.325006092473875e-16
+            ],
+            [
+              -2.8482380864347966e-17,
+              -1.7053873409712812e-16,
+              2.195779747051429e-17
+            ],
+            [
+              0.015543116392056503,
+              0.11552724412107301,
+              -0.07441097312033916
+            ],
+            [
+              0.09578280605135218,
+              0.04458858713011117,
+              0.08923361185546837
+            ],
+            [
+              0.09853522781145276,
+              -0.06156654355762823,
+              -0.07500330070479985
+            ]
+          ],
+          "mode_sum_closure_relative": 9.09353330552292e-16
+        },
+        "epsilon_infinity": [
+          [
+            1.005713,
+            5.00256e-12,
+            5.300622e-12
+          ],
+          [
+            5.00256e-12,
+            1.005713,
+            5.300622e-12
+          ],
+          [
+            5.300622e-12,
+            5.300622e-12,
+            1.005713
+          ]
+        ],
+        "hessian_raw_eV_A2": [
+          [
+            50.35108319297,
+            0.0,
+            0.0,
+            -12.588071581225437,
+            -8.601654944159137,
+            -8.601654944159137,
+            -12.588071581225437,
+            8.601654944159137,
+            8.601654944159137,
+            -12.588071581225437,
+            8.601654944159137,
+            -8.601654944159137,
+            -12.588071581225437,
+            -8.601654944159137,
+            8.601654944159137
+          ],
+          [
+            0.0,
+            50.35108319297,
+            0.0,
+            -8.601654944159137,
+            -12.588071581225437,
+            -8.601654944159137,
+            8.601654944159137,
+            -12.588071581225437,
+            -8.601654944159137,
+            8.601654944159137,
+            -12.588071581225437,
+            8.601654944159137,
+            -8.601654944159137,
+            -12.588071581225437,
+            8.601654944159137
+          ],
+          [
+            0.0,
+            0.0,
+            50.35108319297,
+            -8.601654944159137,
+            -8.601654944159137,
+            -12.588071581225437,
+            8.601654944159137,
+            -8.601654944159137,
+            -12.588071581225437,
+            -8.601654944159137,
+            8.601654944159137,
+            -12.588071581225437,
+            8.601654944159137,
+            8.601654944159137,
+            -12.588071581225437
+          ],
+          [
+            -12.5877707982425,
+            -8.601931316604864,
+            -8.601931316604864,
+            13.458900932915876,
+            9.397388412691285,
+            9.397388412691285,
+            1.1199779965744883,
+            1.0745366028323673,
+            1.0745366028323673,
+            -0.9954036694081477,
+            -1.074456747730656,
+            -0.7956536087061216,
+            -0.9954036694081475,
+            -0.7956536087061216,
+            -1.0744567477306557
+          ],
+          [
+            -8.601931316604864,
+            -12.587770798242497,
+            -8.601931316604864,
+            9.397388412691285,
+            13.458900932915876,
+            9.397388412691285,
+            -1.0744567477306557,
+            -0.9954036694081475,
+            -0.7956536087061216,
+            1.0745366028323673,
+            1.1199779965744883,
+            1.0745366028323673,
+            -0.7956536087061216,
+            -0.9954036694081476,
+            -1.0744567477306557
+          ],
+          [
+            -8.601931316604864,
+            -8.601931316604864,
+            -12.587770798242497,
+            9.397388412691285,
+            9.397388412691285,
+            13.458900932915876,
+            -1.0744567477306557,
+            -0.7956536087061216,
+            -0.9954036694081475,
+            -0.7956536087061216,
+            -1.074456747730656,
+            -0.9954036694081475,
+            1.0745366028323673,
+            1.0745366028323673,
+            1.1199779965744883
+          ],
+          [
+            -12.5877707982425,
+            8.601931316604864,
+            8.601931316604864,
+            1.1199779965744883,
+            -1.0745366028323673,
+            -1.0745366028323673,
+            13.458900932915876,
+            -9.397388412691285,
+            -9.397388412691285,
+            -0.9954036694081475,
+            0.7956536087061216,
+            1.0744567477306557,
+            -0.9954036694081477,
+            1.074456747730656,
+            0.7956536087061216
+          ],
+          [
+            8.601931316604864,
+            -12.5877707982425,
+            -8.601931316604864,
+            1.0744567477306557,
+            -0.9954036694081476,
+            -0.7956536087061216,
+            -9.397388412691285,
+            13.458900932915876,
+            9.397388412691285,
+            0.7956536087061216,
+            -0.9954036694081475,
+            -1.0744567477306557,
+            -1.0745366028323673,
+            1.1199779965744883,
+            1.0745366028323673
+          ],
+          [
+            8.601931316604864,
+            -8.601931316604864,
+            -12.5877707982425,
+            1.0744567477306557,
+            -0.7956536087061216,
+            -0.9954036694081475,
+            -9.397388412691285,
+            9.397388412691285,
+            13.458900932915876,
+            -1.0745366028323673,
+            1.0745366028323673,
+            1.1199779965744883,
+            0.7956536087061216,
+            -1.074456747730656,
+            -0.9954036694081475
+          ],
+          [
+            -12.5877707982425,
+            8.601931316604864,
+            -8.601931316604864,
+            -0.9954036694081475,
+            1.074456747730656,
+            -0.7956536087061216,
+            -0.9954036694081477,
+            0.7956536087061216,
+            -1.0744567477306557,
+            13.458900932915876,
+            -9.397388412691285,
+            9.397388412691285,
+            1.1199779965744883,
+            -1.0745366028323673,
+            1.0745366028323673
+          ],
+          [
+            8.601931316604864,
+            -12.587770798242497,
+            8.601931316604864,
+            -1.0745366028323673,
+            1.1199779965744883,
+            -1.0745366028323673,
+            0.7956536087061216,
+            -0.9954036694081476,
+            1.0744567477306557,
+            -9.397388412691285,
+            13.458900932915876,
+            -9.397388412691285,
+            1.0744567477306557,
+            -0.9954036694081475,
+            0.7956536087061216
+          ],
+          [
+            -8.601931316604864,
+            8.601931316604864,
+            -12.5877707982425,
+            -0.7956536087061216,
+            1.074456747730656,
+            -0.9954036694081475,
+            1.0745366028323673,
+            -1.0745366028323673,
+            1.1199779965744883,
+            9.397388412691285,
+            -9.397388412691285,
+            13.458900932915876,
+            -1.0744567477306557,
+            0.7956536087061216,
+            -0.9954036694081475
+          ],
+          [
+            -12.5877707982425,
+            -8.601931316604864,
+            8.601931316604864,
+            -0.9954036694081477,
+            -0.7956536087061216,
+            1.0744567477306557,
+            -0.9954036694081475,
+            -1.074456747730656,
+            0.7956536087061216,
+            1.1199779965744883,
+            1.0745366028323673,
+            -1.0745366028323673,
+            13.458900932915876,
+            9.397388412691285,
+            -9.397388412691285
+          ],
+          [
+            -8.601931316604864,
+            -12.5877707982425,
+            8.601931316604864,
+            -0.7956536087061216,
+            -0.9954036694081475,
+            1.0744567477306557,
+            1.0745366028323673,
+            1.1199779965744883,
+            -1.0745366028323673,
+            -1.0744567477306557,
+            -0.9954036694081476,
+            0.7956536087061216,
+            9.397388412691285,
+            13.458900932915876,
+            -9.397388412691285
+          ],
+          [
+            8.601931316604864,
+            8.601931316604864,
+            -12.587770798242497,
+            -1.0745366028323673,
+            -1.0745366028323673,
+            1.1199779965744883,
+            0.7956536087061216,
+            1.074456747730656,
+            -0.9954036694081475,
+            1.0744567477306557,
+            0.7956536087061216,
+            -0.9954036694081475,
+            -9.397388412691285,
+            -9.397388412691285,
+            13.458900932915876
+          ]
+        ],
+        "cell_A": [
+          [
+            20.000000003727248,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            20.000000003727248,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            20.000000003727248
+          ]
+        ],
+        "masses_amu": [
+          12.0107,
+          1.0079,
+          1.0079,
+          1.0079,
+          1.0079
+        ],
+        "independent_phonopy_raw_force_constants_max_difference_eV_A2": 2.842170943040401e-14,
+        "molecular_internal_validation": {
+          "status": "computed",
+          "unit": "Angstrom^3 Gaussian vibrational polarizability",
+          "rigid_motion_rank": 6,
+          "internal_mode_count": 9,
+          "frequencies_cm1": [
+            1287.94924242638,
+            1287.9492424263804,
+            1287.949242426381,
+            1516.6479692477235,
+            1516.6479692477242,
+            2968.34726554141,
+            3088.1025964562623,
+            3088.1025964562627,
+            3088.102596456263
+          ],
+          "raw_rigid_coupling_relative": 7.57220972529354e-05,
+          "coordinate_convention": "fixed orientation, mass-weighted COM Eckart subspace",
+          "raw_Hessian_modified": false,
+          "reference_max_force_eV_A": 3.649777461709138e-05,
+          "tensor": [
+            [
+              0.04302385373001444,
+              -2.208850246084785e-18,
+              1.3430324917919165e-17
+            ],
+            [
+              -2.2435119127825268e-18,
+              0.04302385373001444,
+              -7.44773525429384e-18
+            ],
+            [
+              1.1105723508410482e-17,
+              5.009723622286348e-18,
+              0.043023853730014425
+            ]
+          ],
+          "mode_charges_e_sqrt_amu": [
+            [
+              0.09113112114604048,
+              0.07776768959586795,
+              0.023381946383866797
+            ],
+            [
+              0.07281856144095378,
+              -0.0627007414094043,
+              -0.07526941171214668
+            ],
+            [
+              0.03594420775935023,
+              -0.07014423486462257,
+              0.09320520611489964
+            ],
+            [
+              2.7907561441887995e-17,
+              2.743358997752191e-16,
+              -1.2102705074518558e-16
+            ],
+            [
+              -2.679376951083671e-16,
+              -9.166991351832449e-17,
+              1.325006092473875e-16
+            ],
+            [
+              -2.8482380864347966e-17,
+              -1.7053873409712812e-16,
+              2.195779747051429e-17
+            ],
+            [
+              0.015543116392056503,
+              0.11552724412107301,
+              -0.07441097312033916
+            ],
+            [
+              0.09578280605135218,
+              0.04458858713011117,
+              0.08923361185546837
+            ],
+            [
+              0.09853522781145276,
+              -0.06156654355762823,
+              -0.07500330070479985
+            ]
+          ],
+          "mode_sum_closure_relative": 9.09353330552292e-16
+        },
+        "solver_cost": {
+          "solver_core_hours": 3.2605297272093594,
+          "component_core_hours": {
+            "ABACUS": 3.1229222155486545,
+            "PYATB": 0.137607511660705,
+            "preparation": 0.01916784212614099
+          },
+          "calls": {
+            "ABACUS": 4,
+            "PYATB": 5,
+            "preparation": 5
+          },
+          "definition": "successful ABACUS + PYATB calls, including reference and band gate; input preparation excluded"
+        }
+      },
+      "cartesian": {
+        "status": "joint_result_available",
+        "displacements": 12,
+        "total_stages": 13,
+        "completed_stages": 13,
+        "failed_stages": [],
+        "full_precision_polarization_stages": 13,
+        "output_precision_diagnostic_core_hours": 0,
+        "precision_rerun_legacy_text_check": {
+          "checked_stages": 0,
+          "identical_stages": 0
+        },
+        "timing_completed_components": {
+          "SCF": {
+            "wall_seconds": 912.2076719817705,
+            "reserved_core_hours": 10.13564079979745,
+            "calls": 13
+          },
+          "input_preparation": {
+            "wall_seconds": 4.831813498865813,
+            "reserved_core_hours": 0.05368681665406459,
+            "calls": 14
+          },
+          "band_gate": {
+            "wall_seconds": 3.1217854311689734,
+            "reserved_core_hours": 0.03468650479076637,
+            "calls": 1
+          },
+          "polarization_and_electronic_response": {
+            "wall_seconds": 29.748639203142375,
+            "reserved_core_hours": 0.33054043559047086,
+            "calls": 13
+          }
+        },
+        "reserved_core_hours_completed_components": 10.554554556832752,
+        "dimension": 0,
+        "diagnostics": {
+          "site_fits": [
+            {
+              "atom": 0,
+              "rank": 3,
+              "condition_number": 1.0000000000000002,
+              "dipole_fit_max_e_A": 4.913551417830775e-08,
+              "force_fit_max_eV_A": 0.001963282833338159,
+              "observations": 144
+            },
+            {
+              "atom": 1,
+              "rank": 3,
+              "condition_number": 1.0000000000000002,
+              "dipole_fit_max_e_A": 7.5898588857639e-06,
+              "force_fit_max_eV_A": 0.0019974013666667068,
+              "observations": 36
+            }
+          ],
+          "born_asr_max_e": 1.0275368029890111e-05,
+          "hessian_reciprocity_max_eV_A2": 0.0003007853444447761,
+          "hessian_reciprocity_relative_Frobenius": 1.781299623543426e-05,
+          "force_asr_max_eV_A2": 0.0012031366534799304,
+          "total_force_derivative_max_eV_A2": 4.724304503156418e-09,
+          "reference_force_max_eV_A": 2.1072e-05,
+          "constraints_applied": false
+        },
+        "frequencies_cm1": [
+          -28.978205556328028,
+          -28.978205556311433,
+          -28.978205556298338,
+          1.1693083084950966e-05,
+          3.071663510579371e-05,
+          5.4113088834017624e-05,
+          1287.9291525299484,
+          1287.9291525299493,
+          1287.92915252995,
+          1516.6477824166452,
+          1516.6477824166468,
+          2968.346904198376,
+          3088.1008984047703,
+          3088.1008984047703,
+          3088.1008984047703
+        ],
+        "born_raw_e": [
+          [
+            [
+              -0.02374873847808072,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -0.023748738478080716,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -0.02374873847808072
+            ]
+          ],
+          [
+            [
+              0.005934615777512707,
+              -0.06529269581419708,
+              -0.0652926958141971
+            ],
+            [
+              -0.0652926958141971,
+              0.005934615777512707,
+              -0.0652926958141971
+            ],
+            [
+              -0.0652926958141971,
+              -0.06529269581419708,
+              0.005934615777512707
+            ]
+          ],
+          [
+            [
+              0.005934615777512707,
+              0.06529269581419708,
+              0.0652926958141971
+            ],
+            [
+              0.0652926958141971,
+              0.005934615777512707,
+              -0.0652926958141971
+            ],
+            [
+              0.0652926958141971,
+              -0.06529269581419708,
+              0.005934615777512707
+            ]
+          ],
+          [
+            [
+              0.005934615777512707,
+              0.06529269581419708,
+              -0.0652926958141971
+            ],
+            [
+              0.0652926958141971,
+              0.005934615777512707,
+              0.0652926958141971
+            ],
+            [
+              -0.0652926958141971,
+              0.06529269581419708,
+              0.005934615777512707
+            ]
+          ],
+          [
+            [
+              0.005934615777512707,
+              -0.06529269581419708,
+              0.0652926958141971
+            ],
+            [
+              -0.0652926958141971,
+              0.005934615777512707,
+              0.0652926958141971
+            ],
+            [
+              0.0652926958141971,
+              0.06529269581419708,
+              0.005934615777512707
+            ]
+          ]
+        ],
+        "born_projected_e": [
+          [
+            [
+              -0.023746683404474743,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -0.02374668340447474,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -0.023746683404474743
+            ]
+          ],
+          [
+            [
+              0.005936670851118685,
+              -0.06529269581419708,
+              -0.0652926958141971
+            ],
+            [
+              -0.0652926958141971,
+              0.005936670851118684,
+              -0.0652926958141971
+            ],
+            [
+              -0.0652926958141971,
+              -0.06529269581419708,
+              0.005936670851118685
+            ]
+          ],
+          [
+            [
+              0.005936670851118685,
+              0.06529269581419708,
+              0.0652926958141971
+            ],
+            [
+              0.0652926958141971,
+              0.005936670851118684,
+              -0.0652926958141971
+            ],
+            [
+              0.0652926958141971,
+              -0.06529269581419708,
+              0.005936670851118685
+            ]
+          ],
+          [
+            [
+              0.005936670851118685,
+              0.06529269581419708,
+              -0.0652926958141971
+            ],
+            [
+              0.0652926958141971,
+              0.005936670851118684,
+              0.0652926958141971
+            ],
+            [
+              -0.0652926958141971,
+              0.06529269581419708,
+              0.005936670851118685
+            ]
+          ],
+          [
+            [
+              0.005936670851118685,
+              -0.06529269581419708,
+              0.0652926958141971
+            ],
+            [
+              -0.0652926958141971,
+              0.005936670851118684,
+              0.0652926958141971
+            ],
+            [
+              0.0652926958141971,
+              0.06529269581419708,
+              0.005936670851118685
+            ]
+          ]
+        ],
+        "phonon_static_response": {
+          "status": "computed",
+          "unit": "Angstrom^3 Gaussian vibrational polarizability",
+          "rigid_motion_rank": 6,
+          "internal_mode_count": 9,
+          "frequencies_cm1": [
+            1287.9492428054007,
+            1287.949242805401,
+            1287.9492428054018,
+            1516.647969527865,
+            1516.6479695278658,
+            2968.3472704079973,
+            3088.1025961426535,
+            3088.1025961426535,
+            3088.102596142654
+          ],
+          "raw_rigid_coupling_relative": 7.572209567124719e-05,
+          "coordinate_convention": "fixed orientation, mass-weighted COM Eckart subspace",
+          "raw_Hessian_modified": false,
+          "reference_max_force_eV_A": 3.649777461709138e-05,
+          "tensor": [
+            [
+              0.04302466079533822,
+              -1.1087506488412907e-17,
+              1.0649266516391822e-17
+            ],
+            [
+              -6.3488145497416586e-18,
+              0.04302466079533821,
+              2.906441741561769e-18
+            ],
+            [
+              9.505251290210639e-18,
+              1.488131819147883e-18,
+              0.043024660795338204
+            ]
+          ],
+          "mode_charges_e_sqrt_amu": [
+            [
+              0.027312487019308024,
+              0.1177497399153817,
+              -0.01699526506525898
+            ],
+            [
+              0.11861395514044568,
+              -0.025603602617181063,
+              0.013228658696940562
+            ],
+            [
+              -0.009196191098427293,
+              0.019474766104879436,
+              0.120149805602838
+            ],
+            [
+              8.865891466403933e-17,
+              -1.2004119299403253e-16,
+              3.1246349748474197e-16
+            ],
+            [
+              -1.9820794258664633e-17,
+              -1.9809016478219908e-16,
+              -7.716666777824566e-17
+            ],
+            [
+              -2.407204711417839e-16,
+              -2.4072044477991246e-16,
+              -3.104076924464609e-16
+            ],
+            [
+              -0.13080045933920834,
+              0.04167658389783663,
+              0.016705749374956527
+            ],
+            [
+              -0.04058227943476227,
+              -0.08771836168343472,
+              -0.09891080573108879
+            ],
+            [
+              -0.019211931278534676,
+              -0.09845471674379501,
+              0.09519637765360688
+            ]
+          ],
+          "mode_sum_closure_relative": 1.1865957527932793e-15
+        },
+        "epsilon_infinity": [
+          [
+            1.005713,
+            5.002484e-12,
+            5.30064e-12
+          ],
+          [
+            5.002484e-12,
+            1.005713,
+            5.300576e-12
+          ],
+          [
+            5.30064e-12,
+            5.300576e-12,
+            1.005713
+          ]
+        ],
+        "hessian_raw_eV_A2": [
+          [
+            50.35108320084647,
+            0.0,
+            0.0,
+            -12.588071584374987,
+            -8.601654941009595,
+            -8.601654941009597,
+            -12.588071584374987,
+            8.601654941009595,
+            8.601654941009597,
+            -12.588071584374987,
+            8.601654941009595,
+            -8.601654941009597,
+            -12.588071584374987,
+            -8.601654941009595,
+            8.601654941009597
+          ],
+          [
+            0.0,
+            50.35108320084647,
+            0.0,
+            -8.601654941009597,
+            -12.588071584374987,
+            -8.601654941009597,
+            8.601654941009597,
+            -12.588071584374987,
+            -8.601654941009597,
+            8.601654941009597,
+            -12.588071584374987,
+            8.601654941009597,
+            -8.601654941009597,
+            -12.588071584374987,
+            8.601654941009597
+          ],
+          [
+            0.0,
+            0.0,
+            50.35108320084648,
+            -8.601654941009597,
+            -8.601654941009595,
+            -12.588071584374985,
+            8.601654941009597,
+            -8.601654941009595,
+            -12.588071584374985,
+            -8.601654941009597,
+            8.601654941009595,
+            -12.588071584374985,
+            8.601654941009597,
+            8.601654941009595,
+            -12.588071584374985
+          ],
+          [
+            -12.587770799030544,
+            -8.60193131818008,
+            -8.601931318180084,
+            13.458900940789741,
+            9.397388418990376,
+            9.397388418990376,
+            1.1199780044483474,
+            1.0745365949585086,
+            1.0745365949585082,
+            -0.9954036804315499,
+            -1.0744567382820254,
+            -0.795653619729524,
+            -0.9954036804315499,
+            -0.795653619729524,
+            -1.0744567382820254
+          ],
+          [
+            -8.601931318180084,
+            -12.587770799030542,
+            -8.601931318180084,
+            9.397388418990376,
+            13.45890094078974,
+            9.397388418990376,
+            -1.0744567382820254,
+            -0.9954036804315499,
+            -0.795653619729524,
+            1.0745365949585084,
+            1.1199780044483474,
+            1.0745365949585082,
+            -0.795653619729524,
+            -0.9954036804315501,
+            -1.0744567382820254
+          ],
+          [
+            -8.601931318180084,
+            -8.60193131818008,
+            -12.587770799030544,
+            9.397388418990376,
+            9.397388418990376,
+            13.45890094078974,
+            -1.0744567382820254,
+            -0.795653619729524,
+            -0.9954036804315499,
+            -0.795653619729524,
+            -1.0744567382820254,
+            -0.9954036804315499,
+            1.0745365949585084,
+            1.0745365949585084,
+            1.1199780044483472
+          ],
+          [
+            -12.587770799030542,
+            8.60193131818008,
+            8.601931318180084,
+            1.1199780044483474,
+            -1.0745365949585084,
+            -1.0745365949585082,
+            13.458900940789741,
+            -9.397388418990376,
+            -9.397388418990376,
+            -0.9954036804315499,
+            0.795653619729524,
+            1.0744567382820254,
+            -0.9954036804315499,
+            1.0744567382820254,
+            0.795653619729524
+          ],
+          [
+            8.601931318180084,
+            -12.587770799030542,
+            -8.601931318180084,
+            1.0744567382820254,
+            -0.9954036804315501,
+            -0.795653619729524,
+            -9.397388418990376,
+            13.45890094078974,
+            9.397388418990376,
+            0.795653619729524,
+            -0.9954036804315499,
+            -1.0744567382820254,
+            -1.0745365949585084,
+            1.1199780044483474,
+            1.0745365949585082
+          ],
+          [
+            8.601931318180084,
+            -8.60193131818008,
+            -12.587770799030544,
+            1.0744567382820254,
+            -0.795653619729524,
+            -0.9954036804315499,
+            -9.397388418990376,
+            9.397388418990376,
+            13.45890094078974,
+            -1.0745365949585084,
+            1.0745365949585086,
+            1.1199780044483472,
+            0.795653619729524,
+            -1.0744567382820254,
+            -0.9954036804315499
+          ],
+          [
+            -12.587770799030542,
+            8.60193131818008,
+            -8.601931318180084,
+            -0.9954036804315499,
+            1.0744567382820254,
+            -0.795653619729524,
+            -0.9954036804315499,
+            0.795653619729524,
+            -1.0744567382820254,
+            13.458900940789741,
+            -9.397388418990376,
+            9.397388418990376,
+            1.1199780044483474,
+            -1.0745365949585086,
+            1.0745365949585082
+          ],
+          [
+            8.601931318180084,
+            -12.587770799030542,
+            8.601931318180084,
+            -1.0745365949585084,
+            1.1199780044483474,
+            -1.0745365949585082,
+            0.795653619729524,
+            -0.9954036804315501,
+            1.0744567382820254,
+            -9.397388418990376,
+            13.45890094078974,
+            -9.397388418990376,
+            1.0744567382820254,
+            -0.9954036804315499,
+            0.795653619729524
+          ],
+          [
+            -8.601931318180084,
+            8.60193131818008,
+            -12.587770799030546,
+            -0.795653619729524,
+            1.0744567382820254,
+            -0.9954036804315499,
+            1.0745365949585084,
+            -1.0745365949585084,
+            1.1199780044483472,
+            9.397388418990376,
+            -9.397388418990376,
+            13.45890094078974,
+            -1.0744567382820254,
+            0.795653619729524,
+            -0.9954036804315499
+          ],
+          [
+            -12.587770799030542,
+            -8.60193131818008,
+            8.601931318180084,
+            -0.9954036804315499,
+            -0.795653619729524,
+            1.0744567382820254,
+            -0.9954036804315499,
+            -1.0744567382820254,
+            0.795653619729524,
+            1.1199780044483474,
+            1.0745365949585084,
+            -1.0745365949585082,
+            13.458900940789741,
+            9.397388418990376,
+            -9.397388418990376
+          ],
+          [
+            -8.601931318180084,
+            -12.587770799030542,
+            8.601931318180084,
+            -0.795653619729524,
+            -0.9954036804315499,
+            1.0744567382820254,
+            1.0745365949585084,
+            1.1199780044483474,
+            -1.0745365949585082,
+            -1.0744567382820254,
+            -0.9954036804315501,
+            0.795653619729524,
+            9.397388418990376,
+            13.45890094078974,
+            -9.397388418990376
+          ],
+          [
+            8.601931318180084,
+            8.60193131818008,
+            -12.587770799030544,
+            -1.0745365949585084,
+            -1.0745365949585086,
+            1.1199780044483472,
+            0.795653619729524,
+            1.0744567382820254,
+            -0.9954036804315499,
+            1.0744567382820254,
+            0.795653619729524,
+            -0.9954036804315499,
+            -9.397388418990376,
+            -9.397388418990376,
+            13.45890094078974
+          ]
+        ],
+        "cell_A": [
+          [
+            20.000000003727248,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            20.000000003727248,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            20.000000003727248
+          ]
+        ],
+        "masses_amu": [
+          12.0107,
+          1.0079,
+          1.0079,
+          1.0079,
+          1.0079
+        ],
+        "independent_phonopy_raw_force_constants_max_difference_eV_A2": 2.1316282072803006e-14,
+        "molecular_internal_validation": {
+          "status": "computed",
+          "unit": "Angstrom^3 Gaussian vibrational polarizability",
+          "rigid_motion_rank": 6,
+          "internal_mode_count": 9,
+          "frequencies_cm1": [
+            1287.9492428054007,
+            1287.949242805401,
+            1287.9492428054018,
+            1516.647969527865,
+            1516.6479695278658,
+            2968.3472704079973,
+            3088.1025961426535,
+            3088.1025961426535,
+            3088.102596142654
+          ],
+          "raw_rigid_coupling_relative": 7.572209567124719e-05,
+          "coordinate_convention": "fixed orientation, mass-weighted COM Eckart subspace",
+          "raw_Hessian_modified": false,
+          "reference_max_force_eV_A": 3.649777461709138e-05,
+          "tensor": [
+            [
+              0.04302466079533822,
+              -1.1087506488412907e-17,
+              1.0649266516391822e-17
+            ],
+            [
+              -6.3488145497416586e-18,
+              0.04302466079533821,
+              2.906441741561769e-18
+            ],
+            [
+              9.505251290210639e-18,
+              1.488131819147883e-18,
+              0.043024660795338204
+            ]
+          ],
+          "mode_charges_e_sqrt_amu": [
+            [
+              0.027312487019308024,
+              0.1177497399153817,
+              -0.01699526506525898
+            ],
+            [
+              0.11861395514044568,
+              -0.025603602617181063,
+              0.013228658696940562
+            ],
+            [
+              -0.009196191098427293,
+              0.019474766104879436,
+              0.120149805602838
+            ],
+            [
+              8.865891466403933e-17,
+              -1.2004119299403253e-16,
+              3.1246349748474197e-16
+            ],
+            [
+              -1.9820794258664633e-17,
+              -1.9809016478219908e-16,
+              -7.716666777824566e-17
+            ],
+            [
+              -2.407204711417839e-16,
+              -2.4072044477991246e-16,
+              -3.104076924464609e-16
+            ],
+            [
+              -0.13080045933920834,
+              0.04167658389783663,
+              0.016705749374956527
+            ],
+            [
+              -0.04058227943476227,
+              -0.08771836168343472,
+              -0.09891080573108879
+            ],
+            [
+              -0.019211931278534676,
+              -0.09845471674379501,
+              0.09519637765360688
+            ]
+          ],
+          "mode_sum_closure_relative": 1.1865957527932793e-15
+        },
+        "solver_cost": {
+          "solver_core_hours": 10.500867740178688,
+          "component_core_hours": {
+            "ABACUS": 10.13564079979745,
+            "PYATB": 0.36522694038123726,
+            "preparation": 0.05368681665406459
+          },
+          "calls": {
+            "ABACUS": 13,
+            "PYATB": 14,
+            "preparation": 14
+          },
+          "definition": "successful ABACUS + PYATB calls, including reference and band gate; input preparation excluded"
+        }
+      },
+      "comparison": {
+        "status": "compared",
+        "max_BEC_difference_raw_e": 4.4895070549257066e-06,
+        "max_BEC_difference_projected_e": 3.5916672804607586e-06,
+        "max_Hessian_difference_eV_A2": 1.1023402524124037e-08,
+        "relative_Hessian_Frobenius_difference": 8.039149524045673e-10,
+        "max_frequency_difference_cm1": 8.732355249051465e-05,
+        "both_have_full_precision_polarization": true,
+        "molecular_internal_mode_count": 9,
+        "max_internal_frequency_difference_cm1": 4.866587460128358e-06,
+        "max_phonon_static_difference": 8.070653237796099e-07,
+        "relative_phonon_static_Frobenius_difference": 1.875820305978435e-05,
+        "static_unit": "Angstrom^3 Gaussian vibrational polarizability",
+        "solver_speedup": 3.2206017484055356
+      },
+      "plan": {
+        "case": "CH4",
+        "dimension": 0,
+        "source": "/home/zhuxd/abacus/agent-runs/20260904-molecular-relaxed-efficiency/relaxed-seeds/CH4",
+        "protocol": "Cartesian central joint-response control versus Phonopy-auto unified response",
+        "scope": "BEC/APT and Gamma Hessian; not Raman or full dispersion",
+        "space_group_of_periodic_cell": "P-43m",
+        "symprec_angstrom": 1e-05,
+        "changes_to_source_input": {
+          "calculation": "scf",
+          "cal_force": "1",
+          "cal_stress": "0",
+          "gamma_only": "0",
+          "scf_thr": "1e-8",
+          "symmetry": "1",
+          "pseudo_dir": ".",
+          "orbital_dir": ".",
+          "init_chg": "auto",
+          "kspacing": "0"
+        },
+        "structure": {
+          "cell_angstrom": [
+            [
+              20.00000000372726,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              20.00000000372726,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              20.00000000372726
+            ]
+          ],
+          "positions_angstrom": [
+            [
+              10.00000000586363,
+              10.00000000586363,
+              10.00000000586363
+            ],
+            [
+              10.631969169981405,
+              10.631969169981405,
+              10.631969169981405
+            ],
+            [
+              10.631969169981405,
+              9.368030841745854,
+              9.368030841745854
+            ],
+            [
+              9.368030841745854,
+              10.631969169981405,
+              9.368030841745854
+            ],
+            [
+              9.368030841745854,
+              9.368030841745854,
+              10.631969169981405
+            ]
+          ],
+          "symbols": [
+            "C",
+            "H",
+            "H",
+            "H",
+            "H"
+          ]
+        },
+        "stages": {
+          "unified": 3,
+          "cartesian": 12
+        },
+        "seed_sha256": {
+          "INPUT": "ac9e677b1e65dff49e0ee7f0c70f82e6b119cfcb2f95f79ee3508abf89d96e19",
+          "INPUT.phonon": "1d4cf26415889e19f4e7926aee612a6633555e1e3668f2ef310b3c1db20c62b1",
+          "KPT": "91042b39ee493cb5c1bee648adc865a2e5935a29278eb405dc009f994db55ece",
+          "STRU": "64b37a8c086bc03d8ec0e8dc1a3803d2e5d6d0c669ad1c2768307ac2502a31be",
+          "C_gga_9au_100Ry_3s3p2d.orb": "357472063c9f249d7cfa74ee68901bab80b738b6502db9a2f52fe4e7e67ea264",
+          "H_gga_9au_100Ry_3s2p.orb": "7234ccdfeed67ab25561fec0d3bf48c0fbf1080f05b1ca6686fa029df49be9e9",
+          "C.upf": "a5b0fe8d6b63f703745b99d47e2dd47ed18efdb35a01ff410bc8e8d0af4e247f",
+          "H.upf": "8272fc45fbee2b45a490830c61ef9b2f2b894591b2c9a310fe4af152b76502a6",
+          "INPUT.source": "ac9e677b1e65dff49e0ee7f0c70f82e6b119cfcb2f95f79ee3508abf89d96e19",
+          "STRU.direct": "64b37a8c086bc03d8ec0e8dc1a3803d2e5d6d0c669ad1c2768307ac2502a31be"
+        },
+        "polarization_mp_density": 0.08,
+        "allocated_cores": 40,
+        "mpi_omp": {
+          "ABACUS": [
+            1,
+            40
+          ],
+          "PYATB": [
+            40,
+            1
+          ]
+        },
+        "timing": "monotonic seconds times allocated cores; successful solver calls only",
+        "completed": true
+      }
+    }
+  },
+  "basis": "matched seeds and 40-core allocation within each pair"
+}

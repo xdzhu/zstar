@@ -1,0 +1,35 @@
+{
+  "source_stru": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/sic/shared/0.no-move/STRU",
+  "prepared_stru": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/export/SiC/run/assets/STRU.resolved",
+  "changed": true,
+  "assets": [
+    {
+      "kind": "pseudopotential",
+      "element": "Si",
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/sic/shared/0.no-move/Si_ONCV_PBE-1.0.upf",
+      "name_in_stru": "Si_ONCV_PBE-1.0.upf",
+      "sha256": "481a5fae1167fd712d4e8e2e4df33f8bfc1e7d2abbc0565290d39fbba9dccb41"
+    },
+    {
+      "kind": "pseudopotential",
+      "element": "C",
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/sic/shared/0.no-move/C_ONCV_PBE-1.0.upf",
+      "name_in_stru": "C_ONCV_PBE-1.0.upf",
+      "sha256": "e95d682a8b918557fb57e2e0ec11b2f48cf693cb72a11d078cf07ec489a8fa99"
+    },
+    {
+      "kind": "orbital",
+      "element": "Si",
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/sic/shared/0.no-move/Si_gga_7au_100Ry_2s2p1d.orb",
+      "name_in_stru": "Si_gga_7au_100Ry_2s2p1d.orb",
+      "sha256": "193aa6c3d6dadf80f0466559f44498a2a56b1dd27291f64e0688b0786248639b"
+    },
+    {
+      "kind": "orbital",
+      "element": "C",
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/sic/shared/0.no-move/C_gga_7au_100Ry_2s2p1d.orb",
+      "name_in_stru": "C_gga_7au_100Ry_2s2p1d.orb",
+      "sha256": "08f13bc74ae5bd7ccc1857ff9f958867bd6421572d7c5ad3edc6dfacbe42d5ab"
+    }
+  ]
+}

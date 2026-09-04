@@ -1,0 +1,94 @@
+{
+  "schema": "zstar-shared-response",
+  "version": 1,
+  "calculator": "abacus",
+  "dimension": 3,
+  "scope": "Gamma",
+  "displacement_scheme": "phonopy",
+  "method": "auto",
+  "nominal_distance_A": 0.01058354421806,
+  "symprec_A": 1e-05,
+  "length_unit": "angstrom",
+  "force_unit": "eV/angstrom",
+  "operation_count": 16,
+  "stages": [
+    {
+      "name": "disp-001",
+      "atom": 0,
+      "displacement_A": [
+        0.00602610378599628,
+        0.0,
+        0.008700429953515656
+      ],
+      "distance_A": 0.010583544218059994
+    },
+    {
+      "name": "disp-002",
+      "atom": 0,
+      "displacement_A": [
+        -0.00602610378599628,
+        0.0,
+        -0.008700429953515656
+      ],
+      "distance_A": 0.010583544218059994
+    },
+    {
+      "name": "disp-003",
+      "atom": 2,
+      "displacement_A": [
+        0.00523672860133611,
+        0.005236728601336076,
+        0.007560737750214635
+      ],
+      "distance_A": 0.010583544218059638
+    },
+    {
+      "name": "disp-004",
+      "atom": 2,
+      "displacement_A": [
+        -0.00523672860133611,
+        -0.005236728601336076,
+        -0.007560737750215205
+      ],
+      "distance_A": 0.010583544218060046
+    }
+  ],
+  "input_hashes": {
+    "0.no-move/STRU": "28898818d3197002e21d96300ebf2c0f278cfa606fe366ef766411b28a503490",
+    "0.no-move/INPUT-scf": "dcea419f74e792c31af0f35dc8a382eef3eac2c0cb61544f29bd5f1a23336516",
+    "0.no-move/KPT": "e0e2798b3a8ccf936ecf26782f8366fdd1fe22509912dd96fe337aca43befefd",
+    "0.no-move/Hf.upf": "7c516a68310c779a4f572c9ea6b3a73f27ca3a61908b9ade0da3db6db727c8a5",
+    "0.no-move/O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+    "0.no-move/Hf_gga_9au_100Ry_6s3p3d2f1g.orb": "a6cb4c79bb1245a4ca4fd4e8cd909aae8179bbedb6174d40e336f50e50df547f",
+    "0.no-move/O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+    "disp-001/STRU": "77fc0b90149e9f737d368c1ea2cc09b49fc619b46a94176f2ba866b21bbdc483",
+    "disp-001/INPUT-scf": "f7be664a41b7cd3f6813a3a633416aeed354145fdda6eff357ce1b13799d89ac",
+    "disp-001/KPT": "e0e2798b3a8ccf936ecf26782f8366fdd1fe22509912dd96fe337aca43befefd",
+    "disp-001/Hf.upf": "7c516a68310c779a4f572c9ea6b3a73f27ca3a61908b9ade0da3db6db727c8a5",
+    "disp-001/O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+    "disp-001/Hf_gga_9au_100Ry_6s3p3d2f1g.orb": "a6cb4c79bb1245a4ca4fd4e8cd909aae8179bbedb6174d40e336f50e50df547f",
+    "disp-001/O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+    "disp-002/STRU": "3cb4dde3ef8450efd7f928df98f0311230da01c1c8c8e34875b94402d1a74ace",
+    "disp-002/INPUT-scf": "f7be664a41b7cd3f6813a3a633416aeed354145fdda6eff357ce1b13799d89ac",
+    "disp-002/KPT": "e0e2798b3a8ccf936ecf26782f8366fdd1fe22509912dd96fe337aca43befefd",
+    "disp-002/Hf.upf": "7c516a68310c779a4f572c9ea6b3a73f27ca3a61908b9ade0da3db6db727c8a5",
+    "disp-002/O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+    "disp-002/Hf_gga_9au_100Ry_6s3p3d2f1g.orb": "a6cb4c79bb1245a4ca4fd4e8cd909aae8179bbedb6174d40e336f50e50df547f",
+    "disp-002/O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+    "disp-003/STRU": "3c7cc4988bfb5289f9a355c328bb5e8912cbb957e13bd01060b922746e720078",
+    "disp-003/INPUT-scf": "f7be664a41b7cd3f6813a3a633416aeed354145fdda6eff357ce1b13799d89ac",
+    "disp-003/KPT": "e0e2798b3a8ccf936ecf26782f8366fdd1fe22509912dd96fe337aca43befefd",
+    "disp-003/Hf.upf": "7c516a68310c779a4f572c9ea6b3a73f27ca3a61908b9ade0da3db6db727c8a5",
+    "disp-003/O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+    "disp-003/Hf_gga_9au_100Ry_6s3p3d2f1g.orb": "a6cb4c79bb1245a4ca4fd4e8cd909aae8179bbedb6174d40e336f50e50df547f",
+    "disp-003/O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+    "disp-004/STRU": "7044f6e119a242853528123fb070f3ee3a4441dbbe8aa2b2ab69bcc1e1103772",
+    "disp-004/INPUT-scf": "f7be664a41b7cd3f6813a3a633416aeed354145fdda6eff357ce1b13799d89ac",
+    "disp-004/KPT": "e0e2798b3a8ccf936ecf26782f8366fdd1fe22509912dd96fe337aca43befefd",
+    "disp-004/Hf.upf": "7c516a68310c779a4f572c9ea6b3a73f27ca3a61908b9ade0da3db6db727c8a5",
+    "disp-004/O.upf": "8c6886f443f3bfe7b8d18f2f6b28dd8749746d996499a542fff9666da34d7cf6",
+    "disp-004/Hf_gga_9au_100Ry_6s3p3d2f1g.orb": "a6cb4c79bb1245a4ca4fd4e8cd909aae8179bbedb6174d40e336f50e50df547f",
+    "disp-004/O_gga_9au_100Ry_2s2p1d.orb": "0a2cfe1ef4bee549a1ab23f0f7f4e175144d32932baa095f7b6bc483bbbdc610",
+    "phonopy_disp.yaml": "739ff00fa9ddb40a219d979710d840136c1ab1b8abaea16fe8960e34c354903a"
+  }
+}

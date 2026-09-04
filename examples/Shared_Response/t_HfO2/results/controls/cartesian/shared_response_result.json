@@ -1,0 +1,955 @@
+{
+  "schema": "zstar-shared-response-result",
+  "version": 1,
+  "dimension": 3,
+  "scope": "Gamma",
+  "units": {
+    "displacement": "angstrom",
+    "dipole": "e*angstrom",
+    "force": "eV/angstrom",
+    "force_constants": "eV/angstrom^2"
+  },
+  "tensor_convention": "Z[atom, polarization, displacement]",
+  "force_constants_file_convention": "Phonopy: displacement atom, force atom, displacement component, force component",
+  "reference_forces_eV_A": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      -0.0003667212
+    ],
+    [
+      0.0,
+      0.0,
+      -0.0003667212
+    ],
+    [
+      0.0,
+      0.0,
+      0.0003667212
+    ],
+    [
+      0.0,
+      0.0,
+      0.0003667212
+    ]
+  ],
+  "observations": [
+    {
+      "name": "disp-001",
+      "atom": 0,
+      "displacement_A": [
+        0.010583544218059997,
+        0.0,
+        0.0
+      ],
+      "distance_A": 0.010583544218059997,
+      "dipole_change_e_A": [
+        0.05708329524367237,
+        1.6412783001687825e-09,
+        -9.57112073224083e-05
+      ],
+      "forces_eV_A": [
+        [
+          -0.1096643702,
+          0.0,
+          0.002175978
+        ],
+        [
+          0.0053492081,
+          0.0,
+          -0.0004010061
+        ],
+        [
+          -0.0189486726,
+          0.0,
+          6.6365e-05
+        ],
+        [
+          0.0993543416,
+          0.0,
+          -0.0026601099
+        ],
+        [
+          0.0142289602,
+          0.0,
+          0.0002787416
+        ],
+        [
+          0.0096805329,
+          0.0,
+          0.0005400314
+        ]
+      ]
+    },
+    {
+      "name": "disp-002",
+      "atom": 0,
+      "displacement_A": [
+        -0.010583544218059997,
+        0.0,
+        0.0
+      ],
+      "distance_A": 0.010583544218059997,
+      "dipole_change_e_A": [
+        -0.0570861385149553,
+        1.6412780182330775e-09,
+        -9.571123033465266e-05
+      ],
+      "forces_eV_A": [
+        [
+          0.1096643702,
+          0.0,
+          0.002175978
+        ],
+        [
+          -0.0053492081,
+          0.0,
+          -0.0004010061
+        ],
+        [
+          0.0189486726,
+          0.0,
+          6.6365e-05
+        ],
+        [
+          -0.0993543416,
+          0.0,
+          -0.0026601099
+        ],
+        [
+          -0.0142289602,
+          0.0,
+          0.0002787416
+        ],
+        [
+          -0.0096805329,
+          0.0,
+          0.0005400314
+        ]
+      ]
+    },
+    {
+      "name": "disp-003",
+      "atom": 0,
+      "displacement_A": [
+        0.0,
+        0.010583544218059997,
+        0.0
+      ],
+      "distance_A": 0.010583544218059997,
+      "dipole_change_e_A": [
+        1.6412776077994138e-09,
+        0.05708329524366174,
+        9.571858998422107e-05
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          -0.1096643702,
+          -0.002175978
+        ],
+        [
+          0.0,
+          0.0053492081,
+          0.0004010061
+        ],
+        [
+          0.0,
+          0.0096805329,
+          -0.0005400314
+        ],
+        [
+          0.0,
+          0.0142289602,
+          -0.0002787416
+        ],
+        [
+          0.0,
+          0.0993543416,
+          0.0026601099
+        ],
+        [
+          0.0,
+          -0.0189486726,
+          -6.6365e-05
+        ]
+      ]
+    },
+    {
+      "name": "disp-004",
+      "atom": 0,
+      "displacement_A": [
+        0.0,
+        -0.010583544218059997,
+        0.0
+      ],
+      "distance_A": 0.010583544218059997,
+      "dipole_change_e_A": [
+        1.6412781066166293e-09,
+        -0.05708613852336503,
+        9.571858997509323e-05
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.1096643702,
+          -0.002175978
+        ],
+        [
+          0.0,
+          -0.0053492081,
+          0.0004010061
+        ],
+        [
+          0.0,
+          -0.0096805329,
+          -0.0005400314
+        ],
+        [
+          0.0,
+          -0.0142289602,
+          -0.0002787416
+        ],
+        [
+          0.0,
+          -0.0993543416,
+          0.0026601099
+        ],
+        [
+          0.0,
+          0.0189486726,
+          -6.6365e-05
+        ]
+      ]
+    },
+    {
+      "name": "disp-005",
+      "atom": 0,
+      "displacement_A": [
+        0.0,
+        0.0,
+        0.010583544218059994
+      ],
+      "distance_A": 0.010583544218059994,
+      "dipole_change_e_A": [
+        -8.521224278884018e-11,
+        1.2117105721696298e-09,
+        0.051100527346478075
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.0,
+          -0.2674279521
+        ],
+        [
+          0.0,
+          0.0,
+          0.1642595158
+        ],
+        [
+          0.0,
+          0.0,
+          -0.014081067
+        ],
+        [
+          0.0,
+          0.0,
+          0.0647297211
+        ],
+        [
+          0.0,
+          0.0,
+          0.0669533523
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0144335702
+        ]
+      ]
+    },
+    {
+      "name": "disp-006",
+      "atom": 0,
+      "displacement_A": [
+        0.0,
+        0.0,
+        -0.010583544218059994
+      ],
+      "distance_A": 0.010583544218059994,
+      "dipole_change_e_A": [
+        1.2117101003786371e-09,
+        -8.52119889837392e-11,
+        -0.05110460213782429
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.0,
+          0.2674279522
+        ],
+        [
+          0.0,
+          0.0,
+          -0.1642595158
+        ],
+        [
+          0.0,
+          0.0,
+          0.0144335702
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0669533523
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0647297211
+        ],
+        [
+          0.0,
+          0.0,
+          0.014081067
+        ]
+      ]
+    },
+    {
+      "name": "disp-007",
+      "atom": 2,
+      "displacement_A": [
+        0.010583544218060015,
+        0.0,
+        0.0
+      ],
+      "distance_A": 0.010583544218060015,
+      "dipole_change_e_A": [
+        -0.022388806023357525,
+        1.4563817534702243e-09,
+        7.250676821581698e-05
+      ],
+      "forces_eV_A": [
+        [
+          -0.0190020546,
+          0.0,
+          -0.0006384651
+        ],
+        [
+          0.0141804779,
+          0.0,
+          -0.000187893
+        ],
+        [
+          -0.0674288816,
+          0.0,
+          0.0006880125
+        ],
+        [
+          0.0072345716,
+          0.0,
+          -0.000497205
+        ],
+        [
+          0.0611290204,
+          0.0,
+          0.0002586296
+        ],
+        [
+          0.0038868665,
+          0.0,
+          0.000376921
+        ]
+      ]
+    },
+    {
+      "name": "disp-008",
+      "atom": 2,
+      "displacement_A": [
+        -0.010583544218060213,
+        0.0,
+        0.0
+      ],
+      "distance_A": 0.010583544218060213,
+      "dipole_change_e_A": [
+        0.022388814111770194,
+        1.4563819320640849e-09,
+        7.250676821842698e-05
+      ],
+      "forces_eV_A": [
+        [
+          0.0190020546,
+          0.0,
+          -0.0006384651
+        ],
+        [
+          -0.0141804779,
+          0.0,
+          -0.000187893
+        ],
+        [
+          0.0674288816,
+          0.0,
+          0.0006880125
+        ],
+        [
+          -0.0072345716,
+          0.0,
+          -0.000497205
+        ],
+        [
+          -0.0611290204,
+          0.0,
+          0.0002586296
+        ],
+        [
+          -0.0038868665,
+          0.0,
+          0.000376921
+        ]
+      ]
+    },
+    {
+      "name": "disp-009",
+      "atom": 2,
+      "displacement_A": [
+        0.0,
+        0.010583544218059997,
+        0.0
+      ],
+      "distance_A": 0.010583544218059997,
+      "dipole_change_e_A": [
+        1.4421348529660537e-09,
+        -0.03469862601852934,
+        -0.00016243999367248827
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.0096198002,
+          -0.0003759605
+        ],
+        [
+          0.0,
+          0.0992864733,
+          0.0023959663
+        ],
+        [
+          0.0,
+          -0.1985664408,
+          -0.0027706145
+        ],
+        [
+          0.0,
+          0.0072260789,
+          6.5609e-06
+        ],
+        [
+          0.0,
+          0.0785565628,
+          0.0002215449
+        ],
+        [
+          0.0,
+          0.0038775256,
+          0.0005225029
+        ]
+      ]
+    },
+    {
+      "name": "disp-010",
+      "atom": 2,
+      "displacement_A": [
+        0.0,
+        -0.010583544218059997,
+        0.0
+      ],
+      "distance_A": 0.010583544218059997,
+      "dipole_change_e_A": [
+        1.4421349571710583e-09,
+        0.03469694908929408,
+        -0.00016243999367235542
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          -0.0096198002,
+          -0.0003759605
+        ],
+        [
+          0.0,
+          -0.0992864733,
+          0.0023959663
+        ],
+        [
+          0.0,
+          0.1985664408,
+          -0.0027706145
+        ],
+        [
+          0.0,
+          -0.0072260789,
+          6.5609e-06
+        ],
+        [
+          0.0,
+          -0.0785565628,
+          0.0002215449
+        ],
+        [
+          0.0,
+          -0.0038775256,
+          0.0005225029
+        ]
+      ]
+    },
+    {
+      "name": "disp-011",
+      "atom": 2,
+      "displacement_A": [
+        0.0,
+        0.0,
+        0.010583544218060174
+      ],
+      "distance_A": 0.010583544218060174,
+      "dipole_change_e_A": [
+        3.80650322439265e-09,
+        -7.35637174065471e-11,
+        -0.025504578176377805
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.0,
+          -0.0146693392
+        ],
+        [
+          0.0,
+          0.0,
+          0.0667457463
+        ],
+        [
+          0.0,
+          0.0,
+          -0.1486689046
+        ],
+        [
+          0.0,
+          0.0,
+          0.0959877928
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0140132575
+        ],
+        [
+          0.0,
+          0.0,
+          0.0146179622
+        ]
+      ]
+    },
+    {
+      "name": "disp-012",
+      "atom": 2,
+      "displacement_A": [
+        0.0,
+        0.0,
+        -0.01058354421805989
+      ],
+      "distance_A": 0.01058354421805989,
+      "dipole_change_e_A": [
+        1.445544211000245e-09,
+        7.196871480592692e-10,
+        0.025595376179423462
+      ],
+      "forces_eV_A": [
+        [
+          0.0,
+          0.0,
+          0.0135718878
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0652039528
+        ],
+        [
+          0.0,
+          0.0,
+          0.1473690967
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0972301691
+        ],
+        [
+          0.0,
+          0.0,
+          0.0153236825
+        ],
+        [
+          0.0,
+          0.0,
+          -0.0138305451
+        ]
+      ]
+    }
+  ],
+  "diagnostics": {
+    "site_fits": [
+      {
+        "atom": 0,
+        "rank": 3,
+        "condition_number": 1.0000000000000004,
+        "dipole_fit_max_e_A": 9.571858998422106e-05,
+        "force_fit_max_eV_A": 0.0022933886999999993,
+        "observations": 48
+      },
+      {
+        "atom": 2,
+        "rank": 3,
+        "condition_number": 1.000000000000011,
+        "dipole_fit_max_e_A": 0.00016243999367248824,
+        "force_fit_max_eV_A": 0.0024038932999999995,
+        "observations": 24
+      }
+    ],
+    "born_asr_max_e": 0.0004932915281168349,
+    "hessian_reciprocity_max_eV_A2": 0.012916759941983269,
+    "hessian_reciprocity_relative_Frobenius": 0.0007522696231525909,
+    "force_asr_max_eV_A2": 0.051025983250314155,
+    "total_force_derivative_max_eV_A2": 1.8897263309725076e-08,
+    "reference_force_max_eV_A": 0.0003667212,
+    "constraints_applied": false
+  },
+  "born_raw_e": [
+    [
+      [
+        5.393724040383652,
+        0.0,
+        0.0
+      ],
+      [
+        -7.457042288028886e-38,
+        5.393724040383652,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        4.828492581431146
+      ]
+    ],
+    [
+      [
+        5.393724040383652,
+        7.457042288028886e-38,
+        0.0
+      ],
+      [
+        0.0,
+        5.393724040383652,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        4.828492581431146
+      ]
+    ],
+    [
+      [
+        -2.11543596419797,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -3.2784657803670925,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -2.4141229678335434
+      ]
+    ],
+    [
+      [
+        -3.2784657803670925,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -2.11543596419797,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -2.4141229678335434
+      ]
+    ],
+    [
+      [
+        -2.11543596419797,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -3.2784657803670925,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -2.4141229678335434
+      ]
+    ],
+    [
+      [
+        -3.2784657803670925,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -2.11543596419797,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -2.4141229678335434
+      ]
+    ]
+  ],
+  "projected_diagnostics": {
+    "site_fits": [
+      {
+        "atom": 0,
+        "rank": 3,
+        "condition_number": 1.0000000000000004,
+        "dipole_fit_max_e_A": 9.571858998422106e-05,
+        "force_fit_max_eV_A": 0.0022933886999999993,
+        "observations": 48
+      },
+      {
+        "atom": 2,
+        "rank": 3,
+        "condition_number": 1.000000000000011,
+        "dipole_fit_max_e_A": 0.00016243999367248824,
+        "force_fit_max_eV_A": 0.0024038932999999995,
+        "observations": 24
+      }
+    ],
+    "born_asr_max_e": 0.0004932915281168349,
+    "hessian_reciprocity_max_eV_A2": 0.012916759941983269,
+    "hessian_reciprocity_relative_Frobenius": 0.0007522696231525909,
+    "force_asr_max_eV_A2": 0.051025983250314155,
+    "total_force_derivative_max_eV_A2": 1.8897263309725076e-08,
+    "reference_force_max_eV_A": 0.0003667212,
+    "constraints_applied": true,
+    "born_projection_max_e": 8.221525468613915e-05,
+    "hessian_projection_relative_Frobenius": 0.0005317842766532604
+  },
+  "born_projected_e": [
+    [
+      [
+        5.393783275110788,
+        -1.2428403813381478e-38,
+        0.0
+      ],
+      [
+        -6.214201906690738e-38,
+        5.393783275110788,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        4.82841036617646
+      ]
+    ],
+    [
+      [
+        5.393783275110788,
+        6.214201906690738e-38,
+        0.0
+      ],
+      [
+        1.2428403813381478e-38,
+        5.393783275110788,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        4.82841036617646
+      ]
+    ],
+    [
+      [
+        -2.1153767294708334,
+        -1.2428403813381478e-38,
+        0.0
+      ],
+      [
+        1.2428403813381478e-38,
+        -3.2784065456399554,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -2.4142051830882294
+      ]
+    ],
+    [
+      [
+        -3.278406545639956,
+        -1.2428403813381478e-38,
+        0.0
+      ],
+      [
+        1.2428403813381478e-38,
+        -2.115376729470833,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -2.4142051830882294
+      ]
+    ],
+    [
+      [
+        -2.1153767294708334,
+        -1.2428403813381478e-38,
+        0.0
+      ],
+      [
+        1.2428403813381478e-38,
+        -3.2784065456399554,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -2.4142051830882294
+      ]
+    ],
+    [
+      [
+        -3.278406545639956,
+        -1.2428403813381478e-38,
+        0.0
+      ],
+      [
+        1.2428403813381478e-38,
+        -2.115376729470833,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -2.4142051830882294
+      ]
+    ]
+  ],
+  "frequencies_THz": [
+    -3.916372527230959e-07,
+    -2.967364796636478e-07,
+    -1.9099196086615623e-07,
+    2.8887286220895643,
+    2.888728622089572,
+    3.1522478466523363,
+    3.1522478466523802,
+    6.840659787218794,
+    8.576857201977699,
+    9.378479871151749,
+    13.655096940173193,
+    13.655096940173198,
+    13.695391988654853,
+    13.695391988654857,
+    17.900876622597558,
+    19.869358519250213,
+    20.100476208809166,
+    20.100476208809166
+  ],
+  "dipole_integration_diagnostics": {
+    "reference_real_space": [],
+    "stages": {}
+  },
+  "static_response_validated": false,
+  "source_hashes": {
+    "0.no-move/OUT.POLAR/running_scf.log": "98b1f46452a9e25befe9d8075be90f92bfdf254b03b976905d28ad37b053a679",
+    "0.no-move/pyatb/Out/input.json": "e775893697611a1498d30a6bec3efe875a7456ea050de9bc7305f5e5ae3719e1",
+    "0.no-move/pyatb/Out/Polarization/polarization.dat": "f71ab3597f86aaf64dd2f70230bd80d54f7a38e7192e86602d8dc7002f420c71",
+    "0.no-move/pyatb/Out/Polarization/zstar_precision.json": "be064bcfbff877e988e66c582b8bb4ca353fbe20c50ffa23f90d580ffa607408",
+    "disp-001/OUT.POLAR/running_scf.log": "0f84d00c252c096a5792191d6d0952a65b81cb5b5c332cb29902c5b2438e18c8",
+    "disp-001/pyatb/Out/input.json": "553e3d3fecfd5df8f7c48ecbc74c06c3facff88c67f5ded115dac078d4e8c368",
+    "disp-001/pyatb/Out/Polarization/polarization.dat": "947e8211128e51ca926d17d62c20ad6bdeccdbbd80efd4a7588c054a02b5c757",
+    "disp-001/pyatb/Out/Polarization/zstar_precision.json": "528b067424eed429aaab5fd776cfc56bd10860cae211793c2dfdcc6520b18420",
+    "disp-002/OUT.POLAR/running_scf.log": "14bea89a92076cbe5f0cbcf578142128e5aa19c70e9b55ef78e3f25c16f1eaa9",
+    "disp-002/pyatb/Out/input.json": "d8748f2fd1df4d259944afcb47d318acd6ac4fc354c237d99722b08647dbee49",
+    "disp-002/pyatb/Out/Polarization/polarization.dat": "476be600240af92c9ec3228bf48b218ed70b69ea5cd525041295664b38117a75",
+    "disp-002/pyatb/Out/Polarization/zstar_precision.json": "6bca32e8e085e5a40662ac360bb1ffa890ee104e453fb4b6cd3f30dcd9f1d671",
+    "disp-003/OUT.POLAR/running_scf.log": "1151ee5b7153433000e5e82a0e109dc302b5a4a1c9e2c134063646713e5d9015",
+    "disp-003/pyatb/Out/input.json": "8a1c6dc29c4c9b236da371d2c843b21687553265eec62f8d3401eaf83e90f603",
+    "disp-003/pyatb/Out/Polarization/polarization.dat": "668b708edcaf6801763530d4399fc7e15e417d4599c56224712b576f4987d349",
+    "disp-003/pyatb/Out/Polarization/zstar_precision.json": "54a40dd95a5c7de0eeed292058d2ce85501990a99c16e52d8599415583a7acff",
+    "disp-004/OUT.POLAR/running_scf.log": "bb90825e90ae3931d4cc50102f06b71baec0369f342627f5029b37c8469cfce5",
+    "disp-004/pyatb/Out/input.json": "4e3cc1e992b6c9fb91ce6e48afb3ff474630301d4553745f2efcfdb5d859f657",
+    "disp-004/pyatb/Out/Polarization/polarization.dat": "fddd136dd667a4bbd09e619424766eb95f67068ea0083dfcd4bf0e9b72afd422",
+    "disp-004/pyatb/Out/Polarization/zstar_precision.json": "3a1dea889e2ff89895bd41845eca6602026de05b06a5b9adfe3f005afddf6dff",
+    "disp-005/OUT.POLAR/running_scf.log": "362bbb848c315d56ffae8172c698c839fd92467fbbb22406b40687cdfb83f8e3",
+    "disp-005/pyatb/Out/input.json": "a64e2bfa8a135823b2881b4a131dcb58651091bd633021b8ade73a9974c562be",
+    "disp-005/pyatb/Out/Polarization/polarization.dat": "a3728e54c2ff6103019f96202cd7cc454d5112ead80715cce1c3c756797e78ea",
+    "disp-005/pyatb/Out/Polarization/zstar_precision.json": "a4697fe9fbcb33732b747cb0f8b632fdc23559a76e0943a6af3050468efc3165",
+    "disp-006/OUT.POLAR/running_scf.log": "82bc896b609f3ceca38981a40775a4a47694c9d3f24986a7584bf3e8d095f425",
+    "disp-006/pyatb/Out/input.json": "c163939dfa2b2c0f04a2ebb2b4a6bc1d948c2e7eb6363239368bb965c9cbd26f",
+    "disp-006/pyatb/Out/Polarization/polarization.dat": "6975ab73b48f725c67f4f1e4fc6211727bfb4257a0e372c2610dd70b7ba820b6",
+    "disp-006/pyatb/Out/Polarization/zstar_precision.json": "6bfb60e649ea49efa7f94a66674851ad1873cc6ef0e0a4b576d8a9328b60318e",
+    "disp-007/OUT.POLAR/running_scf.log": "bea21cef648091b6d7039db4531642a3480731bd28a888adc498512b35b1484a",
+    "disp-007/pyatb/Out/input.json": "0244ece74efb8595634b434799f755d5f6f9203eb2ca52e17862fcdaa542976a",
+    "disp-007/pyatb/Out/Polarization/polarization.dat": "6221a91d8e7f532e451c4d7747f97485bbc90460f7a9e0be1e5a08cfa60e2f72",
+    "disp-007/pyatb/Out/Polarization/zstar_precision.json": "6a1f3a4cfe0cce5f6e24f746b58ea032ba86792e663848873be6ce569074a02d",
+    "disp-008/OUT.POLAR/running_scf.log": "372206224c1f99ea9e51aa46b7fd7d8a99aa69a6f1ffaa6a9f4898399f5cc00b",
+    "disp-008/pyatb/Out/input.json": "d353ea40b17ecf211cb797416d2fb2e689b20d22d675cf644c78f9445fb2a554",
+    "disp-008/pyatb/Out/Polarization/polarization.dat": "a58721ad4718ffe12a4235fc2cb9d9d69977768df0cbb34eb7b04c6869edf4e9",
+    "disp-008/pyatb/Out/Polarization/zstar_precision.json": "9008288c15f7263645e5ca989d4c17dea9d3b244f0eaa4c69959f193dfd67495",
+    "disp-009/OUT.POLAR/running_scf.log": "9ed93fee07a7197da489a48c737cc9b58d91e7dbb48d38a05c7e06caa303786d",
+    "disp-009/pyatb/Out/input.json": "95e0547bfc4cb8b814440357d6ef1de3c68fffc0425755b46bace62ff6464b3c",
+    "disp-009/pyatb/Out/Polarization/polarization.dat": "aa103a710dc1a42ac47c53e9c46d799fbcc6cf5ec1d9f8ff97e521b29ed160e1",
+    "disp-009/pyatb/Out/Polarization/zstar_precision.json": "d0d1e12cd928f578961a9adfeca6a07870b0def584447fe2dc23f97e3a424b9a",
+    "disp-010/OUT.POLAR/running_scf.log": "c14b8e0248e9341a998331c94abb5dadf3de459181544164529b996d39668a2c",
+    "disp-010/pyatb/Out/input.json": "6fad984f45546c9b50be2fecc6a014b4baea8302d422cd97b443d6c65f1a6a9a",
+    "disp-010/pyatb/Out/Polarization/polarization.dat": "cec441836f9c30359feb3fbba3b47a679dfd673d9559e569f45c34c11e3666e4",
+    "disp-010/pyatb/Out/Polarization/zstar_precision.json": "d541a30fa795366f316e8fab8134f934601421708d1a42b1f50d7a09c32ff536",
+    "disp-011/OUT.POLAR/running_scf.log": "2249c4a4ab1f7bd29a711db922c4843271d509178840e27120f1f2dfbefc856c",
+    "disp-011/pyatb/Out/input.json": "7d577eec5adfea426e3de33cf956acede43bcfd42ae440157ac8e30f12a05dc6",
+    "disp-011/pyatb/Out/Polarization/polarization.dat": "eccf7d9e3592dd45a18b795d3c263e318166251dd927b1c46e53f9e95047f9fb",
+    "disp-011/pyatb/Out/Polarization/zstar_precision.json": "9207a993734bd43b72cda6ca738e3be82900c818d29d78ef8b340ff83e8067c5",
+    "disp-012/OUT.POLAR/running_scf.log": "b11fe8095aa0aa99421cc516ff64e279cc3faada38a02b0eecb363a5417c8246",
+    "disp-012/pyatb/Out/input.json": "a233fd4b0a8153567d4efa728dfd7bc3bcebc1a5971cc148e7708ffe41bff748",
+    "disp-012/pyatb/Out/Polarization/polarization.dat": "d39f16c4d0796ac82ae580a6adf84d645371b1480040ffc7886f58138994c207",
+    "disp-012/pyatb/Out/Polarization/zstar_precision.json": "f6de1251755deec67d854a5313ebff05375a9080ebaa054f8eb80bcafb5e3bfb"
+  }
+}

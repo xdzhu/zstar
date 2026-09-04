@@ -1,0 +1,7 @@
+# Preserve byte-level provenance across Windows and Linux checkouts.
+examples/Shared_Response/** -text
+examples/2d_materials/In2Se3_PBEsol/** -text
+examples/molecules/H2O/results/HSE/** -text
+examples/molecules/H2O/results/PBE_APT/** -text
+examples/molecules/CH4/results/HSE/** -text
+examples/molecules/CH4/results/PBE_APT/** -text

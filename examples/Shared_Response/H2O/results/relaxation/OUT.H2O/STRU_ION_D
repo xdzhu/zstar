@@ -1,0 +1,29 @@
+ATOMIC_SPECIES
+O  15.9994 O.upf upf201
+H   1.0079 H.upf upf201
+
+NUMERICAL_ORBITAL
+O_gga_9au_100Ry_2s2p1d.orb
+H_gga_9au_100Ry_3s2p.orb
+
+LATTICE_CONSTANT
+1.8897261246
+
+LATTICE_VECTORS
+       20.0000000040        0.0000000000        0.0000000000
+        0.0000000000       20.0000000040        0.0000000000
+        0.0000000000        0.0000000000       20.0000000040
+
+ATOMIC_POSITIONS
+Direct
+
+O #label
+0.0000   #magnetism
+1 #number of atoms
+        0.5000000000        0.5000000000        0.5060620626 m 1 1 1
+
+H #label
+0.0000   #magnetism
+2 #number of atoms
+        0.5000000000        0.5381341294        0.4763556687 m 1 1 1
+        0.5000000000        0.4618658706        0.4763556687 m 1 1 1

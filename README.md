@@ -34,6 +34,18 @@ The toolkit keeps every stage visible: structures, solver inputs, band-gap gates
 
 The numerical checks used for the current release are summarized in [docs/validation.md](docs/validation.md).
 
+The development ABACUS + PYATB workflow now shares Phonopy-generated
+displacements between BEC and Gamma phonons. See the
+[shared-response guide](docs/research/shared_response/USAGE.md) and
+[matched examples](examples/Shared_Response/README.md) for its theory,
+actual-displacement convention, precision safeguards, and validation status.
+The released package and historical examples retain their recorded versions.
+
+For mixed displacements, converge the PYATB Berry mesh as well as the SCF and
+displacement amplitude. The [direct validation report](docs/research/shared_response/DIRECT_VALIDATION.md)
+includes SiC, tetragonal HfO2, and newly relaxed alpha-In2Se3, with raw tensors,
+mesh/step diagnostics, and separately accounted CPU core-hours.
+
 ### Main capabilities
 
 - Forward and central finite-difference BEC calculations.
@@ -81,14 +93,16 @@ explicitly rejected because finite-wavevector polar phonons require a genuine
 
 A slab requires separate treatment of in-plane and out-of-plane response:
 
-- **In-plane polarization columns:** Berry-phase polarization is used while the full supercell remains insulating.
-- **Out-of-plane polarization column:** the total slab dipole is integrated from the ABACUS charge-density cube, including ionic and electronic contributions.
+- **In-plane polarization components:** Berry-phase polarization is used while the full supercell remains insulating.
+- **Out-of-plane polarization component:** the total slab dipole is integrated from the ABACUS charge-density cube, including ionic and electronic contributions.
 - **Normalization:** in-plane BECs are made independent of vacuum height through the usual volume factor; 2D dielectric spectra are reported as sheet polarizability unless an effective thickness is supplied.
 
-Canonical ZStar tensors store atomic displacement/force as rows and
-polarization/electric field as columns. Accordingly, a complete 2D BEC
-calculation needs `x`, `y`, and `z` displacements. The default
-`zstar bec pre --dim 2` workflow generates all three. The current hybrid
+Legacy indexed `Z-BORN-*.out` tables store displacement as rows and polarization
+as columns. Phonopy `BORN` and the unified reconstruction use polarization-first
+tensors, as in the equation above; structured records declare their axes.
+A complete 2D BEC calculation needs information spanning all three displacement directions. The default unified
+workflow obtains this from Phonopy seeds and their site-symmetry images;
+the legacy Cartesian route explicitly generates `x`, `y`, and `z`. The current hybrid
 implementation requires the slab normal to align with Cartesian `z`; a tilted
 slab is rejected explicitly.
 
@@ -106,6 +120,12 @@ effective charge, diagnostics, and PNG/PDF/SVG plots.
 ## Installation
 
 ZStar requires Python 3.9 or newer.
+
+The unified-framework submission candidate is **0.3.0rc1**. Its eight-system
+examples and revised headers require that tagged source, not the older PyPI
+0.2.1 release: `git checkout v0.3.0rc1` before installing the checkout below.
+See [the reproducible benchmarks](examples/Shared_Response/README.md) and
+[revision validation](docs/research/PUBLICATION_REVISION_20260904.md).
 
 Install the released package:
 
@@ -189,8 +209,8 @@ Run this in a directory containing `STRU`:
 zstar bec pre --stru STRU
 ```
 
-`bec pre` defaults to the ABACUS + PYATB route and the forward finite
-difference method, so these defaults do not need to be repeated. Use
+`bec pre` defaults to ABACUS + PYATB and the Unified symmetry-adapted
+displacements with automatic sign selection. These defaults need not be repeated. Use
 `--calculator cp2k`, `--calculator vasp`, or `--calculator qe` only when
 selecting another backend.
 
@@ -206,16 +226,20 @@ For a `z`-periodic wire:
 zstar bec pre --stru STRU --dim 1 --method central
 ```
 
-The generated tree starts with `0.no-move`, followed by atom/direction folders such as `1.Ti/x+`. No per-displacement scheduler script is required.
+The default ABACUS + PYATB tree starts with `0.no-move`, followed by Phonopy
+seed folders `disp-001`, `disp-002`, etc., with `cal_force 1` enabled. BEC and
+Gamma phonons share these SCFs. `--ensemble cartesian` retains atom/direction
+folders such as `1.Ti/x+`. No per-displacement scheduler script is required.
 
 Useful generation options:
 
 | Option | Meaning |
 | --- | --- |
-| `--method forward\|central` | One-sided or central finite difference. |
+| `--method auto\|forward\|central` | Automatic sign selection (shared default), one-sided, or explicit central sampling. |
+| `--ensemble phonopy\|cartesian` | Shared BEC/Gamma displacements (default) or the legacy Cartesian layout. |
 | `--reduce` / `--all` | Symmetry-reduced atoms (default) or every atom. |
-| `--move "x y z"` | Specified displacement directions. |
-| `--displacement 0.01` | Finite-displacement half-step in Angstrom. |
+| `--move "x y z"` | Specified directions, using the legacy Cartesian route. |
+| `--displacement 0.01` | Specified step in Angstrom; shared default is 0.02 bohr, using the actual serialized displacement vector in the fit. |
 | `--dim 0\|1\|2\|3` | Molecular, one-dimensional, two-dimensional, or three-dimensional analysis. |
 | `--input-mode abacus\|pyatb\|hamgnn\|custom` | Input preparation route. |
 | `--input_sets FILES` | Extra files or directories copied into generated tasks. |
@@ -288,7 +312,7 @@ The default execution order is:
 6. Run every displacement serially and calculate its polarization.
 7. Record stage state under `.zstar/` so an interrupted run can resume.
 
-The regular band path is the default lightweight gate. It can detect a gap closure on the sampled path but cannot exclude an off-path metallic pocket. A denser MP-grid check is explicit:
+The default gate checks the band gap along a regular high-symmetry path. A denser MP-grid check can be requested explicitly:
 
 ```bash
 zstar bec run --root . --gap-mode mp --mp-density 0.08
@@ -311,32 +335,32 @@ zstar bec job --root . --system shell
 Slurm:
 
 ```bash
-zstar bec job --root . --system slurm \
-  --queue compute --tasks 28 --cpus-per-task 1 --walltime 24:00:00
+zstar bec job --system slurm
 ```
 
 Torque/PBS:
 
 ```bash
-zstar bec job --root . --system torque \
-  --queue batch --tasks 28 --cpus-per-task 1 --walltime 24:00:00
+zstar bec job --system torque
 ```
 
-Queue, node count, CPU allocation, wall time, account, and cluster modules are
-job-specific settings.  Pass them to the `job` command (and put
-`module load`/`conda activate` in `--env-script`), rather than storing them in
-the calculator configuration:
+Queue, account, resources, time limits and module/environment commands belong
+in one header: **Specified** `--header FILE` > **Current** `./header.sh` in the
+workflow root > **Global** `~/.zstar/header.sh`. Headers are not merged. Without
+a header, ZStar generates an editable default with compact guidance. Executable
+paths and MPI/OMP remain in `zstar config`:
 
 ```bash
-zstar bec job --root . --system slurm \
-  --nodes 1 --tasks 28 --cpus-per-task 1 \
-  --queue compute --account PROJECT --walltime 24:00:00 \
-  --env-script ./env.sh
+zstar config set execution.mpi 1
+zstar config set execution.omp 40
+zstar bec job --system slurm --header /path/to/header.sh
 ```
 
-The generated driver is self-contained and uses `srun` for Slurm or `mpirun`
-for shell/Torque.  The same pattern applies to `zstar phonon job` and
-`zstar spectra job`; use `--dry-run` to inspect it before submission.
+The header allocation must match MPI/OMP. The selected content is embedded and
+hashed for reproducibility. The same rule applies to `zstar phonon job` and
+`zstar spectra job`. Complete Slurm, Torque and local examples are in the
+[job-header tutorial](docs/job_headers.md). Legacy resource flags and
+`--env-script` remain supported.
 
 Backend-aware defaults use `mpirun -np N` for shell/Torque and
 `srun --ntasks=N` for Slurm. Add `--dry-run` to validate the generated script,
@@ -357,11 +381,12 @@ zstar bec run --root . \
 zstar bec post --root .
 ```
 
-The molecular collector reconstructs symmetry-equivalent atoms, enforces
-translational invariance, and writes `molecular_apt.json` plus the normalized
-`zstar_response.json`. It also reconstructs small polarization signals from
-PYATB's separately printed ionic and electronic phases when the rounded final
-polarization line is insufficient.
+The Unified collector reconstructs molecular APTs and force constants together,
+retaining raw and projected tensors in `shared_response_result.json` and the
+normalized `zstar_response.json`. Its PYATB output adapter retains full-precision
+polarization values without modifying the installed PYATB kernel.
+The legacy Cartesian molecular collector writes `molecular_apt.json`; for old
+rounded outputs it can also recover small signals from separately printed phases.
 
 Three-dimensional:
 
@@ -394,10 +419,12 @@ Key outputs:
 | `Z-BORN-reduced-neutral.out` | Reduced tensors after reconstruction and neutrality correction. |
 | `BORN` | Electronic dielectric tensor plus Phonopy-order BEC tensors. |
 | `BORN-for-phonopy.out` | Explicitly named copy of the Phonopy-compatible data. |
-| `born_symmetry_report.json` | Machine-readable reconstruction and residual report. |
-| `zstar_2d_bec.json` | Per-atom diagnostics for hybrid 2D BEC calculations. |
-| `zstar_1d_bec.json` | Per-atom diagnostics for hybrid 1D BEC calculations. |
-| `molecular_apt.json` | Molecular APT tensors, symmetry expansion, and translational-sum diagnostics. |
+| `shared_response_result.json` | Unified raw/projected BEC or APT, force constants, units and diagnostics. |
+| `zstar_response.json` | Standardized response record, including dimensionality and provenance. |
+| `born_symmetry_report.json` | Legacy Cartesian reconstruction and residual report. |
+| `zstar_2d_bec.json` | Legacy Cartesian hybrid 2D diagnostics. |
+| `zstar_1d_bec.json` | Legacy Cartesian hybrid 1D diagnostics. |
+| `molecular_apt.json` | Legacy Cartesian/cube molecular APT and translational-sum diagnostics. |
 
 ## CP2K BEC Backend
 
@@ -436,6 +463,13 @@ ZStar tensors, and a Phonopy-compatible `BORN` file. The
 cluster scripts, tensor conventions, and the VASP 6.3.2 SiC validation.
 
 ## Phonons and Dielectric Response
+
+For the shared BEC workflow, `zstar bec post` already writes Gamma force
+constants, `qpoints.yaml`, `irreps.yaml`, and `BORN`. Continue directly with
+`zstar phonon irrep` and `zstar dielectric static`; no second Gamma SCF set is
+needed. The separate-directory workflow below is for supercell phonons or
+legacy archives. Keep a finite-q supercell calculation outside a shared Gamma
+ensemble, whose real-space interactions cannot resolve a dispersion.
 
 ### 1. Generate phonon calculations
 
@@ -498,7 +532,12 @@ zstar dielectric static --qpoints qpoints.yaml --born Z-BORN-symm.out \
   --dielectric BORN --dim 2
 ```
 
-Provide `--thickness ANGSTROM` only when an effective 3D dielectric tensor is desired.
+`--thickness ANGSTROM` produces a thickness-normalized source-field response,
+not automatically an intrinsic perpendicular slab permittivity. For compatible,
+screened macroscopic supercell data, `--slab-boundary macroscopic` applies the
+direct in-plane and inverse out-of-plane conversion. This does not add local-field
+screening to PYATB. Electric-field conventions and the molecular/1D/2D/bulk Raman
+units are specified in [response definitions and units](docs/response_conventions.md).
 The complete convention, bulk and two-dimensional examples, and output
 contract are documented in the
 [dielectric-response guide](docs/dielectric_response.md).
@@ -719,8 +758,8 @@ actions, and executable-resolution rules.
   outside the repository.
 - `dist/` and `build/` are local build products and are not committed.
 - Scheduler drivers are generated by `zstar bec job`, `zstar phonon job`, and
-  `zstar spectra job`; site-specific queue and environment settings are passed
-  to the generator and `--env-script`.
+  `zstar spectra job`; site-specific resources and environment commands use
+  [Specified, Current or Global headers](docs/job_headers.md).
 - [docs/how_to_update_pypi.md](docs/how_to_update_pypi.md) records the release procedure.
 
 The relative logo works for authenticated viewers of a private GitHub repository. PyPI requires a public HTTPS image URL, so `README_PYPI.md` deliberately omits private images.

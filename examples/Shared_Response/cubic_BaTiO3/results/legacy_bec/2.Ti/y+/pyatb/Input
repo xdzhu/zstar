@@ -1,0 +1,34 @@
+INPUT_PARAMETERS
+{
+    nspin                           1
+    package                         ABACUS
+    fermi_energy                    11.576090954
+    fermi_energy_unit               eV
+    HR_route                        /home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/legacy_bec/2.Ti/y+/OUT.POLAR/data-HR-sparse_SPIN0.csr
+    SR_route                        /home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/legacy_bec/2.Ti/y+/OUT.POLAR/data-SR-sparse_SPIN0.csr
+    rR_route                        /home/zhuxd/abacus/agent-runs/20260904-cubic-bto-unified/legacy_bec/2.Ti/y+/OUT.POLAR/data-rR-sparse.csr
+    HR_unit                         Ry
+    rR_unit                         Bohr
+    max_kpoint_num                  800
+}
+
+LATTICE
+{
+    lattice_constant                1.0000000000000
+    lattice_constant_unit           Angstrom
+    lattice_vector
+        3.9814148883774    0.0000000000000    0.0000000000000
+        0.0000000000000    3.9814148883774   -0.0000000000000
+        0.0000000000000   -0.0000000000000    3.9814148883774
+}
+
+POLARIZATION
+{
+    occ_band       20
+    nk1            19
+    nk2            19
+    nk3            19
+    atom_type      3
+    stru_file      STRU
+    valence_e      10 12 6
+}

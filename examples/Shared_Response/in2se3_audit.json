@@ -1,0 +1,441 @@
+{
+  "structures": {
+    "legacy_validation": {
+      "source": "/home/zhuxd/abacus/agent-runs/20260723-zstar-validation/cases/in2se3/STRU",
+      "sha256": "2214838a8d2aeb71315d257e30e88a938fd5beb62635d5c1d2f7ee90ce9438c6",
+      "cell_A": [
+        [
+          4.096795590856589,
+          0.00023897435280140227,
+          0.0
+        ],
+        [
+          -2.0481854371981467,
+          3.5459366262031278,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          36.36676900487976
+        ]
+      ],
+      "fractional_positions": [
+        [
+          0.0,
+          0.0,
+          0.576456479338843
+        ],
+        [
+          0.6666666666666667,
+          0.3333333333333334,
+          0.4600770669421487
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666665,
+          0.612741270523416
+        ],
+        [
+          0.6666666666666667,
+          0.3333333333333334,
+          0.5301124581267217
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666665,
+          0.4257580247933884
+        ]
+      ],
+      "symmetry_by_tolerance_A": {
+        "1e-05": {
+          "symbol": "P1",
+          "number": 1
+        },
+        "0.0001": {
+          "symbol": "P1",
+          "number": 1
+        },
+        "0.000529177210903": {
+          "symbol": "Cm",
+          "number": 8
+        },
+        "0.001": {
+          "symbol": "Cm",
+          "number": 8
+        }
+      },
+      "cell_difference_from_legacy_max_A": 0.0,
+      "position_difference_from_legacy_max_A": 0.0
+    },
+    "upstream_1layer": {
+      "source": "/home/zhuxd/abacus/8.dielec/4.In2Se3/1layer/STRU",
+      "sha256": "8d58655bef0c406e4659abd74a970a8803ca9a62ac576cc5afe1920cab6d4f32",
+      "cell_A": [
+        [
+          4.096795590856589,
+          0.00023897435280140227,
+          0.0
+        ],
+        [
+          -2.0481854371981467,
+          3.5459366262031278,
+          0.0
+        ],
+        [
+          7.439888981176767e-17,
+          -5.321911942109719e-22,
+          36.36676900487976
+        ]
+      ],
+      "fractional_positions": [
+        [
+          0.0,
+          0.0,
+          0.576456479338843
+        ],
+        [
+          0.6666666666666667,
+          0.3333333333333334,
+          0.4600770669421487
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666665,
+          0.612741270523416
+        ],
+        [
+          0.6666666666666667,
+          0.3333333333333334,
+          0.5301124581267217
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666665,
+          0.4257580247933884
+        ]
+      ],
+      "symmetry_by_tolerance_A": {
+        "1e-05": {
+          "symbol": "P1",
+          "number": 1
+        },
+        "0.0001": {
+          "symbol": "P1",
+          "number": 1
+        },
+        "0.000529177210903": {
+          "symbol": "Cm",
+          "number": 8
+        },
+        "0.001": {
+          "symbol": "Cm",
+          "number": 8
+        }
+      },
+      "cell_difference_from_legacy_max_A": 7.439888981176767e-17,
+      "position_difference_from_legacy_max_A": 0.0
+    },
+    "upstream_scf": {
+      "source": "/home/zhuxd/abacus/8.dielec/4.In2Se3/1layer/scf/STRU",
+      "sha256": "79efd2d27991ef1353fab72c50a67c2c093ecee96036188087a3e97e8f6227fe",
+      "cell_A": [
+        [
+          4.096795590856589,
+          0.00023897435280140227,
+          0.0
+        ],
+        [
+          -2.0481854371981467,
+          3.5459366262031278,
+          0.0
+        ],
+        [
+          7.439888981176767e-17,
+          -5.321911942109719e-22,
+          36.36676900487976
+        ]
+      ],
+      "fractional_positions": [
+        [
+          0.0,
+          0.0,
+          0.576456479338843
+        ],
+        [
+          0.6666666666666667,
+          0.3333333333333334,
+          0.4600770669421487
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666665,
+          0.612741270523416
+        ],
+        [
+          0.6666666666666667,
+          0.3333333333333334,
+          0.5301124581267217
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666665,
+          0.4257580247933884
+        ]
+      ],
+      "symmetry_by_tolerance_A": {
+        "1e-05": {
+          "symbol": "P1",
+          "number": 1
+        },
+        "0.0001": {
+          "symbol": "P1",
+          "number": 1
+        },
+        "0.000529177210903": {
+          "symbol": "Cm",
+          "number": 8
+        },
+        "0.001": {
+          "symbol": "Cm",
+          "number": 8
+        }
+      },
+      "cell_difference_from_legacy_max_A": 7.439888981176767e-17,
+      "position_difference_from_legacy_max_A": 0.0
+    },
+    "upstream_polar": {
+      "source": "/home/zhuxd/abacus/8.dielec/4.In2Se3/1layer/polar/STRU",
+      "sha256": "8d58655bef0c406e4659abd74a970a8803ca9a62ac576cc5afe1920cab6d4f32",
+      "cell_A": [
+        [
+          4.096795590856589,
+          0.00023897435280140227,
+          0.0
+        ],
+        [
+          -2.0481854371981467,
+          3.5459366262031278,
+          0.0
+        ],
+        [
+          7.439888981176767e-17,
+          -5.321911942109719e-22,
+          36.36676900487976
+        ]
+      ],
+      "fractional_positions": [
+        [
+          0.0,
+          0.0,
+          0.576456479338843
+        ],
+        [
+          0.6666666666666667,
+          0.3333333333333334,
+          0.4600770669421487
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666665,
+          0.612741270523416
+        ],
+        [
+          0.6666666666666667,
+          0.3333333333333334,
+          0.5301124581267217
+        ],
+        [
+          0.3333333333333333,
+          0.6666666666666665,
+          0.4257580247933884
+        ]
+      ],
+      "symmetry_by_tolerance_A": {
+        "1e-05": {
+          "symbol": "P1",
+          "number": 1
+        },
+        "0.0001": {
+          "symbol": "P1",
+          "number": 1
+        },
+        "0.000529177210903": {
+          "symbol": "Cm",
+          "number": 8
+        },
+        "0.001": {
+          "symbol": "Cm",
+          "number": 8
+        }
+      },
+      "cell_difference_from_legacy_max_A": 7.439888981176767e-17,
+      "position_difference_from_legacy_max_A": 0.0
+    },
+    "new_relaxed": {
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/relax_symmetry_verified/OUT.SHARED_IN2SE3/STRU_ION_D",
+      "sha256": "5f8dea473afafba431cefe15804cbb9ca90890db6746ab642f1822a38d4dce15",
+      "cell_A": [
+        [
+          4.103887933044035,
+          0.0,
+          0.0
+        ],
+        [
+          -2.0519439664720176,
+          3.554071204251533,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          29.999999999590887
+        ]
+      ],
+      "fractional_positions": [
+        [
+          0.0,
+          0.0,
+          0.5693813961
+        ],
+        [
+          0.6666666667,
+          0.3333333333,
+          0.4281098316
+        ],
+        [
+          0.3333333333,
+          0.6666666667,
+          0.6137153444
+        ],
+        [
+          0.6666666667,
+          0.3333333333,
+          0.5132422195
+        ],
+        [
+          0.3333333333,
+          0.6666666667,
+          0.386331466
+        ]
+      ],
+      "symmetry_by_tolerance_A": {
+        "1e-05": {
+          "symbol": "P3m1",
+          "number": 156
+        },
+        "0.0001": {
+          "symbol": "P3m1",
+          "number": 156
+        },
+        "0.000529177210903": {
+          "symbol": "P3m1",
+          "number": 156
+        },
+        "0.001": {
+          "symbol": "P3m1",
+          "number": 156
+        }
+      },
+      "cell_difference_from_legacy_max_A": 6.3667690052888695,
+      "position_difference_from_legacy_max_A": 1.433816556296467
+    }
+  },
+  "relaxations": {
+    "relax": {
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/relax/OUT.SHARED_IN2SE3/running_cell-relax.log",
+      "converged_marker": true,
+      "maximum_final_force_component_eV_A": 0.003602319,
+      "maximum_final_force_norm_eV_A": 0.0036023301424204152,
+      "timing": {
+        "stage": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/relax",
+        "host": "cu23",
+        "mpi": 1,
+        "omp": 40,
+        "allocated_cores": 40,
+        "command": [
+          "mpirun",
+          "-np",
+          "1",
+          "/home/zhuxd/Software/abacus/INSTALL/3.10.0-LTS/bin/abacus"
+        ],
+        "started_utc": "2026-09-04T02:38:28.412923+00:00",
+        "pid": 93250,
+        "status": "process_finished",
+        "returncode": 0,
+        "wall_seconds": 216.53679085429758,
+        "allocated_core_hours": 2.405964342825529,
+        "finished_utc": "2026-09-04T02:42:04.950275+00:00"
+      }
+    },
+    "fixed_a_control": {
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/fixed_a_control/OUT.SHARED_IN2SE3/running_relax.log",
+      "converged_marker": true,
+      "maximum_final_force_component_eV_A": 0.0049369304,
+      "maximum_final_force_norm_eV_A": 0.0049369304,
+      "timing": {
+        "stage": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/fixed_a_control",
+        "host": "cu26",
+        "mpi": 1,
+        "omp": 40,
+        "allocated_cores": 40,
+        "command": [
+          "mpirun",
+          "-np",
+          "1",
+          "/home/zhuxd/Software/abacus/INSTALL/3.10.0-LTS/bin/abacus"
+        ],
+        "started_utc": "2026-09-04T02:43:12.221148+00:00",
+        "pid": 245848,
+        "status": "process_finished",
+        "returncode": 0,
+        "wall_seconds": 204.6626920653507,
+        "allocated_core_hours": 2.2740299118372302,
+        "finished_utc": "2026-09-04T02:46:36.884491+00:00"
+      }
+    },
+    "relax_symmetry_verified": {
+      "source": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/relax_symmetry_verified/OUT.SHARED_IN2SE3/running_relax.log",
+      "converged_marker": true,
+      "maximum_final_force_component_eV_A": 0.0036021366,
+      "maximum_final_force_norm_eV_A": 0.0036021366,
+      "timing": {
+        "stage": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3_nc2017/relax_symmetry_verified",
+        "host": "cu23",
+        "mpi": 1,
+        "omp": 40,
+        "allocated_cores": 40,
+        "command": [
+          "mpirun",
+          "-np",
+          "1",
+          "/home/zhuxd/Software/abacus/INSTALL/3.10.0-LTS/bin/abacus"
+        ],
+        "started_utc": "2026-09-04T02:51:10.674654+00:00",
+        "pid": 94143,
+        "status": "process_finished",
+        "returncode": 0,
+        "wall_seconds": 32.66660181991756,
+        "allocated_core_hours": 0.3629622424435284,
+        "finished_utc": "2026-09-04T02:51:43.341787+00:00"
+      }
+    }
+  },
+  "new_reference_dipole": {
+    "cube": "/home/zhuxd/abacus/agent-runs/20260904-shared-response-benchmark/in2se3/shared/0.no-move/OUT.SHARED_IN2SE3/SPIN1_CHG.cube",
+    "dipole_e_bohr": -0.19281211315660585,
+    "polarization_C_per_m": -1.1207969807857037e-11,
+    "area_bohr2": 52.085474239999996,
+    "height_bohr": 56.69175,
+    "electron_count_raw": 43.99969737968796,
+    "ionic_charge": 44.0,
+    "neutrality_scale": 1.0000068777816682,
+    "normal": [
+      0.0,
+      -0.0,
+      1.0
+    ],
+    "dipole_e_A": -0.1020317762685263
+  },
+  "legacy_relaxation_evidence": "No relaxation log located in the legacy validation stage or the immediate upstream 1layer directories inspected. This is missing provenance, not proof that no prior relaxation ever occurred."
+}
